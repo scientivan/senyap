@@ -1,7 +1,8 @@
 # Preprod wallet setup and remaining S5 checks
 
-Local setup and local token tests are complete. Real Lace connection and a browser
-circuit call on Preprod are still pending. No Preprod transaction has been sent.
+Local setup and local token tests are complete. Dien reports successful real Lace
+connection and completed DUST registration. A browser circuit call on Preprod is
+still pending. No Preprod transaction has been sent by the agent.
 
 1. Open Midnight in Lace and select Preprod. Copy the **Unshielded** receive
    address, which starts with `mn_addr_preprod1`. Encryption/coin keys are not the

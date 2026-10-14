@@ -10,8 +10,8 @@ their experience with ecosystems.
 
 This repository currently contains a React frontend with **labelled synthetic demo
 data**. Its actions update local demo state; they do not submit Midnight
-transactions. The Lace connection code exists but has not been tested with a real
-Lace wallet. The repository now includes isolated Compact technical spikes,
+transactions. Dien confirmed that the real Lace Preprod address appears after connecting.
+An actual circuit call from that wallet remains pending. The repository now includes isolated Compact technical spikes,
 runtime-compatible cryptography and a local test harness. Senyap product contracts,
 services and the frontend SDK integration have not been implemented. A permissionless demo-token fixture has been deployed and tested on the local
 network only. No Senyap product contract or Preprod contract is deployed.
@@ -43,6 +43,11 @@ Compact 0.31.1 compilation and Vitest are available. See
 [technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
 was proved by the local proof server; this does not establish end-to-end network
 execution of the Senyap market.
+
+The [S5 browser fixture](docs/S5-browser-spike.md) is prepared for an explicitly
+authorized Preprod test. Its simulator and browser module loading pass; its
+Preprod deployment and circuit call have not yet been executed. Dien reports
+that the actual Lace Preprod address appears in the application.
 
 ## Planned architecture and Midnight integration
 

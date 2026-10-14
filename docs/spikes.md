@@ -57,9 +57,14 @@ public funding-wallet limitation remains. Private SDK values are not included.
 ## S5 (pending)
 
 Question: Can Lace call a circuit from the browser on Preprod?
-Requires Dien's real Lace installation, a funded Preprod wallet, project token and
-specific approval for the deployed test contract and transaction. The frontend now uses official dapp-connector-api 4.0.1 types and has four
-helper tests; neither those tests nor the local proof prove a real Lace call.
+Dien reports completed DUST generation and an actual Preprod address displayed
+in the app. The new permissionless counter fixture compiles and passes its
+simulator test. Its explicit-import browser adapter uses Lace's configuration and
+proving provider, in-memory private state and public-only progress storage.
+Browser module loading succeeds, but no Preprod deployment/call has been submitted.
+See [the reviewable S5 procedure](S5-browser-spike.md). Actual API balances,
+specific deployment/call authorization and finalized public receipts remain
+required. Server-side product services still need a Blockfrost token.
 
 ## S6 (passed locally)
 

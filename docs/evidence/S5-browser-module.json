@@ -1,0 +1,8 @@
+{
+  "browser": "Separate headless Chrome audit profile (no Lace)",
+  "moduleLoaded": true,
+  "exports": [
+    "prepare"
+  ],
+  "transactionsSubmitted": 0
+}
