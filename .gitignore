@@ -1,0 +1,14 @@
+node_modules
+dist
+.env*
+!.env.example
+.DS_Store
+
+# Internal planning notes stay out of git history until Dien decides O-6 (repo becomes public for submission)
+/AGENTS.md
+/task-tracker.md
+.impeccable/review/
+.impeccable/app-structure-payload.json
+.impeccable/questions/
+.impeccable/app-surface-brief.md
+/codex-prompt.md
