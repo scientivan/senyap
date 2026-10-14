@@ -1,0 +1,32 @@
+Git handoff after Dien supplied https://github.com/scientivan/senyap.git
+
+Observed during the earlier blocked attempt:
+- The local repository now exists on branch main, with no commits.
+- git remote add origin https://github.com/scientivan/senyap.git failed:
+  error: could not lock config file .git/config: Operation not permitted
+- gh repo view scientivan/senyap --json visibility,url failed:
+  error connecting to api.github.com
+- No commits or pushes were performed by the agent.
+
+Ignore correction:
+- core.ignorecase is true on this filesystem.
+- Unanchored AGENTS.md also ignored docs/agents.md.
+- Root internal notes now use /AGENTS.md, /task-tracker.md and /codex-prompt.md.
+- Git check-ignore must confirm internal notes are ignored and docs/agents.md is included.
+
+Prepared commit groups (existing work, not claims of historical development order):
+1. chore: initialize Apache-2.0 workspace
+   .gitignore, .env.example, LICENSE, package.json, pnpm-lock.yaml,
+   pnpm-workspace.yaml, apps/web/package.json, apps/web/tsconfig.json,
+   apps/web/vite.config.ts, docs/agents.md
+2. feat: add Senyap landing and demo application
+   apps/web/index.html, apps/web/public/, apps/web/src/, design/senyap-landing.html
+3. docs: describe Midnight plan and record setup validation
+   README.md, SPEC.md, PRODUCT.md, DESIGN.md, .impeccable/design.json, docs/evidence/
+
+Before committing: review staged filenames and scan staged content without printing secrets.
+Before pushing: inspect remote history, verify private visibility with gh repo view --json visibility
+immediately before git push. Public or unknown visibility means no push.
+Resolved in the resumed session: GitHub visibility PRIVATE, remote origin added,
+remote history empty, setup and frontend commits created. Current validation is
+recorded in P0.1-resumed-validation.txt. Earlier errors above are historical.

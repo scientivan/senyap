@@ -1,0 +1,22 @@
+{
+  "ignored_paths_checked": [
+    "AGENTS.md",
+    "task-tracker.md",
+    "codex-prompt.md",
+    ".env",
+    ".env.local",
+    ".impeccable/review/desktop.jpg",
+    ".impeccable/questions/0111f0b3.log",
+    "apps/web/dist/index.html",
+    "apps/web/node_modules/.bin/vite"
+  ],
+  "included_paths_checked": [
+    "docs/agents.md",
+    ".env.example",
+    ".impeccable/design.json"
+  ],
+  "result": "PASS",
+  "commits_created": 0,
+  "push_performed": false,
+  "visibility": "unknown: GitHub API connection failed"
+}

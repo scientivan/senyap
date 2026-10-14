@@ -1,0 +1,12 @@
+{
+  "env_variables": 22,
+  "credential_values": "all empty",
+  "ignore_rules": "required patterns present; Git check-ignore not run because git init is blocked",
+  "license_terms": "all nine sections match local Apache-2.0 reference ignoring whitespace and subsection labels; official appendix present",
+  "license_source": "https://www.apache.org/licenses/LICENSE-2.0.txt (browser read; transcribed, not downloaded by curl)",
+  "license_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+  "candidate_files_scanned": 45,
+  "known_secret_patterns_found": 0,
+  "secret_scan_limit": "pattern scan of intended files only; staged review still required before commit",
+  "git_initialized": false
+}

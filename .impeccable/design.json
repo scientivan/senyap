@@ -1,0 +1,423 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T00:00:00Z",
+  "title": "Design System: Senyap",
+  "extensions": {
+    "colorMeta": {
+      "night": {
+        "role": "neutral",
+        "displayName": "AKINDO Night",
+        "tonalRamp": [
+          "#251818",
+          "#442c2c",
+          "#6a4444",
+          "#8f5c5c",
+          "#ab7d7d",
+          "#c3a2a2",
+          "#dbc7c7",
+          "#f3ecec"
+        ]
+      },
+      "night-2": {
+        "role": "neutral",
+        "displayName": "Vault Black"
+      },
+      "night-3": {
+        "role": "neutral",
+        "displayName": "Vault Panel"
+      },
+      "night-line": {
+        "role": "neutral",
+        "displayName": "Night Rule"
+      },
+      "crimson": {
+        "role": "primary",
+        "displayName": "AKINDO Crimson",
+        "tonalRamp": [
+          "#39050c",
+          "#680816",
+          "#a00d22",
+          "#d9122e",
+          "#ef3953",
+          "#f47184",
+          "#f8aab5",
+          "#fde3e6"
+        ]
+      },
+      "red": {
+        "role": "primary",
+        "displayName": "Signal Red",
+        "tonalRamp": [
+          "#330a0c",
+          "#5d1316",
+          "#901d22",
+          "#c3272e",
+          "#db4d52",
+          "#e58084",
+          "#f0b3b5",
+          "#fae6e6"
+        ]
+      },
+      "red-press": {
+        "role": "primary",
+        "displayName": "Pressed Red"
+      },
+      "gold": {
+        "role": "secondary",
+        "displayName": "Revealed Gold",
+        "tonalRamp": [
+          "#272116",
+          "#483d29",
+          "#6f5e3f",
+          "#968055",
+          "#b29d76",
+          "#c8b99d",
+          "#ded5c4",
+          "#f4f1eb"
+        ]
+      },
+      "gold-soft": {
+        "role": "secondary",
+        "displayName": "Parchment Gold"
+      },
+      "gold-ink": {
+        "role": "secondary",
+        "displayName": "Deep Gold Ink"
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White Sheet"
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Soft Panel",
+        "tonalRamp": [
+          "#211c1c",
+          "#3d3333",
+          "#5f4f4f",
+          "#806b6b",
+          "#9e8a8a",
+          "#b9acac",
+          "#d5cdcd",
+          "#f1eeee"
+        ]
+      },
+      "panel-2": {
+        "role": "neutral",
+        "displayName": "Pressed Panel"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink"
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "tonalRamp": [
+          "#231b1b",
+          "#3f3131",
+          "#624b4b",
+          "#856666",
+          "#a28686",
+          "#bca9a9",
+          "#d7cbcb",
+          "#f2eeee"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink 3 (icons only)"
+      },
+      "on-night": {
+        "role": "neutral",
+        "displayName": "Night Text"
+      },
+      "on-night-2": {
+        "role": "neutral",
+        "displayName": "Night Text 2"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headline only; close section uses the same weight at clamp(42px, 6.4vw, 92px)."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Every section heading, and the thin step index in How it works."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Titles under framed cards."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "The single context sentence under a section heading."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text, justified with hyphenation. Weight 400 vs 500 is unresolved."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, nav, pills, chips, rows and tabs."
+      },
+      "stat": {
+        "displayName": "Stat",
+        "purpose": "Bento numbers only, tabular figures."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Code names, cipher text and addresses only. Never a label."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-lift",
+        "value": "0 14px 34px -18px rgba(42, 27, 27, 0.32)",
+        "purpose": "Framed cards, tooltips, primitive rows on hover."
+      },
+      {
+        "name": "card-lift-hover",
+        "value": "0 22px 44px -22px rgba(42, 27, 27, 0.38)",
+        "purpose": "Framed cards on hover, with a 3px rise."
+      },
+      {
+        "name": "button-seat",
+        "value": "0 6px 16px -8px rgba(20, 10, 10, 0.45)",
+        "purpose": "Primary button only."
+      },
+      {
+        "name": "night-float",
+        "value": "0 24px 50px -20px rgba(0, 0, 0, 0.6)",
+        "purpose": "Buyer preview card over the hero."
+      },
+      {
+        "name": "hairline-rule",
+        "value": "0 1px 0 var(--night-line)",
+        "purpose": "Scrolled header bottom edge (var(--line) on light)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The single easing curve for all transitions."
+      },
+      {
+        "name": "arrow-slide",
+        "value": "0.45s",
+        "purpose": "Button arrow disc swap on hover."
+      },
+      {
+        "name": "decrypt",
+        "value": "900ms",
+        "purpose": "Card titles resolve from hex noise when active."
+      },
+      {
+        "name": "grow",
+        "value": "0.9s to 1.2s",
+        "purpose": "Revealed bars scale in from the left."
+      },
+      {
+        "name": "flip",
+        "value": "0.45s rotateX(70deg) to none",
+        "purpose": "State chips and sent notes flipping in."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "All durations collapse under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "header-menu",
+        "value": "980px"
+      },
+      {
+        "name": "stack",
+        "value": "960px"
+      },
+      {
+        "name": "hero-stack",
+        "value": "900px"
+      },
+      {
+        "name": "mobile",
+        "value": "600px"
+      },
+      {
+        "name": "bento-single",
+        "value": "560px"
+      },
+      {
+        "name": "tally-compact",
+        "value": "520px"
+      },
+      {
+        "name": "hero-shed-1",
+        "value": "max-height 640px"
+      },
+      {
+        "name": "hero-shed-2",
+        "value": "max-height 520px"
+      },
+      {
+        "name": "hero-shed-3",
+        "value": "max-height 420px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Borderless red pill with a sliding arrow disc. The main call to action.",
+      "html": "<a class=\"ds-btn ds-btn-primary\" href=\"#\"><span>See how a market runs</span><span class=\"ds-btn-disc\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M5 12h13M13 6l6 6-6 6\"/></svg><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M5 12h13M13 6l6 6-6 6\"/></svg></span></a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:12px;height:48px;padding:0 6px 0 22px;border:0;border-radius:999px;font:500 16px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;letter-spacing:-0.005em;text-decoration:none;cursor:pointer;transition:background .3s cubic-bezier(0.16, 1, 0.3, 1),transform .3s cubic-bezier(0.16, 1, 0.3, 1)} .ds-btn-primary{background:var(--red,#c1272d);color:#fff;box-shadow:0 6px 16px -8px rgba(20,10,10,.45)} .ds-btn-primary:hover{background:var(--red-press,#a31f24)} .ds-btn:active{transform:scale(.98)} .ds-btn:focus-visible{outline:3px solid var(--gold,#ae9970);outline-offset:3px} .ds-btn-disc{display:grid;width:36px;height:36px;border-radius:50%;overflow:hidden;background:#fff;color:var(--red,#c1272d)} .ds-btn-disc svg{grid-area:1/1;margin:auto;transition:transform .45s cubic-bezier(0.16, 1, 0.3, 1)} .ds-btn-disc svg:last-child{transform:translateX(-160%)} .ds-btn:hover .ds-btn-disc svg:first-child{transform:translateX(160%)} .ds-btn:hover .ds-btn-disc svg:last-child{transform:translateX(0)}"
+    },
+    {
+      "name": "Secondary Button (dark)",
+      "kind": "button",
+      "refersTo": "button-secondary-dark",
+      "description": "Solid Vault Panel pill for secondary actions on night surfaces.",
+      "html": "<a class=\"ds-btn-sec-dark\" href=\"#\">Who sees what</a>",
+      "css": ".ds-btn-sec-dark{display:inline-flex;align-items:center;height:48px;padding:0 22px;border:0;border-radius:999px;background:var(--night-3,#352323);color:var(--on-night,#f4efef);font:500 16px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;text-decoration:none;transition:background .3s cubic-bezier(0.16, 1, 0.3, 1)} .ds-btn-sec-dark:hover{background:#432d2d} .ds-btn-sec-dark:focus-visible{outline:3px solid var(--gold,#ae9970);outline-offset:3px}"
+    },
+    {
+      "name": "Secondary Button (light)",
+      "kind": "button",
+      "refersTo": "button-secondary-light",
+      "description": "Solid Soft Panel pill for secondary actions on white sections.",
+      "html": "<button class=\"ds-btn-sec-light\" type=\"button\">Add an answer</button>",
+      "css": ".ds-btn-sec-light{display:inline-flex;align-items:center;height:48px;padding:0 22px;border:0;border-radius:999px;background:var(--panel,#f5f3f3);color:var(--ink,#2a1b1b);font:500 16px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;cursor:pointer;transition:background .3s cubic-bezier(0.16, 1, 0.3, 1)} .ds-btn-sec-light:hover{background:var(--panel-2,#ebe7e7)} .ds-btn-sec-light:focus-visible{outline:3px solid var(--gold,#ae9970);outline-offset:3px}"
+    },
+    {
+      "name": "State Chips",
+      "kind": "chip",
+      "refersTo": "pill-sealed",
+      "description": "The three privacy states: sealed (night with lock), revealed to you (gold), public (grey).",
+      "html": "<div class=\"ds-chips\"><span class=\"ds-chip ds-chip-seal\"><svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" d=\"M7 11V8a5 5 0 0 1 10 0v3\"/><rect x=\"4.5\" y=\"11\" width=\"15\" height=\"10\" rx=\"2.5\" fill=\"currentColor\"/></svg>Sealed</span><span class=\"ds-chip ds-chip-you\">Revealed to you</span><span class=\"ds-chip ds-chip-pub\">Public</span></div>",
+      "css": ".ds-chips{display:flex;gap:8px;flex-wrap:wrap;padding:16px;background:var(--night,#2a1b1b);border-radius:12px} .ds-chip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;font:500 14px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;white-space:nowrap} .ds-chip-seal{background:#140c0c;color:var(--on-night,#f4efef);box-shadow:inset 0 0 0 1px var(--night-line,#4a3434)} .ds-chip-you{background:var(--gold,#ae9970);color:var(--night,#2a1b1b)} .ds-chip-pub{background:#4a3434;color:var(--on-night,#f4efef)}"
+    },
+    {
+      "name": "Framed Card",
+      "kind": "card",
+      "refersTo": "frame",
+      "description": "Outer white frame, 8px inset, Soft Panel holding real product UI, then a title and one line.",
+      "html": "<div class=\"ds-frame\"><div class=\"ds-frame-panel\"><div class=\"ds-row\"><span>Your pick</span><span class=\"ds-lock\"><svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" d=\"M7 11V8a5 5 0 0 1 10 0v3\"/><rect x=\"4.5\" y=\"11\" width=\"15\" height=\"10\" rx=\"2.5\" fill=\"currentColor\"/></svg>Sealed</span></div><div class=\"ds-row\"><span>Stake</span><b>120 dUSD</b></div></div><div class=\"ds-frame-meta\"><h3>Seal a pick</h3><p>Your choice is encrypted on your device before it leaves.</p></div></div>",
+      "css": ".ds-frame{background:#fff;border:1px solid var(--line,#e4dfdf);border-radius:18px;padding:8px;box-shadow:0 14px 34px -18px rgba(42,27,27,.32);transition:transform .5s cubic-bezier(0.16, 1, 0.3, 1),box-shadow .5s cubic-bezier(0.16, 1, 0.3, 1);font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;color:var(--ink,#2a1b1b)} .ds-frame:hover{transform:translateY(-3px);box-shadow:0 22px 44px -22px rgba(42,27,27,.38)} .ds-frame-panel{background:var(--panel,#f5f3f3);border-radius:12px;padding:18px;display:grid;gap:8px} .ds-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;background:#fff;border:1px solid var(--line,#e4dfdf);border-radius:10px;padding:10px 14px;font:500 15px/1.3 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif} .ds-lock{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;background:var(--night,#2a1b1b);color:var(--on-night,#f4efef);font:500 13px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif} .ds-frame-meta{padding:18px 12px 12px} .ds-frame-meta h3{margin:0;font:500 24px/1.2 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;letter-spacing:-.02em} .ds-frame-meta p{margin:8px 0 0;font-size:17px;line-height:1.55;color:var(--ink-2,#5b4646);text-align:justify;hyphens:auto}"
+    },
+    {
+      "name": "Note Card",
+      "kind": "card",
+      "refersTo": "note",
+      "description": "Holds disclaimers and demo-data notices. Night icon square with gold icon, bold first line.",
+      "html": "<div class=\"ds-note\"><span class=\"ds-note-ic\"><svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" d=\"M7 11V8a5 5 0 0 1 10 0v3\"/><rect x=\"4.5\" y=\"11\" width=\"15\" height=\"10\" rx=\"2.5\" fill=\"currentColor\"/></svg></span><div><b>Every team, scout and number here is demo data.</b><p>The market runs on the Midnight preview network with an unshielded demo token.</p></div></div>",
+      "css": ".ds-note{background:var(--panel,#f5f3f3);border-radius:18px;padding:22px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;color:var(--ink,#2a1b1b)} .ds-note-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--night,#2a1b1b);color:var(--gold,#ae9970)} .ds-note-ic svg{width:20px;height:20px} .ds-note b{display:block;font:600 19px/1.3 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif} .ds-note p{margin:6px 0 0;font-size:16px;line-height:1.55;color:var(--ink-2,#5b4646);text-align:justify;hyphens:auto}"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "input",
+      "refersTo": "segmented",
+      "description": "White pill track; selected segment is night.",
+      "html": "<div class=\"ds-seg\" role=\"tablist\"><button class=\"on\" type=\"button\">Team A</button><button type=\"button\">Team B</button><button type=\"button\">Team C</button></div>",
+      "css": ".ds-seg{display:flex;gap:4px;padding:4px;border-radius:999px;background:#fff;border:1px solid var(--line,#e4dfdf);max-width:360px} .ds-seg button{flex:1;height:38px;border:0;border-radius:999px;background:transparent;color:var(--ink-2,#5b4646);font:500 14px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;cursor:pointer;transition:background .25s,color .25s} .ds-seg button:hover{color:var(--ink,#2a1b1b)} .ds-seg button.on{background:var(--night,#2a1b1b);color:var(--on-night,#f4efef)} .ds-seg button:focus-visible{outline:3px solid var(--gold,#ae9970);outline-offset:2px}"
+    },
+    {
+      "name": "Navigation Track",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Pill track of links on night; links get a pill hover surface.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\">How it works</a><a href=\"#\">Who sees what</a><a href=\"#\">Two sides</a><a href=\"#\">Midnight</a></nav>",
+      "css": ".ds-nav{display:inline-flex;align-items:center;gap:2px;padding:5px;border-radius:999px;background:var(--night-3,#352323)} .ds-nav a{color:var(--on-night-2,#cdbfbf);text-decoration:none;font:500 15px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;padding:10px 14px;border-radius:999px;transition:background .25s,color .25s} .ds-nav a:hover{color:var(--on-night,#f4efef);background:#432d2d} .ds-nav a:focus-visible{outline:3px solid var(--gold,#ae9970);outline-offset:2px}"
+    },
+    {
+      "name": "Revealed Tally",
+      "kind": "custom",
+      "refersTo": "frame-panel",
+      "description": "Labelled bars: gold fill for values revealed to you, night locked bar for sealed ones.",
+      "html": "<div class=\"ds-tally\"><div class=\"ds-trow\"><span>Team Arka</span><div class=\"ds-bar\"><i style=\"width:82%\"></i></div><span class=\"ds-v\">82</span></div><div class=\"ds-trow\"><span>Team Lumen</span><div class=\"ds-bar ds-locked\"><svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" d=\"M7 11V8a5 5 0 0 1 10 0v3\"/><rect x=\"4.5\" y=\"11\" width=\"15\" height=\"10\" rx=\"2.5\" fill=\"currentColor\"/></svg>Sealed until you buy</div><span class=\"ds-v\"></span></div></div>",
+      "css": ".ds-tally{display:grid;gap:10px;padding:18px;background:var(--panel,#f5f3f3);border-radius:12px;color:var(--ink,#2a1b1b)} .ds-trow{display:grid;grid-template-columns:104px 1fr 62px;gap:12px;align-items:center;font:500 15px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif} .ds-bar{height:30px;border-radius:8px;background:#fff;border:1px solid var(--line,#e4dfdf);position:relative;overflow:hidden} .ds-bar i{position:absolute;inset:0 auto 0 0;background:var(--gold,#ae9970);border-radius:7px} .ds-locked{background:var(--night,#2a1b1b);border-color:var(--night,#2a1b1b);display:flex;align-items:center;gap:6px;padding-left:10px;color:var(--on-night-2,#cdbfbf);font-size:13px} .ds-v{text-align:right;font-variant-numeric:tabular-nums}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Witnessed Vault",
+    "overview": "Senyap is a privacy market you can watch working. The page refuses the category default (a dark hero with glowing abstract 3D and a grid of feature cards) and instead shows the mechanism moving: crimson pick chips with a gold lock and cipher text travel right to left into a vault, buyers see a labelled histogram before paying, and each privacy step is something the visitor can press. Every private value carries a visible state (sealed, revealed to you, or public), and that state vocabulary drives colour more than decoration does.\n\nThe world is the AKINDO palette laid out in Cerebrium's structure. A sticky night-coloured hero fills exactly one viewport; white sheets with rounded top corners slide over it; a rounded night band and a night close section bracket the white middle. Display type is SF Pro at weight 300 (thin, clean, tightly tracked), while everything a visitor operates (buttons, chips, rows, tabs) is set at 500 or heavier. Density is calm on the landing surface: large display headings, a single context sentence underneath, then real product UI inside framed panels.\n\nReference sources chosen by Dien: cerebrium.ai and its Awwwards Site of the Day page for structure, typography rhythm and motion; AKINDO's brand palette for colour. Copy the structure and the palette only. Content, shapes and the vault metaphor are Senyap's own.",
+    "keyCharacteristics": [
+      "Night hero and night band with a 32px dot grid texture; white light sections; no other section backgrounds.",
+      "Thin 300-weight display headings, solid 500+ UI text, justified paragraphs.",
+      "Borderless pill buttons; the primary is red with a sliding arrow disc.",
+      "Framed cards (outer frame, 8px inset, inner panel) that hold real product UI fragments.",
+      "Gold means \"revealed to you\"; crimson means sealed and committed; night means sealed and unreadable.",
+      "Motion explains the mechanism (chips sealing into the vault, text decrypting, bars growing on reveal), always gated by prefers-reduced-motion."
+    ],
+    "rules": [
+      {
+        "name": "The State Colour Rule",
+        "body": "Colour reports privacy state before it decorates. Night or crimson with a lock means sealed, gold means revealed to you, a flat panel grey means public. A new surface that shows a private value must use one of these three, never a new hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Solid Only Rule",
+        "body": "Every fill is a solid token. No transparent tints, no gradient washes, no gradient text, no glow. The only gradient in the build is the dot-grid texture (radial-gradient dots on 32px cells), which is a pattern, not a wash.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Market Colours Rule",
+        "body": "No green and red win/loss pairing and no price-chart shapes. Red is for action and commitment, never for \"down\".",
+        "section": "colors"
+      },
+      {
+        "name": "The Thin Display Rule",
+        "body": "Display and headline text is weight 300 and tracked at -0.035em. Nothing a visitor clicks or reads as a label is thinner than 500.",
+        "section": "typography"
+      },
+      {
+        "name": "The Justified Paragraph Rule",
+        "body": "Every paragraph is text-align: justify with hyphens: auto and text-wrap: pretty. The only exceptions in the build are hint lines, tooltips and short UI notes, which are left aligned.",
+        "section": "typography"
+      },
+      {
+        "name": "The Monospace Is Data Rule",
+        "body": "Monospace appears only where the content is literally code, cipher text or an address. It is never a label style.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Glow Rule",
+        "body": "Shadows are offset downward and tinted with night. No zero-offset halos, no coloured glow, no glassmorphism or backdrop blur, no hard neobrutalist offsets. The 3D vault scene follows the same rule with solid materials.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do set display and headline text in the SF Pro system stack at weight 300 with -0.035em tracking.",
+      "Do put the context sentence directly under its heading, in the same column.",
+      "Do justify every paragraph (text-align: justify; hyphens: auto).",
+      "Do use white (white) as the background of every light section. Strong colour goes in the hero, the band, the close section, or inside cards.",
+      "Do make buttons borderless pills; the primary is Signal Red with the sliding arrow disc.",
+      "Do keep the hero at exactly 100dvh at any zoom. Shed content by height first, then scale the content block with a floor of 0.72.",
+      "Do label demo data as demo (\"Demo market\", \"Undo demo\", a note card stating that every team, scout and number is demo data).",
+      "Do give every private value a visible state (sealed, revealed to you, public) and a tooltip explaining it.",
+      "Do build cards as frame, inset panel with real product UI, then a title and one or two lines.",
+      "Do gate every animation behind prefers-reduced-motion and keep content visible when scroll or observer APIs are missing."
+    ],
+    "donts": [
+      "Don't put an eyebrow, kicker, or pill label above a heading. Ever.",
+      "Don't use small monospace labels. Monospace is for code, cipher text and addresses only.",
+      "Don't use glow, gradient washes, gradient text, or transparent tints.",
+      "Don't use \":\" in UI copy to explain a preceding phrase. Write a full sentence instead.",
+      "Don't use em dashes or arrow glyphs in copy. Arrows appear only as SVG icons inside button discs.",
+      "Don't place a context paragraph beside a heading in a second column.",
+      "Don't add border outlines to buttons.",
+      "Don't let anything read as gambling or trading: no price charts, no green/red win-loss colouring, no betting language.",
+      "Don't let the page look AI-generated: no generic bordered feature cards with a small label, title and paragraph, no floating paragraphs, no pastel tints.",
+      "Don't invent users, testimonials, volumes or partners."
+    ]
+  }
+}
