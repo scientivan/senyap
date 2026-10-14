@@ -4,6 +4,37 @@
   "license": "Apache-2.0",
   "scripts": {
     "dev": "pnpm --filter @senyap/web dev",
-    "build": "pnpm --filter @senyap/web build"
+    "build": "pnpm --filter @senyap/web build",
+    "contracts:compile": "node scripts/compile-contracts.mjs --skip-zk",
+    "contracts:compile:proofs": "node scripts/compile-contracts.mjs",
+    "test": "vitest run",
+    "spike:prove": "tsx scripts/prove-stake-shape.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@midnight-ntwrk/dapp-connector-api": "4.0.1",
+    "@types/node": "24.0.0",
+    "tsx": "4.20.5",
+    "typescript": "5.5.4",
+    "vitest": "3.2.4"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "0.16.0",
+    "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+    "@midnight-ntwrk/testkit-js": "4.1.1",
+    "@midnight-ntwrk/wallet-sdk-address-format": "3.1.2",
+    "rxjs": "7.8.2"
+  },
+  "type": "module",
+  "pnpm": {
+    "overrides": {
+      "@midnight-ntwrk/onchain-runtime-v3": "3.0.0",
+      "@midnight-ntwrk/ledger-v8": "8.1.3"
+    }
   }
 }

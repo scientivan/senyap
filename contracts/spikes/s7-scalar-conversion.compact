@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+export pure circuit fromUint(value: Uint<32>): JubjubPoint {
+  return ecMulGenerator(value as Field);
+}
+
+export pure circuit fromField(value: Field): JubjubPoint {
+  return ecMulGenerator(value as Field);
+}

@@ -1,0 +1,5 @@
+# Apply after midnight-local-dev/standalone.yml. Only the proof-server image
+# changes; node and indexer versions remain pinned by the upstream checkout.
+services:
+  proof-server:
+    image: midnightntwrk/proof-server:8.1.3

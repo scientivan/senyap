@@ -1,0 +1,35 @@
+name: Compact and tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install Compact developer tools
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/download/compact-v0.5.3/compact-installer.sh -o /tmp/compact-installer.sh
+          sh /tmp/compact-installer.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Pin compiler
+        run: compact update 0.31.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm contracts:compile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm --filter @senyap/web typecheck
+      - run: pnpm build

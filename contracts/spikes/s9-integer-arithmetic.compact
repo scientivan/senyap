@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+witness quotient(): Uint<128>;
+witness remainder(): Uint<64>;
+
+export circuit divide(n: Uint<192>, d: Uint<64>): Uint<128> {
+  assert(d > 0, "Division by zero");
+  const q = quotient();
+  const r = remainder();
+  assert(r < d, "Remainder out of range");
+  assert(q * d + r == n,
+    "Incorrect division witness");
+  return disclose(q);
+}
+
+export circuit weight(stake: Uint<16>, tier: Uint<8>, bonus: Uint<8>): Uint<128> {
+  assert(stake >= 10 && stake <= 500, "Stake outside demo range");
+  assert(tier == 100 || tier == 125 || tier == 150, "Invalid tier multiplier");
+  assert(bonus == 100 || bonus == 120, "Invalid early multiplier");
+  return divide(stake * tier * bonus, 10000);
+}

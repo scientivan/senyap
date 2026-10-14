@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+export struct CipherPair { c1: JubjubPoint; c2: JubjubPoint; }
+export ledger tally: Map<Uint<32>, Vector<8, CipherPair>>;
+export ledger committeePk: JubjubPoint;
+export ledger members: HistoricMerkleTree<20, Bytes<32>>;
+witness memberPath(): MerkleTreePath<20, Bytes<32>>;
+witness chosenOption(): Uint<8>;
+witness randomnessHigh(): Vector<8, Uint<128>>;
+witness randomnessLow(): Vector<8, Uint<128>>;
+
+constructor(pk: JubjubPoint) { committeePk = disclose(pk); }
+
+export circuit admit(member: Bytes<32>): [] { members.insert(disclose(member)); }
+
+export circuit addStake(market: Uint<32>, weight: Uint<32>): [] {
+  assert(members.checkRoot(disclose(merkleTreePathRoot<20, Bytes<32>>(memberPath()))), "Membership root not accepted");
+  const option = chosenOption();
+  const highs = randomnessHigh();
+  const lows = randomnessLow();
+  assert(option < 8, "Option outside tally");
+  assert(weight > 0, "Weight must be positive");
+  const zero = ecMulGenerator(0 as Field);
+  const empty = [CipherPair { c1: zero, c2: zero }, CipherPair { c1: zero, c2: zero },
+    CipherPair { c1: zero, c2: zero }, CipherPair { c1: zero, c2: zero },
+    CipherPair { c1: zero, c2: zero }, CipherPair { c1: zero, c2: zero },
+    CipherPair { c1: zero, c2: zero }, CipherPair { c1: zero, c2: zero }];
+  const sums = tally.member(disclose(market)) ? tally.lookup(disclose(market)) : empty;
+  const next = map((i: Uint<8>, sum: CipherPair, high: Uint<128>, low: Uint<128>): CipherPair => {
+    const value = (option == i) ? weight : 0;
+    assert(high < 19261898452744832053602769315862690560 || (high == 19261898452744832053602769315862690560 && low < 221192506920607668564158609621008198839),
+      "Randomness outside subgroup scalar range");
+    const r = (high as Field) * (340282366920938463463374607431768211456 as Field) + (low as Field);
+    assert(r != (0 as Field), "Randomness must be nonzero");
+    const c1 = ecMulGenerator(r);
+    const c2 = ecAdd(ecMulGenerator(value as Field), ecMul(committeePk, r));
+    return CipherPair { c1: ecAdd(sum.c1, c1), c2: ecAdd(sum.c2, c2) };
+  }, [0, 1, 2, 3, 4, 5, 6, 7], sums, highs, lows);
+  tally.insert(disclose(market), disclose(next));
+}

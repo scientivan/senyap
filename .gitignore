@@ -12,3 +12,9 @@ dist
 .impeccable/questions/
 .impeccable/app-surface-brief.md
 /codex-prompt.md
+
+# Compiler outputs and proving keys are reproducible, not source files.
+contracts/managed/
+docs/evidence/*.raw.log
+.states/
+logs/

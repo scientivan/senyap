@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+export ledger groups: Map<Bytes<32>, HistoricMerkleTree<20, Bytes<32>>>;
+witness memberPath(): MerkleTreePath<20, Bytes<32>>;
+
+export circuit admit(group: Bytes<32>, member: Bytes<32>): [] {
+  if (!groups.member(disclose(group))) {
+    groups.insert(disclose(group), default<HistoricMerkleTree<20, Bytes<32>>>);
+  }
+  groups.lookup(disclose(group)).insert(disclose(member));
+}
+
+export circuit proveMembership(group: Bytes<32>): [] {
+  const path = memberPath();
+  assert(groups.lookup(disclose(group)).checkRoot(disclose(merkleTreePathRoot<20, Bytes<32>>(path))),
+    "Membership root not accepted");
+}
+
+export circuit revoke(group: Bytes<32>, index: Uint<64>): [] {
+  groups.lookup(disclose(group)).insertIndexDefault(disclose(index));
+  groups.lookup(disclose(group)).resetHistory();
+}

@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: Apache-2.0
+// Demo token spike. Its faucet is intentionally permissionless; no real asset.
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+export ledger minted: Uint<128>;
+export circuit mintDemo(recipient: UserAddress, amount: Uint<64>): Bytes<32> {
+  assert(amount > 0 && amount <= 5000, "Demo mint outside range");
+  minted = (minted + disclose(amount)) as Uint<128>;
+  return mintUnshieldedToken(pad(32, "senyap:demo:dUSD"), disclose(amount),
+    right<ContractAddress, UserAddress>(disclose(recipient)));
+}
+
+export circuit depositDemo(color: Bytes<32>, amount: Uint<128>): [] {
+  assert(amount > 0, "Receive amount must be positive");
+  receiveUnshielded(disclose(color), disclose(amount));
+}
+
+export circuit payoutDemo(color: Bytes<32>, amount: Uint<128>, recipient: UserAddress): [] {
+  assert(amount > 0, "Send amount must be positive");
+  sendUnshielded(disclose(color), disclose(amount), right<ContractAddress, UserAddress>(disclose(recipient)));
+}
