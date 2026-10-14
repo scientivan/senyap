@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version >= 0.23;
+import CompactStandardLibrary;
+
+// Permissionless S5 fixture only. No tokens or private user data are stored.
+export ledger calls: Counter;
+
+export circuit ping(): [] {
+  calls.increment(1);
+}
