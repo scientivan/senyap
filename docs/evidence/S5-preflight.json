@@ -1,0 +1,9 @@
+{
+  "network": "preprod",
+  "addressValid": true,
+  "projectTokenPresent": false,
+  "proofServer": "healthy",
+  "indexer": "not checked",
+  "node": "not checked",
+  "transactionsSubmitted": 0
+}

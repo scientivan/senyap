@@ -43,11 +43,16 @@ landing page scale. Demo notices remain visible.
 - The mandated manual detector returned `[]` after the corrections. No detector
   suppressions or exceptions were added. The design sidecar's stale network claim
   was corrected to synthetic demo behavior.
-- An edit hook separately reported 31 app.css token findings, showing five sample
-  findings. Manual detectors, including an app.css-only run, returned no findings.
-  The sampled size/radius values belong to the approved existing app scale; the
-  unavailable remainder of that hook report has not been audited individually.
-  F4 remains partial pending reconciliation of that discrepancy.
+- Reproduced all 31 hook findings by explicitly passing the root design system
+  to the detector API. The CLI resolves context from the nested web package and
+  consequently returns `[]`; the hook resolves from the workspace root. This is
+  a context difference, not evidence that all design-token findings disappeared.
+  [F4-css-triage.json](evidence/F4-css-triage.json) records each finding and its
+  disposition. All concern incumbent app sizes, radii and solid gold-family
+  colors absent from landing metadata. They remain standing under approved F2
+  and DESIGN.md's built-code authority. The 11px timeline annotation is retained
+  with a readability follow-up. No UI changes, metadata exceptions or detector
+  suppressions were introduced to make the result look clean.
 - On narrow markets tables, questions wrap into short lines. Positions scroll
   inside their table container. These are readability follow-ups, with no page
   overflow; no unapproved redesign was made.

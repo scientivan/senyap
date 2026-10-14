@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Vite + React + TypeScript for `apps/web`; the Midnight DApp connector (`@midnight-ntwrk/dapp-connector-api`) and Midnight.js are planned and not installed yet (`src/app/wallet.tsx` uses hand-written types until F3/F5); network `preprod` (Dien, 14 Oct 2026).
+Vite + React + TypeScript for `apps/web`; the official Midnight DApp connector API 4.0.1 types are installed for wallet connections, and Midnight.js 4.1.1 is installed for local contract experiments (frontend contract integration remains pending); network `preprod` (Dien, 14 Oct 2026).
 
 ## Users
 
