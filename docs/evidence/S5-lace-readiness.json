@@ -1,0 +1,11 @@
+{
+  "network": "preprod",
+  "source": "Real Lace 2.4.2/API 4.0.1 on Brave localhost Senyap, via page-context bridge",
+  "nightRaw": "5000000000",
+  "dustRaw": "0",
+  "dustCapRaw": "0",
+  "assetsReady": true,
+  "transactionsSubmitted": 0,
+  "uiStatus": "tDUST Tank Empty",
+  "note": "Registration completion was user-reported earlier; available DUST and cap are currently zero. No deploy or ping was sent. Wallet address, keys and configuration URLs omitted."
+}

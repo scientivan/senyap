@@ -19,18 +19,24 @@ const progressKey="senyap-s5-public-progress";
 type PublicProgress={network:"preprod";contractAddress?:string;deployTxId?:string;callTxId?:string;pendingTxId?:string;pendingAction?:"deploy"|"ping";calls?:string};
 class PublicS5Error extends Error {}
 
-async function prepareInternal(walletId?:string){
+async function prepareInternal(walletId:string|undefined,onStage:(stage:string)=>void){
+  onStage("wallet-discovery");
   const wallets=availableWallets(window.midnight);
   const chosen=walletId?wallets.find(([id])=>id===walletId):wallets.length===1?wallets[0]:undefined;
   if(!chosen)throw new PublicS5Error("Choose a compatible wallet ID; this helper will not choose among multiple wallets.");
+  onStage("connection");
   const {api}=await connectWallet(chosen[1]);
+  onStage("configuration");
   const config=await api.getConfiguration();
   if(config.networkId!=="preprod")throw new PublicS5Error("S5 only supports Preprod.");
   setNetworkId("preprod");
+  onStage("balances");
   const [balances,dust,addresses]=await Promise.all([api.getUnshieldedBalances(),api.getDustBalance(),api.getShieldedAddresses()]);
   const night=balances["0".repeat(64)]??0n;
-  const zk=new FetchZkConfigProvider<"ping">(`${location.origin}/spikes/s5`);
+  const zk=new FetchZkConfigProvider<"ping">(`${location.origin}/spikes/s5`,fetch.bind(window));
+  onStage("artifacts");
   await zk.get("ping"); // Verify generated public assets are served before any transaction.
+  onStage("proving-provider");
   const proving=await api.getProvingProvider(zk);
   const saved=sessionStorage.getItem(progressKey);
   const progress:PublicProgress=saved?JSON.parse(saved):{network:"preprod"};
@@ -70,11 +76,16 @@ async function prepareInternal(walletId?:string){
     finally{busy=false;activeAction=undefined;}
   };
   return {
-    readiness:{network:"preprod",nightRaw:night.toString(),dustRaw:dust.balance.toString(),assetsReady:true,transactionsSubmitted:0},
+    readiness:{network:"preprod",nightRaw:night.toString(),dustRaw:dust.balance.toString(),dustCapRaw:dust.cap.toString(),assetsReady:true,transactionsSubmitted:0},
+    funding:async()=>{
+      const [currentBalances,currentDust]=await Promise.all([api.getUnshieldedBalances(),api.getDustBalance()]);
+      return {network:"preprod",nightRaw:(currentBalances["0".repeat(64)]??0n).toString(),dustRaw:currentDust.balance.toString(),dustCapRaw:currentDust.cap.toString()};
+    },
     publicProgress:()=>({...progress}),
     deploy:()=>safely(async()=>{
       if(progress.contractAddress)throw new PublicS5Error("This tab already records a deployment. Refusing to deploy again.");
-      if(night===0n||dust.balance===0n)throw new PublicS5Error("Wait for NIGHT/DUST readiness before deploying.");
+      const [currentBalances,currentDust]=await Promise.all([api.getUnshieldedBalances(),api.getDustBalance()]);
+      if((currentBalances["0".repeat(64)]??0n)===0n||currentDust.balance===0n)throw new PublicS5Error("Wait for NIGHT/DUST readiness before deploying.");
       activeAction="deploy";
       deployed=await deployContract(providers,{compiledContract:fixture,privateStateId:"s5",initialPrivateState:{}});
       progress.contractAddress=deployed.deployTxData.public.contractAddress;
@@ -97,7 +108,12 @@ async function prepareInternal(walletId?:string){
   };
 }
 
-export async function prepare(walletId?:string){
-  try{return await prepareInternal(walletId);}
-  catch(error){if(error instanceof PublicS5Error)throw error;throw new PublicS5Error("S5 preparation failed. Check Lace network, synchronization and generated assets. Private error details are omitted.");}
+export async function prepare(walletId?:string,onStage?:(stage:string)=>void){
+  let stage="wallet-discovery";
+  try{return await prepareInternal(walletId,value=>{stage=value;onStage?.(value);});}
+  catch(error){
+    if(error instanceof PublicS5Error)throw error;
+    const code=typeof error==="object"&&error!==null&&"code" in error&&typeof error.code==="number"&&Number.isInteger(error.code)?` (API code ${error.code})`:"";
+    throw new PublicS5Error(`S5 preparation failed at ${stage}${code}. Private error details are omitted.`);
+  }
 }

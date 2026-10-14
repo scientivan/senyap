@@ -30,6 +30,10 @@ Dien explicitly authorized this one-deploy/one-ping Preprod sequence in chat on
 - The served ZKIR SHA-256 matches the compiled file:
   `53ea5208e5594c4bd7c3be6ce9447fa019968ce5f7654afec9c7c9e0c4ee8289`.
 - Dien confirmed the real Preprod address appears in the application (F3).
+- Direct inspection now verifies the real Lace API connection on Preprod, but
+  reports 5000 NIGHT and zero available DUST/zero cap. The wallet UI also says
+  tDUST Tank Empty. [Readiness evidence](evidence/S5-lace-readiness.json) records
+  this blocker; no deployment or ping has been submitted.
 
 ## Reproduce without submitting
 
@@ -77,3 +81,15 @@ The helper uses node/indexer configuration supplied by Lace, without embedding
 the owner's Blockfrost token. Server-side product services still need a locally
 configured Blockfrost project. Generated public artifacts are ignored by Git and
 must be regenerated after `--skip-zk` compilation clears proving keys.
+
+## Apple Events execution context
+
+Apple Events in this Brave version sees a separate JavaScript realm: the wallet
+namespace is empty there, while the page realm contains Lace API 4.0.1. For direct
+agent automation, explicitly load `/src/spikes/s5-mainworld.ts` as a module script
+in the page. It writes only public status to `#senyap-s5-public-status` and listens
+for `senyap-s5-command` events with `funding`, `deploy` or `ping` as the detail.
+Loading the module prepares the wallet; it does not submit. `funding` is read-only.
+Native `fetch` is explicitly bound to the artifact provider. The bridge is dev-only
+and is not part of product routes. Keep the transaction authorization scope above
+and turn off Apple Events again after the test or when leaving it blocked.
