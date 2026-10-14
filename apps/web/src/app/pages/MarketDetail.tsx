@@ -77,7 +77,7 @@ export function MarketDetail() {
               : "Questions about unannounced token, treasury or listing decisions are not allowed on this side."}
           </Note>
           <button type="button" className="abtn abtn-soft" onClick={() => { s.advance(m.id); show("Demo moved this market to its next phase."); }} disabled={m.phase === "settled"}>
-            Demo: move to next phase
+            Move to next phase in demo
           </button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-14T00:00:00Z",
+  "generatedAt": "2026-10-14T15:27:50.736771+00:00",
   "title": "Design System: Senyap",
   "extensions": {
     "colorMeta": {
@@ -319,7 +319,7 @@
       "kind": "card",
       "refersTo": "note",
       "description": "Holds disclaimers and demo-data notices. Night icon square with gold icon, bold first line.",
-      "html": "<div class=\"ds-note\"><span class=\"ds-note-ic\"><svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" d=\"M7 11V8a5 5 0 0 1 10 0v3\"/><rect x=\"4.5\" y=\"11\" width=\"15\" height=\"10\" rx=\"2.5\" fill=\"currentColor\"/></svg></span><div><b>Every team, scout and number here is demo data.</b><p>The market runs on the Midnight preview network with an unshielded demo token.</p></div></div>",
+      "html": "<div class=\"ds-note\"><span class=\"ds-note-ic\"><svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\"><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" d=\"M7 11V8a5 5 0 0 1 10 0v3\"/><rect x=\"4.5\" y=\"11\" width=\"15\" height=\"10\" rx=\"2.5\" fill=\"currentColor\"/></svg></span><div><b>Every team, scout and number here is demo data.</b><p>The interface uses synthetic demo data. No Midnight transaction is submitted.</p></div></div>",
       "css": ".ds-note{background:var(--panel,#f5f3f3);border-radius:18px;padding:22px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif;color:var(--ink,#2a1b1b)} .ds-note-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--night,#2a1b1b);color:var(--gold,#ae9970)} .ds-note-ic svg{width:20px;height:20px} .ds-note b{display:block;font:600 19px/1.3 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', sans-serif} .ds-note p{margin:6px 0 0;font-size:16px;line-height:1.55;color:var(--ink-2,#5b4646);text-align:justify;hyphens:auto}"
     },
     {

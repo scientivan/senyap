@@ -347,7 +347,7 @@ export function Verify() {
     <>
       <PageHead title="Disputes" sub="Verifiers stake to join and vote in secret. The majority is paid from the minority's stake." />
       <div className="grid2">
-        <Card title="Dispute on market #9, position c963 8da7" sub="Claim: the reason cites a team meeting that never happened.">
+        <Card title="Dispute on market #9, position c963 8da7" sub="The dispute says a team meeting cited in the reason never happened.">
           <div className="stack">
             <p className="muted2">You can read the cleaned reason and the evidence both sides attached. Nobody, including you, learns who wrote the reason.</p>
             <div className="row">

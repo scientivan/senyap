@@ -130,8 +130,18 @@ export function AppLayout() {
                   {state.status === "connecting" ? "Waiting for Lace" : "Connect Lace"}
                 </button>
               )}
-              {(walletOpen || state.status === "missing" || state.status === "error") && (
+              {(walletOpen || state.status === "missing" || state.status === "error" || state.status === "selecting") && (
                 <div className="ah-pop" role="dialog" aria-label="Wallet">
+                  {state.status === "selecting" && (
+                    <>
+                      <b>Choose your Midnight wallet.</b>
+                      <p>Connect the wallet you want to use on {NETWORK_ID}.</p>
+                      {state.wallets.map((w)=>(
+                        <button key={w.id} type="button" className="abtn abtn-soft" onClick={()=>connect(w.id)}>{w.name}</button>
+                      ))}
+                      <button type="button" className="abtn abtn-soft" onClick={disconnect}>Cancel</button>
+                    </>
+                  )}
                   {state.status === "connected" && (
                     <>
                       <b>{state.name}</b>
@@ -160,7 +170,7 @@ export function AppLayout() {
                       <b>Connection failed.</b>
                       <p>{state.message}</p>
                       <div className="row">
-                        <button type="button" className="abtn abtn-red" onClick={connect}>
+                        <button type="button" className="abtn abtn-red" onClick={() => connect()}>
                           Try again
                         </button>
                         <button type="button" className="abtn abtn-soft" onClick={demo}>
