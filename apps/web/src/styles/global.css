@@ -1,0 +1,86 @@
+/* Senyap design tokens. AKINDO palette, Cerebrium structure, SF Pro. */
+:root {
+  --night: #2a1b1b;
+  --night-2: #1f1414;
+  --night-3: #352323;
+  --night-line: #4a3434;
+  --crimson: #a50c22;
+  --red: #c1272d;
+  --red-press: #a31f24;
+  --gold: #ae9970;
+  --gold-soft: #d9cdb4;
+  --gold-ink: #6a5a38;
+  --white: #ffffff;
+  --panel: #f5f3f3;
+  --panel-2: #ebe7e7;
+  --line: #e4dfdf;
+  --ink: #2a1b1b;
+  --ink-2: #5b4646;
+  --ink-3: #8a7b7b;
+  --on-night: #f4efef;
+  --on-night-2: #cdbfbf;
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, "Helvetica Neue", sans-serif;
+  --code: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --w-display: 300;
+  --w-body: 400;
+  --w-ui: 500;
+  --w-strong: 600;
+
+  --r-frame: 18px;
+  --r-panel: 12px;
+  --r-pill: 999px;
+  --shadow: 0 14px 34px -18px rgba(42, 27, 27, 0.32);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font);
+  font-weight: var(--w-body);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+::selection { background: var(--gold); color: var(--night); }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 8px; }
+a { color: inherit; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+p { margin: 0; text-align: justify; hyphens: auto; -webkit-hyphens: auto; text-wrap: pretty; }
+button { font: inherit; }
+img, canvas { max-width: 100%; }
+html { scrollbar-color: #c9bdbd transparent; }
+
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-left: var(--gutter-l);
+  padding-right: var(--gutter-r);
+}
+
+.display {
+  font-weight: var(--w-display);
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+.accent { color: var(--crimson); }
+.goldtxt { color: var(--gold); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+.sheet { position: relative; z-index: 5; background: var(--white); border-radius: 28px 28px 0 0; }

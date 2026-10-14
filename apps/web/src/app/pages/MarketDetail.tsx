@@ -1,0 +1,287 @@
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { LockIcon } from "../../components/Icons";
+import { timeLeft, useStore } from "../data/store";
+import type { Market, Phase } from "../data/types";
+import { Card, Empty, Histogram, Note, PageHead, PhaseChip, Revealed, Sealed, SideChip, useToast } from "../ui";
+
+const flow: Phase[] = ["open", "closed", "auction", "allocated", "outcome", "settling", "settled"];
+
+export function MarketDetail() {
+  const { id } = useParams();
+  const s = useStore();
+  const m = s.market(Number(id));
+  const [toast, show] = useToast();
+  if (!m) return <Empty title="Market not found." action={<Link to="/app/markets" className="abtn abtn-soft">Back to markets</Link>}>It may have been removed when the demo was reset.</Empty>;
+
+  const steps = m.auction ? flow : flow.filter((p) => p !== "auction" && p !== "allocated");
+  const idx = steps.indexOf(m.phase);
+  const h = s.histogram(m);
+  const kBlocked = m.side === "B" && m.scouts < 5;
+
+  return (
+    <>
+      <PageHead
+        title={`Market #${m.id}`}
+        sub={m.question}
+        action={
+          <div className="row">
+            <SideChip side={m.side} />
+            <PhaseChip phase={m.phase} />
+          </div>
+        }
+      />
+      <div className="grid2">
+        <div className="stack">
+          <Card title="Where this market is" sub={m.phase === "open" ? `Picks close ${timeLeft(m.closesAt)}` : `Picks closed ${timeLeft(m.closesAt)}`}>
+            <div className="tl">
+              {steps.map((p, i) => (
+                <span key={p} className={i < idx ? "done" : i === idx ? "now" : ""} />
+              ))}
+            </div>
+            <div className="tl-labels">
+              {steps.map((p) => (
+                <span key={p}>{p === "open" ? "Picks" : p === "allocated" ? "Allocated" : p[0].toUpperCase() + p.slice(1)}</span>
+              ))}
+            </div>
+          </Card>
+
+          {s.role === "scout" && m.phase === "open" && <StakePanel m={m} onDone={show} />}
+          {s.role === "ecosystem" && m.side === "A" && m.phase === "auction" && <BidPanel m={m} onDone={show} />}
+          <OptionsPanel m={m} onDone={show} kBlocked={kBlocked} />
+          {s.role === "ecosystem" && m.phase === "outcome" && m.bought.length > 0 && <OutcomePanel m={m} onDone={show} />}
+        </div>
+
+        <div className="stack">
+          <Card title="Strength preview" sub="Public. Counts teams per bucket without naming them." className="dark">
+            {kBlocked ? <p>Opens once at least 5 scouts have answered. {m.scouts} so far.</p> : <Histogram h={h} />}
+          </Card>
+          <Card title="Public on chain">
+            <div className="stats">
+              <div className="stat"><span>Sealed picks</span><b>{m.sealedPicks}</b></div>
+              <div className="stat"><span>Scouts</span><b>{m.scouts}</b></div>
+              <div className="stat"><span>Total staked</span><b>{m.stakeTotal.toLocaleString()} dUSD</b></div>
+              <div className="stat"><span>Price per signal</span><b>{m.flatPrice} dUSD{m.side === "B" ? ", subsidised" : ""}</b></div>
+              {m.auction && <div className="stat"><span>Reserve price</span><b>{m.reservePrice} dUSD</b></div>}
+              <div className="stat"><span>Listed by</span><b>{m.ecosystem}</b></div>
+            </div>
+          </Card>
+          {m.outcome && (
+            <Card title="Outcome" sub={`Recorded by ${m.outcome.recordedBy}`}>
+              <p className="muted2">{m.outcome.evidence}</p>
+            </Card>
+          )}
+          <Note title={m.side === "A" ? "Teams opted in to be scouted." : "No token price questions."}>
+            {m.side === "A"
+              ? "Every option is a team from the registry that agreed to be assessed. Scouts sell what they saw and think, never a team's private documents."
+              : "Questions about unannounced token, treasury or listing decisions are not allowed on this side."}
+          </Note>
+          <button type="button" className="abtn abtn-soft" onClick={() => { s.advance(m.id); show("Demo moved this market to its next phase."); }} disabled={m.phase === "settled"}>
+            Demo: move to next phase
+          </button>
+        </div>
+      </div>
+      {toast}
+    </>
+  );
+}
+
+function StakePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void }) {
+  const s = useStore();
+  const used = s.positions.filter((p) => p.marketId === m.id).length;
+  const [pick, setPick] = useState<number | null>(null);
+  const [amount, setAmount] = useState(100);
+  const [reason, setReason] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const submit = () => {
+    if (pick === null) return setErr("Choose the team you want to back.");
+    if (reason.trim().length < 20) return setErr("Write a reason of at least 20 characters. Buyers pay for the reasoning.");
+    setBusy(true);
+    setErr(null);
+    window.setTimeout(() => {
+      const r = s.stake(m.id, pick, amount);
+      setBusy(false);
+      if (!r.ok) return setErr(r.reason);
+      setPick(null);
+      setReason("");
+      onDone("Pick sealed. Your stake is public, your choice is not.");
+    }, 900);
+  };
+
+  return (
+    <Card title="Back a team" sub={`Pick ${Math.min(used + 1, 3)} of 3 in this market. Your membership proof is built on this device.`}>
+      {used >= 3 ? (
+        <Empty title="All 3 picks used.">Each scout can back at most three teams per market.</Empty>
+      ) : (
+        <div className="form">
+          <div className="opts2" role="radiogroup" aria-label="Team to back">
+            {m.options.map((o) => (
+              <div key={o.id} role="radio" aria-checked={pick === o.id} tabIndex={0} className={`orow pick${pick === o.id ? " on" : ""}`} onClick={() => setPick(o.id)} onKeyDown={(e) => e.key === "Enter" && setPick(o.id)}>
+                <b>{o.label}</b>
+                <span className="muted2">{pick === o.id ? "Will be sealed on submit" : "Click to back this team"}</span>
+                <span />
+              </div>
+            ))}
+          </div>
+          <div className="form-row">
+            <div className="field">
+              <label htmlFor="amt">Stake, refundable</label>
+              <input id="amt" className="inp" type="number" min={10} max={500} step={10} value={amount} onChange={(e) => setAmount(+e.target.value)} aria-invalid={amount < 10 || amount > 500} />
+              <span className="hint">10 to 500 dUSD. Returned in full unless a hoax is proven.</span>
+            </div>
+            <div className="field">
+              <label>What stays private</label>
+              <div className="row">
+                <Sealed why="Only a commitment of your pick is stored. You prove it later if it wins.">Your pick</Sealed>
+                <Sealed why="A group proof shows you belong to a tier, not who you are.">Your identity</Sealed>
+              </div>
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="why">Why this team</label>
+            <textarea id="why" className="txt" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="What you saw and what you think. No private documents, no personal data." />
+            <span className="hint">Sent sealed for review. The buyer sees a version with identifying details removed.</span>
+          </div>
+          {err && <span className="err" role="alert">{err}</span>}
+          <div className="row between">
+            <span className="muted2">Balance {s.balance.toLocaleString()} dUSD</span>
+            <button type="button" className="abtn abtn-red" onClick={submit} disabled={busy}>
+              {busy ? "Building proof" : "Seal my pick"}
+            </button>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function BidPanel({ m, onDone }: { m: Market; onDone: (msg: string) => void }) {
+  const s = useStore();
+  const [amount, setAmount] = useState(Math.max(m.reservePrice, 800));
+  const [err, setErr] = useState<string | null>(null);
+  if (m.myBid)
+    return (
+      <Card title="Your sealed bid" sub="Encrypted to the 3 of 5 committee. Losing bids are never published.">
+        <div className="row">
+          <Sealed why="Only the committee, acting together, can read bids to compute the second price.">Bid sealed</Sealed>
+          <span className="muted2">Ceiling deposited {m.myBid.amount.toLocaleString()} dUSD, refunded above the clearing price.</span>
+        </div>
+      </Card>
+    );
+  return (
+    <Card title="Bid for exclusive signals" sub="The top two bidders each hide up to 3 teams from everyone else. Price follows the second highest bid.">
+      <div className="form">
+        <div className="field">
+          <label htmlFor="bid">Your bid, at least the reserve of {m.reservePrice} dUSD</label>
+          <input id="bid" className="inp" type="number" min={m.reservePrice} step={50} value={amount} onChange={(e) => setAmount(+e.target.value)} aria-invalid={amount < m.reservePrice} />
+        </div>
+        {err && <span className="err" role="alert">{err}</span>}
+        <div className="row between">
+          <span className="muted2">Your bid amount is also your public ceiling deposit.</span>
+          <button
+            type="button"
+            className="abtn abtn-red"
+            onClick={() => {
+              if (amount < m.reservePrice) return setErr(`Bid at least the reserve of ${m.reservePrice} dUSD.`);
+              if (amount > s.balance) return setErr("Not enough dUSD for the ceiling deposit. Get demo dUSD from the faucet.");
+              s.bid(m.id, amount);
+              onDone("Sealed bid sent to the committee.");
+            }}
+          >
+            Send sealed bid
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function OptionsPanel({ m, onDone, kBlocked }: { m: Market; onDone: (msg: string) => void; kBlocked: boolean }) {
+  const s = useStore();
+  const canBuy = (s.role === "ecosystem" && m.side === "A" && ["allocated", "outcome", "settling", "settled"].includes(m.phase)) || (s.role === "builder" && m.side === "B" && m.phase !== "open");
+  const max = Math.max(...m.options.filter((o) => m.bought.includes(o.id)).map((o) => o.sealedWeight), 1);
+  return (
+    <Card
+      title={m.side === "A" ? "Teams in this market" : "Answers in this market"}
+      sub={m.bought.length ? "Totals you bought are opened on your device from 3 committee shares." : "Totals stay sealed until you buy them."}
+    >
+      <div className="opts2">
+        {m.options.map((o) => {
+          const w = s.revealed(m, o.id);
+          const held = m.heldByWinner.includes(o.id) && w === null;
+          return (
+            <div key={o.id} className="orow">
+              <b>{o.label}</b>
+              {w !== null ? (
+                <span className="wbar"><i style={{ width: `${(w / max) * 100}%` }} /></span>
+              ) : (
+                <span className="locked-bar"><LockIcon />{held ? "Held by an auction winner" : kBlocked ? "Fewer than 5 answers" : "Sealed total"}</span>
+              )}
+              <span>
+                {w !== null ? (
+                  <Revealed>{(w / 1000).toFixed(1)}k weight</Revealed>
+                ) : canBuy && !held && !kBlocked ? (
+                  <button
+                    type="button"
+                    className="abtn abtn-sm abtn-red"
+                    onClick={() => {
+                      const r = s.buy(m.id, o.id);
+                      onDone(r.ok ? `Opened ${o.label}. 3 of 5 committee shares combined on your device.` : r.reason);
+                    }}
+                  >
+                    Buy {m.flatPrice} dUSD
+                  </button>
+                ) : (
+                  <Sealed why={held ? "The auction winner chose to keep this signal exclusive." : m.phase === "open" ? "Totals can be bought after picks close." : "Only buyers can open totals."} />
+                )}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+function OutcomePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void }) {
+  const s = useStore();
+  const [sel, setSel] = useState<number[]>([]);
+  const [ev, setEv] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+  return (
+    <Card title="Report the outcome" sub="Mark the teams that deployed on your chain, took your grant or accepted your offer. Missing this report removes your good standing.">
+      <div className="form">
+        <div className="opts2">
+          {m.options.map((o) => (
+            <label key={o.id} className="check">
+              <input type="checkbox" checked={sel.includes(o.id)} onChange={(e) => setSel((x) => (e.target.checked ? [...x, o.id] : x.filter((y) => y !== o.id)))} />
+              {o.label}
+            </label>
+          ))}
+        </div>
+        <div className="field">
+          <label htmlFor="ev">Evidence link or transaction</label>
+          <input id="ev" className="inp" value={ev} onChange={(e) => setEv(e.target.value)} placeholder="Deployment transaction, grant announcement or signed offer" />
+          <span className="hint">Only its hash goes on chain. If you mark no team, the strongest signal you bought receives the pool.</span>
+        </div>
+        {err && <span className="err" role="alert">{err}</span>}
+        <div className="row between">
+          <span className="muted2">Disputes go to anonymous staked verifiers.</span>
+          <button
+            type="button"
+            className="abtn abtn-red"
+            onClick={() => {
+              if (ev.trim().length < 8) return setErr("Add the evidence so verifiers can check it.");
+              s.recordOutcome(m.id, sel, ev.trim());
+              onDone("Outcome recorded. Scouts can now prove their winning picks.");
+            }}
+          >
+            Record outcome
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+}
