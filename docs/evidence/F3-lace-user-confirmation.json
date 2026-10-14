@@ -2,7 +2,17 @@
   "network": "preprod",
   "source": "Dien confirmation in chat, 14 October 2026",
   "result": "Wallet address appears in application after Connect wallet approval",
-  "verification": "User-reported, not agent-captured browser evidence",
+  "verification": "Initial user report followed by direct API and UI verification; address/key values omitted",
   "dustRegistration": "Dien reports Generate tDUST completed; API balance not inspected",
-  "transactionsSubmittedByAgent": 0
+  "transactionsSubmittedByAgent": 0,
+  "directVerification": {
+    "date": "2026-10-15",
+    "browser": "Brave",
+    "connectorApiVersion": "4.0.1",
+    "method": "Agent clicked Connect Lace on the localhost application and inspected DOM booleans via Apple Events",
+    "walletButtonShowsAddress": true,
+    "waitingForLace": false,
+    "networkValidatedByConnector": "preprod",
+    "transactionsSubmitted": 0
+  }
 }
