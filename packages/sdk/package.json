@@ -1,0 +1,12 @@
+{
+  "name": "@senyap/sdk",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "exports": { "./ephemeral-state": "./src/ephemeral-state.ts" },
+  "dependencies": {
+    "@midnight-ntwrk/midnight-js-types": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1"
+  }
+}
