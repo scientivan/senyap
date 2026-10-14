@@ -1,9 +1,9 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.2 · 14 Oktober 2026, 22:00 WIB · Status: **draf; persetujuan Dien atas SPEC belum dinyatakan.**
+> Versi 0.2 · 14 Oktober 2026 · Status: **disetujui Dien di chat, termasuk seluruh usulan parameter dan O-10.**
 > Frontend (landing + halaman app dengan data demo) sudah ada di `apps/web`; kontrak dan layanan belum.
 > Sumber keputusan: living doc Bisik bagian 26 (v0.46), `task-tracker.md`, `AGENTS.md`.
-> Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent: dipakai sebagai default kerja,
+> Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
 > boleh diubah Dien kapan saja, dan setiap perubahan dicatat; **[Spike]** asumsi teknis yang wajib
 > dibuktikan sebelum dipakai (lihat §9). v0.2 menambah §6.3b struct, §8.5 env, §8.6 antarmuka offchain,
 > dan melengkapi §10 setelah audit agent tanpa konteks.
@@ -538,6 +538,11 @@ Push ke GitHub hanya bila repo **private** (aturan Dien). Membuat repo publik un
 tindakan Dien.
 
 ## 15. Keputusan yang masih terbuka
+
+**Pembaruan 14 Okt 2026:** Dien menyetujui SPEC v0.2 dan seluruh usulan parameternya (O-1 sampai O-9),
+serta menyetujui usulan O-10 secara terpisah. Tabel di bawah menyimpan pertanyaan dan rancangan yang
+diterima sebagai riwayat. Alamat amal produksi tetap perlu diberikan Dien sebelum deploy; demo memakai
+alamat burn berlabel. Persetujuan desain tidak membuktikan asumsi teknis; spike tetap wajib.
 
 | ID | Pertanyaan | Usulan agent |
 |---|---|---|

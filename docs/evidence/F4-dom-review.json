@@ -1,0 +1,1948 @@
+[
+  {
+    "route": "/app",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Your markets and bids"
+    ],
+    "headings": [
+      {
+        "text": "Your markets and bids",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Next actions",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Good standing",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Markets",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Signals about registered teams, bought as totals. Rival ecosystems never see who you are or what you"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "2 need attention now"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Buy signals about teams"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Click a row to open it."
+      }
+    ],
+    "screenshot": "F4-app-1440.png"
+  },
+  {
+    "route": "/app/markets",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Markets"
+    ],
+    "headings": [
+      {
+        "text": "Markets",
+        "size": "26px",
+        "weight": "300"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Every market shows only a strength preview until you buy. Team names behind each bucket stay sealed."
+      }
+    ],
+    "screenshot": "F4-app-markets-1440.png"
+  },
+  {
+    "route": "/app/markets/12",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Market #12"
+    ],
+    "headings": [
+      {
+        "text": "Market #12",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Teams in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Which registered team is most likely to ship a production app within six months?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks close in 1 h"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals stay sealed until you buy them."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Every option is a team from the registry that agreed to be assessed. Scouts sell what they saw and t"
+      }
+    ],
+    "screenshot": "F4-app-markets-12-1440.png"
+  },
+  {
+    "route": "/app/markets/11",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Market #11"
+    ],
+    "headings": [
+      {
+        "text": "Market #11",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Bid for exclusive signals",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Teams in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Which team from the Jakarta cohort will deploy on a new chain first?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks closed 3 h ago"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "The top two bidders each hide up to 3 teams from everyone else. Price follows the second highest bid"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals stay sealed until you buy them."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Every option is a team from the registry that agreed to be assessed. Scouts sell what they saw and t"
+      }
+    ],
+    "screenshot": "F4-app-markets-11-1440.png"
+  },
+  {
+    "route": "/app/markets/9",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Market #9"
+    ],
+    "headings": [
+      {
+        "text": "Market #9",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Teams in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Report the outcome",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Which team will accept a grant offer before the end of the month?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks closed 3 days ago"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals you bought are opened on your device from 3 committee shares."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Mark the teams that deployed on your chain, took your grant or accepted your offer. Missing this rep"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Every option is a team from the registry that agreed to be assessed. Scouts sell what they saw and t"
+      }
+    ],
+    "screenshot": "F4-app-markets-9-1440.png"
+  },
+  {
+    "route": "/app/markets/8",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Market #8"
+    ],
+    "headings": [
+      {
+        "text": "Market #8",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Answers in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "If a DeFi team joins Grant Program X, will milestone two be paid within 30 days?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks close in 29 h"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals stay sealed until you buy them."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Opens once at least 5 scouts have answered. 4 so far."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Questions about unannounced token, treasury or listing decisions are not allowed on this side."
+      }
+    ],
+    "screenshot": "F4-app-markets-8-1440.png"
+  },
+  {
+    "route": "/app/markets/6",
+    "width": 1440,
+    "height": 1011,
+    "overflow": false,
+    "h1": [
+      "Market #6"
+    ],
+    "headings": [
+      {
+        "text": "Market #6",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Answers in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Outcome",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Will Chain Y's BD team deliver the promised exchange intro within 60 days of a grant?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks closed 17 days ago"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals you bought are opened on your device from 3 committee shares."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Recorded by verifiers"
+      },
+      {
+        "class": "muted2",
+        "align": "justify",
+        "text": "Grant tracker record plus 5 of 7 verifier votes"
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Questions about unannounced token, treasury or listing decisions are not allowed on this side."
+      }
+    ],
+    "screenshot": "F4-app-markets-6-1440.png"
+  },
+  {
+    "route": "/app/new",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Create a market"
+    ],
+    "headings": [
+      {
+        "text": "Create a market",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Question and options",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Terms",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "You appear under a new pseudonym for this market. Only registered teams can be options."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "The platform keeps 15%. Stakes are refundable. Rewards come only from what buyers pay."
+      }
+    ],
+    "screenshot": "F4-app-new-1440.png"
+  },
+  {
+    "route": "/app/positions",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "My picks"
+    ],
+    "headings": [
+      {
+        "text": "My picks",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Positions",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Claim settings",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Your picks live only on this device. The chain sees a stake, a one-time code and a sealed commitment"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "5 picks across 3 markets"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Payouts can go to any address, so your scout wallet never links to the claim."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Picks and hit credentials are private state on this device. Lose the device and you lose the ability"
+      }
+    ],
+    "screenshot": "F4-app-positions-1440.png"
+  },
+  {
+    "route": "/app/tier",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Tier 2"
+    ],
+    "headings": [
+      {
+        "text": "Tier 2",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Hit credentials",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "What the proof shows",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Renew for the next epoch",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Tiers expire every epoch. Renew by proving recent wins from the credentials on this device. Epoch 14"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Issued privately each time a pick wins."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Selective disclosure in one line."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "You qualify for tier 3."
+      },
+      {
+        "class": "muted2",
+        "align": "justify",
+        "text": "Renewing adds a new membership commitment to next epoch's group. It cannot be linked to your old one"
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "When a dispute proves a pick was a hoax, the committee opens only that pick's locked membership card"
+      }
+    ],
+    "screenshot": "F4-app-tier-1440.png"
+  },
+  {
+    "route": "/app/registry",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Registered teams"
+    ],
+    "headings": [
+      {
+        "text": "Registered teams",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "4 teams in the registry",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Only teams that opted in can appear in a market. Registering also says you are open to offers from e"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public list. What scouts think about each team stays sealed."
+      }
+    ],
+    "screenshot": "F4-app-registry-1440.png"
+  },
+  {
+    "route": "/app/profile",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Good standing"
+    ],
+    "headings": [
+      {
+        "text": "Good standing",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Your standing",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Pseudonyms",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "What can remove standing",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Rivals never see which ecosystem you are. Scouts see only that a buyer is in good standing."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "A new one for every market, derived from your private key."
+      },
+      {
+        "class": "muted2",
+        "align": "justify",
+        "text": "Missing an outcome report, or losing a dispute about one. Then the committee opens only that market'"
+      }
+    ],
+    "screenshot": "F4-app-profile-1440.png"
+  },
+  {
+    "route": "/app/operator",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Verifications"
+    ],
+    "headings": [
+      {
+        "text": "Verifications",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Waiting for review",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Reasons waiting for Veritas",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "The operator checks a credential once, adds only a commitment to the right group, and keeps no link "
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Scored for duplication and AI likelihood, then rewritten to remove identifying details."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Only a hoax proven by verifiers can slash a stake."
+      }
+    ],
+    "screenshot": "F4-app-operator-1440.png"
+  },
+  {
+    "route": "/app/committee",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Decryption committee"
+    ],
+    "headings": [
+      {
+        "text": "Decryption committee",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Members",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Market #11 strength preview",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Five nodes each hold one share of the key. Any three together can open a total. None can open one al"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "The public histogram needs 3 approvals."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "The committee reads totals for the public preview and the fallback rule, and bids to compute the auc"
+      }
+    ],
+    "screenshot": "F4-app-committee-1440.png"
+  },
+  {
+    "route": "/app/faucet",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Demo dUSD"
+    ],
+    "headings": [
+      {
+        "text": "Demo dUSD",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Balance",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Get demo dUSD",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Start over",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "dUSD is an unshielded demo token with no value, standing in for a stablecoin on Midnight preprod."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Resets markets, picks and teams to the original demo."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Because dUSD is unshielded, amounts and the funding wallet are visible on chain. Fund stakes from a "
+      }
+    ],
+    "screenshot": "F4-app-faucet-1440.png"
+  },
+  {
+    "route": "/app/guide",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "How to try Senyap"
+    ],
+    "headings": [
+      {
+        "text": "How to try Senyap",
+        "size": "26px",
+        "weight": "300"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Follow one market from registration to claim. Switch roles with Use Senyap as in the header."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Each market page has a demo control that moves it to the next phase, so you can walk the whole flow "
+      }
+    ],
+    "screenshot": "F4-app-guide-1440.png"
+  },
+  {
+    "route": "/app",
+    "width": 390,
+    "height": 1820,
+    "overflow": false,
+    "h1": [
+      "Your markets and bids"
+    ],
+    "headings": [
+      {
+        "text": "Your markets and bids",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Next actions",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Good standing",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Markets",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Signals about registered teams, bought as totals. Rival ecosystems never see who you are or what you"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "2 need attention now"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Buy signals about teams"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Click a row to open it."
+      }
+    ],
+    "screenshot": "F4-app-390.png"
+  },
+  {
+    "route": "/app/markets",
+    "width": 390,
+    "height": 1826,
+    "overflow": false,
+    "h1": [
+      "Markets"
+    ],
+    "headings": [
+      {
+        "text": "Markets",
+        "size": "26px",
+        "weight": "300"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Every market shows only a strength preview until you buy. Team names behind each bucket stay sealed."
+      }
+    ],
+    "screenshot": "F4-app-markets-390.png"
+  },
+  {
+    "route": "/app/markets/12",
+    "width": 390,
+    "height": 1977,
+    "overflow": false,
+    "h1": [
+      "Market #12"
+    ],
+    "headings": [
+      {
+        "text": "Market #12",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Teams in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Which registered team is most likely to ship a production app within six months?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks close in 1 h"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals stay sealed until you buy them."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Every option is a team from the registry that agreed to be assessed. Scouts sell what they saw and t"
+      }
+    ],
+    "screenshot": "F4-app-markets-12-390.png"
+  },
+  {
+    "route": "/app/markets/11",
+    "width": 390,
+    "height": 1999,
+    "overflow": false,
+    "h1": [
+      "Market #11"
+    ],
+    "headings": [
+      {
+        "text": "Market #11",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Bid for exclusive signals",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Teams in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Which team from the Jakarta cohort will deploy on a new chain first?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks closed 3 h ago"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "The top two bidders each hide up to 3 teams from everyone else. Price follows the second highest bid"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals stay sealed until you buy them."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Every option is a team from the registry that agreed to be assessed. Scouts sell what they saw and t"
+      }
+    ],
+    "screenshot": "F4-app-markets-11-390.png"
+  },
+  {
+    "route": "/app/markets/9",
+    "width": 390,
+    "height": 2076,
+    "overflow": false,
+    "h1": [
+      "Market #9"
+    ],
+    "headings": [
+      {
+        "text": "Market #9",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Teams in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Report the outcome",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Which team will accept a grant offer before the end of the month?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks closed 3 days ago"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals you bought are opened on your device from 3 committee shares."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Mark the teams that deployed on your chain, took your grant or accepted your offer. Missing this rep"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Every option is a team from the registry that agreed to be assessed. Scouts sell what they saw and t"
+      }
+    ],
+    "screenshot": "F4-app-markets-9-390.png"
+  },
+  {
+    "route": "/app/markets/8",
+    "width": 390,
+    "height": 1535,
+    "overflow": false,
+    "h1": [
+      "Market #8"
+    ],
+    "headings": [
+      {
+        "text": "Market #8",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Answers in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "If a DeFi team joins Grant Program X, will milestone two be paid within 30 days?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks close in 29 h"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals stay sealed until you buy them."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Opens once at least 5 scouts have answered. 4 so far."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Questions about unannounced token, treasury or listing decisions are not allowed on this side."
+      }
+    ],
+    "screenshot": "F4-app-markets-8-390.png"
+  },
+  {
+    "route": "/app/markets/6",
+    "width": 390,
+    "height": 1678,
+    "overflow": false,
+    "h1": [
+      "Market #6"
+    ],
+    "headings": [
+      {
+        "text": "Market #6",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Where this market is",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Answers in this market",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Strength preview",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Public on chain",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Outcome",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Will Chain Y's BD team deliver the promised exchange intro within 60 days of a grant?"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Picks closed 17 days ago"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Totals you bought are opened on your device from 3 committee shares."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public. Counts teams per bucket without naming them."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Recorded by verifiers"
+      },
+      {
+        "class": "muted2",
+        "align": "justify",
+        "text": "Grant tracker record plus 5 of 7 verifier votes"
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Questions about unannounced token, treasury or listing decisions are not allowed on this side."
+      }
+    ],
+    "screenshot": "F4-app-markets-6-390.png"
+  },
+  {
+    "route": "/app/new",
+    "width": 390,
+    "height": 1294,
+    "overflow": false,
+    "h1": [
+      "Create a market"
+    ],
+    "headings": [
+      {
+        "text": "Create a market",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Question and options",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Terms",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "You appear under a new pseudonym for this market. Only registered teams can be options."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "The platform keeps 15%. Stakes are refundable. Rewards come only from what buyers pay."
+      }
+    ],
+    "screenshot": "F4-app-new-390.png"
+  },
+  {
+    "route": "/app/positions",
+    "width": 390,
+    "height": 1049,
+    "overflow": false,
+    "h1": [
+      "My picks"
+    ],
+    "headings": [
+      {
+        "text": "My picks",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Positions",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Claim settings",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Your picks live only on this device. The chain sees a stake, a one-time code and a sealed commitment"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "5 picks across 3 markets"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Payouts can go to any address, so your scout wallet never links to the claim."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Picks and hit credentials are private state on this device. Lose the device and you lose the ability"
+      }
+    ],
+    "screenshot": "F4-app-positions-390.png"
+  },
+  {
+    "route": "/app/tier",
+    "width": 390,
+    "height": 1216,
+    "overflow": false,
+    "h1": [
+      "Tier 2"
+    ],
+    "headings": [
+      {
+        "text": "Tier 2",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Hit credentials",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "What the proof shows",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Renew for the next epoch",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Tiers expire every epoch. Renew by proving recent wins from the credentials on this device. Epoch 14"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Issued privately each time a pick wins."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Selective disclosure in one line."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "You qualify for tier 3."
+      },
+      {
+        "class": "muted2",
+        "align": "justify",
+        "text": "Renewing adds a new membership commitment to next epoch's group. It cannot be linked to your old one"
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "When a dispute proves a pick was a hoax, the committee opens only that pick's locked membership card"
+      }
+    ],
+    "screenshot": "F4-app-tier-390.png"
+  },
+  {
+    "route": "/app/registry",
+    "width": 390,
+    "height": 923,
+    "overflow": false,
+    "h1": [
+      "Registered teams"
+    ],
+    "headings": [
+      {
+        "text": "Registered teams",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "4 teams in the registry",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Only teams that opted in can appear in a market. Registering also says you are open to offers from e"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Public list. What scouts think about each team stays sealed."
+      }
+    ],
+    "screenshot": "F4-app-registry-390.png"
+  },
+  {
+    "route": "/app/profile",
+    "width": 390,
+    "height": 1069,
+    "overflow": false,
+    "h1": [
+      "Good standing"
+    ],
+    "headings": [
+      {
+        "text": "Good standing",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Your standing",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Pseudonyms",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "What can remove standing",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Rivals never see which ecosystem you are. Scouts see only that a buyer is in good standing."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "A new one for every market, derived from your private key."
+      },
+      {
+        "class": "muted2",
+        "align": "justify",
+        "text": "Missing an outcome report, or losing a dispute about one. Then the committee opens only that market'"
+      }
+    ],
+    "screenshot": "F4-app-profile-390.png"
+  },
+  {
+    "route": "/app/operator",
+    "width": 390,
+    "height": 1210,
+    "overflow": false,
+    "h1": [
+      "Verifications"
+    ],
+    "headings": [
+      {
+        "text": "Verifications",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Waiting for review",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Reasons waiting for Veritas",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "The operator checks a credential once, adds only a commitment to the right group, and keeps no link "
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Scored for duplication and AI likelihood, then rewritten to remove identifying details."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Only a hoax proven by verifiers can slash a stake."
+      }
+    ],
+    "screenshot": "F4-app-operator-390.png"
+  },
+  {
+    "route": "/app/committee",
+    "width": 390,
+    "height": 1175,
+    "overflow": false,
+    "h1": [
+      "Decryption committee"
+    ],
+    "headings": [
+      {
+        "text": "Decryption committee",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Members",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Market #11 strength preview",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Five nodes each hold one share of the key. Any three together can open a total. None can open one al"
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "The public histogram needs 3 approvals."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "The committee reads totals for the public preview and the fallback rule, and bids to compute the auc"
+      }
+    ],
+    "screenshot": "F4-app-committee-390.png"
+  },
+  {
+    "route": "/app/faucet",
+    "width": 390,
+    "height": 912,
+    "overflow": false,
+    "h1": [
+      "Demo dUSD"
+    ],
+    "headings": [
+      {
+        "text": "Demo dUSD",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Balance",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Get demo dUSD",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "Start over",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "dUSD is an unshielded demo token with no value, standing in for a stablecoin on Midnight preprod."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "Resets markets, picks and teams to the original demo."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Because dUSD is unshielded, amounts and the funding wallet are visible on chain. Fund stakes from a "
+      }
+    ],
+    "screenshot": "F4-app-faucet-390.png"
+  },
+  {
+    "route": "/app/guide",
+    "width": 390,
+    "height": 1265,
+    "overflow": false,
+    "h1": [
+      "How to try Senyap"
+    ],
+    "headings": [
+      {
+        "text": "How to try Senyap",
+        "size": "26px",
+        "weight": "300"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Follow one market from registration to claim. Switch roles with Use Senyap as in the header."
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Each market page has a demo control that moves it to the next phase, so you can walk the whole flow "
+      }
+    ],
+    "screenshot": "F4-app-guide-390.png"
+  },
+  {
+    "route": "/app/verify",
+    "width": 1440,
+    "height": 1000,
+    "overflow": false,
+    "h1": [
+      "Disputes"
+    ],
+    "headings": [
+      {
+        "text": "Disputes",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Dispute on market #9, position c963 8da7",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "This dispute",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Verifiers stake to join and vote in secret. The majority is paid from the minority's stake."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "The dispute says a team meeting cited in the reason never happened."
+      },
+      {
+        "class": "muted2",
+        "align": "justify",
+        "text": "You can read the cleaned reason and the evidence both sides attached. Nobody, including you, learns "
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "The stake goes to charity and the scout's locked membership card is opened and removed from the grou"
+      }
+    ],
+    "screenshot": "F4-app-verify-1440.png"
+  },
+  {
+    "route": "/app/verify",
+    "width": 390,
+    "height": 1046,
+    "overflow": false,
+    "h1": [
+      "Disputes"
+    ],
+    "headings": [
+      {
+        "text": "Disputes",
+        "size": "26px",
+        "weight": "300"
+      },
+      {
+        "text": "Dispute on market #9, position c963 8da7",
+        "size": "16px",
+        "weight": "600"
+      },
+      {
+        "text": "This dispute",
+        "size": "16px",
+        "weight": "600"
+      }
+    ],
+    "unlabelledFields": [],
+    "buttonBorders": [],
+    "hasDemoLabel": true,
+    "emDash": false,
+    "unicodeArrows": false,
+    "paragraphs": [
+      {
+        "class": "",
+        "align": "justify",
+        "text": "Verifiers stake to join and vote in secret. The majority is paid from the minority's stake."
+      },
+      {
+        "class": "acard-sub",
+        "align": "justify",
+        "text": "The dispute says a team meeting cited in the reason never happened."
+      },
+      {
+        "class": "muted2",
+        "align": "justify",
+        "text": "You can read the cleaned reason and the evidence both sides attached. Nobody, including you, learns "
+      },
+      {
+        "class": "",
+        "align": "justify",
+        "text": "The stake goes to charity and the scout's locked membership card is opened and removed from the grou"
+      }
+    ],
+    "screenshot": "F4-app-verify-390.png"
+  }
+]

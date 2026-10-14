@@ -39,8 +39,8 @@ Senyap (Indonesian for "hushed, silent") is a private, stake-backed insider-sign
 
 - Up to 8 options per market, up to 3 positions per scout per market, stake 10–500 dUSD (demo unshielded token), 85% scouts / 15% platform, k = 5 anonymity threshold per group and per market.
 - Side B questions must have a resolvable outcome and must never concern unannounced foundation decisions that could move a token price.
-- Frontend (landing + all app pages) is built in `apps/web` on labelled demo data. Compact contracts, crypto packages and services are not built yet; spikes S1–S9 in `SPEC.md` gate the crypto design. Status lives in `task-tracker.md`.
-- Undecided: O-1 to O-10 in `SPEC.md` §15. Approval of the specification (O-7) and buyer limits (O-9) is required before P2.
+- Frontend (landing + all app pages) is built in `apps/web` on labelled demo data. Isolated Compact spikes and the runtime-compatible crypto package have local tests. The demo-token fixture has local-network mint/deposit/payout evidence. Senyap product contracts and services are not built yet; S5 still needs a real Lace/Preprod circuit call. Status lives in `task-tracker.md`.
+- Dien approved SPEC v0.2, its proposed parameters (O-1 to O-9), and O-10 on 14 October 2026. Technical spikes remain required before P2. The production charity address must be supplied before deployment.
 
 ## Brand Commitments
 

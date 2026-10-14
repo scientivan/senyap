@@ -1,0 +1,88 @@
+{
+  "network": "undeployed",
+  "contractAddress": "02c812428bb220124d9cf5a6b862499c2cd80a3345f91b71189ecba3b1148f3d",
+  "token": "bdca5415f57b15b30d351c375d0cd752003286731a31a4190b2034eba34e6b85",
+  "transactions": [
+    {
+      "action": "deploy",
+      "txId": "00a93423fdbc9ef2d6b23a2c5ddb377f9d12438153ed258d6c91f8edeeb4e33002"
+    },
+    {
+      "action": "mintDemo",
+      "txId": "00395faf79f52c6208741165be701e787be39a6dd48a58f7488f3b1f94d1d8a855"
+    },
+    {
+      "action": "mintDemo",
+      "txId": "00047cb68a06f556d85429df2cba57e92a512505578b9e32eeda6a2d6c90b1e2ee"
+    },
+    {
+      "action": "depositDemo",
+      "txId": "00608ebc61a4da888c15ba449281480b19f1b8f582adeb1d5ef6eb3f9255188aba"
+    },
+    {
+      "action": "payoutDemo",
+      "txId": "00007b16e9349b1eef861461134be5da2a95753b26c0db82319213c9312e97b757"
+    }
+  ],
+  "payerAddress": "bc610dd07c52f59012a88c2f9f1c5f34cbacc75b868202975d6f19beaf37284b",
+  "recipientAddress": "91ce2602cc02bc75845a9ba0b2c4e5f63c7a54a9d5dac744828e68d299d22565",
+  "balances": {
+    "payer": "900",
+    "recipient": "75",
+    "contract": "25"
+  },
+  "finalizedHead": "0xd4676bf38059ad41dbada4950b6bcc45309ac42857915fa713b453935332c279",
+  "replayProgress": {
+    "payer": {
+      "balance": "900",
+      "highestTransactionId": 30,
+      "tokens": [
+        {
+          "token": "0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "50000000000000"
+        },
+        {
+          "token": "0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "50000000000000"
+        },
+        {
+          "token": "0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "50000000000000"
+        },
+        {
+          "token": "0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "50000000000000"
+        },
+        {
+          "token": "0000000000000000000000000000000000000000000000000000000000000000",
+          "value": "50000000000000"
+        },
+        {
+          "token": "bdca5415f57b15b30d351c375d0cd752003286731a31a4190b2034eba34e6b85",
+          "value": "900"
+        }
+      ]
+    },
+    "recipient": {
+      "balance": "75",
+      "highestTransactionId": 31,
+      "tokens": [
+        {
+          "token": "bdca5415f57b15b30d351c375d0cd752003286731a31a4190b2034eba34e6b85",
+          "value": "75"
+        }
+      ]
+    }
+  },
+  "indexerContractBalances": [],
+  "stateBalances": [
+    {
+      "token": {
+        "tag": "unshielded",
+        "raw": "bdca5415f57b15b30d351c375d0cd752003286731a31a4190b2034eba34e6b85"
+      },
+      "balance": "25"
+    }
+  ],
+  "note": "Payer/recipient balances reconstructed from public indexer created/spent UTXO replay through its progress marker; contract balance read from indexer. Includes one earlier misaddressed synthetic mint. No additional transactions submitted."
+}

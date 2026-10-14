@@ -11,11 +11,13 @@ their experience with ecosystems.
 This repository currently contains a React frontend with **labelled synthetic demo
 data**. Its actions update local demo state; they do not submit Midnight
 transactions. The Lace connection code exists but has not been tested with a real
-Lace wallet. Compact contracts, cryptography packages, services and the Midnight
-SDK integration have not been implemented. There is no deployed contract.
+Lace wallet. The repository now includes isolated Compact technical spikes,
+runtime-compatible cryptography and a local test harness. Senyap product contracts,
+services and the frontend SDK integration have not been implemented. A permissionless demo-token fixture has been deployed and tested on the local
+network only. No Senyap product contract or Preprod contract is deployed.
 
 The mechanisms described below are planned, not working features. See [SPEC.md](SPEC.md)
-for the draft specification and [PRODUCT.md](PRODUCT.md) for product context.
+for the approved specification and [PRODUCT.md](PRODUCT.md) for product context.
 
 ## Run the frontend demo
 
@@ -36,15 +38,20 @@ pnpm --filter @senyap/web typecheck
 pnpm build
 ```
 
-No contract tests or Vitest runner are present yet. Contract compilation and
-network setup instructions will be added after the toolchain is verified.
+Compact 0.31.1 compilation and Vitest are available. See
+[local development](docs/local-development.md) for setup, and
+[technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
+was proved by the local proof server; this does not establish end-to-end network
+execution of the Senyap market.
 
 ## Planned architecture and Midnight integration
 
 - `apps/web` (present): Vite, React and TypeScript frontend with demo state.
-- `contracts` (planned): Compact market and unshielded demo-token contracts.
-- `packages/crypto` (planned): additive ElGamal on JubJub and 3-of-5 threshold
-  decryption (three committee members must cooperate to open a total).
+- `contracts` (spikes present; product contracts planned): Compact market and
+  unshielded demo-token contracts.
+- `packages/crypto` (local tests present; integration planned): additive ElGamal
+  on JubJub and 3-of-5 threshold decryption (three committee members must cooperate
+  to open a total).
 - `packages/sdk` (planned): Midnight.js wrapper, witnesses and private state.
 - `apps/operator` (planned): credential verification, reason screening and relay.
 - `apps/committee` (planned): five decryption nodes and onchain approvals.
@@ -52,8 +59,9 @@ network setup instructions will be added after the toolchain is verified.
 
 The design keeps identities, options and secrets in private state, while the
 public ledger holds commitments, nullifiers (single-use codes), encrypted totals
-and approved results. These assumptions still require compilation and technical
-spikes. Target network: **Midnight Preprod**. Planned versions: Compact 0.31.1,
+and approved results. Some assumptions are verified by local technical spikes;
+network and product integration remain pending. Target network: **Midnight Preprod**.
+Pinned versions: Compact 0.31.1,
 compact-runtime 0.16.0, Midnight.js 4.1.1 and proof server 8.1.3.
 
 ## Configuration
@@ -94,12 +102,13 @@ The product idea and market mechanism carry over: anonymous insiders back option
 with refundable stakes, buyers pay for aggregate signals, and payouts follow
 outcomes.
 
-The Senyap frontend was written for the Midnight adaptation during Wave 2.
-Midnight contracts and services will be written from scratch. Onchain encrypted
+The Senyap frontend and technical spikes were written for the Midnight adaptation
+during Wave 2. The official bboard verification fixture retains its Apache-2.0
+attribution. Senyap product contracts and services will be written from scratch. Onchain encrypted
 tallies, anonymous tier groups and buyers, private settlement, portable
 reputation, hoax accountability, encrypted auctions and consent-based identity
-reveal are **planned**, not completed innovations. The current contribution is
-the demo interface and project specification.
+reveal are **planned**, not completed product innovations. The current contribution
+includes the demo interface, specification, local tests and proof-server experiment.
 
 ## Development and license
 

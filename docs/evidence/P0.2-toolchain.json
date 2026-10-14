@@ -1,0 +1,22 @@
+{
+  "devtools": "compact 0.5.3",
+  "compiler": "0.31.1",
+  "runtime": "0.16.0",
+  "ledger": "ledger-8.0.2",
+  "local_dev_revision": "902561ddc27a4b096f19835ab1528f38ace515f1",
+  "bboard_revision": "f9df09ac83c4adf66a1177d2fcec3b3596f038e6",
+  "docker": [
+    "/midnight-node midnightntwrk/midnight-node:1.0.0 healthy",
+    "/midnight-indexer midnightntwrk/indexer-standalone:4.3.3 healthy",
+    "/midnight-proof-server midnightntwrk/proof-server:8.1.3 healthy"
+  ],
+  "bboard_proving_key_files": [
+    "contracts/managed/examples/bboard/keys/post.prover",
+    "contracts/managed/examples/bboard/keys/post.verifier",
+    "contracts/managed/examples/bboard/keys/takeDown.prover",
+    "contracts/managed/examples/bboard/keys/takeDown.verifier"
+  ],
+  "note": "Compiler target ledger-8.0.2; JS ledger-v8 unified at 8.1.3 to avoid cross-instance DustParameters errors. Proof server 8.1.3.",
+  "onchain_runtime_override": "3.0.0",
+  "ledgerRuntimeOverride": "8.1.3"
+}

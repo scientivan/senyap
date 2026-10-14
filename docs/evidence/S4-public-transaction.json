@@ -1,0 +1,35 @@
+{
+  "network": "undeployed",
+  "txId": "00608ebc61a4da888c15ba449281480b19f1b8f582adeb1d5ef6eb3f9255188aba",
+  "fundingPublicKey": "86f71b8a7a21bfe16a2bb2eab74475073fa5b773854f151ed548dba77a2c5815",
+  "fundingKeyVisible": true,
+  "offers": [
+    {
+      "inputs": [
+        {
+          "ownerPublicKey": "86f71b8a7a21bfe16a2bb2eab74475073fa5b773854f151ed548dba77a2c5815",
+          "value": "1000",
+          "token": "bdca5415f57b15b30d351c375d0cd752003286731a31a4190b2034eba34e6b85"
+        }
+      ],
+      "outputs": [
+        {
+          "ownerAddress": "bc610dd07c52f59012a88c2f9f1c5f34cbacc75b868202975d6f19beaf37284b",
+          "value": "900",
+          "token": "bdca5415f57b15b30d351c375d0cd752003286731a31a4190b2034eba34e6b85"
+        }
+      ]
+    }
+  ],
+  "note": "Fields extracted only from finalized public tx. Wallet funding key/amounts are visible; this does not expose a real-world name. DUST privacy is not inferred from these fields.",
+  "status": "SucceedEntirely",
+  "blockHeight": 406,
+  "dust": [
+    {
+      "fields": [
+        "__wbg_ptr"
+      ],
+      "description": "DustActions {\n    spends: [\n        DustSpend {\n            v_fee: 1233173,\n            old_nullifier: <dust nullifier>,\n            new_commitment: <dust commitment>,\n            proof: <proof>,\n        },\n    ],\n    registrations: [],\n    ctime: Timestamp(\n        1791992268,\n    ),\n}"
+    }
+  ]
+}
