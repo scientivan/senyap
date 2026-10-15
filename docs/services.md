@@ -242,3 +242,20 @@ starts no listener, wallet, snapshot read or model request. These no-start paths
 and typecheck have been checked; actual service startup awaits a product deployment
 and configured server keys. Core handler/repository behavior has the local HTTP
 and SQLite tests described above.
+
+
+## Typed product actions
+
+`packages/sdk/src/actions.ts` prepares saved signing/receiver/vote material and
+passes arguments to the journalled product transport. Named stake, bid, purchase,
+selection, report, hit, claim, commit/reveal and renewal functions share the same
+preparation flow. Stake arguments are constructed from the newly saved position
+key. Reveal uses the saved vote, never a replacement choice from the form.
+
+Two integration tests run the action layer against actual generated circuits:
+two private stake slots and cancelled principal refunds, then a buyer purchase/
+report and verifier commit/reveal. Four transport tests separately cover the
+wallet/journal boundary. No network send is performed. Market pages still use
+labelled demo state. The current Side B group reference leaks its option; these
+helpers do not solve that protocol issue. See the pending
+[S11 group-privacy proposal](group-privacy-spike-proposal.md).

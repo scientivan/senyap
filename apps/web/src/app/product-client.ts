@@ -16,7 +16,8 @@ import { executeClientOperation, reconcileClientOperation } from "@senyap/sdk/op
 import type { WorkspaceClient } from "@senyap/sdk/workspace";
 
 type ProductContract=Contract<ClientPrivateState>;
-export type UserCircuit="registerBuilder"|"withdrawBuilder"|"createMarket"|"close"|"stake"|"placeBid"|"settleBid"|"selectHidden"|"skipSelection"|"buyFlat"|"recordOutcome"|"proveHit"|"cancelMarket"|"returnCancelledSubsidy"|"claim"|"renewTier"|"openDispute"|"commitVote"|"revealVote"|"resolveDispute"|"claimVerifier"|"finalizeMarket"|"markMissedReport";
+import type { UserCircuit, ProductCallTransport } from "@senyap/sdk/actions";
+export type { UserCircuit } from "@senyap/sdk/actions";
 const allowed=new Set<UserCircuit>(["registerBuilder","withdrawBuilder","createMarket","close","stake","placeBid","settleBid","selectHidden","skipSelection","buyFlat","recordOutcome","proveHit","cancelMarket","returnCancelledSubsidy","claim","renewTier","openDispute","commitVote","revealVote","resolveDispute","claimVerifier","finalizeMarket","markMissedReport"]);
 
 /** Use only the approved, published deployment address and its reproducible
@@ -58,7 +59,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
       await beforeSubmit(id);await api.submitTransaction(toHex(tx.serialize()));return id;
     }}
   };
-  return {
+  const product={
     async read(){
       try{const state=await publicData.queryContractState(input.contract);if(!state)throw Error();return ledger(state.data);}
       catch{throw Error("Finalized product state unavailable");}
@@ -92,7 +93,8 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
     async reconcile(){return reconcileClientOperation(client,async txId=>{
       try{const receipt=await publicData.watchForTxData(txId);return receipt.status==="SucceedEntirely"?"succeeded":"failed";}catch{return "unknown";}
     });}
-  };
+  } satisfies ProductCallTransport & {read:()=>Promise<ReturnType<typeof ledger>>;reconcile:()=>ReturnType<typeof reconcileClientOperation>};
+  return product;
 }
 
 export async function prepareProductClient(input:Parameters<typeof prepareProductClientInternal>[0]){

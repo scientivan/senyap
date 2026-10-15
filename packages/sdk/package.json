@@ -13,7 +13,8 @@
     "./reasons": "./src/reasons.ts",
     "./verifier-vote": "./src/verifier-vote.ts",
     "./client-state": "./src/client-state.ts",
-    "./operation": "./src/operation.ts"
+    "./operation": "./src/operation.ts",
+    "./actions": "./src/actions.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",
