@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: Apache-2.0
+// Permissionless faucet for synthetic demo dUSD only. Zero decimals, no real asset.
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+export ledger totalMinted: Uint<128>;
+export circuit mint(recipient: UserAddress, amount: Uint<64>): Bytes<32> {
+  assert(amount > 0 && amount <= 5000, "Demo mint must be between 1 and 5000 dUSD");
+  assert(totalMinted <= 340282366920938463463374607431768206455, "Demo supply overflow");
+  totalMinted = (totalMinted + disclose(amount)) as Uint<128>;
+  return mintUnshieldedToken(pad(32, "senyap:demo:dUSD"), disclose(amount), right<ContractAddress, UserAddress>(disclose(recipient)));
+}
