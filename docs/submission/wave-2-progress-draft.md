@@ -63,6 +63,9 @@ These checks do not establish a security audit or network settlement.
 
 ## Still to complete before a final submission claim
 
+- Fix the known Side B option leak through its public ecosystem group. A shared
+  root-registry/private group proof is proposed; it has not been approved or tested.
+
 - An authorized product deployment and full network market lifecycle.
 - Frontend transactions and indexed live state; current market pages remain
   labelled synthetic demo data. The workspace storage itself is real local code.

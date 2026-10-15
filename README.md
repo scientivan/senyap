@@ -121,6 +121,14 @@ remain unfinished.
 
 ## Privacy limits in the planned design
 
+**Known Side B option leak:** the current contract publicly references a scout's
+ecosystem group, and that ecosystem must match the selected option. These fields
+reveal the choice by inference despite encrypted tally values. A private shared
+root-registry proof and expanded locked card are proposed in the
+[S11 refinement](docs/group-privacy-spike-proposal.md), awaiting owner approval
+and verification. Side B option privacy must not be claimed as delivered.
+
+
 Unshielded demo stakes expose amounts and funding wallets. Committee members are
 trusted not to collude; all five demo nodes are planned to run on one team machine,
 which would hold every key share. Demo key generation uses a trusted dealer. The

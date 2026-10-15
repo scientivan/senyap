@@ -1,5 +1,11 @@
 # Core contract implementation
 
+Known issue (15 October): Side B options can be inferred from the publicly stored
+position group and its ecosystem metadata. Existing encrypted tally/proof tests
+do not establish Side B option privacy. The proposed private group-root registry
+and expanded card are awaiting approval in
+[group-privacy-spike-proposal.md](group-privacy-spike-proposal.md).
+
 This implements the already-approved SPEC v0.2 after all S1–S9 spikes passed.
 It does not authorize a deployment or network transaction.
 
