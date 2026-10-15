@@ -201,7 +201,7 @@ function BidPanel({ m, onDone }: { m: Market; onDone: (msg: string) => void }) {
 function OptionsPanel({ m, onDone, kBlocked }: { m: Market; onDone: (msg: string) => void; kBlocked: boolean }) {
   const s = useStore();
   const canBuy = (s.role === "ecosystem" && m.side === "A" && ["allocated", "outcome", "settling", "settled"].includes(m.phase)) || (s.role === "builder" && m.side === "B" && m.phase !== "open");
-  const max = Math.max(...m.options.filter((o) => m.bought.includes(o.id)).map((o) => o.sealedWeight), 1);
+  const max = Math.max(...m.options.map((o) => s.revealed(m,o.id) ?? 0), 1);
   return (
     <Card
       title={m.side === "A" ? "Teams in this market" : "Answers in this market"}

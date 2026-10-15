@@ -4,13 +4,12 @@
  */
 export type Role = "ecosystem" | "builder" | "scout" | "operator";
 export type Side = "A" | "B";
-export type Phase = "open" | "closed" | "auction" | "allocated" | "outcome" | "settling" | "settled";
+export type {ProductPhase as Phase} from "@senyap/sdk/read-model";
+import type {ProductPhase as Phase} from "@senyap/sdk/read-model";
 
 export type Option = {
   id: number;
   label: string; // team name (side A) or answer (side B)
-  /** Weighted total, only known to the store. Pages must call reveal helpers, never read this. */
-  sealedWeight: number;
 };
 
 export type Market = {

@@ -1,0 +1,93 @@
+{
+  "scope": "Static design preview; isolated Chrome profile; no wallet or transactions",
+  "captures": [
+    {
+      "state": "connect",
+      "width": 1440,
+      "path": "/private/tmp/senyap-live-preview-connect-1440.png",
+      "checks": {
+        "noOverflow": true,
+        "expectedPanelVisible": true,
+        "previewLabel": true,
+        "noWallet": true
+      }
+    },
+    {
+      "state": "connect",
+      "width": 390,
+      "path": "/private/tmp/senyap-live-preview-connect-390.png",
+      "checks": {
+        "noOverflow": true,
+        "expectedPanelVisible": true,
+        "previewLabel": true,
+        "noWallet": true
+      }
+    },
+    {
+      "state": "ready",
+      "width": 1440,
+      "path": "/private/tmp/senyap-live-preview-ready-1440.png",
+      "checks": {
+        "noOverflow": true,
+        "expectedPanelVisible": true,
+        "previewLabel": true,
+        "noWallet": true
+      }
+    },
+    {
+      "state": "ready",
+      "width": 390,
+      "path": "/private/tmp/senyap-live-preview-ready-390.png",
+      "checks": {
+        "noOverflow": true,
+        "expectedPanelVisible": true,
+        "previewLabel": true,
+        "noWallet": true
+      }
+    },
+    {
+      "state": "pending",
+      "width": 1440,
+      "path": "/private/tmp/senyap-live-preview-pending-1440.png",
+      "checks": {
+        "noOverflow": true,
+        "expectedPanelVisible": true,
+        "previewLabel": true,
+        "noWallet": true
+      }
+    },
+    {
+      "state": "pending",
+      "width": 390,
+      "path": "/private/tmp/senyap-live-preview-pending-390.png",
+      "checks": {
+        "noOverflow": true,
+        "expectedPanelVisible": true,
+        "previewLabel": true,
+        "noWallet": true
+      }
+    },
+    {
+      "state": "uncertain",
+      "width": 1440,
+      "path": "/private/tmp/senyap-live-preview-uncertain-1440.png",
+      "checks": {
+        "noOverflow": true,
+        "expectedPanelVisible": true,
+        "previewLabel": true,
+        "noWallet": true
+      }
+    },
+    {
+      "state": "uncertain",
+      "width": 390,
+      "path": "/private/tmp/senyap-live-preview-uncertain-390.png",
+      "checks": {
+        "noOverflow": true,
+        "expectedPanelVisible": true,
+        "previewLabel": true,
+        "noWallet": true
+      }
+    }
+  ]
+}

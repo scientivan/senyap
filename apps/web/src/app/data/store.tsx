@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Market, Position, QueueItem, Role, Team } from "./types";
+import {publicDemoMarket,demoRevealed,demoHistogram,type DemoMarket} from "./demo-view";
 
 /* ------------------------------------------------------------------ */
 /* Demo data. Every name and number here is synthetic and labelled so. */
@@ -8,7 +9,7 @@ import type { Market, Position, QueueItem, Role, Team } from "./types";
 const H = 3600_000;
 const now = Date.now();
 
-const seedMarkets: Market[] = [
+const seedMarkets: DemoMarket[] = [
   {
     id: 12, side: "A", category: "Builder sourcing", ecosystem: "Buyer 7f3k",
     question: "Which registered team is most likely to ship a production app within six months?",
@@ -112,7 +113,7 @@ type Store = {
 const Ctx = createContext<Store | null>(null);
 const KEY = "senyap-demo-v1";
 
-type Saved = { role: Role; markets: Market[]; positions: Position[]; teams: Team[]; balance: number; credentials: number };
+type Saved = { role: Role; markets: DemoMarket[]; positions: Position[]; teams: Team[]; balance: number; credentials: number };
 
 function load(): Saved | null {
   try {
@@ -126,7 +127,7 @@ function load(): Saved | null {
 export function StoreProvider({ children }: { children: ReactNode }) {
   const saved = useMemo(load, []);
   const [role, setRole] = useState<Role>(saved?.role ?? "ecosystem");
-  const [markets, setMarkets] = useState<Market[]>(saved?.markets ?? seedMarkets);
+  const [markets, setMarkets] = useState<DemoMarket[]>(saved?.markets ?? seedMarkets);
   const [positions, setPositions] = useState<Position[]>(saved?.positions ?? seedPositions);
   const [teams, setTeams] = useState<Team[]>(saved?.teams ?? seedTeams);
   const [balance, setBalance] = useState(saved?.balance ?? 1500);
@@ -140,22 +141,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [role, markets, positions, teams, balance, credentials]);
 
-  const market = useCallback((id: number) => markets.find((m) => m.id === id), [markets]);
-
-  const revealed = useCallback((m: Market, optionId: number) => (m.bought.includes(optionId) ? m.options.find((o) => o.id === optionId)?.sealedWeight ?? 0 : null), []);
-
-  const histogram = useCallback((m: Market) => {
-    const max = Math.max(...m.options.map((o) => o.sealedWeight), 1);
-    let strong = 0, medium = 0, weak = 0;
-    m.options.forEach((o) => {
-      if (o.sealedWeight * 2 >= max) strong++;
-      else if (o.sealedWeight * 5 < max) weak++;
-      else medium++;
-    });
-    return { strong, medium, weak };
-  }, []);
-
-  const patch = (id: number, f: (m: Market) => Market) => setMarkets((ms) => ms.map((m) => (m.id === id ? f(m) : m)));
+  const publicMarkets = useMemo(()=>markets.map(publicDemoMarket),[markets]);
+  const market = useCallback((id: number) => publicMarkets.find((m) => m.id === id), [publicMarkets]);
+  const revealed = useCallback((m: Market, optionId: number) => demoRevealed(markets,m.id,optionId), [markets]);
+  const histogram = useCallback((m: Market) => demoHistogram(markets,m.id),[markets]);
+  const patch = (id: number, f: (m: DemoMarket) => DemoMarket) => setMarkets((ms) => ms.map((m) => (m.id === id ? f(m) : m)));
 
   const stake: Store["stake"] = (marketId, optionId, amount) => {
     const mine = positions.filter((p) => p.marketId === marketId);
@@ -195,7 +185,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const createMarket: Store["createMarket"] = (input) => {
     const id = Math.max(...markets.map((m) => m.id)) + 1;
-    const m: Market = {
+    const m: DemoMarket = {
       id, side: input.side, category: input.category, question: input.question, ecosystem: input.side === "A" ? "You (pseudonym)" : "Proposed by you",
       phase: "open", closesAt: Date.now() + input.hours * H, sealedPicks: 0, scouts: 0, stakeTotal: 0,
       flatPrice: input.flatPrice, reservePrice: input.reservePrice, auction: input.side === "A",
@@ -252,7 +242,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const store: Store = {
-    role, setRole, markets, positions, teams, balance,
+    role, setRole, markets:publicMarkets, positions, teams, balance,
     tier: { level: 2, epoch: 14, expiresIn: 3 * 24 * H, credentials },
     standing: { goodStanding: true, reports: 6, missed: 0, disputesLost: 0 },
     queue, market, revealed, histogram, stake, bid, buy, proveHit, claim, renewTier, registerTeam, createMarket, mint, advance, recordOutcome, reset,

@@ -8,6 +8,10 @@ export function RoleIcon({ role }: { role: Role }) {
 }
 
 export const phaseLabel: Record<Phase, string> = {
+  draft: "Draft",
+  preview: "Strength preview",
+  revealed: "Signals purchased",
+  cancelled: "Cancelled",
   open: "Open for picks",
   closed: "Closed",
   auction: "Sealed auction",
