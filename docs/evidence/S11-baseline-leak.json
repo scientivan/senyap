@@ -1,0 +1,7 @@
+{
+  "sourceSha256": "b9b8946cf2d8124dd1351965e7037e24d12f0c6f15c6fb112fdfa7cded64266b",
+  "positions": 5,
+  "correctlyInferredFromPublicGroup": 5,
+  "leakReproduced": true,
+  "scope": "Synthetic simulator baseline before S11 main integration; uses public Position.group, groupConfig.ecosystem and market optionRefs. No wallet or transaction."
+}

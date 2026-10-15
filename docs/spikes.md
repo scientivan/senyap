@@ -152,3 +152,31 @@ References for the used language/runtime primitives:
 [persistentHash](https://docs.midnight.network/api-reference/compact-runtime/functions/persistentHash),
 [Compact sequence and module syntax](https://docs.midnight.network/compact/reference/compact-reference).
 The repository pins runtime 0.16.0/compiler 0.31.1; published latest docs can differ.
+
+## S11 private ecosystem-group proof (in progress)
+
+The main contract's public Position.group plus groupConfig.ecosystem reveals the
+Side B selected option. The synthetic baseline inferred all five positions from
+public data (`evidence/S11-baseline-leak.json`). Dien approved the shared group-root
+registry design and integration after the spike passes.
+
+`contracts/spikes/s11-private-group.compact` retains per-ecosystem trees and proves
+private metadata, membership root/path and authorization through one public
+HistoricMerkleTree registry. Public admission/revocation synchronizes that
+registry. A runtime root witness is checked against the current membership root
+after clearing its accepted history; revocation also clears registry history.
+The common epoch and all market options remain public, while selected group/root/
+leaf are absent from tested public operations and their public-only serialization.
+
+Five tests pass: two ecosystems, wrong/borrowed witnesses, minimum cohort/epoch,
+revocation and fresh survivor paths, membership-only renewal, and a 72-byte group
+card with every three-share subset. The fixture's setup is permissionless and its
+renewal does not include product hit requirements; never deploy it as a product
+contract. The main contract's authorization, duplicate admission and credential
+rules must remain at integration.
+
+Full key generation for five circuits is complete. `scripts/prove-private-group.ts`
+passed /check and /prove for stake (4860 bytes) and membership-only renewal
+(4508 bytes); see [S11 proof evidence](evidence/S11-proving.json).
+No product contract change, deployment or transaction is established by this
+checkpoint. See [design and acceptance](group-privacy-spike-proposal.md).

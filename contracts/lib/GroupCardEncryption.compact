@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: Apache-2.0
+// S11 hashed-DH group membership card, distinct version/domain from S10.
+module GroupCardEncryption {
+pragma language_version 0.23;
+import CompactStandardLibrary;
+export struct GroupCard { version: Uint<8>; ephemeral: JubjubPoint; ciphertext: Bytes<72>; tag: Bytes<32>; }
+circuit hashInput(domain: Bytes<32>, shared: JubjubPoint, ephemeral: JubjubPoint, context: Bytes<32>, last: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<7, Bytes<32>>>([domain, jubjubPointX(shared) as Bytes<32>, jubjubPointY(shared) as Bytes<32>, jubjubPointX(ephemeral) as Bytes<32>, jubjubPointY(ephemeral) as Bytes<32>, context, last]);
+}
+export circuit encryptGroupCard(pk: JubjubPoint, group: Bytes<32>, commitment: Bytes<32>, index: Uint<64>, context: Bytes<32>, high: Uint<128>, low: Uint<128>): GroupCard {
+  assert(index < 1048576, "Group card index outside tree");
+  assert(high < 19261898452744832053602769315862690560 || (high == 19261898452744832053602769315862690560 && low < 221192506920607668564158609621008198839), "Group card randomness outside scalar range");
+  const r = (high as Field) * (340282366920938463463374607431768211456 as Field) + (low as Field);
+  assert(r != 0, "Group card randomness must be nonzero");
+  const identity = ecMulGenerator(0);assert(pk != identity, "Group card key must be nonzero");
+  assert(ecAdd(ecMul(pk, 6554484396890773809930967563523245729705921265872317281365359162392183254198 as Field), pk) == identity, "Group card key outside subgroup");
+  const ephemeral = ecMulGenerator(r);const shared = ecMul(pk, r);
+  const block0 = hashInput(pad(32, "senyap:gcard:mask:v2"), shared, ephemeral, context, 0 as Bytes<32>);
+  const block1 = hashInput(pad(32, "senyap:gcard:mask:v2"), shared, ephemeral, context, 1 as Bytes<32>);
+  const block2 = hashInput(pad(32, "senyap:gcard:mask:v2"), shared, ephemeral, context, 2 as Bytes<32>);
+  const mask: Vector<72, Uint<8>> = [...block0, ...block1, ...slice<8>(block2, 0)];
+  const payload: Vector<72, Uint<8>> = [...group, ...commitment, ...(index as Bytes<8>)];
+  const encrypted = map((plain: Uint<8>, key: Uint<8>): Uint<8> => { const sum = plain + key;return (sum >= 256 ? sum - 256 : sum) as Uint<8>; }, payload, mask);
+  const ciphertext = encrypted as Bytes<72>;
+  const tag = hashInput(pad(32, "senyap:gcard:tag:v2"), shared, ephemeral, context, persistentHash<Bytes<72>>(ciphertext));
+  return GroupCard { version: 2, ephemeral: ephemeral, ciphertext: ciphertext, tag: tag };
+}
+}

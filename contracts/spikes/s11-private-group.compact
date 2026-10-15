@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version 0.23;
+import CompactStandardLibrary;
+import { GroupCard, encryptGroupCard } from "../lib/GroupCardEncryption";
+export struct Group { id: Bytes<32>; side: Uint<8>; tier: Uint<8>; epoch: Uint<64>; ecosystem: Bytes<32>; size: Uint<32>; root: MerkleTreeDigest; }
+export struct PrivateMember { config: Group; member: MerkleTreePath<20, Bytes<32>>; }
+export struct PathIndex { value: Uint<64>; power: Uint<64>; }
+export ledger groups: Map<Bytes<32>, HistoricMerkleTree<20, Bytes<32>>>;
+export ledger configurations: Map<Bytes<32>, Group>;
+export ledger groupSlots: Map<Bytes<32>, Uint<64>>;
+export ledger nextGroupSlot: Uint<64>;
+export ledger registry: HistoricMerkleTree<32, Bytes<32>>;
+export ledger renewed: Set<Bytes<32>>;
+export ledger cards: Map<Bytes<32>, GroupCard>;
+export sealed ledger committeePk: JubjubPoint;
+export sealed ledger marketOptions: Vector<8, Bytes<32>>;
+export sealed ledger optionCount: Uint<8>;
+witness updatedRoot(id: Bytes<32>): MerkleTreeDigest;
+witness privateGroup(): Group;
+witness registryPath(): MerkleTreePath<32, Bytes<32>>;
+witness memberPath(): MerkleTreePath<20, Bytes<32>>;
+witness scoutSecret(): Bytes<32>;
+witness chosenOption(): Uint<8>;
+witness cardRandomHigh(): Uint<128>;
+witness cardRandomLow(): Uint<128>;
+constructor(pk: JubjubPoint, options: Vector<8, Bytes<32>>, count: Uint<8>) { committeePk = disclose(pk);marketOptions = disclose(options);optionCount = disclose(count);nextGroupSlot = 0; }
+export circuit groupDigest(config: Group): Bytes<32> { return persistentHash<Group>(config); }
+circuit syncGroup(id: Bytes<32>): [] {
+  const config = configurations.lookup(id);
+  // Compact root() is runtime-only. At public administration time, retain only
+  // the current root and verify the witness against that singleton history.
+  groups.lookup(id).resetHistory();const root = disclose(updatedRoot(id));
+  assert(groups.lookup(id).checkRoot(root), "Updated group root not current");
+  const updated = Group { ...config, root: root };
+  configurations.insert(id, updated);registry.insertIndex(persistentHash<Group>(updated), groupSlots.lookup(id));
+}
+// Spike setup operations are deliberately permissionless; not a deployable service.
+export circuit configure(id: Bytes<32>, side: Uint<8>, tier: Uint<8>, epoch: Uint<64>, ecosystem: Bytes<32>): [] {
+  assert(!groups.member(disclose(id)), "Group already configured");
+  groups.insert(disclose(id), default<HistoricMerkleTree<20, Bytes<32>>>);
+  configurations.insert(disclose(id), Group { id: disclose(id), side: disclose(side), tier: disclose(tier), epoch: disclose(epoch), ecosystem: disclose(ecosystem), size: 0, root: default<MerkleTreeDigest> });
+  assert(nextGroupSlot < 4294967296, "Group registry full");
+  groupSlots.insert(disclose(id), nextGroupSlot);nextGroupSlot = (nextGroupSlot + 1) as Uint<64>;
+}
+
+export circuit admit(id: Bytes<32>, member: Bytes<32>): [] {
+  groups.lookup(disclose(id)).insert(disclose(member));
+  const config = configurations.lookup(disclose(id));configurations.insert(disclose(id), Group { ...config, size: (config.size + 1) as Uint<32> });syncGroup(disclose(id));
+}
+export circuit revoke(id: Bytes<32>, index: Uint<64>): [] {
+  groups.lookup(disclose(id)).insertIndexDefault(disclose(index));groups.lookup(disclose(id)).resetHistory();
+  const config = configurations.lookup(disclose(id));configurations.insert(disclose(id), Group { ...config, size: (config.size - 1) as Uint<32> });
+  syncGroup(disclose(id));registry.resetHistory();
+}
+circuit assertPrivateMember(): PrivateMember {
+  const config = privateGroup();const member = memberPath();const authorized = registryPath();
+  assert(authorized.leaf == persistentHash<Group>(config), "Group registry metadata mismatch");
+  assert(registry.checkRoot(disclose(merkleTreePathRoot<32, Bytes<32>>(authorized))), "Group registry root not accepted");
+  assert(merkleTreePathRoot<20, Bytes<32>>(member) == config.root, "Private membership root mismatch");
+  assert(member.leaf == persistentHash<Vector<2, Bytes<32>>>([scoutSecret(), config.epoch as Bytes<32>]), "Private membership leaf mismatch");
+  assert(config.side == 1 && config.tier >= 1 && config.tier <= 3 && config.size >= 5, "Private group not eligible");
+  const epoch = disclose(config.epoch);assert(epoch < 144115188075855871, "Private group epoch overflow");
+  assert(blockTimeGte((epoch * 128) as Uint<64>) && blockTimeLt(((epoch + 1) * 128) as Uint<64>), "Private group epoch expired");
+  return PrivateMember { config: config, member: member };
+}
+
+export circuit stake(context: Bytes<32>): [] {
+  const options = marketOptions;const count = optionCount;
+  const proof = assertPrivateMember();const config = proof.config;const member = proof.member;
+  const option = chosenOption();assert(option < count && count <= 8, "Private option outside market");
+  for(const i of [0,1,2,3,4,5,6,7]) { assert(option != i || options[i] == config.ecosystem, "Private ecosystem mismatch"); }
+  const index = fold((acc: PathIndex, entry: MerkleTreePathEntry): PathIndex => PathIndex { value: (acc.value + (entry.goes_left ? 0 : acc.power)) as Uint<64>, power: (acc.power * 2) as Uint<64> }, PathIndex { value: 0, power: 1 }, member.path).value;
+  assert(!cards.member(disclose(context)), "Private group card already exists");
+  cards.insert(disclose(context), disclose(encryptGroupCard(committeePk, config.id, member.leaf, index, context, cardRandomHigh(), cardRandomLow())));
+}
+
+// Membership-only renewal spike. Product hit-credential checks remain mandatory
+// in the main contract; this fixture is not a product deployment candidate.
+export circuit renew(target: Bytes<32>): [] {
+  const proof = assertPrivateMember();const source = proof.config;
+  const id = disclose(target);const destination = configurations.lookup(id);
+  assert(destination.side == source.side && destination.tier == source.tier && destination.ecosystem == source.ecosystem && destination.epoch == source.epoch + 1, "Renewal group mismatch");
+  const unique = persistentHash<Vector<2, Bytes<32>>>([scoutSecret(), id]);
+  assert(!renewed.member(disclose(unique)), "Renewal already used");
+  groups.lookup(id).insert(disclose(persistentHash<Vector<2, Bytes<32>>>([scoutSecret(), destination.epoch as Bytes<32>])));
+  configurations.insert(id, Group { ...destination, size: (destination.size + 1) as Uint<32> });
+  syncGroup(id);renewed.insert(disclose(unique));
+}

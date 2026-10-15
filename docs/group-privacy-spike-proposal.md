@@ -1,6 +1,6 @@
 # S11 proposal: hide the selected ecosystem group
 
-Proposed refinement, awaiting Dien's approval. This document is not a claim that
+Refinement approved by Dien on 15 October 2026. Spike first, integration only after acceptance passes. This document is not a claim that
 the existing contract protects Side B option privacy. No product deployment exists.
 
 ## Reproduced issue
@@ -69,3 +69,32 @@ semantics and is the recommended approach.
 
 Do not claim the issue resolved until these checks and integration pass. This
 proposal does not authorize a deployment or onchain transaction.
+
+
+## Implementation checkpoint
+
+The isolated S11 fixture compiles under Compact 0.31.1. Five simulator/crypto tests
+pass, including direct inspection of public operations and a serialization of
+public-only transcript data. Private input/witness transcripts are never saved in
+evidence. The 72-byte v2 card round-trips group ID, all 256 member-commitment bits
+and the 20-bit index under every three-share subset.
+
+Compact's membership-tree root() method is runtime-only. Public administration
+therefore obtains a root witness after mutation, resets that membership tree's
+accepted history, and checks the witnessed root against the current root before
+publishing its registry entry. It cannot select an older historical membership
+root while claiming a newer group size. Registry history is reset on revocation.
+Membership clients refresh from the trusted snapshot; previously authorized
+registry snapshots survive only non-revoking additions.
+
+The common active epoch is disclosed for the block-time bounds. Selected group,
+member leaf/path, and selected membership root stay private. Market option names
+are public for every option; their presence in a transcript is not a disclosure
+of which one the scout selected. The prototype renewal tests private membership
+only, with same-tier next-epoch enrollment; it is deliberately not a deployable
+replacement for product renewal and does not waive its hit-credential rules.
+
+Full local S11 /check and /prove passed for stake and membership-only renewal
+(4860/4508 proof bytes; source hashes and public transcript checks in
+[evidence](evidence/S11-proving.json)). Main integration is now authorized to
+proceed; the main contract leak stays open until that integration is verified.

@@ -1,6 +1,6 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.12 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
+> Versi 0.13 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
 > Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
 > Sumber keputusan: living doc Bisik bagian 26 (v0.56), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
@@ -582,3 +582,16 @@ alamat burn berlabel. Persetujuan desain tidak membuktikan asumsi teknis; spike 
 | O-8 | Aturan tier per epoch dan alamat amal (§10) | Lihat §10 |
 | O-9 | Batas buyer per market (§10) | Sisi A maks 4, sisi B satu pool bersama |
 | O-10 | Siapa boleh membeli dan membuat market sisi B | Usulan: builder dengan kredensial ekosistem (sama seperti scout sisi B) atau KYB ringan; market sisi B dibuat operator atas usulan builder |
+
+
+## 13. Penyempurnaan S11 (disetujui Dien, 15 Okt)
+
+Group ID dan metadata ekosistem publik saat stake membocorkan opsi sisi B. Dien
+menyetujui registry akar grup bersama, bukti metadata/root/anggota privat, serta
+kartu terkunci yang memuat group ID, commitment anggota 256-bit dan indeks.
+Semantik tier/epoch dan k>=5 per grup/market tetap. Admission, renewal dan
+revocation menyinkronkan registry; revocation mengganti root dan mereset riwayat
+registry. Representasi baru harus lolos spike S11 (inspeksi transcript publik,
+penolakan bukti palsu/anggota dicabut, pemulihan kartu 3-dari-5, compile dan proof
+lokal) sebelum diintegrasikan. Rancangan: docs/group-privacy-spike-proposal.md.
+Persetujuan ini bukan izin deploy atau transaksi jaringan.
