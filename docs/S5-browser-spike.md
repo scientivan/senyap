@@ -30,10 +30,17 @@ Dien explicitly authorized this one-deploy/one-ping Preprod sequence in chat on
 - The served ZKIR SHA-256 matches the compiled file:
   `53ea5208e5594c4bd7c3be6ce9447fa019968ce5f7654afec9c7c9e0c4ee8289`.
 - Dien confirmed the real Preprod address appears in the application (F3).
-- Direct inspection now verifies the real Lace API connection on Preprod, but
-  reports 5000 NIGHT and zero available DUST/zero cap. The wallet UI also says
-  tDUST Tank Empty. [Readiness evidence](evidence/S5-lace-readiness.json) records
-  this blocker; no deployment or ping has been submitted.
+- Direct inspection verifies the real Lace API connection on Preprod with
+  5000 NIGHT and positive available DUST/cap. The earlier zero-balance capture
+  is preserved in [readiness evidence](evidence/S5-lace-readiness.json).
+- Real-browser deployment construction initially failed because the SDK Bech32
+  address codec references a global `Buffer`. The dev-only helper now supplies
+  `buffer` 6.0.3; construction without balancing/signing/submission passes.
+- The authorized deployment reached Lace's **Sign transaction** confirmation.
+  After that button was clicked, Lace requested the wallet password. The owner
+  must enter it directly in Lace; no password is read or stored by the helper.
+  No pending submission ID has been recorded yet. Do not refresh the tab or
+  repeat the deployment while this request is active.
 
 ## Reproduce without submitting
 
@@ -90,6 +97,10 @@ agent automation, explicitly load `/src/spikes/s5-mainworld.ts` as a module scri
 in the page. It writes only public status to `#senyap-s5-public-status` and listens
 for `senyap-s5-command` events with `funding`, `deploy` or `ping` as the detail.
 Loading the module prepares the wallet; it does not submit. `funding` is read-only.
+`checkConstruction` constructs and discards an unproven deployment in memory,
+without balancing, requesting signatures or submitting it. Diagnostics expose
+only fixed error categories and public dependency source locations, never raw
+error objects/messages or key values.
 Native `fetch` is explicitly bound to the artifact provider. The bridge is dev-only
 and is not part of product routes. Keep the transaction authorization scope above
 and turn off Apple Events again after the test or when leaving it blocked.

@@ -2,10 +2,19 @@
   "network": "preprod",
   "source": "Real Lace 2.4.2/API 4.0.1 on Brave localhost Senyap, via page-context bridge",
   "nightRaw": "5000000000",
-  "dustRaw": "0",
-  "dustCapRaw": "0",
+  "dustRaw": "1367775150000000000",
+  "dustCapRaw": "25000000000000000000",
   "assetsReady": true,
   "transactionsSubmitted": 0,
-  "uiStatus": "tDUST Tank Empty",
-  "note": "Registration completion was user-reported earlier; available DUST and cap are currently zero. No deploy or ping was sent. Wallet address, keys and configuration URLs omitted."
+  "uiStatus": "User screenshot: 1,355 / 25,000 tDUST, refilling",
+  "note": "Fresh real Lace API reports positive DUST. Initial construction failure was caused by missing browser Buffer; supplying buffer 6.0.3 makes the no-submission construction check pass. Authorized deployment now awaits owner password confirmation directly in Lace after Sign transaction was clicked. No pending transaction ID has been recorded. Wallet address, keys and configuration URLs omitted.",
+  "previousCapture": {
+    "nightRaw": "5000000000",
+    "dustRaw": "0",
+    "dustCapRaw": "0",
+    "uiStatus": "tDUST Tank Empty",
+    "note": "Registration completion was user-reported earlier; available DUST and cap are currently zero. No deploy or ping was sent. Wallet address, keys and configuration URLs omitted."
+  },
+  "constructionCheck": "passed-without-balancing-signing-or-submission",
+  "deploymentStatus": "awaiting-owner-password-in-Lace"
 }
