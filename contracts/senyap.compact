@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma language_version 0.23;
 import CompactStandardLibrary;
+import { LockedCard, encryptMembershipCard } from "./lib/LockedCardEncryption";
 
 export struct ScoutGroup { side: Uint<8>; tier: Uint<8>; epoch: Uint<64>; ecosystem: Bytes<32>; }
 export struct GroupLeaf { group: Bytes<32>; index: Uint<64>; }
@@ -29,6 +30,25 @@ export struct Market {
 export ledger markets: Map<Uint<32>, Market>;
 export ledger marketPhase: Map<Uint<32>, Uint<8>>;
 export ledger marketCreator: Map<Uint<32>, Bytes<32>>;
+export sealed ledger committeePk: JubjubPoint;
+export sealed ledger dusdColor: Bytes<32>;
+export sealed ledger epochLength: Uint<64>;
+export struct CipherPair { c1: JubjubPoint; c2: JubjubPoint; }
+export struct Position {
+  marketId: Uint<32>; group: Bytes<32>; optionCommit: Bytes<32>; weight: Uint<64>; stake: Uint<128>;
+  lockedCard: LockedCard; revealKeyCommit: Bytes<32>; status: Uint<8>;
+}
+export struct Division { quotient: Uint<64>; remainder: Uint<64>; }
+struct PathIndex { value: Uint<64>; power: Uint<64>; }
+export ledger positions: Map<Bytes<32>, Position>;
+export ledger usedNullifiers: Set<Bytes<32>>;
+export ledger usedOptions: Set<Bytes<32>>;
+// Private predecessor proofs avoid a public Set lookup linking the scout's slots.
+export ledger positionTree: HistoricMerkleTree<32, Bytes<32>>;
+export ledger marketScouts: Map<Uint<32>, Uint<32>>;
+export ledger marketWeight: Map<Uint<32>, Uint<64>>;
+export ledger marketStake: Map<Uint<32>, Uint<128>>;
+export ledger tally: Map<Uint<32>, Vector<8, CipherPair>>;
 
 witness operatorSecret(): Bytes<32>;
 witness committeeSecret(): Bytes<32>;
@@ -38,10 +58,20 @@ witness builderSecret(): Bytes<32>;
 witness buyerSecret(): Bytes<32>;
 witness buyerPath(): MerkleTreePath<16, Bytes<32>>;
 witness standingPath(): MerkleTreePath<16, Bytes<32>>;
+witness previousPositionPath(): MerkleTreePath<32, Bytes<32>>;
+witness chosenOption(): Uint<8>;
+witness optionSalt(): Bytes<32>;
+witness randomnessHigh(): Vector<8, Uint<128>>;
+witness randomnessLow(): Vector<8, Uint<128>>;
+witness cardRandomHigh(): Uint<128>;
+witness cardRandomLow(): Uint<128>;
+witness divide(numerator: Uint<128>, denominator: Uint<64>): Division;
 
-constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>) {
+constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>, pk: JubjubPoint, color: Bytes<32>, epochSeconds: Uint<64>) {
   operator = disclose(operatorCommit);
   committeeAuth = disclose(authCommits);
+  assert(epochSeconds > 0, "Epoch length must be positive");
+  committeePk = disclose(pk);dusdColor = disclose(color);epochLength = disclose(epochSeconds);
   for (const i of [0, 1, 2, 3, 4]) {
     assert(authCommits[i] != default<Bytes<32>>, "Committee authentication must be nonzero");
     for (const j of [0, 1, 2, 3, 4]) {
@@ -51,7 +81,10 @@ constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>) {
 }
 
 circuit assertOperator(): [] {
-  assert(persistentHash<Bytes<32>>(operatorSecret()) == operator, "Operator authorization failed");
+  assertOperatorKey(operatorSecret());
+}
+circuit assertOperatorKey(secret: Bytes<32>): [] {
+  assert(persistentHash<Bytes<32>>(secret) == operator, "Operator authorization failed");
 }
 
 export circuit configureScoutGroup(group: Bytes<32>, config: ScoutGroup): [] {
@@ -80,19 +113,20 @@ export circuit admitScout(group: Bytes<32>, commitment: Bytes<32>): [] {
   admittedCommitments.insert(disclose(unique));
 }
 
-circuit assertScout(group: Bytes<32>): [] {
+circuit assertScout(group: Bytes<32>, secret: Bytes<32>): MerkleTreePath<20, Bytes<32>> {
   assert(groupConfig.member(disclose(group)), "Unknown scout group");
   const config = groupConfig.lookup(disclose(group));
-  const commitment = persistentHash<Vector<2, Bytes<32>>>([scoutSecret(), config.epoch as Bytes<32>]);
+  const commitment = persistentHash<Vector<2, Bytes<32>>>([secret, config.epoch as Bytes<32>]);
   const path = memberPath();
   assert(path.leaf == commitment, "Membership leaf does not belong to scout");
   assert(scoutGroups.lookup(disclose(group)).checkRoot(disclose(merkleTreePathRoot<20, Bytes<32>>(path))), "Membership root not accepted");
+  return path;
 }
 
 // Returns an unlinkable scope identifier, later reused by stake authorization.
 export circuit scoutPseudonym(group: Bytes<32>, scope: Bytes<32>): Bytes<32> {
-  assertScout(group);
-  return disclose(persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:scout"), scoutSecret(), scope]));
+  const secret = scoutSecret();assertScout(group, secret);
+  return disclose(persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:scout"), secret, scope]));
 }
 
 circuit revocationKey(group: Bytes<32>, index: Uint<64>): Bytes<32> {
@@ -160,8 +194,8 @@ export circuit admitBuyer(commitment: Bytes<32>): [] {
   admittedBuyers.insert(disclose(commitment));
 }
 
-circuit assertBuyer(): [] {
-  const commitment = persistentHash<Bytes<32>>(buyerSecret());
+circuit assertBuyer(secret: Bytes<32>): [] {
+  const commitment = persistentHash<Bytes<32>>(secret);
   const path = buyerPath();const standing = standingPath();
   assert(path.leaf == commitment && standing.leaf == commitment, "Buyer membership leaf does not belong to secret");
   assert(buyerTree.checkRoot(disclose(merkleTreePathRoot<16, Bytes<32>>(path))), "Buyer root not accepted");
@@ -175,9 +209,10 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
   assert(cfg.questionHash != default<Bytes<32>> && cfg.category != default<Bytes<32>>, "Market metadata required");
   assert(cfg.openAt < cfg.openUntil && cfg.openUntil <= cfg.auctionUntil && cfg.auctionUntil < cfg.outcomeUntil, "Invalid market schedule");
   assert(blockTimeGte(cfg.openAt) && blockTimeLt(cfg.openUntil), "Market not in open window");
+  const owner = cfg.side == 0 ? buyerSecret() : operatorSecret();
   // O-10: operator creates side B markets on verified builders' proposals.
-  if (cfg.side == 0) { assertBuyer(); }
-  else { assertOperator();assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction"); }
+  if (cfg.side == 0) { assertBuyer(owner); }
+  else { assertOperatorKey(owner);assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction"); }
   for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) {
     if (i < cfg.nOptions) {
       assert(cfg.optionRefs[i] != default<Bytes<32>>, "Empty active option");
@@ -190,8 +225,90 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
       }
     } else { assert(cfg.optionRefs[i] == default<Bytes<32>>, "Unused option must be empty"); }
   }
-  const owner = cfg.side == 0 ? buyerSecret() : operatorSecret();
   const creator = persistentHash<Vector<2, Bytes<32>>>([owner, marketId as Bytes<32>]);
   markets.insert(marketId, cfg);marketPhase.insert(marketId, 1);
   marketCreator.insert(marketId, disclose(creator));
+  marketScouts.insert(marketId, 0);marketWeight.insert(marketId, 0);marketStake.insert(marketId, 0);
+  const zero = ecMulGenerator(0);
+  tally.insert(marketId, map((i: Uint<8>): CipherPair => CipherPair { c1: zero, c2: zero }, [0,1,2,3,4,5,6,7]));
+}
+
+export circuit close(id: Uint<32>): [] {
+  const marketId = disclose(id);
+  assert(markets.member(marketId), "Unknown market");
+  assert(marketPhase.lookup(marketId) == 1, "Market is not open");
+  assert(blockTimeGte(markets.lookup(marketId).openUntil), "Market close time not reached");
+  marketPhase.insert(marketId, 2);
+}
+
+circuit checkedDivide(n: Uint<128>, d: Uint<64>): Uint<64> {
+  assert(d > 0, "Division denominator must be positive");
+  const result = divide(n, d);
+  assert(result.remainder < d && result.quotient * d + result.remainder == n, "Invalid division witness");
+  return result.quotient;
+}
+circuit positionId(secret: Bytes<32>, market: Uint<32>, slot: Uint<8>): Bytes<32> {
+  return persistentHash<Vector<5, Bytes<32>>>([pad(32, "senyap:position"), kernel.self().bytes, secret, market as Bytes<32>, slot as Bytes<32>]);
+}
+export circuit checkedMarketWeight(current: Uint<64>, addition: Uint<64>): Uint<64> {
+  const total = current + addition;
+  assert(total < 1099511627776, "Market total weight reaches decryption limit");
+  return total as Uint<64>;
+}
+
+export circuit stake(id: Uint<32>, groupId: Bytes<32>, slotNumber: Uint<8>, amount: Uint<128>, revealKeyCommit: Bytes<32>): Bytes<32> {
+  const marketId = disclose(id);const group = disclose(groupId);const slot = disclose(slotNumber);
+  assert(markets.member(marketId) && marketPhase.lookup(marketId) == 1, "Market is not open");
+  const market = markets.lookup(marketId);
+  assert(blockTimeGte(market.openAt) && blockTimeLt(market.openUntil), "Stake outside open window");
+  assert(slot >= 1 && slot <= 3, "Scout slot outside 1 to 3");
+  assert(amount >= 10 && amount <= 500, "Stake outside 10 to 500 dUSD");
+  const secret = scoutSecret();const path = assertScout(group, secret);const config = groupConfig.lookup(group);
+  assert(groupSize.lookup(group) >= 5, "Scout group anonymity threshold not met");
+  assert(config.side == market.side, "Scout group belongs to other market side");
+  assert(config.epoch < 18446744073709551615, "Epoch overflow");
+  assert(blockTimeGte((config.epoch * epochLength) as Uint<64>) && blockTimeLt(((config.epoch + 1) * epochLength) as Uint<64>), "Scout tier epoch expired");
+  const nullifier = positionId(secret, marketId, slot);
+  assert(!usedNullifiers.member(disclose(nullifier)), "Position nullifier already used");
+  if (slot > 1) {
+    const previous = previousPositionPath();
+    assert(previous.leaf == positionId(secret, marketId, (slot - 1) as Uint<8>), "Previous position does not belong to scout");
+    assert(positionTree.checkRoot(disclose(merkleTreePathRoot<32, Bytes<32>>(previous))), "Previous position root not accepted");
+  }
+  const option = chosenOption();const salt = optionSalt();
+  assert(option < market.nOptions, "Option outside market");
+  const optionId = persistentHash<Vector<5, Bytes<32>>>([pad(32, "senyap:option"), kernel.self().bytes, secret, marketId as Bytes<32>, option as Bytes<32>]);
+  assert(!usedOptions.member(disclose(optionId)), "Scout already backed this option");
+  for (const i of [0,1,2,3,4,5,6,7]) {
+    assert(market.side == 0 || option != i || market.optionRefs[i] == config.ecosystem, "Scout ecosystem does not match option");
+  }
+  const quarter = checkedDivide((market.openUntil - market.openAt) as Uint<128>, 4);
+  const early = blockTimeLt((market.openAt + disclose(quarter)) as Uint<64>);
+  const multiplier = config.tier == 1 ? 100 : config.tier == 2 ? 125 : 150;
+  const bonus = early ? 120 : 100;
+  const weight = checkedDivide((amount * multiplier * bonus) as Uint<128>, 10000);
+  assert(weight > 0 && weight < 4294967296, "Position weight outside range");
+  const totalWeight = checkedMarketWeight(marketWeight.lookup(marketId), disclose(weight));
+  const highs = randomnessHigh();const lows = randomnessLow();
+  const sums = tally.lookup(marketId);
+  const next = map((i: Uint<8>, sum: CipherPair, high: Uint<128>, low: Uint<128>): CipherPair => {
+    assert(high < 19261898452744832053602769315862690560 || (high == 19261898452744832053602769315862690560 && low < 221192506920607668564158609621008198839), "Tally randomness outside subgroup");
+    const r = (high as Field) * (340282366920938463463374607431768211456 as Field) + (low as Field);
+    assert(r != 0, "Tally randomness must be nonzero");
+    const value = option == i ? weight : 0;
+    return CipherPair { c1: ecAdd(sum.c1, ecMulGenerator(r)), c2: ecAdd(sum.c2, ecAdd(ecMulGenerator(value as Field), ecMul(committeePk, r))) };
+  }, [0,1,2,3,4,5,6,7], sums, highs, lows);
+  const leafIndex = fold((acc: PathIndex, entry: MerkleTreePathEntry): PathIndex =>
+    PathIndex { value: (acc.value + (entry.goes_left ? 0 : acc.power)) as Uint<64>, power: (acc.power * 2) as Uint<64> },
+    PathIndex { value: 0, power: 1 }, path.path).value;
+  const card = encryptMembershipCard(committeePk, path.leaf, leafIndex, nullifier, cardRandomHigh(), cardRandomLow());
+  const optionCommit = persistentCommit<Uint<8>>(option, salt);
+  assert(revealKeyCommit != default<Bytes<32>>, "Reveal key commitment required");
+  receiveUnshielded(dusdColor, disclose(amount));
+  positions.insert(disclose(nullifier), disclose(Position { marketId: marketId, group: group, optionCommit: optionCommit, weight: weight, stake: amount, lockedCard: card, revealKeyCommit: revealKeyCommit, status: 0 }));
+  tally.insert(marketId, disclose(next));usedNullifiers.insert(disclose(nullifier));usedOptions.insert(disclose(optionId));positionTree.insert(disclose(nullifier));
+  if (slot == 1) { marketScouts.insert(marketId, (marketScouts.lookup(marketId) + 1) as Uint<32>); }
+  marketWeight.insert(marketId, totalWeight as Uint<64>);
+  marketStake.insert(marketId, (marketStake.lookup(marketId) + disclose(amount)) as Uint<128>);
+  return disclose(nullifier);
 }

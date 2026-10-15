@@ -54,4 +54,13 @@ describe("P2.3 anonymous verified market creation",()=>{
     expect(()=>s.invoke("createMarket",1n,{...b,outcomeUntil:1500n})).toThrow(/schedule/);
     s.invoke("createMarket",1n,b);expect(s.state.markets.lookup(1n).side).toBe(1n);
   });
+  it("closes permissionlessly at the exact boundary and rejects early or repeated close",()=>{
+    const s=setupMarket();s.invoke("createMarket",1n,sideA());
+    s.context.currentPrivateState.operator=other;s.context.currentPrivateState.buyer=other;
+    s.setTime(1599);expect(()=>s.invoke("close",1n)).toThrow(/not reached/);
+    expect(s.state.marketPhase.lookup(1n)).toBe(1n);
+    s.setTime(1600);s.invoke("close",1n);expect(s.state.marketPhase.lookup(1n)).toBe(2n);
+    expect(()=>s.invoke("close",1n)).toThrow(/not open/);
+    expect(()=>s.invoke("close",2n)).toThrow(/Unknown market/);
+  });
 });
