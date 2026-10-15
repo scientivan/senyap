@@ -19,7 +19,7 @@ function court() {
 describe("P5.2 anonymous verifier dispute escrow",()=>{
   it("slashes a proven hoax to the fixed charity, pays majority from penalties, blocks hits until resolution and revokes only after threshold disclosure",()=>{
     const {s,records,select,commit}=court(),id=records[0].id;
-    expect(()=>s.invoke("approveHoaxMember",id,0n,0n)).toThrow();
+    expect(()=>s.invoke("approveHoaxMember",id,bytes(4),0n,0n)).toThrow();
     s.invoke("openDispute",id,bytes(91),{bytes:bytes(230)});
     expect(()=>s.invoke("openDispute",id,bytes(92),{bytes:bytes(231)})).toThrow(/already disputed/);
     const keys=choices.map((choice,i)=>commit(i,choice));
@@ -37,9 +37,9 @@ describe("P5.2 anonymous verifier dispute escrow",()=>{
     expect(keys.map(key=>s.invoke("claimVerifier",key))).toEqual([150n,150n,150n,150n,50n,50n,0n]);
     expect(()=>s.invoke("claimVerifier",keys[0])).toThrow(/not available/);
     expect(()=>s.invoke("resolveDispute",id)).toThrow(/not ready/);
-    for(let i=0;i<2;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("approveHoaxMember",id,0n,BigInt(i));}
+    for(let i=0;i<2;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("approveHoaxMember",id,bytes(4),0n,BigInt(i));}
     expect(()=>s.invoke("revokeHoaxMember",id)).toThrow(/not revealed/);
-    s.context.currentPrivateState.committee=committee[2];s.invoke("approveHoaxMember",id,0n,2n);s.invoke("revokeHoaxMember",id);
+    s.context.currentPrivateState.committee=committee[2];s.invoke("approveHoaxMember",id,bytes(4),0n,2n);s.invoke("revokeHoaxMember",id);
     expect(s.state.scoutGroups.lookup(bytes(4)).findPathForLeaf(commitment(records[0].secret,7n))).toBeUndefined();
     expect(()=>s.invoke("revokeHoaxMember",id)).toThrow(/already revoked/);
     for(const r of records.slice(1,4)){Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",1n,1n,0n);}
@@ -69,7 +69,7 @@ describe("P5.2 anonymous verifier dispute escrow",()=>{
     s.setTime(1900);for(let i=0;i<7;i++){select(i);s.invoke("revealVote",id,votes[i]);}
     s.setTime(2200);expect(s.invoke("resolveDispute",id)).toBe(2n);
     expect(s.state.positions.lookup(id).status).toBe(0n);expect(keys.map(key=>s.invoke("claimVerifier",key))).toEqual([116n,116n,116n,116n,116n,116n,50n]);
-    expect(s.state.disputeRemainder.lookup(id)).toBe(4n);expect(()=>s.invoke("approveHoaxMember",id,0n,0n)).toThrow(/Hoax not proven/);
+    expect(s.state.disputeRemainder.lookup(id)).toBe(4n);expect(()=>s.invoke("approveHoaxMember",id,bytes(4),0n,0n)).toThrow(/Hoax not proven/);
   });
   it.each(["quorum","tie"])("refunds all bonds without penalties or scout slash for %s failure",kind=>{
     const {s,records,select,commit}=court(),id=records[0].id;

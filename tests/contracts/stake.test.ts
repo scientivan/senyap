@@ -3,7 +3,7 @@ import { describe,expect,it } from "vitest";
 import * as RT from "@midnight-ntwrk/compact-runtime";
 import { setupGroups,bytes,group,scout,other,hash,commitment,committee } from "./harness";
 import { createDecryptionShare,splitSecret,subtract,discreteLog } from "../../packages/crypto/src/index";
-import { decryptLockedCard,lockedCardBinding } from "../../packages/crypto/src/locked-card";
+import { decryptGroupCard,groupCardBinding } from "../../packages/crypto/src/group-card";
 import { pureCircuits } from "../../contracts/managed/senyap/contract/index.js";
 const refs=[bytes(80),bytes(81),bytes(82),...Array.from({length:5},()=>bytes(0))];
 function setupStake(epoch=7n,tier=1n,count=5){
@@ -34,8 +34,8 @@ describe("P2.4 private stakes and encrypted tally",()=>{
     expect(totals).toEqual([0n,120n,0n,0n,0n,0n,0n,0n]);
     expect(position.optionCommit).toEqual(RT.persistentCommit(new RT.CompactTypeUnsignedInteger(255n,1),1n,s.context.currentPrivateState.salt));
     const shares=splitSecret(37n,[71n,83n]),publicKeys=shares.map(share=>RT.ecMulGenerator(share.scalar));
-    const proofs=await Promise.all(shares.slice(0,3).map(share=>createDecryptionShare(share,position.lockedCard.ephemeral,lockedCardBinding(position.lockedCard,id))));
-    expect(await decryptLockedCard(position.lockedCard,proofs,publicKeys,id)).toEqual({commitment:commitment(scout,7n),index:2n});
+    const proofs=await Promise.all(shares.slice(0,3).map(share=>createDecryptionShare(share,position.lockedCard.ephemeral,groupCardBinding(position.lockedCard,id))));
+    expect(await decryptGroupCard(position.lockedCard,proofs,publicKeys,id)).toEqual({group,commitment:commitment(scout,7n),index:2n});
   });
   it("enforces three ordered, distinct options with private predecessor proofs and counts a scout once",()=>{
     const s=setupStake();const first=stake(s);

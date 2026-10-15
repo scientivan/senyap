@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { setupGroups,bytes,hash,commitment,committee } from "../contracts/harness";
 const cohort=[21,22,23,24,25].map(bytes),groups=[bytes(4),bytes(5)];
-export function setupSideB(count=5){
+export function setupSideB(count=5,closeAtEnd=true){
   const s=setupGroups(),buyer=hash(s.context.currentPrivateState.buyer);
   s.invoke("admitBuyer",buyer);s.context.currentPrivateState.buyerPath=s.state.buyerTree.findPathForLeaf(buyer);s.context.currentPrivateState.standingPath=s.state.goodStanding.findPathForLeaf(buyer);
   s.invoke("createMarket",1n,{side:1n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://shared-pool",nOptions:2n,optionRefs:[bytes(80),bytes(81),...Array.from({length:6},()=>bytes(0))],openAt:1000n,openUntil:1600n,auctionUntil:1600n,outcomeUntil:2400n,flatPrice:10n,reservePrice:0n});
@@ -12,10 +12,10 @@ export function setupSideB(count=5){
   const records=cohort.slice(0,count).map((secret,i)=>{
     const option=i===4?1n:0n,group=groups[Number(option)],salt=bytes(100+i);
     Object.assign(s.context.currentPrivateState,{scout:secret,option,salt,path:s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(secret,7n))});
-    const id=s.invoke("stake",1n,group,1n,100n,bytes(88)) as Uint8Array;
-    return {secret,option,salt,id};
+    const call=s.invokeResult("stake",1n,group,1n,100n,bytes(88)),id=call.result as Uint8Array;
+    return {secret,option,salt,id,proofData:call.proofData,group};
   });
-  s.setTime(1600);s.invoke("close",1n);
+  if(closeAtEnd){s.setTime(1600);s.invoke("close",1n);}
   return {s,records};
 }
 export function preview(s:ReturnType<typeof setupGroups>){

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Bytes32Descriptor,CompactTypeVector,persistentHash,convertFieldToBytes,type MerkleTreePath,type WitnessContext } from "@midnight-ntwrk/compact-runtime";
-import type { HitCredential,Ledger,Witnesses } from "../../../contracts/managed/senyap/contract/index.js";
+import { pureCircuits, type HitCredential, type Ledger, type Witnesses } from "../../../contracts/managed/senyap/contract/index.js";
 import { randomScalar } from "../../crypto/src/index";
 import { generateBuyerKey } from "../../crypto/src/buyer-channel";
 import { generateRevealKey } from "../../crypto/src/identity-reveal";
@@ -62,6 +62,9 @@ const high=(n:bigint)=>n>>128n,low=(n:bigint)=>n&((1n<<128n)-1n);
 /** User witnesses only. Operator/committee authorization is unavailable in this
  * factory; those secrets never belong in a browser private-state record. */
 export const clientWitnesses:Witnesses<ClientPrivateState>={
+  updatedScoutRoot:(c,id)=>[checked(c),c.ledger.scoutGroups.lookup(id).root()],
+  scoutAuthorization:(c,id)=>[checked(c),{id,...c.ledger.groupConfig.lookup(id),size:c.ledger.groupSize.lookup(id),root:c.ledger.scoutGroups.lookup(id).root()}],
+  scoutRegistryPath(c,id){const value={id,...c.ledger.groupConfig.lookup(id),size:c.ledger.groupSize.lookup(id),root:c.ledger.scoutGroups.lookup(id).root()};return [checked(c),path(c.ledger.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(value)))];},
   operatorSecret(){throw Error("Operator authorization is server-only");},committeeSecret(){throw Error("Committee authorization is server-only");},
   scoutSecret:c=>[checked(c),checked(c).secrets.scout],buyerSecret:c=>[checked(c),checked(c).secrets.buyer],builderSecret:c=>[checked(c),checked(c).secrets.builder],verifierSecret:c=>[checked(c),checked(c).secrets.verifier],
   memberPath(c){const group=required(action(c).group,"Group action required"),epoch=c.ledger.groupConfig.lookup(group).epoch;

@@ -2,8 +2,14 @@
 pragma language_version 0.23;
 import CompactStandardLibrary;
 import { LockedCard, encryptMembershipCard } from "./lib/LockedCardEncryption";
+import { GroupCard, encryptGroupCard } from "./lib/GroupCardEncryption";
 
 export struct ScoutGroup { side: Uint<8>; tier: Uint<8>; epoch: Uint<64>; ecosystem: Bytes<32>; }
+export struct ScoutAuthorization { id: Bytes<32>; side: Uint<8>; tier: Uint<8>; epoch: Uint<64>; ecosystem: Bytes<32>; size: Uint<32>; root: MerkleTreeDigest; }
+struct ScoutProof { authorization: ScoutAuthorization; path: MerkleTreePath<20, Bytes<32>>; }
+export ledger scoutRegistry: HistoricMerkleTree<32, Bytes<32>>;
+export ledger scoutGroupSlots: Map<Bytes<32>, Uint<64>>;
+export ledger nextScoutGroupSlot: Uint<64>;
 export struct GroupLeaf { group: Bytes<32>; index: Uint<64>; }
 export struct BuilderEntry { profileHash: Bytes<32>; ownerCommit: Bytes<32>; consent: Boolean; registeredAt: Uint<64>; }
 export ledger builderRegistry: Map<Bytes<32>, BuilderEntry>;
@@ -84,8 +90,8 @@ export ledger selectionDeadline: Map<Uint<32>, Uint<64>>;
 export ledger hiddenOptions: Map<Uint<32>, Vector<2, Vector<8, Boolean>>>;
 export struct CipherPair { c1: JubjubPoint; c2: JubjubPoint; }
 export struct Position {
-  marketId: Uint<32>; group: Bytes<32>; optionCommit: Bytes<32>; weight: Uint<64>; stake: Uint<128>;
-  lockedCard: LockedCard; revealKeyCommit: Bytes<32>; status: Uint<8>;
+  marketId: Uint<32>; optionCommit: Bytes<32>; weight: Uint<64>; stake: Uint<128>;
+  lockedCard: GroupCard; revealKeyCommit: Bytes<32>; status: Uint<8>;
 }
 export struct Division { quotient: Uint<64>; remainder: Uint<64>; }
 struct PathIndex { value: Uint<64>; power: Uint<64>; }
@@ -115,6 +121,9 @@ export sealed ledger charity: UserAddress;
 witness operatorSecret(): Bytes<32>;
 witness committeeSecret(): Bytes<32>;
 witness scoutSecret(): Bytes<32>;
+witness updatedScoutRoot(group: Bytes<32>): MerkleTreeDigest;
+witness scoutAuthorization(group: Bytes<32>): ScoutAuthorization;
+witness scoutRegistryPath(group: Bytes<32>): MerkleTreePath<32, Bytes<32>>;
 witness memberPath(): MerkleTreePath<20, Bytes<32>>;
 witness builderSecret(): Bytes<32>;
 witness buyerSecret(): Bytes<32>;
@@ -164,6 +173,15 @@ circuit assertOperatorKey(secret: Bytes<32>): [] {
   assert(persistentHash<Bytes<32>>(secret) == operator, "Operator authorization failed");
 }
 
+export circuit scoutAuthorizationDigest(value: ScoutAuthorization): Bytes<32> { return persistentHash<ScoutAuthorization>(value); }
+circuit syncScoutGroup(group: Bytes<32>): [] {
+  const config = groupConfig.lookup(group);scoutGroups.lookup(group).resetHistory();
+  const root = disclose(updatedScoutRoot(group));
+  assert(scoutGroups.lookup(group).checkRoot(root), "Updated scout root not current");
+  const value = ScoutAuthorization { id: group, side: config.side, tier: config.tier, epoch: config.epoch, ecosystem: config.ecosystem, size: groupSize.lookup(group), root: root };
+  scoutRegistry.insertIndex(persistentHash<ScoutAuthorization>(value), scoutGroupSlots.lookup(group));
+}
+
 export circuit configureScoutGroup(group: Bytes<32>, config: ScoutGroup): [] {
   assertOperator();
   assert(!groupConfig.member(disclose(group)), "Group already configured");
@@ -172,6 +190,8 @@ export circuit configureScoutGroup(group: Bytes<32>, config: ScoutGroup): [] {
   scoutGroups.insert(disclose(group), default<HistoricMerkleTree<20, Bytes<32>>>);
   groupSize.insert(disclose(group), 0);
   groupNextIndex.insert(disclose(group), 0);
+  assert(nextScoutGroupSlot < 4294967296, "Scout registry full");
+  scoutGroupSlots.insert(disclose(group), nextScoutGroupSlot);nextScoutGroupSlot = (nextScoutGroupSlot + 1) as Uint<64>;
 }
 
 export circuit admitScout(group: Bytes<32>, commitment: Bytes<32>): [] {
@@ -187,17 +207,18 @@ export circuit admitScout(group: Bytes<32>, commitment: Bytes<32>): [] {
   scoutGroups.lookup(disclose(group)).insert(disclose(commitment));
   groupNextIndex.insert(disclose(group), (index + 1) as Uint<64>);
   groupSize.insert(disclose(group), (groupSize.lookup(disclose(group)) + 1) as Uint<32>);
-  admittedCommitments.insert(disclose(unique));
+  admittedCommitments.insert(disclose(unique));syncScoutGroup(disclose(group));
 }
 
-circuit assertScout(group: Bytes<32>, secret: Bytes<32>): MerkleTreePath<20, Bytes<32>> {
-  assert(groupConfig.member(disclose(group)), "Unknown scout group");
-  const config = groupConfig.lookup(disclose(group));
+circuit assertScout(group: Bytes<32>, secret: Bytes<32>): ScoutProof {
+  const config = scoutAuthorization(group);const authorized = scoutRegistryPath(group);const path = memberPath();
+  assert(config.id == group, "Private scout group mismatch");
   const commitment = persistentHash<Vector<2, Bytes<32>>>([secret, config.epoch as Bytes<32>]);
-  const path = memberPath();
   assert(path.leaf == commitment, "Membership leaf does not belong to scout");
-  assert(scoutGroups.lookup(disclose(group)).checkRoot(disclose(merkleTreePathRoot<20, Bytes<32>>(path))), "Membership root not accepted");
-  return path;
+  assert(merkleTreePathRoot<20, Bytes<32>>(path) == config.root, "Membership root not accepted");
+  assert(authorized.leaf == persistentHash<ScoutAuthorization>(config), "Scout registry metadata mismatch");
+  assert(scoutRegistry.checkRoot(disclose(merkleTreePathRoot<32, Bytes<32>>(authorized))), "Scout registry root not accepted");
+  return ScoutProof { authorization: config, path: path };
 }
 
 // Returns an unlinkable scope identifier, later reused by stake authorization.
@@ -238,6 +259,7 @@ export circuit revokeMember(group: Bytes<32>, index: Uint<64>): [] {
   scoutGroups.lookup(disclose(group)).insertIndexDefault(disclose(index));
   scoutGroups.lookup(disclose(group)).resetHistory();
   groupSize.insert(disclose(group), (groupSize.lookup(disclose(group)) - 1) as Uint<32>);
+  syncScoutGroup(disclose(group));scoutRegistry.resetHistory();
   consumedRevocations.insert(disclose(command));
 }
 
@@ -349,17 +371,18 @@ export circuit checkedMarketWeight(current: Uint<64>, addition: Uint<64>): Uint<
 }
 
 export circuit stake(id: Uint<32>, groupId: Bytes<32>, slotNumber: Uint<8>, amount: Uint<128>, revealKeyCommit: Bytes<32>): Bytes<32> {
-  const marketId = disclose(id);const group = disclose(groupId);const slot = disclose(slotNumber);
+  const marketId = disclose(id);const group = groupId;const slot = disclose(slotNumber);
   assert(markets.member(marketId) && marketPhase.lookup(marketId) == 1, "Market is not open");
   const market = markets.lookup(marketId);
   assert(blockTimeGte(market.openAt) && blockTimeLt(market.openUntil), "Stake outside open window");
   assert(slot >= 1 && slot <= 3, "Scout slot outside 1 to 3");
   assert(amount >= 10 && amount <= 500, "Stake outside 10 to 500 dUSD");
-  const secret = scoutSecret();const path = assertScout(group, secret);const config = groupConfig.lookup(group);
-  assert(groupSize.lookup(group) >= 5, "Scout group anonymity threshold not met");
+  const secret = scoutSecret();const proof = assertScout(group, secret);const path = proof.path;const config = proof.authorization;
+  assert(config.size >= 5, "Scout group anonymity threshold not met");
   assert(config.side == market.side, "Scout group belongs to other market side");
-  assert(config.epoch < 18446744073709551615, "Epoch overflow");
-  assert(blockTimeGte((config.epoch * epochLength) as Uint<64>) && blockTimeLt(((config.epoch + 1) * epochLength) as Uint<64>), "Scout tier epoch expired");
+  const scoutEpoch = disclose(config.epoch);
+  assert(scoutEpoch < 18446744073709551615, "Epoch overflow");
+  assert(blockTimeGte((scoutEpoch * epochLength) as Uint<64>) && blockTimeLt(((scoutEpoch + 1) * epochLength) as Uint<64>), "Scout tier epoch expired");
   const nullifier = positionId(secret, marketId, slot);
   assert(!usedNullifiers.member(disclose(nullifier)), "Position nullifier already used");
   if (slot > 1) {
@@ -393,11 +416,11 @@ export circuit stake(id: Uint<32>, groupId: Bytes<32>, slotNumber: Uint<8>, amou
   const leafIndex = fold((acc: PathIndex, entry: MerkleTreePathEntry): PathIndex =>
     PathIndex { value: (acc.value + (entry.goes_left ? 0 : acc.power)) as Uint<64>, power: (acc.power * 2) as Uint<64> },
     PathIndex { value: 0, power: 1 }, path.path).value;
-  const card = encryptMembershipCard(committeePk, path.leaf, leafIndex, nullifier, cardRandomHigh(), cardRandomLow());
+  const card = encryptGroupCard(committeePk, group, path.leaf, leafIndex, nullifier, cardRandomHigh(), cardRandomLow());
   const optionCommit = persistentCommit<Uint<8>>(option, salt);
   assert(revealKeyCommit != default<Bytes<32>>, "Reveal key commitment required");
   receiveUnshielded(dusdColor, disclose(amount));
-  positions.insert(disclose(nullifier), disclose(Position { marketId: marketId, group: group, optionCommit: optionCommit, weight: weight, stake: amount, lockedCard: card, revealKeyCommit: revealKeyCommit, status: 0 }));
+  positions.insert(disclose(nullifier), disclose(Position { marketId: marketId, optionCommit: optionCommit, weight: weight, stake: amount, lockedCard: card, revealKeyCommit: revealKeyCommit, status: 0 }));
   tally.insert(marketId, disclose(next));usedNullifiers.insert(disclose(nullifier));usedOptions.insert(disclose(optionId));positionTree.insert(disclose(nullifier));
   hitFlags.insert(disclose(nullifier), [false,false,false,false]);
   marketPositions.insert(marketId, (marketPositions.lookup(marketId) + 1) as Uint<32>);
@@ -780,14 +803,14 @@ export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress):
 
 
 export circuit renewTier(fromGroup: Bytes<32>, toGroup: Bytes<32>): [] {
-  const sourceId = disclose(fromGroup);const targetId = disclose(toGroup);const secret = scoutSecret();
-  assertScout(sourceId, secret);
+  const sourceId = fromGroup;const targetId = disclose(toGroup);const secret = scoutSecret();
+  const sourceProof = assertScout(sourceId, secret);
   assert(groupConfig.member(targetId), "Unknown renewal group");
-  const source = groupConfig.lookup(sourceId);const target = groupConfig.lookup(targetId);
-  assert(blockTimeGte((source.epoch * epochLength) as Uint<64>) && blockTimeLt(((source.epoch + 1) * epochLength) as Uint<64>), "Renew before current tier epoch expires");
+  const source = sourceProof.authorization;const target = groupConfig.lookup(targetId);const sourceEpoch = disclose(source.epoch);
+  assert(blockTimeGte((sourceEpoch * epochLength) as Uint<64>) && blockTimeLt(((sourceEpoch + 1) * epochLength) as Uint<64>), "Renew before current tier epoch expires");
   assert(target.epoch == source.epoch + 1 && target.side == source.side && target.ecosystem == source.ecosystem, "Renewal must keep side/ecosystem in next epoch");
   assert(target.tier >= source.tier && target.tier <= source.tier + 2, "Invalid renewed tier");
-  const required: Uint<8> = target.tier == source.tier ? 1 : target.tier == source.tier + 1 ? 2 : 3;
+  const required: Uint<8> = disclose(target.tier == source.tier ? 1 : target.tier == source.tier + 1 ? 2 : 3);
   const credentials = hitCredentials();
   for (const i of [0,1,2]) {
     if (i < required) {
@@ -810,7 +833,7 @@ export circuit renewTier(fromGroup: Bytes<32>, toGroup: Bytes<32>): [] {
   const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: targetId, index: index });
   groupLeaves.insert(disclose(leafKey), disclose(commitment));scoutGroups.lookup(targetId).insert(disclose(commitment));
   groupNextIndex.insert(targetId, (index + 1) as Uint<64>);groupSize.insert(targetId, (groupSize.lookup(targetId) + 1) as Uint<32>);
-  admittedCommitments.insert(disclose(unique));usedNullifiers.insert(disclose(renewal));
+  admittedCommitments.insert(disclose(unique));usedNullifiers.insert(disclose(renewal));syncScoutGroup(targetId);
 }
 
 
@@ -910,13 +933,13 @@ export circuit claimVerifier(pseudonym: Bytes<32>): Uint<64> {
 
 // A proven hoax unlocks committee disclosure of this card. Three matching
 // authenticated attestations bind the decrypted member index to that exact card.
-export circuit approveHoaxMember(dispute: Bytes<32>, index: Uint<64>, member: Uint<8>): [] {
+export circuit approveHoaxMember(dispute: Bytes<32>, group: Bytes<32>, index: Uint<64>, member: Uint<8>): [] {
   const id = disclose(dispute);assert(disputes.lookup(id).result == 1, "Hoax not proven");
   assert(!hoaxMembers.member(id), "Hoax member already revealed");const position = positions.lookup(id);
-  const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: position.group, index: index });
+  const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: group, index: index });
   assert(groupLeaves.member(disclose(leafKey)), "Unknown hoax member index");
-  const command = persistentHash<Vector<4, Bytes<32>>>([pad(32, "senyap:hoax-member"),id,persistentHash<LockedCard>(position.lockedCard),index as Bytes<32>]);
-  if (approve(command, member) >= 3) { hoaxMembers.insert(id, GroupLeaf { group: position.group, index: disclose(index) }); }
+  const command = persistentHash<Vector<5, Bytes<32>>>([pad(32, "senyap:hoax-member"),id,persistentHash<GroupCard>(position.lockedCard),group,index as Bytes<32>]);
+  if (approve(command, member) >= 3) { hoaxMembers.insert(id, GroupLeaf { group: disclose(group), index: disclose(index) }); }
 }
 export circuit revokeHoaxMember(dispute: Bytes<32>): [] {
   assertOperator();const id = disclose(dispute);assert(disputes.lookup(id).result == 1 && hoaxMembers.member(id), "Hoax member not revealed");
@@ -924,6 +947,7 @@ export circuit revokeHoaxMember(dispute: Bytes<32>): [] {
   assert(groupLeaves.member(leafKey), "Hoax member already revoked");
   groupLeaves.remove(leafKey);scoutGroups.lookup(member.group).insertIndexDefault(member.index);scoutGroups.lookup(member.group).resetHistory();
   groupSize.insert(member.group, (groupSize.lookup(member.group) - 1) as Uint<32>);
+  syncScoutGroup(member.group);scoutRegistry.resetHistory();
 }
 // Handles the case where every position was slashed, so nobody can call claim.
 export circuit finalizeMarket(id: Uint<32>): [] {
