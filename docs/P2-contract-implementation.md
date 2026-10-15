@@ -1,19 +1,101 @@
-{
-  "name": "@senyap/sdk",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "license": "Apache-2.0",
-  "exports": { "./ephemeral-state": "./src/ephemeral-state.ts", "./paid-signals": "./src/paid-signals.ts" },
-  "dependencies": {
-    "@midnight-ntwrk/midnight-js-types": "4.1.1",
-    "@midnight-ntwrk/midnight-js-protocol": "4.1.1"
-  }
-}
+# Core contract implementation
 
-| 15 Okt 2026 | P3.2 transport lokal lulus: lima instance HTTP localhost membaca snapshot simulator tepercaya, memakai satu share per node dan mengirim ciphertext hanya ke kunci buyer di ledger. SDK memverifikasi konteks/DLEQ/ID endpoint, menggabungkan tiga share dan membaca total 480; dua node offline ditoleransi, tiga offline/key salah/opsi belum dibeli/origin asing/request rusak ditolak. Handler tidak menerima state/key/tujuan dari request dan tidak mengembalikan error mentah. Seluruh 64 test dan root typecheck lulus; build web lulus. Indexer produk, proses layanan, relay onchain belum berjalan. | Codex |
+This implements the already-approved SPEC v0.2 after all S1–S9 spikes passed.
+It does not authorize a deployment or network transaction.
 
-| 15 Okt 2026 | P5.1 lulus empat test simulator: credential diindeks per epoch penerbitan yang dicek lewat waktu blok; renew membuktikan path privat tanpa lookup publik ke posisi asal. Pertahankan tier memakai satu hit dari dua epoch terakhir, naik satu memakai dua hit epoch berjalan, naik dua memakai tiga. Credential berbeda/owned/root sah wajib, nullifier sekali per epoch tujuan dan satu renewal per scout/sisi/ekosistem. Credential terlalu lama/masa depan, duplikat, posisi palsu, root salah, membership kedaluwarsa, ekosistem berubah dan anggota dicabut ditolak. Tidak ada deploy/transaksi produk. CI 4265f0e run 38680265717 SUCCESS. | Codex |
+1. P2.1 establishes operator-authenticated epoch/tier/ecosystem groups and private
+   membership bound to the scout secret. Revocation requires three distinct
+   committee approvals bound to the group and leaf index, then resets root history.
+2. P2.2 adds opt-in builder entries. Registration binds a private owner secret;
+   withdrawal requires that same secret. A public profile hash never serves as
+   authorization.
+3. P2.3–P2.6 add verified buyers, market lifecycle, private stakes and encrypted
+   tally, objective outcomes, hit registration and refundable settlement.
+4. P2.7 adds the explicitly labelled demo unshielded token.
+
+Each coherent step compiles with Compact 0.31.1 and gets simulator tests for its
+security boundaries. Network integration follows separately with per-action
+transaction authorization. No Solana source is copied.
+
+Group metadata is immutable after configuration so a tier/epoch cannot be
+relabelled while existing members retain old proofs. Admission rejects duplicate
+commitments within a group. Revocation approvals are single use and cannot be
+replayed against another group or index. These are enforcement details of SPEC
+sections 3.2, 3.10, 6.1, 6.2 and 7.3.
+
+## Verified progress
+
+Groups, registry, verified market creation, staking and the demo faucet now compile
+and have simulator tests. `close` passes its exact time-boundary test. The side B objective outcome and
+shared-pool settlement path and the four-pool side A path pass simulator tests;
+committee default selection now passes three additional simulator tests. No product deployment/network transaction occurred.
+
+Stakes read the scout secret once, bind the private path leaf to the epoch
+commitment, derive the card index from that same path, and encrypt the card with
+the S10-validated helper. Sequential slots use a private depth-32 Merkle proof of
+the predecessor instead of disclosing its nullifier in a Set lookup. The public
+position nullifier and the private predecessor membership remain separate.
+
+Dien approved an aggregate market-weight bound strictly below 2^40 on 15 October;
+this stronger bound guarantees that every option stays inside the decryption
+search range. A boundary/overflow test exercises the same generated pure circuit
+used by `stake`. Group counts and weighted sums are public; the distribution
+across the eight encrypted tally slots remains private.
+
+## Side B settlement checkpoint
+
+The simulator now covers three distinct approvals of one preview, verified paid
+access, objective outcome, hit registration, fixed-denominator claims and exact
+escrow effects. The no-success branch waits in phase 7 for committee default;
+it cannot prematurely release claims. Dien approved its default eligibility as the union of purchased options, enforced with three matching committee approvals.
+
+Five synthetic scouts deposit 500 dUSD and purchases add 20. Four eligible scouts
+receive 104 each, one misses and receives the 100 principal only. Rewards total
+16; the remaining 4 is recorded for platform fees/rounding. The contract has no
+platform withdrawal circuit yet. These are simulator effects, not verified network
+balances. No product deployment or transaction has been performed.
+
+## Side A auction and settlement checkpoint
+
+The contract validates encrypted bids against public ceilings, binds refunds to
+addresses fixed at deposit, requires three distinct approvals of the same auction
+result, and rejects duplicate settlement. The committee computes generalized
+second prices offchain, with earlier sequence winning equal-bid ties. A hybrid bid
+envelope recovers the full 64-bit amount without a large discrete-log search; its
+plaintext is checked against the ElGamal ciphertext.
+
+Winner order, up to three hidden options each, exclusive options and two distinct
+flat buyers are enforced. Dien approved flat prices per option. One flat buyer
+can buy more than one available option, contributing each payment to that buyer's
+pool. Objective outcomes must be subsets of the exact buyer's access. A successful
+position earns one hit credential even when eligible in several buyer pools.
+
+The full side A simulator path receives 820 dUSD, refunds bid ceilings by 160,
+pays 634 in scout claims and records a 26 remainder. These are simulated ledger
+effects. Subsidy transfers
+and platform withdrawal are still absent. No product contract is deployed.
+
+A separate X25519/HKDF/AES-GCM helper tests encrypted buyer responses, including
+wrong keys, wrong contexts and tampering. It now connects to an immutable recipient key in BuyerAccess and a local committee
+node core. Five synthetic node shares recover the purchased total with valid DLEQ
+proofs; two shares, wrong buyers/keys/contexts, unpaid options, redirected destinations
+and forged proofs are rejected. Five HTTP node instances and the SDK also pass a local integration test, including two unavailable nodes, wrong keys and unpaid options. This uses simulated ledger state, not a live trusted indexer; no product service is deployed.
+
+## Approved selection timer
+
+The constructor takes 300 seconds for the demo or 86400 for production. Only the
+third result approval reads the supplied timestamp. Block comparisons require it
+to be no later than the inclusion block and at most 60 seconds earlier, as approved
+by Dien. The deadline is timestamp plus duration and must precede outcomeUntil.
+The initial two approvals cannot start the timer.
+
+There is one common deadline from result finalization. Selecting before it grants
+access and advances the turn without extending that deadline. At or after it,
+anyone may skip a pending winner's hiding choice. The winner still receives its
+paid rank-specific access, with an empty hidden mask. Winning bids must first be
+settled. Tests cover exact cutoff, future/stale timestamps, the inclusive 60-second
+bound, both duration parameters and preserved first-winner exclusivity when the
+second winner is skipped. This has not been exercised on a network.
 
 ## Portable reputation
 
