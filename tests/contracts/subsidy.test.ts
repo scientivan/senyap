@@ -23,26 +23,29 @@ function fundingMarkets(){
   useBuyer(buyers[0]);s.invoke("recordOutcome",1n,0n,mask(0),bytes(140),false);
   useBuyer(buyers[1]);s.invoke("recordOutcome",1n,1n,mask(2),bytes(141),false);
   useBuyer(buyers[2]);s.invoke("recordOutcome",1n,2n,mask(3),bytes(142),false);
-  for(const [index,pool] of [[0,0],[2,1],[3,2]]){
-    const r=records[index];Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",1n,1n,BigInt(pool));
-  }
   s.setTime(1900);s.invoke("close",2n);
   for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postPreview",2n,{strong:1n,medium:1n,weak:0n},BigInt(i));}
   s.invoke("buyFlat",2n,0n);s.invoke("buyFlat",2n,1n);
+  s.setTime(3000);
+  for(const [index,pool] of [[0,0],[2,1],[3,2]]){
+    const r=records[index];Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",1n,1n,BigInt(pool));
+  }
   const claimSource=()=>{s.setTime(3300);let paid=0n;for(const r of records){s.context.currentPrivateState.scout=r.secret;paid+=s.invoke("claim",1n,1n,{bytes:bytes(220)}) as bigint;}return paid;};
   const reportTarget=()=>{
     s.invoke("recordOutcome",2n,0n,mask(0),bytes(143),false);
+  };
+  const targetHits=()=>{s.setTime(5000);
     for(const r of sideB.slice(0,4)){Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",2n,1n,0n);}
   };
-  return {s,sideB,claimSource,reportTarget};
+  return {s,sideB,claimSource,reportTarget,targetHits};
 }
 describe("P4.3 side A funded side B subsidy",()=>{
   it("earmarks exactly five percentage points and gives the subsidy no second platform cut while conserving all funds",()=>{
-    const {s,sideB,claimSource,reportTarget}=fundingMarkets();
+    const {s,sideB,claimSource,reportTarget,targetHits}=fundingMarkets();
     expect(s.state.marketRevenue.lookup(1n)).toBe(160n);s.invoke("allocateSubsidy",1n,2n,8n);
     expect(s.state.allocatedSubsidy.lookup(1n)).toBe(8n);expect(s.state.marketSubsidy.lookup(2n)).toBe(8n);
     reportTarget();expect(claimSource()).toBe(636n);expect(s.state.marketRemainder.lookup(1n)).toBe(16n);
-    s.setTime(5300);let paid=0n;
+    targetHits();s.setTime(5300);let paid=0n;
     for(let i=0;i<sideB.length;i++){s.context.currentPrivateState.scout=sideB[i].secret;const amount=s.invoke("claim",2n,1n,{bytes:bytes(230+i)}) as bigint;expect(amount).toBe(i===4?100n:106n);paid+=amount;}
     expect(paid).toBe(524n);expect(s.state.paidRewards.lookup(2n)[0]).toBe(24n);expect(s.state.marketRemainder.lookup(2n)).toBe(4n);
     const inputs=[...s.context.currentQueryContext.effects.unshieldedInputs.values()].reduce((a,b)=>a+b,0n),outputs=[...s.context.currentQueryContext.effects.unshieldedOutputs.values()].reduce((a,b)=>a+b,0n);

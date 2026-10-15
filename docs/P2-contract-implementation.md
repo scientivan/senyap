@@ -124,3 +124,41 @@ stake principal is not subsidy revenue. The two-market test receives 1280, pays
 1260 and records source/target remainders 16 and 4. It rejects excess/repeated
 allocation beyond the cap, forged division, wrong authorization/direction and
 allocation after target outcomes freeze. This remains simulator evidence.
+
+
+## Anonymous hoax disputes and settlement gate (15 October)
+
+`admitVerifier` admits commitments to a depth-16 anonymous membership tree without
+reusable collateral. Each `commitVote` locks a fresh 100 demo dUSD for one dispute;
+only the first seven distinct per-case nullifiers reserve seats. Commitments bind
+the deployment, case, verifier secret, choice and salt. Reveals open the choice,
+not the membership leaf. Production commit/reveal windows are configurable
+(86400 seconds each); tests use 300 seconds each. Opens derive checked deadlines
+from a caller timestamp validated within 0–60 seconds before the block, as with
+the existing selection timer. No wall-clock getter is assumed.
+
+Opening one case per position requires a 50 dUSD bond, evidence hash and fixed
+refund address, strictly before outcomeUntil. Hits wait for that boundary and
+zero unresolved cases. A valid majority needs at least five reveals and no tie.
+Minority loses 50, non-reveal loses 100, majority shares penalties equally with
+floor rounding. Rejected-report bonds join that majority pool. Proven-hoax and
+inconclusive cases refund the reporter; inconclusive cases also refund every
+verifier in full, including those who did not reveal. Rounding is retained in
+`disputeRemainder`, separate from market revenue/subsidy accounting.
+
+A proven hoax sends its position principal to the immutable configured charity,
+marks it slashed, and excludes it before hit denominators/credentials exist.
+Demo tests use a labelled synthetic burn recipient; production charity still
+needs Dien's address before deployment. Three matching committee attestations
+bind a decrypted card to its member index, then the operator revokes that leaf
+and resets group root history. This relies on the approved trusted-committee
+model; it does not add an onchain proof of threshold decryption correctness.
+
+Late dispute finalization preserves a full hit window. All-position slashing can
+finish through permissionless finalizeMarket, so it does not require a remaining
+scout claimant. Keeper planning includes overdue resolutions and this finalizer.
+Seven dispute tests cover both verdicts, quorum failure, ties, altered/duplicate
+votes, fixed recipients, separate funds across five simultaneous cases, exact
+rounding, late resolution, and all-position slashing. Full proving and a product
+network deployment remain pending. Subjective-outcome voting is not wired by
+these hoax-only circuits.

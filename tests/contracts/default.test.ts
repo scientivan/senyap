@@ -19,6 +19,7 @@ describe("P3.2 threshold default outcomes",()=>{
     s.context.currentPrivateState.committee=committee[3];s.invoke("postDefaultStrongest",1n,0n,0n,3n);
     expect(s.state.marketPhase.lookup(1n)).toBe(8n);expect(s.state.successMasks.lookup(1n)[0]).toEqual(mask(0));
     expect(s.state.needsDefault.lookup(1n)[0]).toBe(false);
+    s.setTime(2400);
     const r=records[0];Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",1n,1n,0n);
     s.setTime(2700);expect(s.invoke("claim",1n,1n,{bytes:bytes(210)})).toBe(117n);
   });

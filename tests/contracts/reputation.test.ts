@@ -24,6 +24,7 @@ function earnedHits(){
   for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postPreview",1n,{strong:1n,medium:2n,weak:0n},BigInt(i));}
   for(let i=0;i<3;i++)s.invoke("buyFlat",1n,BigInt(i));
   s.invoke("recordOutcome",1n,0n,[true,true,true,false,false,false,false,false],bytes(90),false);
+  s.setTime(1020);
   Object.assign(s.context.currentPrivateState,{scout:cohort[0],option:0n,salt:bytes(100),epochOverride:8n});
   expect(()=>s.invoke("proveHit",1n,1n,0n)).toThrow(/epoch is not current/);
   s.context.currentPrivateState.epochOverride=undefined;

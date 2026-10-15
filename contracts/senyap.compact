@@ -90,6 +90,19 @@ export ledger marketScouts: Map<Uint<32>, Uint<32>>;
 export ledger marketWeight: Map<Uint<32>, Uint<64>>;
 export ledger marketStake: Map<Uint<32>, Uint<128>>;
 export ledger tally: Map<Uint<32>, Vector<8, CipherPair>>;
+export struct Dispute { marketId: Uint<32>; evidence: Bytes<32>; reporter: UserAddress; commitUntil: Uint<64>; revealUntil: Uint<64>;
+  seats: Vector<7, Bytes<32>>; committed: Uint<8>; yes: Uint<8>; no: Uint<8>; result: Uint<8>; majorityBonus: Uint<64>; }
+export struct VerifierVote { dispute: Bytes<32>; commitment: Bytes<32>; recipient: UserAddress; revealed: Boolean; choice: Boolean; claimed: Boolean; }
+export ledger verifierTree: HistoricMerkleTree<16, Bytes<32>>;
+export ledger admittedVerifiers: Set<Bytes<32>>;
+export ledger disputes: Map<Bytes<32>, Dispute>;
+export ledger verifierVotes: Map<Bytes<32>, VerifierVote>;
+export ledger pendingDisputes: Map<Uint<32>, Uint<32>>;
+export ledger disputeRemainder: Map<Bytes<32>, Uint<64>>;
+export ledger hoaxMembers: Map<Bytes<32>, GroupLeaf>;
+export sealed ledger disputeCommitWindow: Uint<64>;
+export sealed ledger disputeRevealWindow: Uint<64>;
+export sealed ledger charity: UserAddress;
 
 witness operatorSecret(): Bytes<32>;
 witness committeeSecret(): Bytes<32>;
@@ -115,14 +128,19 @@ witness currentEpoch(): Uint<64>;
 witness hitCredentials(): Vector<3, HitCredential>;
 witness bidRandomHigh(): Uint<128>;
 witness bidRandomLow(): Uint<128>;
+witness verifierSecret(): Bytes<32>;
+witness verifierPath(): MerkleTreePath<16, Bytes<32>>;
+witness voteSalt(): Bytes<32>;
 
-constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>, pk: JubjubPoint, color: Bytes<32>, epochSeconds: Uint<64>, hitSeconds: Uint<64>, selectionSeconds: Uint<64>) {
+constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>, pk: JubjubPoint, color: Bytes<32>, epochSeconds: Uint<64>, hitSeconds: Uint<64>, selectionSeconds: Uint<64>, commitSeconds: Uint<64>, revealSeconds: Uint<64>, charityAddress: UserAddress) {
   operator = disclose(operatorCommit);
   committeeAuth = disclose(authCommits);
   assert(epochSeconds > 0, "Epoch length must be positive");
   committeePk = disclose(pk);dusdColor = disclose(color);epochLength = disclose(epochSeconds);
   assert(hitSeconds > 0, "Hit registration window must be positive");hitWindow = disclose(hitSeconds);
   assert(selectionSeconds > 60, "Selection window must exceed timestamp tolerance");selectionWindow = disclose(selectionSeconds);
+  assert(commitSeconds > 60 && revealSeconds > 0, "Invalid verifier windows");
+  disputeCommitWindow = disclose(commitSeconds);disputeRevealWindow = disclose(revealSeconds);charity = disclose(charityAddress);
   for (const i of [0, 1, 2, 3, 4]) {
     assert(authCommits[i] != default<Bytes<32>>, "Committee authentication must be nonzero");
     for (const j of [0, 1, 2, 3, 4]) {
@@ -284,6 +302,7 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
   markets.insert(marketId, cfg);marketPhase.insert(marketId, 1);
   marketCreator.insert(marketId, disclose(creator));
   marketScouts.insert(marketId, 0);marketWeight.insert(marketId, 0);marketStake.insert(marketId, 0);
+  pendingDisputes.insert(marketId, 0);
   marketPools.insert(marketId, [0,0,0,0]);denominators.insert(marketId, [0,0,0,0]);paidRewards.insert(marketId, [0,0,0,0]);
   marketRevenue.insert(marketId, 0);marketSubsidy.insert(marketId, 0);allocatedSubsidy.insert(marketId, 0);marketPositions.insert(marketId, 0);marketClaims.insert(marketId, 0);
   marketBuyers.insert(marketId, [default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>]);
@@ -586,7 +605,9 @@ export circuit recordOutcome(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, 
   const masks = successMasks.lookup(marketId);
   successMasks.insert(marketId, [pool == 0 ? success : masks[0],pool == 1 ? success : masks[1],pool == 2 ? success : masks[2],pool == 3 ? success : masks[3]]);
   outcomeEvidence.insert(disclose(key), disclose(evidence));
-  hitUntil.insert(marketId, (market.outcomeUntil + hitWindow) as Uint<64>);
+  const normalEnd = (market.outcomeUntil + hitWindow) as Uint<64>;
+  const previousEnd = hitUntil.member(marketId) ? hitUntil.lookup(marketId) : 0;
+  hitUntil.insert(marketId, previousEnd > normalEnd ? previousEnd : normalEnd);
   const any = fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, success);
   const ready = map((i: Uint<8>, value: Boolean): Boolean => i == pool ? any : value, [0,1,2,3], outcomesReady.lookup(marketId));
   outcomesReady.insert(marketId, ready);
@@ -623,6 +644,7 @@ export circuit proveHit(id: Uint<32>, slotNumber: Uint<8>, poolNumber: Uint<8>):
   const marketId = disclose(id);const pool = disclose(poolNumber);const market = markets.lookup(marketId);
   assert(pool < 4 && (market.side == 0 || pool == 0), "Invalid settlement pool");
   assert(marketPhase.lookup(marketId) == 8 && blockTimeLt(hitUntil.lookup(marketId)), "Hit registration window closed");
+  assert(blockTimeGte(market.outcomeUntil) && pendingDisputes.lookup(marketId) == 0, "Outcome or disputes still pending");
   const secret = scoutSecret();const nullifier = positionId(secret, marketId, slotNumber);
   assert(positions.member(disclose(nullifier)), "Unknown owned position");
   const position = positions.lookup(disclose(nullifier));assert(position.status == 0, "Position not active");
@@ -680,6 +702,7 @@ export circuit allocateSubsidy(sourceId: Uint<32>, targetId: Uint<32>, amount: U
 export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress): Uint<128> {
   const marketId = disclose(id);
   assert(marketPhase.lookup(marketId) == 8 && blockTimeGte(hitUntil.lookup(marketId)), "Claims not open");
+  assert(blockTimeGte(markets.lookup(marketId).outcomeUntil) && pendingDisputes.lookup(marketId) == 0, "Outcome or disputes still pending");
   const secret = scoutSecret();const nullifier = positionId(secret, marketId, slotNumber);
   assert(positions.member(disclose(nullifier)), "Unknown owned position");
   const position = positions.lookup(disclose(nullifier));assert(position.status == 0, "Position already claimed or slashed");
@@ -737,4 +760,125 @@ export circuit renewTier(fromGroup: Bytes<32>, toGroup: Bytes<32>): [] {
   groupLeaves.insert(disclose(leafKey), disclose(commitment));scoutGroups.lookup(targetId).insert(disclose(commitment));
   groupNextIndex.insert(targetId, (index + 1) as Uint<64>);groupSize.insert(targetId, (groupSize.lookup(targetId) + 1) as Uint<32>);
   admittedCommitments.insert(disclose(unique));usedNullifiers.insert(disclose(renewal));
+}
+
+
+// All deposits are demo unshielded dUSD. Membership is private; vote choice is
+// public only during reveal. The first seven commitments reserve the seats.
+export circuit admitVerifier(commitment: Bytes<32>): [] {
+  assertOperator();assert(commitment != default<Bytes<32>>, "Empty verifier commitment");
+  assert(!admittedVerifiers.member(disclose(commitment)), "Verifier already admitted");
+  admittedVerifiers.insert(disclose(commitment));verifierTree.insert(disclose(commitment));
+}
+circuit checkedCurrentTime(): Uint<64> {
+  const now = disclose(currentTime());
+  assert(now <= 18446744073709551554 && blockTimeGte(now) && blockTimeLt((now + 61) as Uint<64>), "Invalid current timestamp");
+  return now;
+}
+export circuit openDispute(positionId: Bytes<32>, evidence: Bytes<32>, reporter: UserAddress): [] {
+  const id = disclose(positionId);const position = positions.lookup(id);const market = markets.lookup(position.marketId);
+  assert(position.status == 0 && blockTimeLt(market.outcomeUntil), "Dispute opening window closed");
+  assert(!disputes.member(id), "Position already disputed");assert(evidence != default<Bytes<32>>, "Dispute evidence required");
+  const now = checkedCurrentTime();const commitUntil = (now + disputeCommitWindow) as Uint<64>;
+  const revealUntil = (commitUntil + disputeRevealWindow) as Uint<64>;
+  receiveUnshielded(dusdColor, 50);
+  const zero = default<Bytes<32>>;
+  disputes.insert(id, Dispute { marketId: position.marketId, evidence: disclose(evidence), reporter: disclose(reporter), commitUntil: commitUntil,
+    revealUntil: revealUntil, seats: [zero,zero,zero,zero,zero,zero,zero], committed: 0, yes: 0, no: 0, result: 0, majorityBonus: 0 });
+  pendingDisputes.insert(position.marketId, (pendingDisputes.lookup(position.marketId) + 1) as Uint<32>);
+  const end = (revealUntil + hitWindow) as Uint<64>;
+  const previous = hitUntil.member(position.marketId) ? hitUntil.lookup(position.marketId) : 0;
+  hitUntil.insert(position.marketId, previous > end ? previous : end);
+}
+circuit verifierPseudonym(secret: Bytes<32>, id: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<4, Bytes<32>>>([pad(32, "senyap:verifier"), kernel.self().bytes, secret, id]);
+}
+export circuit commitVote(dispute: Bytes<32>, commitment: Bytes<32>, recipient: UserAddress): Bytes<32> {
+  const id = disclose(dispute);const item = disputes.lookup(id);
+  assert(item.result == 0 && blockTimeLt(item.commitUntil), "Vote commit window closed");
+  assert(item.committed < 7, "Seven verifier seats already filled");assert(commitment != default<Bytes<32>>, "Empty vote commitment");
+  const secret = verifierSecret();const path = verifierPath();
+  assert(path.leaf == persistentHash<Bytes<32>>(secret), "Verifier leaf does not belong to secret");
+  assert(verifierTree.checkRoot(disclose(merkleTreePathRoot<16, Bytes<32>>(path))), "Verifier root not accepted");
+  const pseudonym = disclose(verifierPseudonym(secret, id));
+  assert(!verifierVotes.member(pseudonym), "Verifier already committed in this dispute");
+  receiveUnshielded(dusdColor, 100);
+  verifierVotes.insert(pseudonym, VerifierVote { dispute: id, commitment: disclose(commitment), recipient: disclose(recipient), revealed: false, choice: false, claimed: false });
+  const seats = map((i: Uint<8>, seat: Bytes<32>): Bytes<32> => i == item.committed ? pseudonym : seat, [0,1,2,3,4,5,6], item.seats);
+  disputes.insert(id, Dispute { ...item, seats: seats, committed: (item.committed + 1) as Uint<8> });
+  return pseudonym;
+}
+export circuit revealVote(dispute: Bytes<32>, choice: Boolean): [] {
+  const id = disclose(dispute);const item = disputes.lookup(id);
+  assert(item.result == 0 && blockTimeGte(item.commitUntil) && blockTimeLt(item.revealUntil), "Vote reveal window closed");
+  const secret = verifierSecret();const pseudonym = disclose(verifierPseudonym(secret, id));const vote = verifierVotes.lookup(pseudonym);
+  assert(!vote.revealed, "Vote already revealed");
+  const committed = persistentHash<Vector<6, Bytes<32>>>([pad(32, "senyap:vote"),kernel.self().bytes,id,secret,choice ? (1 as Bytes<32>) : default<Bytes<32>>,voteSalt()]);
+  assert(vote.commitment == committed, "Wrong vote choice or salt");
+  verifierVotes.insert(pseudonym, VerifierVote { ...vote, revealed: true, choice: disclose(choice) });
+  disputes.insert(id, Dispute { ...item, yes: (item.yes + (disclose(choice) ? 1 : 0)) as Uint<8>, no: (item.no + (disclose(choice) ? 0 : 1)) as Uint<8> });
+}
+export circuit resolveDispute(dispute: Bytes<32>): Uint<8> {
+  const id = disclose(dispute);const item = disputes.lookup(id);
+  assert(item.result == 0 && blockTimeGte(item.revealUntil), "Dispute not ready to resolve");
+  const valid = item.yes + item.no >= 5 && item.yes != item.no;
+  const hoax = item.yes > item.no;const majority = hoax ? item.yes : item.no;
+  const penalties = fold((total: Uint<64>, seat: Bytes<32>): Uint<64> => {
+    if (seat == default<Bytes<32>>) { return total; }
+    const vote = verifierVotes.lookup(seat);
+    return (total + (!vote.revealed ? 100 : vote.choice != hoax ? 50 : 0)) as Uint<64>;
+  }, 0, item.seats);
+  const pool: Uint<64> = valid ? (penalties + (hoax ? 0 : 50)) as Uint<64> : 0;
+  const bonus: Uint<64> = valid ? checkedDivide(pool as Uint<128>, majority as Uint<64>) : 0;
+  const result: Uint<8> = !valid ? 3 : hoax ? 1 : 2;
+  disputes.insert(id, Dispute { ...item, result: result, majorityBonus: disclose(bonus) });
+  disputeRemainder.insert(id, disclose(valid ? (pool - bonus * majority) as Uint<64> : 0));
+  if (!valid || hoax) { sendUnshielded(dusdColor, 50, right<ContractAddress, UserAddress>(item.reporter)); }
+  if (valid && hoax) {
+    const position = positions.lookup(id);assert(position.status == 0, "Disputed position not active");
+    sendUnshielded(dusdColor, position.stake, right<ContractAddress, UserAddress>(charity));
+    positions.insert(id, Position { ...position, status: 2 });
+    marketClaims.insert(item.marketId, (marketClaims.lookup(item.marketId) + 1) as Uint<32>);
+  }
+  pendingDisputes.insert(item.marketId, (pendingDisputes.lookup(item.marketId) - 1) as Uint<32>);
+  // A late finalizer must still leave a complete hit window after all cases close.
+  const end = (checkedCurrentTime() + hitWindow) as Uint<64>;
+  const previous = hitUntil.lookup(item.marketId);hitUntil.insert(item.marketId, previous > end ? previous : end);
+  return result;
+}
+export circuit claimVerifier(pseudonym: Bytes<32>): Uint<64> {
+  const key = disclose(pseudonym);const vote = verifierVotes.lookup(key);const item = disputes.lookup(vote.dispute);
+  assert(item.result != 0 && !vote.claimed, "Verifier claim not available");
+  const principal: Uint<64> = item.result == 3 ? 100 : !vote.revealed ? 0 : vote.choice == (item.result == 1) ? 100 : 50;
+  const bonus: Uint<64> = item.result != 3 && vote.revealed && vote.choice == (item.result == 1) ? item.majorityBonus : 0;
+  const amount = (principal + bonus) as Uint<64>;
+  if (amount > 0) { sendUnshielded(dusdColor, amount, right<ContractAddress, UserAddress>(vote.recipient)); }
+  verifierVotes.insert(key, VerifierVote { ...vote, claimed: true });return amount;
+}
+
+// A proven hoax unlocks committee disclosure of this card. Three matching
+// authenticated attestations bind the decrypted member index to that exact card.
+export circuit approveHoaxMember(dispute: Bytes<32>, index: Uint<64>, member: Uint<8>): [] {
+  const id = disclose(dispute);assert(disputes.lookup(id).result == 1, "Hoax not proven");
+  assert(!hoaxMembers.member(id), "Hoax member already revealed");const position = positions.lookup(id);
+  const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: position.group, index: index });
+  assert(groupLeaves.member(disclose(leafKey)), "Unknown hoax member index");
+  const command = persistentHash<Vector<4, Bytes<32>>>([pad(32, "senyap:hoax-member"),id,persistentHash<LockedCard>(position.lockedCard),index as Bytes<32>]);
+  if (approve(command, member) >= 3) { hoaxMembers.insert(id, GroupLeaf { group: position.group, index: disclose(index) }); }
+}
+export circuit revokeHoaxMember(dispute: Bytes<32>): [] {
+  assertOperator();const id = disclose(dispute);assert(disputes.lookup(id).result == 1 && hoaxMembers.member(id), "Hoax member not revealed");
+  const member = hoaxMembers.lookup(id);const leafKey = persistentHash<GroupLeaf>(member);
+  assert(groupLeaves.member(leafKey), "Hoax member already revoked");
+  groupLeaves.remove(leafKey);scoutGroups.lookup(member.group).insertIndexDefault(member.index);scoutGroups.lookup(member.group).resetHistory();
+  groupSize.insert(member.group, (groupSize.lookup(member.group) - 1) as Uint<32>);
+}
+// Handles the case where every position was slashed, so nobody can call claim.
+export circuit finalizeMarket(id: Uint<32>): [] {
+  const marketId = disclose(id);
+  assert(marketPhase.lookup(marketId) == 8 && blockTimeGte(hitUntil.lookup(marketId)) && pendingDisputes.lookup(marketId) == 0, "Market not ready to finalize");
+  assert(marketClaims.lookup(marketId) == marketPositions.lookup(marketId), "Positions still unclaimed");
+  const paid = fold((acc: Uint<128>, value: Uint<128>): Uint<128> => (acc + value) as Uint<128>, 0, paidRewards.lookup(marketId));
+  marketRemainder.insert(marketId, (marketRevenue.lookup(marketId) + marketSubsidy.lookup(marketId) - paid - allocatedSubsidy.lookup(marketId)) as Uint<128>);
+  marketPhase.insert(marketId, 9);
 }

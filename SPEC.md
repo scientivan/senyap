@@ -1,8 +1,8 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.9 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
+> Versi 0.10 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
 > Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
-> Sumber keputusan: living doc Bisik bagian 26 (v0.54), `task-tracker.md`, `AGENTS.md`.
+> Sumber keputusan: living doc Bisik bagian 26 (v0.55), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
 > boleh diubah Dien kapan saja, dan setiap perubahan dicatat; **[Spike]** asumsi teknis yang wajib
 > dibuktikan sebelum dipakai (lihat §9). v0.2 menambah §6.3b struct, §8.5 env, §8.6 antarmuka offchain,
@@ -181,9 +181,11 @@ kunci yang commitment-nya disimpan saat stake. Kontak scout dienkripsi ke kunci 
 
 **Keputusan Dien, 15 Okt:** stake 100 dUSD dikunci per sengketa, bukan jaminan yang dipakai ulang lintas kasus. Pada putusan sah, minoritas kehilangan 50%, verifier tidak reveal kehilangan 100%, dan penalti dibagi ke mayoritas. Bila suara terungkap kurang dari 5 atau seri, kasus tidak diputuskan dan seluruh bond dikembalikan tanpa slash scout. Bond pelapor 50 dUSD dikembalikan bila hoax terbukti; bila laporan ditolak, bond dibagi kepada verifier mayoritas. Keanggotaan verifier tetap dibuktikan anonim.
 
+Implementasi simulator mengunci dana per kasus dan menyimpan sisa pembulatan pembagian penalti terpisah dari pendapatan market. Demo memakai jendela commit/reveal 300 detik; produksi memakai parameter 86400 detik masing-masing.
+
 ### 3.10 F8 Sengketa hoax
 
-- Siapa pun membuka sengketa terhadap posisi (dengan bond). Verifier memutus.
+- Siapa pun membuka sengketa terhadap posisi (dengan bond), sebelum `outcomeUntil` (keputusan Dien 15 Okt). `proveHit` dan klaim menunggu jendela outcome berakhir serta seluruh sengketa selesai. Posisi hoax dikeluarkan dari hadiah sebelum denominator/credential hit dibentuk.
 - Hoax terbukti: stake posisi di-slash ke alamat amal; komite membuka kartu anggota terkunci; operator
   memanggil `revokeMember(group, leafIndex)` dan kontrak mereset riwayat root grup.
 

@@ -32,6 +32,7 @@ describe("P4.2 sealed auction and escrow",()=>{
     s.invoke("recordOutcome",1n,2n,selection(3,4),bytes(150),false);
     useBuyer(buyers[3]);s.invoke("recordOutcome",1n,3n,selection(4),bytes(150),false);
     expect(s.state.marketPhase.lookup(1n)).toBe(8n);
+    s.setTime(3000);
     for(const [index,pools] of [[0,[0]],[2,[1]],[3,[2]],[4,[2,3]]] as const){
       const r=records[index];Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});
       for(const pool of pools)s.invoke("proveHit",1n,1n,BigInt(pool));
