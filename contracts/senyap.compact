@@ -1,0 +1,113 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+export struct ScoutGroup { side: Uint<8>; tier: Uint<8>; epoch: Uint<64>; ecosystem: Bytes<32>; }
+export struct GroupLeaf { group: Bytes<32>; index: Uint<64>; }
+export sealed ledger operator: Bytes<32>;
+export sealed ledger committeeAuth: Vector<5, Bytes<32>>;
+export ledger scoutGroups: Map<Bytes<32>, HistoricMerkleTree<20, Bytes<32>>>;
+export ledger groupConfig: Map<Bytes<32>, ScoutGroup>;
+export ledger groupSize: Map<Bytes<32>, Uint<32>>;
+export ledger groupNextIndex: Map<Bytes<32>, Uint<64>>;
+export ledger groupLeaves: Map<Bytes<32>, Bytes<32>>;
+export ledger admittedCommitments: Set<Bytes<32>>;
+export ledger approvalVotes: Set<Bytes<32>>;
+export ledger approvalCounts: Map<Bytes<32>, Uint<8>>;
+export ledger consumedRevocations: Set<Bytes<32>>;
+
+witness operatorSecret(): Bytes<32>;
+witness committeeSecret(): Bytes<32>;
+witness scoutSecret(): Bytes<32>;
+witness memberPath(): MerkleTreePath<20, Bytes<32>>;
+
+constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>) {
+  operator = disclose(operatorCommit);
+  committeeAuth = disclose(authCommits);
+  for (const i of [0, 1, 2, 3, 4]) {
+    assert(authCommits[i] != default<Bytes<32>>, "Committee authentication must be nonzero");
+    for (const j of [0, 1, 2, 3, 4]) {
+      assert(i == j || authCommits[i] != authCommits[j], "Committee members must be distinct");
+    }
+  }
+}
+
+circuit assertOperator(): [] {
+  assert(persistentHash<Bytes<32>>(operatorSecret()) == operator, "Operator authorization failed");
+}
+
+export circuit configureScoutGroup(group: Bytes<32>, config: ScoutGroup): [] {
+  assertOperator();
+  assert(!groupConfig.member(disclose(group)), "Group already configured");
+  assert(config.side <= 1 && config.tier >= 1 && config.tier <= 3, "Invalid scout group");
+  groupConfig.insert(disclose(group), disclose(config));
+  scoutGroups.insert(disclose(group), default<HistoricMerkleTree<20, Bytes<32>>>);
+  groupSize.insert(disclose(group), 0);
+  groupNextIndex.insert(disclose(group), 0);
+}
+
+export circuit admitScout(group: Bytes<32>, commitment: Bytes<32>): [] {
+  assertOperator();
+  assert(groupConfig.member(disclose(group)), "Unknown scout group");
+  assert(commitment != default<Bytes<32>>, "Empty commitment forbidden");
+  const unique = persistentHash<Vector<2, Bytes<32>>>([group, commitment]);
+  assert(!admittedCommitments.member(disclose(unique)), "Scout already admitted to group");
+  const index = groupNextIndex.lookup(disclose(group));
+  assert(index < 1048576, "Scout group tree full");
+  const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: group, index: index });
+  groupLeaves.insert(disclose(leafKey), disclose(commitment));
+  scoutGroups.lookup(disclose(group)).insert(disclose(commitment));
+  groupNextIndex.insert(disclose(group), (index + 1) as Uint<64>);
+  groupSize.insert(disclose(group), (groupSize.lookup(disclose(group)) + 1) as Uint<32>);
+  admittedCommitments.insert(disclose(unique));
+}
+
+circuit assertScout(group: Bytes<32>): [] {
+  assert(groupConfig.member(disclose(group)), "Unknown scout group");
+  const config = groupConfig.lookup(disclose(group));
+  const commitment = persistentHash<Vector<2, Bytes<32>>>([scoutSecret(), config.epoch as Bytes<32>]);
+  const path = memberPath();
+  assert(path.leaf == commitment, "Membership leaf does not belong to scout");
+  assert(scoutGroups.lookup(disclose(group)).checkRoot(disclose(merkleTreePathRoot<20, Bytes<32>>(path))), "Membership root not accepted");
+}
+
+// Returns an unlinkable scope identifier, later reused by stake authorization.
+export circuit scoutPseudonym(group: Bytes<32>, scope: Bytes<32>): Bytes<32> {
+  assertScout(group);
+  return disclose(persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:scout"), scoutSecret(), scope]));
+}
+
+circuit revocationKey(group: Bytes<32>, index: Uint<64>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:revoke"), group, index as Bytes<32>]);
+}
+
+export circuit approveRevocation(group: Bytes<32>, index: Uint<64>, member: Uint<8>): [] {
+  const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: group, index: index });
+  assert(groupLeaves.member(disclose(leafKey)), "Unknown membership leaf");
+  assert(member < 5, "Invalid committee member");
+  const memberId = disclose(member);
+  const auth = memberId == 0 ? committeeAuth[0] : memberId == 1 ? committeeAuth[1] : memberId == 2 ? committeeAuth[2] : memberId == 3 ? committeeAuth[3] : committeeAuth[4];
+  assert(persistentHash<Bytes<32>>(committeeSecret()) == auth, "Committee authorization failed");
+  const command = revocationKey(group, index);
+  const vote = persistentHash<Vector<2, Bytes<32>>>([command, member as Bytes<32>]);
+  assert(!consumedRevocations.member(disclose(command)), "Revocation already consumed");
+  assert(!approvalVotes.member(disclose(vote)), "Duplicate committee approval");
+  approvalVotes.insert(disclose(vote));
+  const count = approvalCounts.member(disclose(command)) ? approvalCounts.lookup(disclose(command)) : 0;
+  approvalCounts.insert(disclose(command), (count + 1) as Uint<8>);
+}
+
+export circuit revokeMember(group: Bytes<32>, index: Uint<64>): [] {
+  assertOperator();
+  const command = revocationKey(group, index);
+  assert(!consumedRevocations.member(disclose(command)), "Revocation already consumed");
+  assert(approvalCounts.member(disclose(command)), "Committee approvals required");
+  assert(approvalCounts.lookup(disclose(command)) >= 3, "Three committee approvals required");
+  const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: group, index: index });
+  assert(groupLeaves.member(disclose(leafKey)), "Unknown membership leaf");
+  groupLeaves.remove(disclose(leafKey));
+  scoutGroups.lookup(disclose(group)).insertIndexDefault(disclose(index));
+  scoutGroups.lookup(disclose(group)).resetHistory();
+  groupSize.insert(disclose(group), (groupSize.lookup(disclose(group)) - 1) as Uint<32>);
+  consumedRevocations.insert(disclose(command));
+}
