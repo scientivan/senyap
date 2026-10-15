@@ -17,12 +17,27 @@ export ledger admittedCommitments: Set<Bytes<32>>;
 export ledger approvalVotes: Set<Bytes<32>>;
 export ledger approvalCounts: Map<Bytes<32>, Uint<8>>;
 export ledger consumedRevocations: Set<Bytes<32>>;
+export ledger buyerTree: HistoricMerkleTree<16, Bytes<32>>;
+export ledger goodStanding: HistoricMerkleTree<16, Bytes<32>>;
+export ledger admittedBuyers: Set<Bytes<32>>;
+export struct Market {
+  side: Uint<8>; category: Bytes<32>; questionHash: Bytes<32>; questionUri: Opaque<"string">;
+  nOptions: Uint<8>; optionRefs: Vector<8, Bytes<32>>;
+  openAt: Uint<64>; openUntil: Uint<64>; auctionUntil: Uint<64>; outcomeUntil: Uint<64>;
+  flatPrice: Uint<64>; reservePrice: Uint<64>;
+}
+export ledger markets: Map<Uint<32>, Market>;
+export ledger marketPhase: Map<Uint<32>, Uint<8>>;
+export ledger marketCreator: Map<Uint<32>, Bytes<32>>;
 
 witness operatorSecret(): Bytes<32>;
 witness committeeSecret(): Bytes<32>;
 witness scoutSecret(): Bytes<32>;
 witness memberPath(): MerkleTreePath<20, Bytes<32>>;
 witness builderSecret(): Bytes<32>;
+witness buyerSecret(): Bytes<32>;
+witness buyerPath(): MerkleTreePath<16, Bytes<32>>;
+witness standingPath(): MerkleTreePath<16, Bytes<32>>;
 
 constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>) {
   operator = disclose(operatorCommit);
@@ -135,4 +150,48 @@ export circuit withdrawBuilder(id: Bytes<32>): [] {
   assert(entry.ownerCommit == persistentHash<Vector<2, Bytes<32>>>([pad(32, "senyap:builder"), builderSecret()]), "Builder owner authorization failed");
   assert(entry.consent, "Builder already withdrawn");
   builderRegistry.insert(disclose(id), BuilderEntry { profileHash: entry.profileHash, ownerCommit: entry.ownerCommit, consent: false, registeredAt: entry.registeredAt });
+}
+
+export circuit admitBuyer(commitment: Bytes<32>): [] {
+  assertOperator();
+  assert(commitment != default<Bytes<32>>, "Empty buyer commitment forbidden");
+  assert(!admittedBuyers.member(disclose(commitment)), "Buyer already admitted");
+  buyerTree.insert(disclose(commitment));goodStanding.insert(disclose(commitment));
+  admittedBuyers.insert(disclose(commitment));
+}
+
+circuit assertBuyer(): [] {
+  const commitment = persistentHash<Bytes<32>>(buyerSecret());
+  const path = buyerPath();const standing = standingPath();
+  assert(path.leaf == commitment && standing.leaf == commitment, "Buyer membership leaf does not belong to secret");
+  assert(buyerTree.checkRoot(disclose(merkleTreePathRoot<16, Bytes<32>>(path))), "Buyer root not accepted");
+  assert(goodStanding.checkRoot(disclose(merkleTreePathRoot<16, Bytes<32>>(standing))), "Buyer not in good standing");
+}
+
+export circuit createMarket(id: Uint<32>, config: Market): [] {
+  const cfg = disclose(config);const marketId = disclose(id);
+  assert(!markets.member(marketId), "Market already exists");
+  assert(cfg.side <= 1 && cfg.nOptions >= 1 && cfg.nOptions <= 8, "Invalid market side or option count");
+  assert(cfg.questionHash != default<Bytes<32>> && cfg.category != default<Bytes<32>>, "Market metadata required");
+  assert(cfg.openAt < cfg.openUntil && cfg.openUntil <= cfg.auctionUntil && cfg.auctionUntil < cfg.outcomeUntil, "Invalid market schedule");
+  assert(blockTimeGte(cfg.openAt) && blockTimeLt(cfg.openUntil), "Market not in open window");
+  // O-10: operator creates side B markets on verified builders' proposals.
+  if (cfg.side == 0) { assertBuyer(); }
+  else { assertOperator();assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction"); }
+  for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) {
+    if (i < cfg.nOptions) {
+      assert(cfg.optionRefs[i] != default<Bytes<32>>, "Empty active option");
+      for (const j of [0, 1, 2, 3, 4, 5, 6, 7]) {
+        assert(j >= cfg.nOptions || i == j || cfg.optionRefs[i] != cfg.optionRefs[j], "Duplicate market option");
+      }
+      if (cfg.side == 0) {
+        assert(builderRegistry.member(cfg.optionRefs[i]), "Unknown option builder");
+        assert(builderRegistry.lookup(cfg.optionRefs[i]).consent, "Builder has withdrawn consent");
+      }
+    } else { assert(cfg.optionRefs[i] == default<Bytes<32>>, "Unused option must be empty"); }
+  }
+  const owner = cfg.side == 0 ? buyerSecret() : operatorSecret();
+  const creator = persistentHash<Vector<2, Bytes<32>>>([owner, marketId as Bytes<32>]);
+  markets.insert(marketId, cfg);marketPhase.insert(marketId, 1);
+  marketCreator.insert(marketId, disclose(creator));
 }
