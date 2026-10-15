@@ -113,8 +113,11 @@ on the server and must never be placed in `apps/web` or any `VITE_*` variable.
    demo state only; they are not evidence of contract execution.
 
 A verified end-to-end Preprod walkthrough, contract addresses and transaction
-IDs will be added when those integrations work. The slide deck, video and Wave 2
-progress statement are not available yet.
+IDs will be added when those integrations work. Draft [deck content](docs/submission/deck-outline.md),
+[demo storyboard](docs/submission/demo-storyboard.md) and
+[Wave 2 progress text](docs/submission/wave-2-progress-draft.md) are available for
+review. Final slides, a recorded network demo and a submitted progress statement
+remain unfinished.
 
 ## Privacy limits in the planned design
 
