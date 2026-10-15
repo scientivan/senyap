@@ -21,6 +21,11 @@ export ledger consumedRevocations: Set<Bytes<32>>;
 export ledger buyerTree: HistoricMerkleTree<16, Bytes<32>>;
 export ledger goodStanding: HistoricMerkleTree<16, Bytes<32>>;
 export ledger admittedBuyers: Set<Bytes<32>>;
+export ledger buyerLeaves: Map<Uint<64>, Bytes<32>>;
+export ledger buyerNextIndex: Uint<64>;
+export ledger missedReports: Set<Bytes<32>>;
+export ledger missedBuyerIndices: Map<Bytes<32>, Uint<64>>;
+export ledger removedStanding: Set<Bytes<32>>;
 export struct Market {
   side: Uint<8>; category: Bytes<32>; questionHash: Bytes<32>; questionUri: Opaque<"string">;
   nOptions: Uint<8>; optionRefs: Vector<8, Bytes<32>>;
@@ -259,6 +264,8 @@ export circuit admitBuyer(commitment: Bytes<32>): [] {
   assertOperator();
   assert(commitment != default<Bytes<32>>, "Empty buyer commitment forbidden");
   assert(!admittedBuyers.member(disclose(commitment)), "Buyer already admitted");
+  assert(buyerNextIndex < 65536, "Buyer membership tree full");
+  buyerLeaves.insert(buyerNextIndex, disclose(commitment));buyerNextIndex = (buyerNextIndex + 1) as Uint<64>;
   buyerTree.insert(disclose(commitment));goodStanding.insert(disclose(commitment));
   admittedBuyers.insert(disclose(commitment));
 }
@@ -620,7 +627,7 @@ export circuit recordOutcome(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, 
 export circuit postDefaultStrongest(id: Uint<32>, poolNumber: Uint<8>, optionNumber: Uint<8>, member: Uint<8>): [] {
   const marketId = disclose(id);const pool = disclose(poolNumber);const option = disclose(optionNumber);const market = markets.lookup(marketId);
   assert(pool < 4 && (market.side == 0 || pool == 0), "Invalid default pool");
-  assert(marketPhase.lookup(marketId) == 7 && blockTimeLt(hitUntil.lookup(marketId)), "Default selection is not pending or window expired");
+  assert(marketPhase.lookup(marketId) == 7, "Default selection is not pending");
   const pending = needsDefault.lookup(marketId);
   assert(pool == 0 ? pending[0] : pool == 1 ? pending[1] : pool == 2 ? pending[2] : pending[3], "Pool does not need a default");
   const owners = marketBuyers.lookup(marketId);const owner = pool == 0 ? owners[0] : pool == 1 ? owners[1] : pool == 2 ? owners[2] : owners[3];
@@ -630,6 +637,8 @@ export circuit postDefaultStrongest(id: Uint<32>, poolNumber: Uint<8>, optionNum
   assert(fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, allowed), "Default option was not purchased");
   const command = persistentHash<Vector<4, Bytes<32>>>([pad(32, "senyap:default"),marketId as Bytes<32>,pool as Bytes<32>,option as Bytes<32>]);
   if (approve(command, member) >= 3) {
+    const renewedEnd = (checkedCurrentTime() + hitWindow) as Uint<64>;
+    const previousEnd = hitUntil.lookup(marketId);hitUntil.insert(marketId, previousEnd > renewedEnd ? previousEnd : renewedEnd);
     const masks = successMasks.lookup(marketId);
     successMasks.insert(marketId, [pool == 0 ? allowed : masks[0],pool == 1 ? allowed : masks[1],pool == 2 ? allowed : masks[2],pool == 3 ? allowed : masks[3]]);
     const ready = map((i: Uint<8>, value: Boolean): Boolean => value || i == pool, [0,1,2,3], outcomesReady.lookup(marketId));
@@ -881,4 +890,35 @@ export circuit finalizeMarket(id: Uint<32>): [] {
   const paid = fold((acc: Uint<128>, value: Uint<128>): Uint<128> => (acc + value) as Uint<128>, 0, paidRewards.lookup(marketId));
   marketRemainder.insert(marketId, (marketRevenue.lookup(marketId) + marketSubsidy.lookup(marketId) - paid - allocatedSubsidy.lookup(marketId)) as Uint<128>);
   marketPhase.insert(marketId, 9);
+}
+
+// Side B uses a shared outcome. Its missed-report responsibility is awaiting
+// Dien's decision; do not infer per-buyer penalties from a shared pool.
+export circuit markMissedReport(id: Uint<32>, poolNumber: Uint<8>): [] {
+  const marketId = disclose(id);const pool = disclose(poolNumber);const market = markets.lookup(marketId);
+  assert(market.side == 0 && pool < 4, "Only side A buyer pools are supported here");
+  assert(blockTimeGte(market.outcomeUntil), "Outcome reporting window still open");
+  const phase = marketPhase.lookup(marketId);assert(phase >= 5 && phase <= 7 && selectionNext.lookup(marketId) == 2, "Market not ready for missed reports");
+  const owners = marketBuyers.lookup(marketId);const owner = pool == 0 ? owners[0] : pool == 1 ? owners[1] : pool == 2 ? owners[2] : owners[3];
+  assert(owner != default<Bytes<32>>, "Outcome pool has no buyer");
+  const key = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:outcome"),marketId as Bytes<32>,pool as Bytes<32>]);
+  assert(!outcomeEvidence.member(disclose(key)), "Outcome or missed report already recorded");
+  outcomeEvidence.insert(disclose(key), default<Bytes<32>>);missedReports.insert(owner);
+  needsDefault.insert(marketId, map((i: Uint<8>, value: Boolean): Boolean => value || i == pool, [0,1,2,3], needsDefault.lookup(marketId)));
+  const end = (checkedCurrentTime() + hitWindow) as Uint<64>;const previous = hitUntil.member(marketId) ? hitUntil.lookup(marketId) : 0;
+  hitUntil.insert(marketId, previous > end ? previous : end);marketPhase.insert(marketId, 7);
+}
+export circuit approveMissedBuyer(pseudonym: Bytes<32>, index: Uint<64>, member: Uint<8>): [] {
+  const buyer = disclose(pseudonym);assert(missedReports.member(buyer), "Buyer has no missed report");
+  assert(!missedBuyerIndices.member(buyer), "Buyer member already revealed");
+  assert(buyerLeaves.member(disclose(index)), "Unknown buyer member index");
+  const access = buyerAccess.lookup(buyer);
+  const command = persistentHash<Vector<4, Bytes<32>>>([pad(32, "senyap:missed-buyer"),buyer,persistentHash<LockedCard>(access.lockedCard),index as Bytes<32>]);
+  if (approve(command, member) >= 3) { missedBuyerIndices.insert(buyer, disclose(index)); }
+}
+export circuit revokeMissedBuyer(pseudonym: Bytes<32>): [] {
+  assertOperator();const buyer = disclose(pseudonym);assert(missedReports.member(buyer) && missedBuyerIndices.member(buyer), "Missed buyer member not revealed");
+  const index = missedBuyerIndices.lookup(buyer);const leaf = buyerLeaves.lookup(index);
+  assert(!removedStanding.member(leaf), "Buyer standing already removed");
+  goodStanding.insertIndexDefault(index);goodStanding.resetHistory();removedStanding.insert(leaf);
 }

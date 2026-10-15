@@ -162,3 +162,20 @@ votes, fixed recipients, separate funds across five simultaneous cases, exact
 rounding, late resolution, and all-position slashing. Full proving and a product
 network deployment remain pending. Subjective-outcome voting is not wired by
 these hoax-only circuits.
+
+
+## Missed reports (side A)
+
+After outcomeUntil, any caller can mark an unreported, occupied side A buyer pool.
+An operator-submitted valid outcome also satisfies that pool's reporting duty.
+The missing pool requests committee default selection instead of stranding its
+funds. Three matching attestations of the exact buyer card/index permit the
+operator to remove that leaf from goodStanding and reset root history. Verified
+buyer membership remains distinct from good standing. Old standing paths fail;
+unaffected buyers can obtain a fresh path and continue.
+
+A late missing-report marker or third default approval preserves a full hit
+window. Defaults stay pending until the committee responds rather than expiring
+with permanently locked funds. Side B reporting responsibility awaits Dien's
+explicit choice; this circuit currently rejects side B. This is a partial P5.3
+implementation, not a claim that the entire lifecycle is complete.

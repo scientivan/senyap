@@ -1,0 +1,188 @@
+{
+  "compiler": "0.31.1",
+  "sourceSha256": "808d7830648a75f1ce2696278a4e6a699cb524a8c17622f9d0c101d6505504a5",
+  "circuits": 36,
+  "provingKeys": [
+    {
+      "circuit": "admitBuyer",
+      "proverBytes": 2827443,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "admitScout",
+      "proverBytes": 5208883,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "admitVerifier",
+      "proverBytes": 2821361,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "allocateSubsidy",
+      "proverBytes": 2824202,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "approveHoaxMember",
+      "proverBytes": 10007683,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "approveMissedBuyer",
+      "proverBytes": 9996816,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "approveRevocation",
+      "proverBytes": 5252069,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "buyFlat",
+      "proverBytes": 42803575,
+      "verifierBytes": 2311
+    },
+    {
+      "circuit": "claim",
+      "proverBytes": 5221960,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "claimVerifier",
+      "proverBytes": 288318,
+      "verifierBytes": 1351
+    },
+    {
+      "circuit": "close",
+      "proverBytes": 74346,
+      "verifierBytes": 1351
+    },
+    {
+      "circuit": "commitVote",
+      "proverBytes": 5212874,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "configureScoutGroup",
+      "proverBytes": 2818199,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "createMarket",
+      "proverBytes": 42810190,
+      "verifierBytes": 2311
+    },
+    {
+      "circuit": "finalizeMarket",
+      "proverBytes": 284476,
+      "verifierBytes": 1351
+    },
+    {
+      "circuit": "markMissedReport",
+      "proverBytes": 2834040,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "openDispute",
+      "proverBytes": 553748,
+      "verifierBytes": 1351
+    },
+    {
+      "circuit": "placeBid",
+      "proverBytes": 85074535,
+      "verifierBytes": 2311
+    },
+    {
+      "circuit": "postAuctionResult",
+      "proverBytes": 9995233,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "postDefaultStrongest",
+      "proverBytes": 5250237,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "postPreview",
+      "proverBytes": 5245665,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "proveHit",
+      "proverBytes": 9998557,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "recordOutcome",
+      "proverBytes": 10015868,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "registerBuilder",
+      "proverBytes": 2822510,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "renewTier",
+      "proverBytes": 38576844,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "resolveDispute",
+      "proverBytes": 1089127,
+      "verifierBytes": 1351
+    },
+    {
+      "circuit": "revealVote",
+      "proverBytes": 5217859,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "revokeHoaxMember",
+      "proverBytes": 2826256,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "revokeMember",
+      "proverBytes": 5220777,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "revokeMissedBuyer",
+      "proverBytes": 2821601,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "scoutPseudonym",
+      "proverBytes": 5223634,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "selectHidden",
+      "proverBytes": 5245592,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "settleBid",
+      "proverBytes": 554017,
+      "verifierBytes": 1351
+    },
+    {
+      "circuit": "skipSelection",
+      "proverBytes": 149643,
+      "verifierBytes": 1351
+    },
+    {
+      "circuit": "stake",
+      "proverBytes": 84985960,
+      "verifierBytes": 2311
+    },
+    {
+      "circuit": "withdrawBuilder",
+      "proverBytes": 2820544,
+      "verifierBytes": 2119
+    }
+  ],
+  "scope": "Local proving-key generation, not an onchain deployment or proof verification"
+}

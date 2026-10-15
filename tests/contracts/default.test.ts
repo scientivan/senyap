@@ -23,12 +23,13 @@ describe("P3.2 threshold default outcomes",()=>{
     const r=records[0];Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",1n,1n,0n);
     s.setTime(2700);expect(s.invoke("claim",1n,1n,{bytes:bytes(210)})).toBe(117n);
   });
-  it("rejects an unpurchased option and an expired hit window",()=>{
+  it("rejects unpurchased options and gives a late default a complete hit window",()=>{
     const {s}=setupSideB();preview(s);s.invoke("buyFlat",1n,0n);
     s.invoke("recordOutcome",1n,0n,mask(),bytes(90),false);s.context.currentPrivateState.committee=committee[0];
     expect(()=>s.invoke("postDefaultStrongest",1n,0n,1n,0n)).toThrow(/not purchased/);
     expect(()=>s.invoke("postDefaultStrongest",1n,1n,0n,0n)).toThrow(/Invalid default pool/);
-    s.setTime(2700);expect(()=>s.invoke("postDefaultStrongest",1n,0n,0n,0n)).toThrow(/window expired/);
+    s.setTime(2700);for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postDefaultStrongest",1n,0n,0n,BigInt(i));}
+    expect(s.state.hitUntil.lookup(1n)).toBe(3000n);expect(s.state.marketPhase.lookup(1n)).toBe(8n);
   });
   it("restricts a side A default to that pool owner's purchased options",()=>{
     const {s,useBuyer}=setupAuction();useBuyer(buyers[0]);const winner=s.invoke("placeBid",1n,120n,{bytes:bytes(200)}) as Uint8Array;
