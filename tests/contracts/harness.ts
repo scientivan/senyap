@@ -11,7 +11,7 @@ export const commitment=(secret:Uint8Array,epoch:bigint)=>{
   const encoded=RT.convertFieldToBytes(32,epoch,"synthetic group epoch");
   return RT.persistentHash(new RT.CompactTypeVector(2,RT.Bytes32Descriptor),[secret,encoded]);
 };
-type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8Array;buyer:Uint8Array;option:bigint;salt:Uint8Array;badDivision?:boolean;path?:RT.MerkleTreePath<Uint8Array>;previousPath?:RT.MerkleTreePath<Uint8Array>;buyerPath?:RT.MerkleTreePath<Uint8Array>;standingPath?:RT.MerkleTreePath<Uint8Array>};
+type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8Array;buyer:Uint8Array;option:bigint;salt:Uint8Array;badDivision?:boolean;badPayout?:boolean;path?:RT.MerkleTreePath<Uint8Array>;previousPath?:RT.MerkleTreePath<Uint8Array>;buyerPath?:RT.MerkleTreePath<Uint8Array>;standingPath?:RT.MerkleTreePath<Uint8Array>};
 export const config={side:0n,tier:1n,epoch:7n,ecosystem:bytes(0)};
 export function setupGroups(){
   const contract=new Contract<PS>({
@@ -29,9 +29,10 @@ export function setupGroups(){
     randomnessLow:({privateState})=>[privateState,Array.from({length:8},(_,i)=>BigInt(i+11))],
     cardRandomHigh:({privateState})=>[privateState,0n],cardRandomLow:({privateState})=>[privateState,33n],
     divide:({privateState},n,d)=>[privateState,{quotient:n/d+(privateState.badDivision?1n:0n),remainder:n%d}],
+    dividePayout:({privateState},n,d)=>[privateState,{quotient:n/d+(privateState.badPayout?1n:0n),remainder:n%d}],
     memberPath:({privateState})=>{if(!privateState.path)throw Error("Missing test path");return [privateState,privateState.path];},
   });
-  const initial=contract.initialState(RT.createConstructorContext<PS>({operator,scout,committee:committee[0],builder:bytes(40),buyer:bytes(60),option:0n,salt:bytes(61)},"0".repeat(64)),hash(operator),committee.map(hash),RT.ecMulGenerator(37n),bytes(62),128n);
+  const initial=contract.initialState(RT.createConstructorContext<PS>({operator,scout,committee:committee[0],builder:bytes(40),buyer:bytes(60),option:0n,salt:bytes(61)},"0".repeat(64)),hash(operator),committee.map(hash),RT.ecMulGenerator(37n),bytes(62),128n,300n);
   let context=RT.createCircuitContext(RT.sampleContractAddress(),"0".repeat(64),initial.currentContractState,initial.currentPrivateState,undefined,undefined,1000);
   const invoke=<K extends keyof typeof contract.impureCircuits>(name:K,...args:Parameters<(typeof contract.impureCircuits)[K]> extends [unknown,...infer A]?A:never)=>{
     const circuit=contract.impureCircuits[name] as (...args:unknown[])=>RT.CircuitResults<PS,unknown>;
