@@ -14,6 +14,8 @@ import { Contract, ledger } from "../../../../contracts/managed/senyap/contract/
 import { clientWitnesses, type ClientPrivateState } from "@senyap/sdk/client-state";
 import { executeClientOperation, reconcileClientOperation } from "@senyap/sdk/operation";
 import type { WorkspaceClient } from "@senyap/sdk/workspace";
+import {createSnapshotReader,type SnapshotConfig} from "@senyap/sdk/snapshot";
+import {readProductView} from "@senyap/sdk/read-model";
 
 type ProductContract=Contract<ClientPrivateState>;
 import type { UserCircuit, ProductCallTransport } from "@senyap/sdk/actions";
@@ -22,7 +24,7 @@ const allowed=new Set<UserCircuit>(["registerBuilder","withdrawBuilder","createM
 
 /** Use only the approved, published deployment address and its reproducible
  * public artifacts. Operator and committee circuits are unavailable here. */
-async function prepareProductClientInternal(input:{api:ConnectedAPI;client:WorkspaceClient;contract:string;assetsPath?:string}){
+async function prepareProductClientInternal(input:{api:ConnectedAPI;client:WorkspaceClient;contract:string;snapshot:Pick<SnapshotConfig,"nodeUrl"|"genesisHash"|"operatorCommitment"|"maxAgeSeconds">;assetsPath?:string}){
   if(!/^[a-f0-9]{64}$/.test(input.contract))throw Error("Invalid product deployment");
   const assetsPath=input.assetsPath??"/contracts/senyap";
   if(!/^\/[a-zA-Z0-9/_-]+$/.test(assetsPath))throw Error("Invalid local artifact path");
@@ -42,6 +44,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
   const zk=new FetchZkConfigProvider<Circuit>(`${location.origin}${assetsPath}`,fetch.bind(window));
   const proving=await api.getProvingProvider(zk),addresses=await api.getShieldedAddresses();
   const publicData=indexerPublicDataProvider(config.indexerUri,config.indexerWsUri);
+  const snapshot=createSnapshotReader({...input.snapshot,network:"preprod",contract:input.contract,indexerUrl:config.indexerUri});
   let beforeSubmit:((txId:string)=>Promise<void>)|undefined,busy=false;
   const providers:ContractProviders<ProductContract>={
     privateStateProvider:client.provider,zkConfigProvider:zk,publicDataProvider:publicData,
@@ -59,10 +62,24 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
       await beforeSubmit(id);await api.submitTransaction(toHex(tx.serialize()));return id;
     }}
   };
+  const read=async()=>{
+    try{return (await snapshot()).state;}
+    catch{throw Error("Finalized product state unavailable");}
+  };
   const product={
-    async read(){
-      try{const state=await publicData.queryContractState(input.contract);if(!state)throw Error();return ledger(state.data);}
-      catch{throw Error("Finalized product state unavailable");}
+    read,
+    async view(){
+      try{
+        await checkWallet();const state=await read();
+        // A fresh workspace has no contract record yet. Its first view is public;
+        // reading must not change a revision used by an in-flight operation.
+        const privateState=await client.provider.get("client-v1");
+        await checkWallet();
+        // Synchronous provider check closes a workspace-lock race during the
+        // asynchronous wallet check, before projecting any saved private choice.
+        client.provider.setContractAddress(input.contract);
+        return readProductView(state,{network:"preprod",contract:input.contract},privateState??undefined);
+      }catch{throw Error("Product view unavailable. Reconnect the wallet and unlock the private workspace.");}
     },
     async call<K extends UserCircuit>(circuitId:K,args:ContractTypes.CircuitParameters<ProductContract,K>|((prepared:ClientPrivateState)=>ContractTypes.CircuitParameters<ProductContract,K>),prepare:(state:ClientPrivateState)=>ClientPrivateState|Promise<ClientPrivateState>){
       if(busy||!allowed.has(circuitId))throw Error("Product operation unavailable");busy=true;let stage="wallet";let prepared:ClientPrivateState|undefined;
@@ -70,7 +87,8 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
         await checkWallet();
         // Compare the selected local verifier to finalized chain state before
         // constructing a proof or asking Lace to balance the transaction.
-        stage="chain-state";const state=await publicData.queryContractState(input.contract);
+        stage="chain-state";const anchor=await snapshot();
+        const state=await publicData.queryContractState(input.contract,{type:"blockHash",blockHash:anchor.blockHash});
         if(!state)throw Error("Product deployment unavailable");
         stage="verifier";verifyContractState([[circuitId,await zk.getVerifierKey(circuitId)]],state);
         stage="journal";
@@ -93,7 +111,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
     async reconcile(){return reconcileClientOperation(client,async txId=>{
       try{const receipt=await publicData.watchForTxData(txId);return receipt.status==="SucceedEntirely"?"succeeded":"failed";}catch{return "unknown";}
     });}
-  } satisfies ProductCallTransport & {read:()=>Promise<ReturnType<typeof ledger>>;reconcile:()=>ReturnType<typeof reconcileClientOperation>};
+  } satisfies ProductCallTransport & {read:()=>Promise<ReturnType<typeof ledger>>;reconcile:()=>ReturnType<typeof reconcileClientOperation>;view:()=>Promise<ReturnType<typeof readProductView>>};
   return product;
 }
 
