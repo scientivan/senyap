@@ -71,7 +71,9 @@ execution, not product-market integration.
   Leaving the page locks it. Product transaction wrappers and witnesses remain planned.
 - `apps/operator` (screening core present): Veritas duplication/style indicators,
   privacy rewrites and a configurable Gemini adapter have stubbed-provider tests.
-  Live Gemini, credential verification and the authenticated reason relay remain pending.
+  A Reclaim verification core pins provider/version, binds the started session and
+  keeps durable replay protection/receipts; its tests stub the SDK boundary. Live
+  Gemini/GitHub, provider-specific qualification and the authenticated reason relay remain pending.
 - `apps/committee` (local node core present): ledger-authorized, encrypted buyer
   shares pass local tests across five synthetic node keys. Five HTTP nodes and the paid-total SDK pass a local integration test. Trusted
   indexer adapters, process deployment and onchain relays remain planned.

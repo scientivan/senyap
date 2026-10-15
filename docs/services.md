@@ -49,5 +49,30 @@ to the model. The REST shapes follow Google's [generation API](https://ai.google
 and [embedding API](https://ai.google.dev/api/embeddings).
 
 Tests inject synthetic model/fetch responses. No live Gemini request has been made
-and no effectiveness claim is supported. Reclaim/GitHub verification, buyer KYB,
+and no effectiveness claim is supported. Live Reclaim/GitHub verification, buyer KYB,
 encrypted reason submission, relay authentication and delivery remain pending.
+
+
+## Reclaim credential boundary
+
+`apps/operator/src/reclaim.ts` uses SDK 5.8.3 with exact provider/version pinning,
+TEE verification and server-initiated session matching. Every trusted result must
+match the network, contract, group, commitment and random request nonce. A durable
+SQLite transaction consumes a session once even under concurrent callbacks;
+accepted session digests reject replay after restart. A public admission binding
+is saved atomically as a recoverable receipt before pending session data is
+removed. Extracted identities/proofs and app secrets are never stored by this
+journal. Node 24 currently labels its built-in SQLite API experimental.
+
+The host must authenticate and rate-limit session starts/callbacks, cap request
+bodies, validate group configuration against finalized ledger state, implement
+provider-specific qualification and identity deduplication, then reconcile the
+receipt with an explicitly authorized admission relay. This module provides no
+HTTP listener, live admission transaction or default policy that admits everyone.
+Tests inject the SDK boundary; they do not demonstrate a real GitHub proof.
+No Reclaim request has been started using a real app ID or secret.
+
+The implementation follows the official [SDK usage and replay-protection guide](https://docs.reclaimprotocol.org/manual/js-sdk/usage)
+and [proof result anatomy](https://docs.reclaimprotocol.org/troubleshooting/anatomy).
+Context field names follow the installed SDK's `Context` type and implementation
+(`contextAddress`, `contextMessage`, `reclaimSessionId`); missing aliases are rejected.
