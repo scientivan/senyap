@@ -57,6 +57,8 @@ export ledger hitUntil: Map<Uint<32>, Uint<64>>;
 export ledger hitFlags: Map<Bytes<32>, Vector<4, Boolean>>;
 export ledger issuedHits: Set<Bytes<32>>;
 export ledger hitTree: HistoricMerkleTree<20, Bytes<32>>;
+export ledger hitsByEpoch: Map<Uint<64>, HistoricMerkleTree<20, Bytes<32>>>;
+export struct HitCredential { position: Bytes<32>; epoch: Uint<64>; path: MerkleTreePath<20, Bytes<32>>; }
 export ledger marketCreatorCards: Map<Uint<32>, LockedCard>;
 export struct Bid {
   marketId: Uint<32>; enc: CipherPair; envelope: LockedCard; ceiling: Uint<128>;
@@ -107,6 +109,8 @@ witness divide(numerator: Uint<128>, denominator: Uint<64>): Division;
 witness dividePayout(numerator: Uint<192>, denominator: Uint<64>): PayoutDivision;
 witness bidAmount(): Uint<64>;
 witness currentTime(): Uint<64>;
+witness currentEpoch(): Uint<64>;
+witness hitCredentials(): Vector<3, HitCredential>;
 witness bidRandomHigh(): Uint<128>;
 witness bidRandomLow(): Uint<128>;
 
@@ -633,7 +637,11 @@ export circuit proveHit(id: Uint<32>, slotNumber: Uint<8>, poolNumber: Uint<8>):
   const hitNullifier = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:hit"), nullifier, pool as Bytes<32>]);
   assert(!usedNullifiers.member(disclose(hitNullifier)), "Hit nullifier already used");usedNullifiers.insert(disclose(hitNullifier));
   if (!issuedHits.member(disclose(nullifier))) {
-    hitTree.insert(disclose(persistentHash<Vector<2, Bytes<32>>>([secret, nullifier])));issuedHits.insert(disclose(nullifier));
+    const epoch = disclose(currentEpoch());
+    assert(blockTimeGte((epoch * epochLength) as Uint<64>) && blockTimeLt(((epoch + 1) * epochLength) as Uint<64>), "Hit credential epoch is not current");
+    const credential = disclose(persistentHash<Vector<2, Bytes<32>>>([secret, nullifier]));
+    if (!hitsByEpoch.member(epoch)) { hitsByEpoch.insert(epoch, default<HistoricMerkleTree<20, Bytes<32>>>); }
+    hitsByEpoch.lookup(epoch).insert(credential);hitTree.insert(credential);issuedHits.insert(disclose(nullifier));
   }
 }
 
@@ -669,4 +677,39 @@ export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress):
     marketPhase.insert(marketId, 9);
   }
   return disclose(amount);
+}
+
+
+export circuit renewTier(fromGroup: Bytes<32>, toGroup: Bytes<32>): [] {
+  const sourceId = disclose(fromGroup);const targetId = disclose(toGroup);const secret = scoutSecret();
+  assertScout(sourceId, secret);
+  assert(groupConfig.member(targetId), "Unknown renewal group");
+  const source = groupConfig.lookup(sourceId);const target = groupConfig.lookup(targetId);
+  assert(blockTimeGte((source.epoch * epochLength) as Uint<64>) && blockTimeLt(((source.epoch + 1) * epochLength) as Uint<64>), "Renew before current tier epoch expires");
+  assert(target.epoch == source.epoch + 1 && target.side == source.side && target.ecosystem == source.ecosystem, "Renewal must keep side/ecosystem in next epoch");
+  assert(target.tier >= source.tier && target.tier <= source.tier + 2, "Invalid renewed tier");
+  const required: Uint<8> = target.tier == source.tier ? 1 : target.tier == source.tier + 1 ? 2 : 3;
+  const credentials = hitCredentials();
+  for (const i of [0,1,2]) {
+    if (i < required) {
+      const credential = credentials[i];
+      assert(credential.epoch <= source.epoch && credential.epoch + 1 >= source.epoch && (target.tier == source.tier || credential.epoch == source.epoch), "Hit credential is too old for requested tier");
+      const leaf = persistentHash<Vector<2, Bytes<32>>>([secret, credential.position]);
+      assert(credential.path.leaf == leaf, "Hit credential does not belong to scout");
+      assert(hitsByEpoch.member(disclose(credential.epoch)), "Unknown hit credential epoch");
+      assert(hitsByEpoch.lookup(disclose(credential.epoch)).checkRoot(disclose(merkleTreePathRoot<20, Bytes<32>>(credential.path))), "Hit credential root not accepted");
+      const used = persistentHash<Vector<5, Bytes<32>>>([pad(32, "senyap:renew-hit"),kernel.self().bytes,secret,credential.position,target.epoch as Bytes<32>]);
+      assert(!usedNullifiers.member(disclose(used)), "Hit credential already used in target epoch");usedNullifiers.insert(disclose(used));
+    }
+  }
+  const renewal = persistentHash<Vector<6, Bytes<32>>>([pad(32, "senyap:renew"),kernel.self().bytes,secret,target.epoch as Bytes<32>,target.side as Bytes<32>,target.ecosystem]);
+  assert(!usedNullifiers.member(disclose(renewal)), "Scout already renewed for target epoch");
+  const commitment = persistentHash<Vector<2, Bytes<32>>>([secret,target.epoch as Bytes<32>]);
+  const unique = persistentHash<Vector<2, Bytes<32>>>([targetId,commitment]);
+  assert(!admittedCommitments.member(disclose(unique)), "Scout already admitted to renewal group");
+  const index = groupNextIndex.lookup(targetId);assert(index < 1048576, "Scout group tree full");
+  const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: targetId, index: index });
+  groupLeaves.insert(disclose(leafKey), disclose(commitment));scoutGroups.lookup(targetId).insert(disclose(commitment));
+  groupNextIndex.insert(targetId, (index + 1) as Uint<64>);groupSize.insert(targetId, (groupSize.lookup(targetId) + 1) as Uint<32>);
+  admittedCommitments.insert(disclose(unique));usedNullifiers.insert(disclose(renewal));
 }

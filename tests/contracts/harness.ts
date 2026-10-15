@@ -11,7 +11,7 @@ export const commitment=(secret:Uint8Array,epoch:bigint)=>{
   const encoded=RT.convertFieldToBytes(32,epoch,"synthetic group epoch");
   return RT.persistentHash(new RT.CompactTypeVector(2,RT.Bytes32Descriptor),[secret,encoded]);
 };
-type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8Array;buyer:Uint8Array;receivingKey:Uint8Array;bid:bigint;now:bigint;option:bigint;salt:Uint8Array;badDivision?:boolean;badPayout?:boolean;path?:RT.MerkleTreePath<Uint8Array>;previousPath?:RT.MerkleTreePath<Uint8Array>;buyerPath?:RT.MerkleTreePath<Uint8Array>;standingPath?:RT.MerkleTreePath<Uint8Array>};
+type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8Array;buyer:Uint8Array;receivingKey:Uint8Array;bid:bigint;now:bigint;option:bigint;salt:Uint8Array;credentials?:{position:Uint8Array;epoch:bigint;path:RT.MerkleTreePath<Uint8Array>}[];epochOverride?:bigint;badDivision?:boolean;badPayout?:boolean;path?:RT.MerkleTreePath<Uint8Array>;previousPath?:RT.MerkleTreePath<Uint8Array>;buyerPath?:RT.MerkleTreePath<Uint8Array>;standingPath?:RT.MerkleTreePath<Uint8Array>};
 export const config={side:0n,tier:1n,epoch:7n,ecosystem:bytes(0)};
 export function setupGroups(selectionSeconds=300n){
   const contract=new Contract<PS>({
@@ -31,6 +31,8 @@ export function setupGroups(selectionSeconds=300n){
     cardRandomHigh:({privateState})=>[privateState,0n],cardRandomLow:({privateState})=>[privateState,33n],
     divide:({privateState},n,d)=>[privateState,{quotient:n/d+(privateState.badDivision?1n:0n),remainder:n%d}],
     dividePayout:({privateState},n,d)=>[privateState,{quotient:n/d+(privateState.badPayout?1n:0n),remainder:n%d}],
+    currentEpoch:({privateState})=>[privateState,privateState.epochOverride??privateState.now/128n],
+    hitCredentials:({privateState})=>{if(!privateState.credentials)throw Error("Missing test hit credentials");return [privateState,privateState.credentials];},
     currentTime:({privateState})=>[privateState,privateState.now],
     bidAmount:({privateState})=>[privateState,privateState.bid],bidRandomHigh:({privateState})=>[privateState,0n],bidRandomLow:({privateState})=>[privateState,77n],
     memberPath:({privateState})=>{if(!privateState.path)throw Error("Missing test path");return [privateState,privateState.path];},

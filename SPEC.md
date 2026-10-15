@@ -200,6 +200,8 @@ kunci yang commitment-nya disimpan saat stake. Kontak scout dienkripsi ke kunci 
 - Untuk epoch berikutnya scout memanggil `renewTier`: membuktikan kepemilikan ≥h credential hit (tiap
   credential dipakai sekali per epoch lewat nullifier), lalu memasukkan commitment baru
   `H(scoutSecret, epoch+1)` ke tree tier yang sesuai. Meleset tidak pernah dibuka.
+- Implementasi mengindeks credential ke tree append-only per epoch penerbitan, sambil mempertahankan `hitTree` global. Epoch penerbitan diverifikasi dengan batas waktu blok. Saat renew, path dan identifier posisi tetap witness privat; yang diungkap hanya root credential, epoch dan nullifier sekali pakai yang terikat kontrak/secret/posisi/epoch tujuan.
+- Renew dilakukan selama tier sumber masih berlaku untuk epoch berikutnya dengan sisi/ekosistem sama. Pertahankan tier membutuhkan satu hit dari epoch berjalan/sebelumnya; naik satu membutuhkan dua hit epoch berjalan, naik dua membutuhkan tiga. Satu scout hanya dapat renew sekali untuk sisi/ekosistem dan epoch tujuan.
 - Scout baru mendapat tier awal dari kredensial onboarding.
 
 ## 4. Model privasi: siapa melihat apa
