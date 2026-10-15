@@ -39,8 +39,9 @@ upstream bboard toolchain fixture retains its Apache-2.0 attribution.
   against an injected SDK boundary. No real GitHub qualification proof yet.
 
 These are implemented local circuits/services and tests, not a completed deployed
-market. Latest reproducible suite evidence is in [P2-tests.json](../evidence/P2-tests.json).
-A later snapshot-reader test group separately covers finalized-block consistency.
+market. Latest integrated checks are in [S11 main tests](../evidence/S11-main-tests.json)
+(122-test full run plus subsequent focused regressions). Earlier suite output is
+retained in [P2-tests.json](../evidence/P2-tests.json).
 
 ## What ran on a network
 
@@ -54,17 +55,21 @@ local network. No Senyap product market is deployed on either network yet.
 
 ## Local proof evidence
 
-The current main contract has 38 generated prover/verifier pairs. Local proof
-server /check and /prove passed for stake, commitVote, cancellation, cancelled bid
-refund and principal-only cancelled claim. The evidence includes the source hash:
+The current main contract has 38 generated prover/verifier pairs. The approved
+S11 integration removes public group references from stakes and encrypts group
+IDs inside the membership cards. Integrated Side B stake and three-hit renewal
+passed local /check and /prove with no selected group/leaf/root in the public-only
+transcript ([latest S11 evidence](../evidence/S11-main-proving.json)). This corrects
+the deterministic group-reference leak locally; funding-wallet/timing/cohort
+correlations remain possible. Cancellation, cancelled bid refund and principal-only
+claim also have local proofs. Earlier verifier-commit proofs retain their own
+historical source hash. Evidence:
 [product proofs](../evidence/product-proving.json),
 [cancellation proofs](../evidence/cancellation-proving.json).
 These checks do not establish a security audit or network settlement.
 
 ## Still to complete before a final submission claim
 
-- Fix the known Side B option leak through its public ecosystem group. A shared
-  root-registry/private group proof is proposed; it has not been approved or tested.
 
 - An authorized product deployment and full network market lifecycle.
 - Frontend transactions and indexed live state; current market pages remain

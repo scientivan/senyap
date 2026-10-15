@@ -65,3 +65,13 @@ Run proof checks separately from the test suite: proving is memory/CPU intensive
 and concurrent runs can exceed test timeouts. Do not raise timeouts to hide that
 resource contention. The resulting evidence remains local proof work, not a
 network transaction.
+
+
+After S11 integration, `node --import tsx scripts/prove-product-privacy.ts` checks
+and proves a Side B stake plus a three-hit tier renewal against the main contract.
+It verifies the serialized public-only transcript does not contain the selected
+group, source member commitment or membership root. The renewal target remains a
+public enrollment, and the number of required credentials is public. Evidence is
+saved to `docs/evidence/S11-main-proving.json` only after both proofs pass.
+These checks do not establish anonymity against funding-wallet, cohort-size or
+timing correlations and are not an audit.

@@ -1,0 +1,34 @@
+{
+  "compiler": "0.31.1",
+  "runtime": "0.16.0",
+  "proofServer": "8.1.3",
+  "sourceSha256": {
+    "contracts/senyap.compact": "9ea38fb234809fdd5f70357d2abd083ad9a2c66706001efa12095644a1836477",
+    "contracts/lib/GroupCardEncryption.compact": "b0e152a2990d98a427106e9c003fc1fb1e36e692a45f7dfe1caac09bdd7de33b"
+  },
+  "results": [
+    {
+      "circuit": "stake",
+      "elapsedMs": 200274,
+      "proofBytes": 4860,
+      "proverKeyBytes": 85063873,
+      "publicTranscriptChecks": {
+        "selectedGroupAbsent": true,
+        "memberLeafAbsent": true,
+        "selectedRootAbsent": true
+      }
+    },
+    {
+      "circuit": "renewTier",
+      "elapsedMs": 126260,
+      "proofBytes": 4508,
+      "proverKeyBytes": 38612937,
+      "publicTranscriptChecks": {
+        "selectedGroupAbsent": true,
+        "memberLeafAbsent": true,
+        "selectedRootAbsent": true
+      }
+    }
+  ],
+  "scope": "Integrated Side B stake and three-hit tier renewal; local /check and /prove, synthetic data, no network transaction or security audit. Renewal target enrollment and required credential count remain public."
+}

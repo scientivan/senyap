@@ -98,3 +98,22 @@ Full local S11 /check and /prove passed for stake and membership-only renewal
 (4860/4508 proof bytes; source hashes and public transcript checks in
 [evidence](evidence/S11-proving.json)). Main integration is now authorized to
 proceed; the main contract leak stays open until that integration is verified.
+
+
+## Main integration verification
+
+The approved design is integrated in `contracts/senyap.compact` and SDK witnesses.
+Position no longer contains a plaintext group. Admission, hit-based renewal and
+revocation update the shared registry; revocation invalidates accepted historic
+registry roots, including proofs held by unaffected groups (fresh proofs work).
+The main contract retains its hit ownership, distinctness and tier-count rules.
+The renewal target enrollment and number of credentials remain public.
+
+Integrated simulator regressions inspect serialized public-only stake operations
+for both Side B ecosystems, reject forged authorization metadata and borrowed
+paths, and test global revocation plus the unchanged k>=5 bound. Main stake and
+three-hit renewal both passed local /check and /prove, with group/leaf/root checks
+all true ([source-bound evidence](evidence/S11-main-proving.json)). This closes
+the original deterministic public group-reference leak for the tested local
+implementation. It is not a network verification or audit and does not address
+funding-wallet, admission timing or small eligible-cohort correlations.

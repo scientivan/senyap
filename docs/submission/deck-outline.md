@@ -65,8 +65,8 @@ and operational assumptions are reviewed. No outreach has been performed.
 
 ## 8. Risks and next work
 
-First fix the known Side B option inference through its public ecosystem group
-(the S11 private root-registry proposal is awaiting approval). Then complete
+The S11 group-reference fix has integrated local stake/renewal proofs; network
+validation and correlation limits still need review. Complete
 product network integration, actual credentials/model screening and
 subjective outcome voting. Improve operational separation of committee nodes.
 Distributed key generation and DUST sponsorship remain Wave 3 candidates rather

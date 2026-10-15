@@ -1,0 +1,30 @@
+{
+  "sourceSha256": "9ea38fb234809fdd5f70357d2abd083ad9a2c66706001efa12095644a1836477",
+  "fullSuite": {
+    "command": "pnpm test",
+    "passed": 122,
+    "failed": 0,
+    "files": 42
+  },
+  "subsequentFocusedChecks": [
+    {
+      "command": "pnpm exec vitest run tests/contracts/reputation.test.ts",
+      "passed": 4,
+      "failed": 0,
+      "includes": "Serialized public-only renewal transcript excludes source group/member/root and credential position IDs"
+    },
+    {
+      "command": "pnpm exec vitest run tests/contracts/group-privacy.test.ts",
+      "passed": 3,
+      "failed": 0,
+      "includes": "Adds global history revocation, fresh unaffected group and k>=5 regression after the full-suite run"
+    }
+  ],
+  "gates": {
+    "rootTypecheck": true,
+    "webTypecheck": true,
+    "webBuild": true,
+    "workspaceBrowserProbe": true
+  },
+  "scope": "Local simulator, type/build and isolated browser checks. Proof-server evidence is separate. No product deployment or network transaction."
+}

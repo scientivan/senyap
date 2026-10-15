@@ -51,7 +51,10 @@ Compact 0.31.1 compilation and Vitest are available. See
 [technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
 was proved by the local proof server; this does not establish end-to-end network
 execution of the Senyap market. The main contract also has 38 generated proving
-keys and successful local `stake`/`commitVote` proof-server checks in
+keys ([key evidence](docs/evidence/product-proving-keys.json)). The latest source
+has successful Side B stake and three-hit renewal checks in
+[S11 main proofs](docs/evidence/S11-main-proving.json). Earlier stake/verifier-commit
+checks remain labelled with their historical source hash in
 [product proving evidence](docs/evidence/product-proving.json).
 
 The [S5 browser fixture](docs/S5-browser-spike.md) passed on Preprod: one
@@ -121,12 +124,16 @@ remain unfinished.
 
 ## Privacy limits in the planned design
 
-**Known Side B option leak:** the current contract publicly references a scout's
-ecosystem group, and that ecosystem must match the selected option. These fields
-reveal the choice by inference despite encrypted tally values. A private shared
-root-registry proof and expanded locked card are proposed in the
-[S11 refinement](docs/group-privacy-spike-proposal.md), awaiting owner approval
-and verification. Side B option privacy must not be claimed as delivered.
+**Side B group-reference leak corrected locally:** the earlier contract disclosed
+the scout ecosystem group and therefore revealed its selected option. Approved
+[S11](docs/group-privacy-spike-proposal.md) replaces that reference with a shared
+root registry/private group proof and encrypts the group inside a 72-byte
+membership card. Integrated tests inspect public stake operations for both
+ecosystems, reject forged metadata and revoked roots, and recover cards with three
+shares. Main-contract stake and three-hit renewal passed local /check and /prove;
+all group/leaf/root transcript checks passed ([evidence](docs/evidence/S11-main-proving.json)).
+Renewal target enrollment and credential count remain public. This does not prove
+network privacy or eliminate funding-wallet, timing or small-cohort correlations.
 
 
 Unshielded demo stakes expose amounts and funding wallets. Committee members are
