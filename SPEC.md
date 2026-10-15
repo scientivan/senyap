@@ -1,8 +1,8 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.10 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
+> Versi 0.12 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
 > Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
-> Sumber keputusan: living doc Bisik bagian 26 (v0.55), `task-tracker.md`, `AGENTS.md`.
+> Sumber keputusan: living doc Bisik bagian 26 (v0.56), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
 > boleh diubah Dien kapan saja, dan setiap perubahan dicatat; **[Spike]** asumsi teknis yang wajib
 > dibuktikan sebelum dipakai (lihat §9). v0.2 menambah §6.3b struct, §8.5 env, §8.6 antarmuka offchain,
@@ -185,7 +185,7 @@ Implementasi simulator mengunci dana per kasus dan menyimpan sisa pembulatan pem
 
 ### 3.10 F8 Sengketa hoax
 
-- Siapa pun membuka sengketa terhadap posisi (dengan bond), sebelum `outcomeUntil` (keputusan Dien 15 Okt). `proveHit` dan klaim menunggu jendela outcome berakhir serta seluruh sengketa selesai. Posisi hoax dikeluarkan dari hadiah sebelum denominator/credential hit dibentuk.
+- Sengketa hanya dapat dibuka setelah market memenuhi minimal 5 scout dan memiliki pembelian atau alokasi pemenang lelang (keputusan Dien 15 Okt). Siapa pun membuka sengketa terhadap posisi (dengan bond), sebelum `outcomeUntil` (keputusan Dien 15 Okt). `proveHit` dan klaim menunggu jendela outcome berakhir serta seluruh sengketa selesai. Posisi hoax dikeluarkan dari hadiah sebelum denominator/credential hit dibentuk.
 - Hoax terbukti: stake posisi di-slash ke alamat amal; komite membuka kartu anggota terkunci; operator
   memanggil `revokeMember(group, leafIndex)` dan kontrak mereset riwayat root grup.
 
@@ -197,6 +197,8 @@ Implementasi simulator mengunci dana per kasus dan menyimpan sisa pembulatan pem
   **alamat bebas** mana pun (`sendUnshielded`), dengan nullifier klaim agar tidak dobel. Untuk sisi B, rumus menjadi `floor((pool_b × 8500 + subsidy × 10000) × weight / (10000 × denom_b))`; subsidi tidak terkena potongan 15% kedua (keputusan Dien 15 Okt). Sisa pembulatan tetap mengikuti aturan platform yang telah disetujui.
 - Posisi yang meleset hanya mengklaim stake kembali.
 - Setiap hit menerbitkan **credential hit** ke `hitTree` (leaf `H(scoutSecret, positionNullifier)`).
+
+**Pembatalan (Dien, 15 Okt):** market boleh dibatalkan permissionless setelah tutup bila scout kurang dari 5, atau pada/selepas `outcomeUntil` bila tidak ada pembelian. Seluruh stake dan escrow bid kembali penuh, tanpa hadiah atau pembukaan pilihan. Subsidi pada market B yang batal dikembalikan ke alokasi market A asal dan memulihkan kapasitas 5 poin persennya untuk dialokasikan lagi. Pembatalan memakai fase 10; refund tidak membutuhkan pembukaan pilihan. Circuit pembatalan, refund dan pengembalian alokasi diuji simulator; belum transaksi jaringan.
 
 ### 3.12 F10 Reputasi portabel dan epoch [Keputusan Dien, M-11]
 

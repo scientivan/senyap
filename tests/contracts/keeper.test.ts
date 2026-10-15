@@ -10,11 +10,11 @@ function openMarket(){
   return s;
 }
 describe("P6.2 permissionless keeper transitions",()=>{
-  it("closes a market at its exact deadline and never repeats a finalized action",async()=>{
+  it("cancels a low-k market at its exact deadline and never repeats a finalized action",async()=>{
     const s=openMarket();
-    expect(planTransitions(s.state,1599n)).toEqual([]);expect(planTransitions(s.state,1600n)).toEqual([{kind:"close",market:1n}]);
+    expect(planTransitions(s.state,1599n)).toEqual([]);expect(planTransitions(s.state,1600n)).toEqual([{kind:"cancelMarket",market:1n}]);
     s.setTime(1600);let calls=0;
-    const adapter={readSnapshot:async()=>({state:s.state,blockTime:1600n}),submitFinalized:async(action:ReturnType<typeof planTransitions>[number])=>{if(action.kind!=="close")throw Error("Unexpected synthetic action");s.invoke("close",action.market);calls++;return {txId:"synthetic-close"};}};
+    const adapter={readSnapshot:async()=>({state:s.state,blockTime:1600n}),submitFinalized:async(action:ReturnType<typeof planTransitions>[number])=>{if(action.kind!=="cancelMarket")throw Error("Unexpected synthetic action");s.invoke("cancelMarket",action.market);calls++;return {txId:"synthetic-cancel"};}};
     expect((await runKeeperPass(adapter)).length).toBe(1);expect(await runKeeperPass(adapter)).toEqual([]);expect(calls).toBe(1);
   });
   it("settles bid deposits before skipping winners and rechecks state at every step",async()=>{

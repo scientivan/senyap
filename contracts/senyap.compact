@@ -52,6 +52,9 @@ export ledger denominators: Map<Uint<32>, Vector<4, Uint<64>>>;
 export ledger paidRewards: Map<Uint<32>, Vector<4, Uint<128>>>;
 export ledger marketRevenue: Map<Uint<32>, Uint<128>>;
 export ledger marketSubsidy: Map<Uint<32>, Uint<128>>;
+export struct SubsidyRoute { source: Uint<32>, target: Uint<32>, amount: Uint<128> }
+export ledger subsidyRoutes: Map<Bytes<32>, SubsidyRoute>;
+export ledger hasPurchases: Map<Uint<32>, Boolean>;
 export ledger allocatedSubsidy: Map<Uint<32>, Uint<128>>;
 export ledger marketRemainder: Map<Uint<32>, Uint<128>>;
 export ledger marketPositions: Map<Uint<32>, Uint<32>>;
@@ -311,7 +314,7 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
   marketScouts.insert(marketId, 0);marketWeight.insert(marketId, 0);marketStake.insert(marketId, 0);
   pendingDisputes.insert(marketId, 0);
   marketPools.insert(marketId, [0,0,0,0]);denominators.insert(marketId, [0,0,0,0]);paidRewards.insert(marketId, [0,0,0,0]);
-  marketRevenue.insert(marketId, 0);marketSubsidy.insert(marketId, 0);allocatedSubsidy.insert(marketId, 0);marketPositions.insert(marketId, 0);marketClaims.insert(marketId, 0);
+  hasPurchases.insert(marketId, false);marketRevenue.insert(marketId, 0);marketSubsidy.insert(marketId, 0);allocatedSubsidy.insert(marketId, 0);marketPositions.insert(marketId, 0);marketClaims.insert(marketId, 0);
   marketBuyers.insert(marketId, [default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>]);
   outcomesReady.insert(marketId, [false,false,false,false]);needsDefault.insert(marketId, [false,false,false,false]);
   const emptyMask: Vector<8, Boolean> = [false,false,false,false,false,false,false,false];
@@ -486,15 +489,22 @@ export circuit postAuctionResult(id: Uint<32>, proposed: AuctionResult, member: 
     const deadline = (startedAt + selectionWindow) as Uint<64>;
     assert(deadline < market.outcomeUntil, "Selection window exceeds outcome schedule");
     selectionDeadline.insert(marketId, deadline);
+    hasPurchases.insert(marketId, result.first != zero);
     auctionResults.insert(marketId, result);selectionNext.insert(marketId, result.first == zero ? 2 : 0);marketPhase.insert(marketId, 5);
   }
 }
 
 export circuit settleBid(id: Uint<32>, pseudonym: Bytes<32>): [] {
   const marketId = disclose(id);const buyer = disclose(pseudonym);
-  assert(auctionResults.member(marketId), "Auction result not finalized");
-  const result = auctionResults.lookup(marketId);const bid = bids.lookup(buyer);
+  const bid = bids.lookup(buyer);
   assert(bid.marketId == marketId && !bid.settled, "Bid already settled or wrong market");
+  if (marketPhase.lookup(marketId) == 10) {
+    if (bid.ceiling > 0) { sendUnshielded(dusdColor, bid.ceiling, right<ContractAddress, UserAddress>(bid.refundRecipient)); }
+    bids.insert(buyer, Bid { ...bid, settled: true });
+    bidEscrow.insert(marketId, (bidEscrow.lookup(marketId) - bid.ceiling) as Uint<128>);
+  } else {
+  assert(auctionResults.member(marketId), "Auction result not finalized");
+  const result = auctionResults.lookup(marketId);
   const first = buyer == result.first;const second = buyer == result.second;
   const price = first ? result.priceFirst : second ? result.priceSecond : 0;
   const refund = (bid.ceiling - price) as Uint<128>;
@@ -507,6 +517,8 @@ export circuit settleBid(id: Uint<32>, pseudonym: Bytes<32>): [] {
     const owners = marketBuyers.lookup(marketId);
     marketBuyers.insert(marketId, [first ? buyer : owners[0],second ? buyer : owners[1],owners[2],owners[3]]);
   }
+}
+
 }
 
 export circuit selectHidden(id: Uint<32>, selected: Vector<8, Boolean>): [] {
@@ -577,6 +589,7 @@ export circuit buyFlat(id: Uint<32>, optionNumber: Uint<8>): Bytes<32> {
   const pools = marketPools.lookup(marketId);
   marketPools.insert(marketId, map((i: Uint<8>, value: Uint<128>): Uint<128> => i == pool ? (value + market.flatPrice) as Uint<128> : value, [0,1,2,3], pools));
   if (market.side == 0) { marketBuyers.insert(marketId, [owners[0],owners[1],pool == 2 ? disclose(pseudonym) : owners[2],pool == 3 ? disclose(pseudonym) : owners[3]]); }
+  hasPurchases.insert(marketId, true);
   marketRevenue.insert(marketId, (marketRevenue.lookup(marketId) + market.flatPrice) as Uint<128>);
   marketPhase.insert(marketId, 6);return disclose(pseudonym);
 }
@@ -700,6 +713,9 @@ export circuit allocateSubsidy(sourceId: Uint<32>, targetId: Uint<32>, amount: U
   const allowance = floorRatio((marketRevenue.lookup(source) * 500) as Uint<192>, 10000);
   const allocated = allocatedSubsidy.lookup(source);
   assert(grant > 0 && allocated + grant <= allowance, "Subsidy exceeds five percentage points of source revenue");
+  const route = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:subsidy"), source as Bytes<32>, target as Bytes<32>]);
+  const previousGrant = subsidyRoutes.member(route) ? subsidyRoutes.lookup(route).amount : 0;
+  subsidyRoutes.insert(route, SubsidyRoute { source: source, target: target, amount: (previousGrant + grant) as Uint<128> });
   allocatedSubsidy.insert(source, (allocated + grant) as Uint<128>);
   const subsidy = (marketSubsidy.lookup(target) + grant) as Uint<128>;
   // Bound the total claimable buyer/subsidy funds before calculating rewards.
@@ -708,10 +724,36 @@ export circuit allocateSubsidy(sourceId: Uint<32>, targetId: Uint<32>, amount: U
   if (sourcePhase == 9) { marketRemainder.insert(source, (marketRemainder.lookup(source) - grant) as Uint<128>); }
 }
 
+export circuit cancelMarket(id: Uint<32>): [] {
+  const marketId = disclose(id);const market = markets.lookup(marketId);const phase = marketPhase.lookup(marketId);
+  assert(phase != 9 && phase != 10 && blockTimeGte(market.openUntil), "Market cancellation not ready");
+  assert(!hasPurchases.lookup(marketId), "Purchased market cannot cancel");
+  assert(marketScouts.lookup(marketId) < 5 || blockTimeGte(market.outcomeUntil), "Valid market purchase window still open");
+  assert(marketRevenue.lookup(marketId) == 0 && pendingDisputes.lookup(marketId) == 0, "Cancellation funds unavailable");
+  marketPhase.insert(marketId, 10);marketRemainder.insert(marketId, marketSubsidy.lookup(marketId));
+}
+
+export circuit returnCancelledSubsidy(sourceId: Uint<32>, targetId: Uint<32>): Uint<128> {
+  const source = disclose(sourceId);const target = disclose(targetId);
+  assert(markets.lookup(source).side == 0 && markets.lookup(target).side == 1 && marketPhase.lookup(target) == 10, "Subsidy target not cancelled");
+  const route = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:subsidy"), source as Bytes<32>, target as Bytes<32>]);
+  const allocation = subsidyRoutes.lookup(route);const amount = allocation.amount;
+  assert(amount > 0, "Subsidy already returned");
+  subsidyRoutes.insert(route, SubsidyRoute { ...allocation, amount: 0 });
+  marketSubsidy.insert(target, (marketSubsidy.lookup(target) - amount) as Uint<128>);
+  marketRemainder.insert(target, (marketRemainder.lookup(target) - amount) as Uint<128>);
+  allocatedSubsidy.insert(source, (allocatedSubsidy.lookup(source) - amount) as Uint<128>);
+  if (marketPhase.lookup(source) == 9) { marketRemainder.insert(source, (marketRemainder.lookup(source) + amount) as Uint<128>); }
+  return amount;
+}
+
 export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress): Uint<128> {
   const marketId = disclose(id);
-  assert(marketPhase.lookup(marketId) == 8 && blockTimeGte(hitUntil.lookup(marketId)), "Claims not open");
-  assert(blockTimeGte(markets.lookup(marketId).outcomeUntil) && pendingDisputes.lookup(marketId) == 0, "Outcome or disputes still pending");
+  const cancelled = marketPhase.lookup(marketId) == 10;
+  if (!cancelled) {
+    assert(marketPhase.lookup(marketId) == 8 && blockTimeGte(hitUntil.lookup(marketId)), "Claims not open");
+    assert(blockTimeGte(markets.lookup(marketId).outcomeUntil) && pendingDisputes.lookup(marketId) == 0, "Outcome or disputes still pending");
+  }
   const secret = scoutSecret();const nullifier = positionId(secret, marketId, slotNumber);
   assert(positions.member(disclose(nullifier)), "Unknown owned position");
   const position = positions.lookup(disclose(nullifier));assert(position.status == 0, "Position already claimed or slashed");
@@ -719,7 +761,7 @@ export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress):
   assert(!usedNullifiers.member(disclose(claimId)), "Claim nullifier already used");
   const flags = hitFlags.lookup(disclose(nullifier));const pools = marketPools.lookup(marketId);const denoms = denominators.lookup(marketId);
   const subsidy = marketSubsidy.lookup(marketId);
-  const rewards = map((hit: Boolean, pool: Uint<128>, denom: Uint<64>): Uint<128> => hit ? payout(pool, subsidy, position.weight, denom) : 0, flags, pools, denoms);
+  const rewards = map((hit: Boolean, pool: Uint<128>, denom: Uint<64>): Uint<128> => !cancelled && hit ? payout(pool, subsidy, position.weight, denom) : 0, flags, pools, denoms);
   const reward = fold((acc: Uint<128>, value: Uint<128>): Uint<128> => (acc + value) as Uint<128>, 0, rewards);
   const amount = (position.stake + reward) as Uint<128>;
   sendUnshielded(dusdColor, disclose(amount), right<ContractAddress, UserAddress>(disclose(recipient)));
@@ -728,7 +770,7 @@ export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress):
   const updated = map((a: Uint<128>, b: Uint<128>): Uint<128> => (a + b) as Uint<128>, paid, disclose(rewards));
   paidRewards.insert(marketId, updated);
   const claimed = (marketClaims.lookup(marketId) + 1) as Uint<32>;marketClaims.insert(marketId, claimed);
-  if (claimed == marketPositions.lookup(marketId)) {
+  if (!cancelled && claimed == marketPositions.lookup(marketId)) {
     const totalPaid = fold((acc: Uint<128>, value: Uint<128>): Uint<128> => (acc + value) as Uint<128>, 0, updated);
     marketRemainder.insert(marketId, (marketRevenue.lookup(marketId) + marketSubsidy.lookup(marketId) - totalPaid - allocatedSubsidy.lookup(marketId)) as Uint<128>);
     marketPhase.insert(marketId, 9);
@@ -787,6 +829,7 @@ circuit checkedCurrentTime(): Uint<64> {
 export circuit openDispute(positionId: Bytes<32>, evidence: Bytes<32>, reporter: UserAddress): [] {
   const id = disclose(positionId);const position = positions.lookup(id);const market = markets.lookup(position.marketId);
   assert(position.status == 0 && blockTimeLt(market.outcomeUntil), "Dispute opening window closed");
+  assert(marketScouts.lookup(position.marketId) >= 5 && hasPurchases.lookup(position.marketId), "Dispute requires valid purchased market");
   assert(!disputes.member(id), "Position already disputed");assert(evidence != default<Bytes<32>>, "Dispute evidence required");
   const now = checkedCurrentTime();const commitUntil = (now + disputeCommitWindow) as Uint<64>;
   const revealUntil = (commitUntil + disputeRevealWindow) as Uint<64>;

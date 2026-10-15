@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { describe,expect,it } from "vitest";
+import { planTransitions } from "../../services/keeper/src/transitions";
 import { setupAuction,buyers } from "../helpers/auction";
 import { bytes,commitment,committee,other,operator } from "./harness";
 const mask=(...options:number[])=>Array.from({length:8},(_,i)=>options.includes(i));
-function fundingMarkets(){
+function fundingMarkets(buyTarget=true){
   const {s,useBuyer,records}=setupAuction(),cohort=[31,32,33,34,35].map(bytes),bidIds:Uint8Array[]=[];
   s.invoke("createMarket",2n,{side:1n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://subsidy",nOptions:2n,optionRefs:[bytes(90),bytes(91),...Array.from({length:6},()=>bytes(0))],openAt:1600n,openUntil:1900n,auctionUntil:1900n,outcomeUntil:5000n,flatPrice:10n,reservePrice:0n});
   for(let i=0;i<2;i++){
@@ -25,12 +26,12 @@ function fundingMarkets(){
   useBuyer(buyers[2]);s.invoke("recordOutcome",1n,2n,mask(3),bytes(142),false);
   s.setTime(1900);s.invoke("close",2n);
   for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postPreview",2n,{strong:1n,medium:1n,weak:0n},BigInt(i));}
-  s.invoke("buyFlat",2n,0n);s.invoke("buyFlat",2n,1n);
+  if(buyTarget){s.invoke("buyFlat",2n,0n);s.invoke("buyFlat",2n,1n);}
   s.setTime(3000);
   for(const [index,pool] of [[0,0],[2,1],[3,2]]){
     const r=records[index];Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",1n,1n,BigInt(pool));
   }
-  const claimSource=()=>{s.setTime(3300);let paid=0n;for(const r of records){s.context.currentPrivateState.scout=r.secret;paid+=s.invoke("claim",1n,1n,{bytes:bytes(220)}) as bigint;}return paid;};
+  const claimSource=(time=3300)=>{s.setTime(time);let paid=0n;for(const r of records){s.context.currentPrivateState.scout=r.secret;paid+=s.invoke("claim",1n,1n,{bytes:bytes(220)}) as bigint;}return paid;};
   const reportTarget=()=>{
     s.invoke("recordOutcome",2n,0n,mask(0),bytes(143),false);
   };
@@ -40,6 +41,40 @@ function fundingMarkets(){
   return {s,sideB,claimSource,reportTarget,targetHits};
 }
 describe("P4.3 side A funded side B subsidy",()=>{
+  for(const settled of [false,true])it(`returns cancelled subsidy and restores source capacity (settled=${settled})`,()=>{
+    const {s,sideB,claimSource}=fundingMarkets(false);
+    // A second eligible target remains open beyond cancellation of the first.
+    s.invoke("createMarket",3n,{side:1n,category:bytes(70),questionHash:bytes(72),questionUri:"demo://reroute",nOptions:2n,optionRefs:[bytes(90),bytes(91),...Array.from({length:6},()=>bytes(0))],openAt:3000n,openUntil:3100n,auctionUntil:3100n,outcomeUntil:6000n,flatPrice:0n,reservePrice:0n});
+    const cohort=[41,42,43,44,45].map(bytes),group=bytes(40);
+    s.invoke("configureScoutGroup",group,{side:1n,tier:1n,epoch:23n,ecosystem:bytes(90)});
+    for(const secret of cohort)s.invoke("admitScout",group,commitment(secret,23n));
+    for(const [i,secret] of cohort.entries()){
+      Object.assign(s.context.currentPrivateState,{scout:secret,option:0n,salt:bytes(160+i),path:s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(secret,23n))});
+      s.invoke("stake",3n,group,1n,100n,bytes(88));
+    }
+    s.invoke("allocateSubsidy",1n,2n,3n);s.invoke("allocateSubsidy",1n,2n,5n);
+    expect(()=>s.invoke("returnCancelledSubsidy",1n,2n)).toThrow(/not cancelled/);
+    s.setTime(3100);s.invoke("close",3n);
+    for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postPreview",3n,{strong:1n,medium:0n,weak:1n},BigInt(i));}
+    if(settled){claimSource();expect(s.state.marketRemainder.lookup(1n)).toBe(16n);}
+    s.setTime(5000);s.invoke("cancelMarket",2n);
+    expect(s.state.marketRemainder.lookup(2n)).toBe(8n);
+    expect(planTransitions(s.state,5000n)).toContainEqual({kind:"returnCancelledSubsidy",market:2n,source:1n});
+    expect(()=>s.invoke("returnCancelledSubsidy",3n,2n)).toThrow(/not cancelled/);
+    expect(s.invoke("returnCancelledSubsidy",1n,2n)).toBe(8n);
+    expect(s.state.allocatedSubsidy.lookup(1n)).toBe(0n);expect(s.state.marketSubsidy.lookup(2n)).toBe(0n);
+    expect(s.state.marketRemainder.lookup(2n)).toBe(0n);
+    if(settled)expect(s.state.marketRemainder.lookup(1n)).toBe(24n);
+    expect(()=>s.invoke("returnCancelledSubsidy",1n,2n)).toThrow(/already returned/);
+    for(const r of sideB){s.context.currentPrivateState.scout=r.secret;expect(s.invoke("claim",2n,1n,{bytes:bytes(230)})).toBe(100n);}
+    if(!settled){claimSource(5000);expect(s.state.marketRemainder.lookup(1n)).toBe(24n);}
+    s.invoke("allocateSubsidy",1n,3n,8n);
+    expect(s.state.marketSubsidy.lookup(3n)).toBe(8n);expect(s.state.marketRemainder.lookup(1n)).toBe(16n);
+    s.invoke("buyFlat",3n,0n);expect(s.state.hasPurchases.lookup(3n)).toBe(true);
+    s.setTime(6000);expect(()=>s.invoke("cancelMarket",3n)).toThrow(/Purchased/);
+    const inputs=[...s.context.currentQueryContext.effects.unshieldedInputs.values()].reduce((a,b)=>a+b,0n),outputs=[...s.context.currentQueryContext.effects.unshieldedOutputs.values()].reduce((a,b)=>a+b,0n);
+    expect(inputs-outputs).toBe(524n);
+  });
   it("earmarks exactly five percentage points and gives the subsidy no second platform cut while conserving all funds",()=>{
     const {s,sideB,claimSource,reportTarget,targetHits}=fundingMarkets();
     expect(s.state.marketRevenue.lookup(1n)).toBe(160n);s.invoke("allocateSubsidy",1n,2n,8n);

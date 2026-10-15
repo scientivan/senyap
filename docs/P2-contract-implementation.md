@@ -179,3 +179,27 @@ window. Defaults stay pending until the committee responds rather than expiring
 with permanently locked funds. Side B reporting responsibility awaits Dien's
 explicit choice; this circuit currently rejects side B. This is a partial P5.3
 implementation, not a claim that the entire lifecycle is complete.
+
+
+## Cancellation and returned subsidy
+
+Phase 10 is terminal cancellation. After close, fewer than five scouts permits
+permissionless cancellation; otherwise cancellation requires outcomeUntil and no
+purchase or finalized auction award. A zero-price option purchase still counts.
+Disputes require five scouts and a purchase/award, so cancellable markets have
+not sent principal to charity. The invariant also checks zero revenue and cases.
+
+Owned claims in phase 10 return principal without option openings or rewards.
+settleBid returns the entire ceiling to its original recipient even when no
+committee result exists. Both refunds retain single-use guards. Cancellation
+remains phase 10 after all refunds.
+
+Public per-source/target subsidy routes allow permissionless return of the whole
+remaining route from cancelled B to its source A. Incoming subsidy and cancelled
+remainder decrease, the original allocation decreases, and a settled source's
+remainder increases. This restores capacity under the same five-percentage-point
+cap. A repeated return fails. Tests cover settled and unsettled sources, reroute
+to another B, free purchases blocking cancellation, and exact conservation of
+principal, refunds, subsidy and source remainder. Keeper plans cancellation,
+cancelled bid refunds and route returns. These are simulator results, not network
+transactions.
