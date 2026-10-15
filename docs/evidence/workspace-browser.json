@@ -11,6 +11,7 @@
   "replacementRejected": true,
   "badRestore": true,
   "restored": true,
+  "productClientModuleLoaded": true,
   "concurrentUpdatesPreserved": true,
   "staleRejected": true,
   "lockedRejected": true,

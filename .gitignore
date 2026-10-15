@@ -16,6 +16,7 @@ dist
 # Compiler outputs and proving keys are reproducible, not source files.
 contracts/managed/
 apps/web/public/spikes/
+apps/web/public/contracts/
 docs/evidence/*.raw.log
 .states/
 logs/

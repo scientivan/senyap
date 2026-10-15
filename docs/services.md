@@ -1,7 +1,7 @@
 # Service implementation status
 
 All examples/tests use synthetic identities. There is no deployed Senyap market,
-live transaction adapter or running product-service deployment.
+exercised live wallet adapter or running product-service deployment.
 
 ## Committee
 
@@ -21,7 +21,8 @@ and threshold approvals, not the secret strongest-option computation itself.
 ## Keeper
 
 `services/keeper/src/transitions.ts` plans permissionless `close`, `settleBid` and
-`skipSelection` calls. It checks current block time and settlement prerequisites.
+`skipSelection`, dispute resolution, side A missed reports, finalization, cancellation
+and returned-subsidy calls. It checks current block time and settlement prerequisites.
 The driver rereads state for each step, bounds each pass and avoids repeating an
 attempt against a lagging snapshot. Winner rank distinguishes the two overdue
 selection steps. Submission errors stop the pass rather than being retried.
@@ -29,7 +30,7 @@ selection steps. Submission errors stop the pass rather than being retried.
 The host must supply a deployment-bound adapter that awaits finalization and
 reconciles pending transaction IDs across restarts. No real adapter is included;
 tests submit only simulator calls. Running a live adapter requires explicit
-authorization for its transaction sequence. Missing-report handling and epoch
+authorization for its transaction sequence. Side B reporting responsibility and epoch
 rotation are still pending.
 
 ## Veritas
@@ -49,8 +50,8 @@ to the model. The REST shapes follow Google's [generation API](https://ai.google
 and [embedding API](https://ai.google.dev/api/embeddings).
 
 Tests inject synthetic model/fetch responses. No live Gemini request has been made
-and no effectiveness claim is supported. Live Reclaim/GitHub verification, buyer KYB,
-encrypted reason submission, relay authentication and delivery remain pending.
+and no effectiveness claim is supported. Live Reclaim/GitHub verification, buyer KYB and production relay authentication
+remain pending. The encrypted reason relay below passes local tests.
 
 
 ## Reclaim credential boundary
@@ -124,7 +125,8 @@ read/modify/write operations. Revision checks reject stale writes, and locking o
 changing the workspace disables retained provider handles. Whole-workspace backups
 restore contract keys and private position data together. Individual client-state
 export/import/deletion and contract-maintenance signing keys are disabled through
-this user provider. Transaction submission/finality reconciliation is not wired yet.
+this user provider. The operation journal and explicit Lace adapter below are implemented;
+no product transaction has been sent.
 
 Three tests run real simulator stake slots, buyer purchase and verifier commit/reveal
 with these witnesses. The browser probe verifies concurrent updates, stale-write
@@ -142,3 +144,33 @@ explicitly abandoned, and its late submission hook is then rejected. The browser
 probe uses a synthetic submitter to verify these transitions, no duplicate sends,
 and compatibility with the SDK private-state set after submission notification.
 No real product transaction adapter or wallet send has been exercised by this test.
+
+
+## Explicit Lace product adapter
+
+`apps/web/src/app/product-client.ts` constructs a deployment-bound Midnight.js
+4.1.1 provider set around an already connected Lace API and unlocked WorkspaceClient.
+Importing/preparing it does not send, deploy or balance a transaction. Demo pages
+still use their labelled local store and do not invoke this adapter.
+
+A call requires matching Preprod wallet identity, local private-state scope and
+the selected circuit's verifier key in indexed chain state. Only user/permissionless
+circuits are exposed. Operator/committee secrets and maintenance/deployment APIs
+are absent. Proofs use the wallet proving provider, wallet balancing uses the
+same connected account, and the journal must persist the public ID before
+Lace.submitTransaction. Official submitCallTx waits for successful finalization
+before persisting next private state. An uncertain response is never retried;
+reconciliation uses the configured indexer's finalized result. Lookup failure
+keeps the operation blocked. No call errors expose raw provider objects.
+
+Three transport-stub tests cover preparation without sending, journal-before-send,
+changed wallet account, verifier/scope mismatch, forbidden runtime circuit input,
+failed durable storage and uncertain response reconciliation. They do not prove a
+live wallet/product transaction. The browser probe checks module loading in an
+isolated Chrome profile, without accessing Lace.
+
+After full key generation, `node scripts/prepare-product-assets.mjs` copies only
+public prover/verifier keys and ZKIR to ignored `apps/web/public/contracts/senyap`.
+It requires source-hash-matched key-generation evidence and writes an artifact
+manifest. This directory is large and is not committed. Hosting artifacts,
+selecting an approved deployment and wiring live pages remain required.

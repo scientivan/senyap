@@ -7,7 +7,8 @@ export { NETWORK_ID } from "./wallet-connector";
  * Lace connection through the Midnight DApp connector, following docs.midnight.network
  * /guides/react-wallet-connect: wallets inject an Initial API under window.midnight[<uuid>],
  * connect(networkId) returns the connected API, getUnshieldedAddress() gives the address.
- * Not yet tested against a live Lace install (unverified).
+ * Real Lace connection was verified in F3; S5 counter deploy/ping passed Preprod.
+ * Product-market transactions remain separate from this connection helper.
  */
 type WalletState =
   | { status: "idle" }
