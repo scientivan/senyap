@@ -157,7 +157,10 @@ Importing/preparing it does not send, deploy or balance a transaction. Demo page
 still use their labelled local store and do not invoke this adapter.
 
 A call requires matching Preprod wallet identity, local private-state scope and
-the selected circuit's verifier key in indexed chain state. Only user/permissionless
+the selected circuit's verifier key at the same finalized block as its trusted snapshot.
+The host must explicitly supply the public node URL, expected genesis and operator
+commitment; Lace supplies the indexer endpoint. A stale or mismatched snapshot
+blocks both reads and sends. Only user/permissionless
 circuits are exposed. Operator/committee secrets and maintenance/deployment APIs
 are absent. Proofs use the wallet proving provider, wallet balancing uses the
 same connected account, and the journal must persist the public ID before
@@ -166,7 +169,7 @@ before persisting next private state. An uncertain response is never retried;
 reconciliation uses the configured indexer's finalized result. Lookup failure
 keeps the operation blocked. No call errors expose raw provider objects.
 
-Three transport-stub tests cover preparation without sending, journal-before-send,
+Seven transport-stub/simulator tests cover preparation without sending, journal-before-send,
 changed wallet account, verifier/scope mismatch, forbidden runtime circuit input,
 failed durable storage and uncertain response reconciliation. They do not prove a
 live wallet/product transaction. The browser probe checks module loading in an
@@ -179,9 +182,10 @@ manifest. This directory is large and is not committed. Hosting artifacts,
 selecting an approved deployment and wiring live pages remain required.
 
 
-## Finalized service snapshot reader
+## Finalized snapshot reader
 
-`services/indexer/src/snapshot.ts` binds one network/deployment to a configured
+`packages/sdk/src/snapshot.ts` (also re-exported by
+`services/indexer/src/snapshot.ts`) binds one network/deployment to a configured
 node, indexer, genesis hash and immutable operator commitment. It first reads
 chain_getFinalizedHead and chain_getBlockHash(0) from the trusted node. Both block
 metadata and contractAction state are queried at that same final hash. It decodes
@@ -276,3 +280,65 @@ operator workflow. Do not claim network card opening from the local crypto tests
 A future endpoint must read trusted deployment state and reject pending, rejected
 or inconclusive disputes before any share operation; requests cannot supply the
 card or ledger state.
+
+
+## Ledger-backed product views (F5 foundation)
+
+`@senyap/sdk/read-model` projects a trusted ledger into market phases, counts,
+prices, option references and published preview buckets. It never invents labels,
+plaintext option totals, balances or payout estimates. Buyer access is derived
+from the unlocked deployment-scoped buyer secret; own positions must exist in
+ledger state and match their saved option opening. Prepared-but-unsent positions
+are omitted. The returned view contains no identity secrets, salts or member proofs.
+The browser adapter's `view()` checks the connected account before and after
+reading the snapshot/private state; a changed account or locked workspace fails
+without a demo fallback.
+
+The public demo page model no longer contains `Option.sealedWeight`. Synthetic
+weights remain internal to the labelled demo store, which exposes them through
+its existing simulated paid-access function. This is a separation of demo data,
+not a privacy guarantee for downloadable synthetic seed fixtures.
+
+The live app UI is not integrated yet. `design/live-product-workspace.html` is a
+static preview with connection, ready, proof-preparation and uncertain-result
+states, all explicitly synthetic. Eight isolated browser captures at 1440/390px
+pass the recorded DOM checks (`docs/evidence/live-preview-browser.json`). Design
+approval, deployment configuration and actual product transactions remain gates.
+
+
+## Public market metadata
+
+`@senyap/sdk/market-metadata` defines the v1 public document (side, category,
+question, ordered option references and labels). `questionHash` commits to the
+SHA-256 of UTF-8 JSON `["senyap:market-metadata:v1", side, category, question,
+[[reference,label],...]]`. Strings are preserved exactly; outer whitespace,
+control characters and unpaired surrogates are rejected. The document allows
+2–8 distinct options, a question up to 2048 UTF-16 code units and labels up to
+120. Other input properties are dropped, never stored as metadata.
+
+Hash the document before `createMarket`; upload it after the market finalizes
+with `POST /markets/meta` and JSON `{market:"1",metadata:{...}}`. The service uses
+its own trusted snapshot, checks the full commitment, side/category and ordered
+references, then stores only that public document in deployment-scoped SQLite.
+Re-uploading the same committed document is safe; missing metadata can be
+recovered without resending the market transaction. The current contract starts
+at its actual onchain phase; metadata upload does not invent a draft/open change.
+
+`GET /markets/:id/meta` revalidates stored content against the current trusted
+snapshot. Neither route accepts caller-supplied ledger state or endpoints. An
+upload needs no additional identity signature because it can only store content
+whose complete hash already matches an existing market. This verifies content
+integrity, not the truth of claims or identities in the labels.
+
+`fetchMarketMetadata` reads only the configured operator endpoint, with no wallet
+credentials, no redirects, a 15-second deadline and a 32 KiB streaming bound.
+It never fetches a market's arbitrary `questionUri`, and rejects mismatched or
+unavailable metadata rather than substituting demo labels. The operator HTTP
+origin/body bounds also apply. The existing operator process wires the metadata
+repository alongside reasons; starting it still requires the existing reason
+key/model configuration. No standalone public metadata daemon is claimed.
+
+Three tests use actual circuit-created market commitments, durable SQLite and
+local HTTP/SDK requests. They check tampering, option order, scope, corrupted
+storage, unavailable snapshots, origin denial and oversized responses. This is
+local validation, not a deployed metadata service or completed live UI.

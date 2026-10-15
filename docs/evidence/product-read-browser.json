@@ -1,0 +1,9 @@
+{
+  "scope": "Isolated Chrome import/hash probe only; no wallet/configuration/transactions",
+  "result": {
+    "productAdapterImported": true,
+    "metadataImported": true,
+    "noWallet": true,
+    "hash": "4370c98f8bdfff0ce85b7f5dc78b96fd7b54902f85b17c5922011281839abf67"
+  }
+}

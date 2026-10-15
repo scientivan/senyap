@@ -469,6 +469,16 @@ Memicu `close`, jadwal pratinjau, `settleBid`, penutupan jendela, `markMissedRep
   `mint` (diganti `dusd.mint` berlabel demo), `reset` (dihapus di mode nyata). Semua aksi async dengan state
   pending, submitted (tx id), error.
 
+### 8.6a Format metadata yang diimplementasikan
+
+Metadata publik v1 mengikat pertanyaan dan label opsi pada satu `questionHash`.
+Hash adalah SHA-256 UTF-8 JSON `["senyap:market-metadata:v1", side, category, question,
+[[reference,label],...]]`, dengan urutan opsi sama seperti ledger. Format, batas
+dan prosedur upload setelah market finalized dijelaskan di `docs/services.md`
+bagian Public market metadata. Implementasi ini tidak mengubah mekanisme kontrak;
+format circuit tetap hash 32-byte. Klien memverifikasi seluruh dokumen dan referensi
+opsi, serta tidak mengambil `questionUri` sembarang.
+
 ## 9. Spike teknis wajib
 
 Dikerjakan pertama setelah aba-aba. Masing-masing menghasilkan kontrak/test kecil + catatan hasil.

@@ -7,7 +7,8 @@ import {geminiReasonModel} from "./gemini";
 import {SqliteReasonRepository} from "./reason-repository";
 import {reasonRelay} from "./reasons";
 import {createOperatorServer} from "./server";
-/** Reason-only process. No admission/admin endpoint, wallet, deploy or onchain
+import {marketMetadataService,SqliteMarketMetadataRepository} from "./market-metadata";
+/** Reasons and public metadata. No admission/admin endpoint, wallet, deploy or onchain
  * submit function. Reclaim admission remains a separate authenticated boundary. */
 async function serve(){
   process.umask(0o077);const config=serviceConfig(process.env);
@@ -22,12 +23,13 @@ async function serve(){
   const directory=resolve(".states");await mkdir(directory,{recursive:true,mode:0o700});
   const repository=new SqliteReasonRepository(resolve(directory,`operator-${config.network}-${config.contract}.sqlite`),config);
   const relay=reasonRelay({...config,publicKey:new Uint8Array(Buffer.from(publicHex,"hex")),privateKey},read,repository,model);
-  const server=createOperatorServer(config,relay);server.requestTimeout=30000;server.headersTimeout=10000;server.maxConnections=40;
+  const metadataRepository=new SqliteMarketMetadataRepository(resolve(directory,`metadata-${config.network}-${config.contract}.sqlite`),config);
+  const server=createOperatorServer(config,relay,marketMetadataService(config,read,metadataRepository));server.requestTimeout=30000;server.headersTimeout=10000;server.maxConnections=40;
   const listeningPort=port(process.env.OPERATOR_PORT,3001);
   try{await new Promise<void>((done,reject)=>{server.once("error",reject);server.listen(listeningPort,"127.0.0.1",done);});}
-  catch{repository.close();throw Error("Operator listener unavailable");}
-  console.log(`Reason operator listening on localhost port ${listeningPort}. No admission or transaction relay.`);
-  for(const signal of ["SIGINT","SIGTERM"] as const)process.once(signal,()=>server.close(()=>{repository.close();process.exitCode=0;}));
+  catch{repository.close();metadataRepository.close();throw Error("Operator listener unavailable");}
+  console.log(`Reason/metadata operator listening on localhost port ${listeningPort}. No admission or transaction relay.`);
+  for(const signal of ["SIGINT","SIGTERM"] as const)process.once(signal,()=>server.close(()=>{repository.close();metadataRepository.close();process.exitCode=0;}));
 }
 if(!process.argv.includes("--serve"))console.log("Reason operator prepared. --serve requires fixed deployment and server-only model/key configuration; nothing started.");
 else serve().catch(()=>{console.error("Operator startup failed. Check server-only configuration and finalized deployment; private details omitted.");process.exitCode=1;});

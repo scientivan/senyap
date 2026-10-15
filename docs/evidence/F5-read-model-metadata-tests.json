@@ -1,0 +1,41 @@
+{
+  "scope": "Local simulator, SQLite/HTTP and isolated browser validation only; no product deployment or transaction",
+  "date": "2026-10-15",
+  "tests": {
+    "command": "pnpm test",
+    "filesPassed": 46,
+    "testsPassed": 137,
+    "durationSeconds": 61.64,
+    "localhostAccess": "Escalated sandbox for HTTP test listeners; no wallet or public chain calls",
+    "initialSandboxRun": {
+      "testsPassed": 131,
+      "testsFailed": 2,
+      "reason": "listen EPERM on localhost in existing HTTP tests"
+    }
+  },
+  "checks": {
+    "rootTypecheck": true,
+    "webTypecheckAndBuild": true,
+    "operatorNoStart": true,
+    "legacyMandatoryAppDetector": []
+  },
+  "browser": "product-read-browser.json",
+  "designPreview": "live-preview-browser.json",
+  "modernHtmlDetector": "Degraded: parser dependencies unavailable; no clean scan claimed",
+  "limits": [
+    "UI remains labelled demo; static live preview awaits owner approval",
+    "No product contract deployed or sent",
+    "No live metadata/reason service started",
+    "Configured node/indexer remain trusted; snapshot is not a light client",
+    "Metadata hash verifies integrity, not truth of labels"
+  ],
+  "sourceSha256": {
+    "apps/web/src/app/product-client.ts": "66c711547a679b5621e894587d2f6377e1d7f61f6a4582835f44c2757b3ec4c3",
+    "packages/sdk/src/read-model.ts": "2b39bef0a6910e837ae681e4e67f840ccd637ea6bbea81f1be9261679218b50a",
+    "packages/sdk/src/snapshot.ts": "815e77f2249fc9e6831d448128b6f5778296282e437bfbde81a8c4453907c8df",
+    "packages/sdk/src/market-metadata.ts": "bd42e5ff5dd7a931af9e3ef258cc59169755232af3c693e41ea159a2d74f0e11",
+    "apps/operator/src/market-metadata.ts": "1aad5708a8d1420e33ee452d60b545d4eff2380a39fff4e8e099f5f34a122b5b",
+    "apps/operator/src/server.ts": "fa7eef039e1e1bfe7f08dad497cdb095df3c24069ef19c4f91bb7afdad1dfd2c",
+    "apps/operator/src/main.ts": "c31470acd9fb664d2e72b3e40426855f9b7d49ddb323b14ce0e322a0d7bc687c"
+  }
+}
