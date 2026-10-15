@@ -4,9 +4,14 @@
   "version": "0.1.0",
   "type": "module",
   "license": "Apache-2.0",
-  "exports": { "./ephemeral-state": "./src/ephemeral-state.ts", "./paid-signals": "./src/paid-signals.ts" },
+  "exports": {
+    "./ephemeral-state": "./src/ephemeral-state.ts",
+    "./paid-signals": "./src/paid-signals.ts",
+    "./identity-reveal": "./src/identity-reveal.ts", "./private-state": "./src/private-state.ts"
+  },
   "dependencies": {
-    "@midnight-ntwrk/midnight-js-types": "4.1.1",
-    "@midnight-ntwrk/midnight-js-protocol": "4.1.1"
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+    "@midnight-ntwrk/midnight-js-types": "4.1.1"
   }
 }

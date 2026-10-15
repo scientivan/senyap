@@ -63,8 +63,10 @@ execution, not product-market integration.
 - `packages/crypto` (local tests present; integration planned): additive ElGamal
   on JubJub and 3-of-5 threshold decryption (three committee members must cooperate
   to open a total).
-- `packages/sdk` (spike-only ephemeral state present): product wrapper, witnesses
-  and persistent private state remain planned.
+- `packages/sdk` (partial product helpers present): paid-total retrieval, consent-based
+  contact delivery and encrypted persistent state pass local tests. Browser IndexedDB
+  survives reload and restores signing/decryption keys in an isolated synthetic probe.
+  The product transaction wrapper, witnesses and frontend integration remain planned.
 - `apps/operator` (planned): credential verification, reason screening and relay.
 - `apps/committee` (local node core present): ledger-authorized, encrypted buyer
   shares pass local tests across five synthetic node keys. Five HTTP nodes and the paid-total SDK pass a local integration test. Trusted

@@ -162,7 +162,7 @@ nullifier posisi. Veritas menilai dan menulis ulang alasan (D-21; Gemini hanya p
 ### 3.8 F6 Pembukaan identitas atas persetujuan (D-15)
 
 Scout boleh membuktikan "akulah pemilik posisi X" hanya kepada buyer pemenang, dengan tanda tangan dari
-kunci yang commitment-nya disimpan saat stake. Kontak scout dienkripsi ke kunci buyer.
+kunci yang commitment-nya disimpan saat stake. Kontak scout dienkripsi ke kunci buyer. Implementasi offchain menggunakan tanda tangan Ed25519 dari kunci yang komitmennya tersimpan saat stake, dengan konteks network/kontrak/market/posisi/buyer/tujuan, lalu X25519/HKDF/AES-GCM ke kunci penerima pemenang yang tercatat di ledger. SDK menolak buyer nonpemenang atau alokasi belum selesai. Integrasi halaman aplikasi belum dibuat.
 
 ### 3.9 F7 Outcome
 

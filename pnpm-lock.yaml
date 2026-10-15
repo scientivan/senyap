@@ -134,6 +134,9 @@ importers:
 
   packages/sdk:
     dependencies:
+      '@midnight-ntwrk/midnight-js-level-private-state-provider':
+        specifier: 4.1.1
+        version: 4.1.1
       '@midnight-ntwrk/midnight-js-protocol':
         specifier: 4.1.1
         version: 4.1.1

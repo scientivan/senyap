@@ -1,0 +1,10 @@
+{
+  "scope": "isolated Chromium profile, synthetic data, no wallet or blockchain transaction",
+  "provider": "midnight-js-level-private-state-provider 4.1.1",
+  "saved": true,
+  "keysRestored": true,
+  "reopened": true,
+  "exportEncrypted": true,
+  "wrongPasswordRejected": true,
+  "indexedDB": true
+}
