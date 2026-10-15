@@ -1,0 +1,65 @@
+{
+  "compiler": "0.31.1",
+  "runtime": "0.16.0",
+  "proofServer": "8.1.3",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "results": [
+    {
+      "circuit": "recordSubjectiveOutcome",
+      "label": "subjective-report-eight-cases",
+      "elapsedMs": 12524,
+      "proofBytes": 4508,
+      "proverKeyBytes": 38690549
+    },
+    {
+      "circuit": "commitVote",
+      "label": "outcome-domain-commit",
+      "elapsedMs": 1829,
+      "proofBytes": 4508,
+      "proverKeyBytes": 5213004
+    },
+    {
+      "circuit": "revealVote",
+      "label": "outcome-domain-reveal",
+      "elapsedMs": 1666,
+      "proofBytes": 4508,
+      "proverKeyBytes": 5217987
+    },
+    {
+      "circuit": "resolveDispute",
+      "label": "valid-outcome-verdict",
+      "elapsedMs": 725,
+      "proofBytes": 2940,
+      "proverKeyBytes": 2148221
+    },
+    {
+      "circuit": "claimVerifier",
+      "label": "outcome-verifier-refund",
+      "elapsedMs": 192,
+      "proofBytes": 2940,
+      "proverKeyBytes": 288359
+    },
+    {
+      "circuit": "challengeOutcome",
+      "label": "objective-bit-challenge",
+      "elapsedMs": 3036,
+      "proofBytes": 4508,
+      "proverKeyBytes": 9985734
+    },
+    {
+      "circuit": "resolveDispute",
+      "label": "inconclusive-objective-preserved",
+      "elapsedMs": 580,
+      "proofBytes": 2940,
+      "proverKeyBytes": 2148221
+    },
+    {
+      "circuit": "resolveDispute",
+      "label": "proven-hoax-slash-isolated",
+      "elapsedMs": 606,
+      "proofBytes": 2940,
+      "proverKeyBytes": 2148221
+    }
+  ],
+  "scope": "Synthetic local /check and /prove only; no onchain transaction, product deployment or security audit."
+}

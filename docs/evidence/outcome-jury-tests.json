@@ -49,6 +49,14 @@
     "Typed SDK subjective report and saved outcome commit/reveal",
     "Trusted read-model jury modes/counts and browser finalized anchor"
   ],
-  "fullCi": "Pending for implementation commit; no claim that final default-config full suite has passed yet",
-  "proving": "Keys/proofs for this changed source not generated yet; older source-bound evidence remains historical"
+  "fullCi": {
+    "commit": "401da08a377aec364e0641af6953ca803b6fb3c6",
+    "run": 38788454392,
+    "conclusion": "success",
+    "url": "https://github.com/scientivan/senyap/actions/runs/38788454392",
+    "configuration": "Default two workers and 30000ms test timeout; compile/root+web typecheck/test/build all passed",
+    "testsPassed": 148,
+    "filesPassed": 48
+  },
+  "proving": "outcome-jury-proving.json: eight local /check and /prove results succeeded for the same source; not a product deployment or transaction."
 }

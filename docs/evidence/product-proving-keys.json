@@ -1,46 +1,46 @@
 {
   "compiler": "0.31.1",
-  "sourceSha256": "f1f3e56941a11c2f4ffd3bf5218531a56b95d4285b7a40ee4ff182dc37a12f5c",
-  "circuits": 39,
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "circuits": 41,
   "provingKeys": [
     {
       "circuit": "admitBuyer",
-      "proverBytes": 2827486,
+      "proverBytes": 2827519,
       "verifierBytes": 2119
     },
     {
       "circuit": "admitScout",
-      "proverBytes": 9967531,
+      "proverBytes": 9967563,
       "verifierBytes": 2119
     },
     {
       "circuit": "admitVerifier",
-      "proverBytes": 2821360,
+      "proverBytes": 2821344,
       "verifierBytes": 2119
     },
     {
       "circuit": "allocateSubsidy",
-      "proverBytes": 5220266,
+      "proverBytes": 5220333,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveHoaxMember",
-      "proverBytes": 10008177,
+      "proverBytes": 10009146,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveMissedBuyer",
-      "proverBytes": 9996944,
+      "proverBytes": 9996943,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveRevocation",
-      "proverBytes": 5252149,
+      "proverBytes": 5252096,
       "verifierBytes": 2119
     },
     {
       "circuit": "buyFlat",
-      "proverBytes": 42803552,
+      "proverBytes": 42803584,
       "verifierBytes": 2311
     },
     {
@@ -49,83 +49,93 @@
       "verifierBytes": 1351
     },
     {
+      "circuit": "challengeOutcome",
+      "proverBytes": 9985734,
+      "verifierBytes": 2119
+    },
+    {
       "circuit": "claim",
-      "proverBytes": 5222672,
+      "proverBytes": 5222667,
       "verifierBytes": 2119
     },
     {
       "circuit": "claimVerifier",
-      "proverBytes": 288321,
+      "proverBytes": 288359,
       "verifierBytes": 1351
     },
     {
       "circuit": "close",
-      "proverBytes": 74345,
+      "proverBytes": 74318,
       "verifierBytes": 1351
     },
     {
       "circuit": "commitVote",
-      "proverBytes": 5212875,
+      "proverBytes": 5213004,
       "verifierBytes": 2119
     },
     {
       "circuit": "configureScoutGroup",
-      "proverBytes": 2819385,
+      "proverBytes": 2819412,
       "verifierBytes": 2119
     },
     {
       "circuit": "createMarket",
-      "proverBytes": 42810212,
+      "proverBytes": 42810262,
       "verifierBytes": 2311
     },
     {
       "circuit": "finalizeMarket",
-      "proverBytes": 284475,
+      "proverBytes": 284485,
       "verifierBytes": 1351
     },
     {
       "circuit": "markMissedReport",
-      "proverBytes": 2834869,
+      "proverBytes": 2834817,
       "verifierBytes": 2119
     },
     {
       "circuit": "markMissedSharedBuyer",
-      "proverBytes": 147946,
+      "proverBytes": 147947,
       "verifierBytes": 1351
     },
     {
       "circuit": "openDispute",
-      "proverBytes": 553981,
+      "proverBytes": 553982,
       "verifierBytes": 1351
     },
     {
       "circuit": "placeBid",
-      "proverBytes": 85074558,
+      "proverBytes": 85074495,
       "verifierBytes": 2311
     },
     {
       "circuit": "postAuctionResult",
-      "proverBytes": 9995432,
+      "proverBytes": 9995405,
       "verifierBytes": 2119
     },
     {
       "circuit": "postDefaultStrongest",
-      "proverBytes": 5250325,
+      "proverBytes": 5250534,
       "verifierBytes": 2119
     },
     {
       "circuit": "postPreview",
-      "proverBytes": 5245872,
+      "proverBytes": 5245898,
       "verifierBytes": 2119
     },
     {
       "circuit": "proveHit",
-      "proverBytes": 9998582,
+      "proverBytes": 9998565,
       "verifierBytes": 2119
     },
     {
       "circuit": "recordOutcome",
-      "proverBytes": 10015917,
+      "proverBytes": 10017051,
+      "verifierBytes": 2119
+    },
+    {
+      "circuit": "recordSubjectiveOutcome",
+      "proverBytes": 38690549,
       "verifierBytes": 2119
     },
     {
@@ -135,37 +145,37 @@
     },
     {
       "circuit": "renewTier",
-      "proverBytes": 38612932,
+      "proverBytes": 38612930,
       "verifierBytes": 2119
     },
     {
       "circuit": "resolveDispute",
-      "proverBytes": 1089105,
+      "proverBytes": 2148221,
       "verifierBytes": 1351
     },
     {
       "circuit": "returnCancelledSubsidy",
-      "proverBytes": 2831529,
+      "proverBytes": 2831457,
       "verifierBytes": 2119
     },
     {
       "circuit": "revealVote",
-      "proverBytes": 5217859,
+      "proverBytes": 5217987,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeHoaxMember",
-      "proverBytes": 5219065,
+      "proverBytes": 5219950,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeMember",
-      "proverBytes": 9982571,
+      "proverBytes": 9982586,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeMissedBuyer",
-      "proverBytes": 2821609,
+      "proverBytes": 2821614,
       "verifierBytes": 2119
     },
     {
@@ -175,22 +185,22 @@
     },
     {
       "circuit": "selectHidden",
-      "proverBytes": 5245592,
+      "proverBytes": 5245559,
       "verifierBytes": 2119
     },
     {
       "circuit": "settleBid",
-      "proverBytes": 556275,
+      "proverBytes": 556316,
       "verifierBytes": 1351
     },
     {
       "circuit": "skipSelection",
-      "proverBytes": 149643,
+      "proverBytes": 149573,
       "verifierBytes": 1351
     },
     {
       "circuit": "stake",
-      "proverBytes": 85063873,
+      "proverBytes": 85063848,
       "verifierBytes": 2311
     },
     {
@@ -199,6 +209,6 @@
       "verifierBytes": 2119
     }
   ],
-  "scope": "Local proving-key generation, not an onchain deployment or proof verification",
-  "commentRecompile": "Final approval-comment update recompiled separately with --skip-zk; all 39 ZKIR files byte-identical to the full key generation inputs."
+  "scope": "Local public proving artifacts only; no product deployment or transaction",
+  "recovery": "Original compiler session exit status unavailable after user interruption. Compiler no longer running; all 41 nonempty prover/verifier pairs were modified after implementation commit401da08. Critical current-source /check and /prove validation follows separately."
 }

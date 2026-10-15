@@ -519,7 +519,7 @@ Dikerjakan pertama setelah aba-aba. Masing-masing menghasilkan kontrak/test keci
 | Pembulatan payout | `floor(pool × 8500 × weight / (10000 × denom))`; sisa pembulatan ke platform | [Usulan] |
 | Opsi < 8 | Ciphertext slot kosong tetap ditambahkan (enkripsi 0) agar bentuk transaksi sama untuk semua market | [Usulan] |
 | Banyak buyer | `proveHit(b)` dipanggil per buyer `b` yang mask suksesnya memuat opsi posisi; denominator per buyer | [Usulan] |
-| Jendela waktu (produksi / demo) | Open 48 j / 10 mnt · Lelang 24 j / 5 mnt · Pendaftaran hit 72 j / 5 mnt · Outcome 30 hari / 10 mnt · Sengketa commit 24 j + reveal 24 j / 3 + 3 mnt | [Usulan] |
+| Jendela waktu (produksi / demo) | Open 48 j / 10 mnt · Lelang 24 j / 5 mnt · Pendaftaran hit 72 j / 5 mnt · Outcome 30 hari / 10 mnt · Sengketa commit 24 j + reveal 24 j / 5 + 5 mnt (jury outcome disetujui 15 Okt; parameter konstruktor bersama) | [Usulan] |
 | Penegakan k = 5 | Slot dipakai berurutan (circuit membuktikan slot n hanya bila nullifier slot n-1 milik scout yang sama sudah ada); `scouts` bertambah hanya saat slot = 1. Kontrak menolak `buyFlat`/pembukaan bila `scouts < 5`; komite juga menolak membuka | [Usulan] |
 | Desimal dUSD | 0 desimal (1 unit = 1 dUSD) agar bobot dan total per opsi muat untuk baby-step giant-step; batas total seluruh market `< 2^40` (penyempurnaan disetujui Dien, 15 Okt) | [Usulan] |
 | Pengali dalam circuit | Ditulis sebagai bilangan bulat: tier 100/125/150, bonus awal 100/120; bobot = `stake × pengaliTier × bonus / 10000` dengan hasil bagi diberikan witness dan dicek lewat perkalian (lihat spike S9) | [Usulan] |
