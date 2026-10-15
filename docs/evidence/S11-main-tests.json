@@ -26,5 +26,23 @@
     "webBuild": true,
     "workspaceBrowserProbe": true
   },
-  "scope": "Local simulator, type/build and isolated browser checks. Proof-server evidence is separate. No product deployment or network transaction."
+  "scope": "Local simulator, type/build and isolated browser checks. Proof-server evidence is separate. No product deployment or network transaction.",
+  "ci": {
+    "runId": 38731706943,
+    "commit": "7d6ec7b216353c7a354edc18d77a992b2d99ff24",
+    "conclusion": "success",
+    "url": "https://github.com/scientivan/senyap/actions/runs/38731706943",
+    "gates": [
+      "compile",
+      "root typecheck",
+      "tests",
+      "web typecheck",
+      "web build"
+    ]
+  },
+  "earlierCiFailure": {
+    "runId": 38731185629,
+    "testsPassed": 122,
+    "failure": "Unhandled Vitest worker RPC onTaskUpdate timeout; exact cause unconfirmed; following checkpoint CI passed without changing timeout or worker count."
+  }
 }

@@ -1,8 +1,8 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.13 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
+> Versi 0.14 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
 > Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
-> Sumber keputusan: living doc Bisik bagian 26 (v0.56), `task-tracker.md`, `AGENTS.md`.
+> Sumber keputusan: living doc Bisik bagian 26 (v0.59), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
 > boleh diubah Dien kapan saja, dan setiap perubahan dicatat; **[Spike]** asumsi teknis yang wajib
 > dibuktikan sebelum dipakai (lihat §9). v0.2 menambah §6.3b struct, §8.5 env, §8.6 antarmuka offchain,
@@ -172,6 +172,7 @@ kunci yang commitment-nya disimpan saat stake. Kontak scout dienkripsi ke kunci 
   commit-reveal; mayoritas menang, yang minoritas kehilangan sebagian stake, yang mayoritas dapat hadiah
   dari slash [Keputusan Dien: inovasi 5].
 - Buyer wajib melapor dalam jendela outcome. Tidak melapor = pelanggaran good standing.
+- **Keputusan Dien, 15 Okt (sisi B):** satu laporan buyer/operator yang sah sebelum outcomeUntil memenuhi kewajiban seluruh buyer (termasuk laporan tanpa opsi sukses). Tanpa laporan, default bersama diproses sekali dan tiap buyer berbayar dapat ditandai lalai secara terpisah, bahkan setelah default/settlement. Pencabutan good standing tetap tiga attestasi komite lalu operator. Akses berbayar/dana tidak dipotong; market batal tanpa pembelian tidak punya sanksi laporan. Rancangan: docs/side-b-report-duty-proposal.md.
 - Tidak ada opsi sukses: default D-05, opsi terkuat di antara opsi yang dibeli buyer itu, dibuka komite
   lewat persetujuan ambang [M-4]. Untuk sisi B, kandidat berasal dari gabungan seluruh opsi yang pernah dibeli di market tersebut (keputusan Dien 15 Okt); satu pool/mask bersama tetap berlaku. Komite menentukan opsi terkuat dari total yang dibuka internal, kontrak memeriksa kelayakan opsi dan tiga persetujuan yang sama tanpa membuka total.
 - **Pemilihan verifier** [Usulan]: verifier mendaftar dengan stake ke `verifierTree`. Untuk tiap sengketa,
