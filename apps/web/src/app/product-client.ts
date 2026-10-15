@@ -46,6 +46,8 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
   const publicData=indexerPublicDataProvider(config.indexerUri,config.indexerWsUri);
   const snapshot=createSnapshotReader({...input.snapshot,network:"preprod",contract:input.contract,indexerUrl:config.indexerUri});
   let beforeSubmit:((txId:string)=>Promise<void>)|undefined,busy=false;
+  type LookupStatus="succeeded"|"failed"|"unknown";
+  let receiptLookup:{txId:string;result:Promise<LookupStatus>}|undefined;
   const providers:ContractProviders<ProductContract>={
     privateStateProvider:client.provider,zkConfigProvider:zk,publicDataProvider:publicData,
     proofProvider:{proveTx:tx=>tx.prove(proving,CostModel.initialCostModel())},
@@ -109,7 +111,21 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
     // Unknown/rejected lookups remain blocked. The official provider returns a
     // finalized result only; no "not found" assumption authorizes a resend.
     async reconcile(){return reconcileClientOperation(client,async txId=>{
-      try{const receipt=await publicData.watchForTxData(txId);return receipt.status==="SucceedEntirely"?"succeeded":"failed";}catch{return "unknown";}
+      if(!receiptLookup||receiptLookup.txId!==txId){
+        const result:Promise<LookupStatus>=Promise.resolve().then(()=>publicData.watchForTxData(txId)).then(receipt=>
+          receipt.status==="SucceedEntirely"?"succeeded":receipt.status==="FailEntirely"||receipt.status==="FailFallible"?"failed":"unknown"
+        ).catch(()=>"unknown");
+        const lookup={txId,result};receiptLookup=lookup;
+        // A rejected lookup can be checked again explicitly. An unresolved
+        // SDK watch is reused rather than adding another polling subscription.
+        void result.then(status=>{if(status==="unknown"&&receiptLookup===lookup)receiptLookup=undefined;});
+      }
+      let timer:ReturnType<typeof setTimeout>|undefined;
+      try{
+        // SDK watches deliberately wait indefinitely. Bound the UI's wait only;
+        // a late receipt cannot change the journal until another explicit check.
+        return await Promise.race([receiptLookup.result,new Promise<LookupStatus>(resolve=>{timer=setTimeout(()=>resolve("unknown"),15000);})]);
+      }finally{if(timer!==undefined)clearTimeout(timer);}
     });}
   } satisfies ProductCallTransport & {read:()=>Promise<ReturnType<typeof ledger>>;reconcile:()=>ReturnType<typeof reconcileClientOperation>;view:()=>Promise<ReturnType<typeof readProductView>>};
   return product;

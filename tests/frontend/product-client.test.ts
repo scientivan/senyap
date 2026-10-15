@@ -37,7 +37,7 @@ async function fixture(){
   return {product,api,client,events,changeAccount:()=>{account="mn_addr_preprod1other";},failStorage:()=>{storageFails=true;},operation:()=>operation};
 }
 beforeEach(()=>{vi.resetAllMocks();vi.stubGlobal("location",{origin:"http://127.0.0.1:5174"});vi.stubGlobal("window",globalThis);});
-afterEach(()=>vi.unstubAllGlobals());
+afterEach(()=>{vi.useRealTimers();vi.unstubAllGlobals();});
 describe("Lace product transport boundaries",()=>{
   it("builds public arguments from the newly persisted private position without exposing its salt or secret",async()=>{
     const f=await fixture(),group=new Uint8Array(32).fill(4);
@@ -93,5 +93,30 @@ describe("Lace product transport boundaries",()=>{
     expect(f.api.submitTransaction).toHaveBeenCalledTimes(1);expect(f.operation()?.txId).toBe(txId);
     sdk.watch.mockRejectedValueOnce(Error("synthetic lookup unavailable"));await f.product.reconcile();expect(f.operation()?.phase).toBe("uncertain");
     sdk.watch.mockResolvedValueOnce({status:"SucceedEntirely"});await f.product.reconcile();expect(f.operation()?.phase).toBe("finalized");
+  });
+  it("returns an unknown lookup after 15 seconds, reuses its pending watch and requires another explicit check for a late receipt",async()=>{
+    const f=await fixture();vi.mocked(f.api.submitTransaction).mockRejectedValueOnce(Error("synthetic response lost"));
+    await expect(f.product.call("close",[1n],s=>s)).rejects.toThrow();
+    let complete!:(receipt:{status:string})=>void;
+    sdk.watch.mockImplementationOnce(()=>new Promise(resolve=>{complete=resolve;}));
+    vi.useFakeTimers();
+    const first=f.product.reconcile();await vi.advanceTimersByTimeAsync(15000);
+    expect((await first)?.phase).toBe("uncertain");
+    const second=f.product.reconcile();await vi.advanceTimersByTimeAsync(15000);
+    expect((await second)?.phase).toBe("uncertain");expect(sdk.watch).toHaveBeenCalledTimes(1);
+    complete({status:"SucceedEntirely"});await vi.advanceTimersByTimeAsync(0);
+    expect(f.operation()?.phase).toBe("uncertain");
+    expect((await f.product.reconcile())?.phase).toBe("finalized");
+    expect(f.api.submitTransaction).toHaveBeenCalledTimes(1);expect(sdk.watch).toHaveBeenCalledTimes(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it("keeps unrecognized lookup results blocked and records only an explicit finalized failure",async()=>{
+    const f=await fixture();vi.mocked(f.api.submitTransaction).mockRejectedValueOnce(Error("synthetic response lost"));
+    await expect(f.product.call("close",[1n],s=>s)).rejects.toThrow();
+    sdk.watch.mockResolvedValueOnce({status:"synthetic-unknown-status"});
+    expect((await f.product.reconcile())?.phase).toBe("uncertain");
+    sdk.watch.mockResolvedValueOnce({status:"FailFallible"});
+    expect((await f.product.reconcile())?.phase).toBe("failed");
+    expect(f.api.submitTransaction).toHaveBeenCalledTimes(1);
   });
 });

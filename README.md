@@ -24,6 +24,15 @@ also pass simulator tests. Remaining lifecycle cases, live services and frontend
 transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
 network only. No Senyap product market contract is deployed.
 
+Option-level subjective/contested outcome juries now pass simulator and local
+proof-server checks, including separate collateral, quorum/refunds and settlement
+gates ([proof evidence](docs/evidence/outcome-jury-proving.json)). The separate
+`/app/preprod` workspace connects wallet/private storage to finalized ledger and
+verified public metadata reads when its deployment configuration is complete.
+Transaction controls and a deployed product remain pending. A reviewed
+[local cycle runner](docs/local-product-cycle.md) rehearses both market sides in
+memory; its proposed 79 local-network transactions require separate owner approval.
+
 The full product mechanism described below is still under implementation; simulator
 coverage and the isolated Preprod counter do not establish an end-to-end market. See [SPEC.md](SPEC.md)
 for the approved specification and [PRODUCT.md](PRODUCT.md) for product context.
@@ -51,7 +60,7 @@ Compact 0.31.1 compilation and Vitest are available. See
 [local development](docs/local-development.md) for setup, and
 [technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
 was proved by the local proof server; this does not establish end-to-end network
-execution of the Senyap market. The main contract also has 39 generated proving
+execution of the Senyap market. The main contract also has 41 generated proving
 keys ([key evidence](docs/evidence/product-proving-keys.json)). Integrated Side B stake and three-hit renewal checks are recorded with their
 source hash in
 [S11 main proofs](docs/evidence/S11-main-proving.json). Earlier stake/verifier-commit
@@ -66,7 +75,8 @@ execution, not product-market integration.
 
 ## Planned architecture and Midnight integration
 
-- `apps/web` (present): Vite, React and TypeScript frontend with demo state.
+- `apps/web` (present): Vite, React and TypeScript frontend with labelled demo
+  state and a separate, configuration-gated Preprod read/connect workspace.
 - `contracts` (spikes and partial core contracts present): Compact market and
   unshielded demo-token contracts.
 - `packages/crypto` (local tests present; integration planned): additive ElGamal
@@ -89,7 +99,8 @@ execution, not product-market integration.
   SDK retrieval pass local HTTP tests with a stub model; no live service is deployed.
 - `apps/committee` (local node core present): ledger-authorized, encrypted buyer
   shares pass local tests across five synthetic node keys. Five HTTP nodes and the paid-total SDK pass a local integration test. Trusted
-  indexer adapters, process deployment and onchain relays remain planned.
+  finalized snapshot readers and process entry points are present. Product
+  deployment, actual service startup and onchain relays remain pending.
 - `services/keeper` (local planner/driver present): close, bid refunds and overdue
   selections, overdue disputes, missed side A reports, finalization, cancellation
   and subsidy returns pass simulator tests. No live transaction adapter or daemon is running.
@@ -103,9 +114,10 @@ compact-runtime 0.16.0, Midnight.js 4.1.1 and proof server 8.1.3.
 
 ## Configuration
 
-[.env.example](.env.example) lists the public defaults and empty credential
-placeholders from SPEC §8.5. It is a template for future contracts and services;
-the demo frontend does not consume this configuration yet. Actual `.env` files
+[.env.example](.env.example) lists public defaults and empty credential
+placeholders from SPEC §8.5. The Preprod workspace requires the explicit public
+contract/node/genesis/operator/metadata binding listed there; missing configuration
+keeps live reads disabled. The demo needs none of these credentials. Actual `.env` files
 must remain local. Blockfrost tokens, wallet seeds and committee keys belong only
 on the server and must never be placed in `apps/web` or any `VITE_*` variable.
 

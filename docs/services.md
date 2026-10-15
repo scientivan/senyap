@@ -36,6 +36,12 @@ reporting duty: the keeper requests the shared default once, then independently
 marks paid buyers, including after settlement. A timely buyer/operator report
 satisfies every buyer's duty. Epoch rotation is still pending.
 
+The separate [local product runner](local-product-cycle.md) now prepares a bounded
+network adapter for one reviewed A/B fixture. It checks keeper-planned closes and
+bid settlements against finalized snapshots and journals IDs before sending.
+Its simulator rehearsal passes; the 79 network transactions have not been run
+and require separate approval. This is not a deployed keeper daemon.
+
 ## Veritas
 
 `apps/operator/src/veritas.ts` implements the approved mechanism anew: maximum
@@ -167,11 +173,17 @@ same connected account, and the journal must persist the public ID before
 Lace.submitTransaction. Official submitCallTx waits for successful finalization
 before persisting next private state. An uncertain response is never retried;
 reconciliation uses the configured indexer's finalized result. Lookup failure
-keeps the operation blocked. No call errors expose raw provider objects.
+keeps the operation blocked. Each explicit browser status check waits at most
+15 seconds; timing out preserves the uncertain journal and never authorizes a
+resend. The SDK watch itself is not cancellable. Repeated checks on the same
+prepared client reuse one unresolved watch per transaction, and a late receipt
+updates the journal only during another explicit check. An unrecognized status
+also remains unknown. No call errors expose raw provider objects.
 
-Seven transport-stub/simulator tests cover preparation without sending, journal-before-send,
+Nine transport-stub/simulator tests cover preparation without sending, journal-before-send,
 changed wallet account, verifier/scope mismatch, forbidden runtime circuit input,
-failed durable storage and uncertain response reconciliation. They do not prove a
+failed durable storage, uncertain response reconciliation, bounded waits and
+late/unknown/finalized-failure results. They do not prove a
 live wallet/product transaction. The browser probe checks module loading in an
 isolated Chrome profile, without accessing Lace.
 

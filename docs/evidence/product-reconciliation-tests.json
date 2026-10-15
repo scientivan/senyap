@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-16",
+  "scope": "Local simulator and transport stubs only; no wallet, deploy or product transaction",
+  "regression": {
+    "command": "pnpm test",
+    "testsPassed": 153,
+    "filesPassed": 49,
+    "durationSeconds": 70.46,
+    "workers": 2,
+    "testTimeoutMilliseconds": 30000,
+    "proofOrKeygenInParallel": false
+  },
+  "checks": {
+    "rootTypecheck": true,
+    "webTypecheck": true,
+    "productionBuild": true
+  },
+  "reproduction": {
+    "transportTestsPassed": 7,
+    "transportTestsFailed": 1,
+    "failure": "New indefinite-lookup regression timed out at 30000ms before patch"
+  },
+  "fixedBehavior": [
+    "Browser status lookup returns unknown after 15000ms",
+    "Journal remains uncertain and duplicate submission remains blocked",
+    "Repeated checks on same prepared client reuse the unresolved SDK watch",
+    "Late receipt requires explicit subsequent reconciliation",
+    "Unknown status never becomes finalized failure",
+    "Only explicit finalized success/failure resolves journal"
+  ],
+  "limits": [
+    "SDK watch itself is uncancellable and may continue polling",
+    "No real wallet/product transaction was performed",
+    "Existing production build warnings: assert externalization, SDK isomorphic-ws export, chunk size"
+  ],
+  "sourceSha256": {
+    "apps/web/src/app/product-client.ts": "d6439cd910f13312a31e07512b4377221bfc43e1516aa7e96ee5a642f0744b7a",
+    "tests/frontend/product-client.test.ts": "dbf50e7af6d46c56c9e20e743eb6e2251291a87ffd43a14726ef0230492420f9",
+    "scripts/local-product-cycle.ts": "d7baa8276d1771c412dde5c73dccb41997cba192ab55921856ec00e4ea374600",
+    "scripts/lib/local-product-scenario.ts": "d802f413f9d5f27743c80506364222911f0d1cd29590a440d3b489d2c53734a2",
+    "scripts/lib/local-submission-journal.ts": "30345487eafedd25dbe03c4a97f6301fa8a84bada730ec1ac83cd88d2a66c8dc"
+  }
+}
