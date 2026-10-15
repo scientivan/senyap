@@ -28,7 +28,7 @@ sections 3.2, 3.10, 6.1, 6.2 and 7.3.
 Groups, registry, verified market creation, staking and the demo faucet now compile
 and have simulator tests. `close` passes its exact time-boundary test. The side B objective outcome and
 shared-pool settlement path and the four-pool side A path pass simulator tests;
-committee default selection remains pending. No product deployment/network transaction occurred.
+committee default selection now passes three additional tests. No product deployment/network transaction occurred.
 
 Stakes read the scout secret once, bind the private path leaf to the epoch
 commitment, derive the card index from that same path, and encrypt the card with
@@ -72,15 +72,16 @@ position earns one hit credential even when eligible in several buyer pools.
 
 The full side A simulator path receives 820 dUSD, refunds bid ceilings by 160,
 pays 634 in scout claims and records a 26 remainder. These are simulated ledger
-effects. Committee defaults, subsidy transfers
+effects. Subsidy transfers
 and platform withdrawal are still absent. No product contract is deployed.
 
 A separate X25519/HKDF/AES-GCM helper tests encrypted buyer responses, including
 wrong keys, wrong contexts and tampering. It now connects to an immutable recipient key in BuyerAccess and a local committee
 node core. Five synthetic node shares recover the purchased total with valid DLEQ
 proofs; two shares, wrong buyers/keys/contexts, unpaid options, redirected destinations
-and forged proofs are rejected. This is a local core test, not five deployed nodes
-or a trusted-indexer integration.
+and forged proofs are rejected. Five HTTP node instances now pass a local integration test through the SDK, including
+two unavailable nodes, wrong keys and unpaid options. State still comes from the
+simulator, not a live trusted indexer. No product service is deployed.
 
 ## Approved selection timer
 

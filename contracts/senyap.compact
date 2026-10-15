@@ -40,6 +40,7 @@ export struct BuyerAccess { marketId: Uint<32>; bought: Vector<8, Boolean>; rece
 export struct PayoutDivision { quotient: Uint<128>; remainder: Uint<64>; }
 export ledger previews: Map<Uint<32>, Histogram>;
 export ledger buyerAccess: Map<Bytes<32>, BuyerAccess>;
+export ledger purchasedOptions: Map<Uint<32>, Vector<8, Boolean>>;
 export ledger marketPools: Map<Uint<32>, Vector<4, Uint<128>>>;
 export ledger successMasks: Map<Uint<32>, Vector<4, Vector<8, Boolean>>>;
 export ledger denominators: Map<Uint<32>, Vector<4, Uint<64>>>;
@@ -283,6 +284,7 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
   outcomesReady.insert(marketId, [false,false,false,false]);needsDefault.insert(marketId, [false,false,false,false]);
   const emptyMask: Vector<8, Boolean> = [false,false,false,false,false,false,false,false];
   successMasks.insert(marketId, [emptyMask,emptyMask,emptyMask,emptyMask]);
+  purchasedOptions.insert(marketId, emptyMask);
   bidCount.insert(marketId, 0);bidEscrow.insert(marketId, 0);hiddenOptions.insert(marketId, [emptyMask,emptyMask]);
   const zero = ecMulGenerator(0);
   tally.insert(marketId, map((i: Uint<8>): CipherPair => CipherPair { c1: zero, c2: zero }, [0,1,2,3,4,5,6,7]));
@@ -538,6 +540,7 @@ export circuit buyFlat(id: Uint<32>, optionNumber: Uint<8>): Bytes<32> {
     const old = buyerAccess.lookup(disclose(pseudonym));
     buyerAccess.insert(disclose(pseudonym), BuyerAccess { ...old, bought: bought });
   }
+  purchasedOptions.insert(marketId, map((i: Uint<8>, value: Boolean): Boolean => value || i == option, [0,1,2,3,4,5,6,7], purchasedOptions.lookup(marketId)));
   if (market.flatPrice > 0) { receiveUnshielded(dusdColor, market.flatPrice); }
   const pools = marketPools.lookup(marketId);
   marketPools.insert(marketId, map((i: Uint<8>, value: Uint<128>): Uint<128> => i == pool ? (value + market.flatPrice) as Uint<128> : value, [0,1,2,3], pools));
@@ -584,6 +587,30 @@ export circuit recordOutcome(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, 
   needsDefault.insert(marketId, map((i: Uint<8>, value: Boolean): Boolean => i == pool ? !any : value, [0,1,2,3], needsDefault.lookup(marketId)));
   const required = map((i: Uint<8>, buyer: Bytes<32>, value: Boolean): Boolean => (market.side == 1 ? i != 0 : buyer == default<Bytes<32>>) || value, [0,1,2,3], owners, ready);
   marketPhase.insert(marketId, fold((acc: Boolean, value: Boolean): Boolean => acc && value, true, required) ? 8 : 7);
+}
+
+// The committee attests which eligible option is strongest without publishing totals.
+export circuit postDefaultStrongest(id: Uint<32>, poolNumber: Uint<8>, optionNumber: Uint<8>, member: Uint<8>): [] {
+  const marketId = disclose(id);const pool = disclose(poolNumber);const option = disclose(optionNumber);const market = markets.lookup(marketId);
+  assert(pool < 4 && (market.side == 0 || pool == 0), "Invalid default pool");
+  assert(marketPhase.lookup(marketId) == 7 && blockTimeLt(hitUntil.lookup(marketId)), "Default selection is not pending or window expired");
+  const pending = needsDefault.lookup(marketId);
+  assert(pool == 0 ? pending[0] : pool == 1 ? pending[1] : pool == 2 ? pending[2] : pending[3], "Pool does not need a default");
+  const owners = marketBuyers.lookup(marketId);const owner = pool == 0 ? owners[0] : pool == 1 ? owners[1] : pool == 2 ? owners[2] : owners[3];
+  const eligible = market.side == 1 ? purchasedOptions.lookup(marketId) : buyerAccess.lookup(owner).bought;
+  assert(option < market.nOptions, "Default option outside market");
+  const allowed = map((i: Uint<8>, value: Boolean): Boolean => i == option && value, [0,1,2,3,4,5,6,7], eligible);
+  assert(fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, allowed), "Default option was not purchased");
+  const command = persistentHash<Vector<4, Bytes<32>>>([pad(32, "senyap:default"),marketId as Bytes<32>,pool as Bytes<32>,option as Bytes<32>]);
+  if (approve(command, member) >= 3) {
+    const masks = successMasks.lookup(marketId);
+    successMasks.insert(marketId, [pool == 0 ? allowed : masks[0],pool == 1 ? allowed : masks[1],pool == 2 ? allowed : masks[2],pool == 3 ? allowed : masks[3]]);
+    const ready = map((i: Uint<8>, value: Boolean): Boolean => value || i == pool, [0,1,2,3], outcomesReady.lookup(marketId));
+    outcomesReady.insert(marketId, ready);
+    needsDefault.insert(marketId, map((i: Uint<8>, value: Boolean): Boolean => i == pool ? false : value, [0,1,2,3], pending));
+    const required = map((i: Uint<8>, buyer: Bytes<32>, value: Boolean): Boolean => (market.side == 1 ? i != 0 : buyer == default<Bytes<32>>) || value, [0,1,2,3], owners, ready);
+    marketPhase.insert(marketId, fold((acc: Boolean, value: Boolean): Boolean => acc && value, true, required) ? 8 : 7);
+  }
 }
 
 export circuit proveHit(id: Uint<32>, slotNumber: Uint<8>, poolNumber: Uint<8>): [] {

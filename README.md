@@ -16,8 +16,8 @@ runtime-compatible cryptography and a local test harness. Core group, builder re
 contracts compile and have simulator tests. Auction escrow, per-option flat purchases,
 objective outcomes and refundable settlement on both sides also pass simulator tests.
 Selection deadlines and permissionless skipping pass simulator tests.
-Committee defaults, subsidies, services and frontend SDK
-integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
+Threshold committee defaults also pass simulator tests. Subsidies, remaining
+services and frontend SDK integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
 network only. No Senyap product market contract is deployed.
 
 The full product mechanism described below is still under implementation; simulator
@@ -67,8 +67,8 @@ execution, not product-market integration.
   and persistent private state remain planned.
 - `apps/operator` (planned): credential verification, reason screening and relay.
 - `apps/committee` (local node core present): ledger-authorized, encrypted buyer
-  shares pass local tests across five synthetic node keys. HTTP nodes, trusted
-  indexer integration, preview/default workflows and onchain relays remain planned.
+  shares pass local tests across five synthetic node keys. Five HTTP nodes and the paid-total SDK pass a local integration test. Trusted
+  indexer adapters, process deployment and onchain relays remain planned.
 - `services/keeper` (planned): market transitions and settlement scheduling.
 
 The design keeps identities, options and secrets in private state, while the
