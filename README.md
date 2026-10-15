@@ -16,8 +16,10 @@ runtime-compatible cryptography and a local test harness. Core group, builder re
 contracts compile and have simulator tests. Auction escrow, per-option flat purchases,
 objective outcomes and refundable settlement on both sides also pass simulator tests.
 Selection deadlines and permissionless skipping pass simulator tests.
-Threshold committee defaults also pass simulator tests. Subsidies, remaining
-services and frontend SDK integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
+Threshold defaults, cross-market subsidies, reputation renewal and anonymous
+hoax disputes also pass simulator tests. Side A missed reports revoke buyer good
+standing after committee disclosure. Remaining lifecycle cases, live services and
+frontend transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
 network only. No Senyap product market contract is deployed.
 
 The full product mechanism described below is still under implementation; simulator
@@ -47,7 +49,9 @@ Compact 0.31.1 compilation and Vitest are available. See
 [local development](docs/local-development.md) for setup, and
 [technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
 was proved by the local proof server; this does not establish end-to-end network
-execution of the Senyap market.
+execution of the Senyap market. The main contract also has 36 generated proving
+keys and successful local `stake`/`commitVote` proof-server checks in
+[product proving evidence](docs/evidence/product-proving.json).
 
 The [S5 browser fixture](docs/S5-browser-spike.md) passed on Preprod: one
 counter deployment and one `ping()` through Lace, both `SucceedEntirely`, with
@@ -73,12 +77,14 @@ execution, not product-market integration.
   privacy rewrites and a configurable Gemini adapter have stubbed-provider tests.
   A Reclaim verification core pins provider/version, binds the started session and
   keeps durable replay protection/receipts; its tests stub the SDK boundary. Live
-  Gemini/GitHub, provider-specific qualification and the authenticated reason relay remain pending.
+  Gemini/GitHub and provider-specific qualification remain pending. An encrypted,
+  position-authenticated reason relay, SQLite ciphertext storage and paid-reason
+  SDK retrieval pass local HTTP tests with a stub model; no live service is deployed.
 - `apps/committee` (local node core present): ledger-authorized, encrypted buyer
   shares pass local tests across five synthetic node keys. Five HTTP nodes and the paid-total SDK pass a local integration test. Trusted
   indexer adapters, process deployment and onchain relays remain planned.
 - `services/keeper` (local planner/driver present): close, bid refunds and overdue
-  selections pass simulator tests. No live transaction adapter or daemon is running.
+  selections, overdue disputes, missed side A reports and finalization pass simulator tests. No live transaction adapter or daemon is running.
 
 The design keeps identities, options and secrets in private state, while the
 public ledger holds commitments, nullifiers (single-use codes), encrypted totals

@@ -76,3 +76,33 @@ The implementation follows the official [SDK usage and replay-protection guide](
 and [proof result anatomy](https://docs.reclaimprotocol.org/troubleshooting/anatomy).
 Context field names follow the installed SDK's `Context` type and implementation
 (`contextAddress`, `contextMessage`, `reclaimSessionId`); missing aliases are rejected.
+
+
+## Authenticated encrypted reason relay
+
+`packages/crypto/src/reason.ts` signs a reason with the position's committed
+Ed25519 key, then encrypts its text and option opening to the configured operator
+X25519 key. The operator verifies both the signer commitment and option commitment
+against trusted ledger state. Submissions close at the market's openUntil and
+cannot overwrite an accepted position's reason. This does not make an offchain
+reason submission atomic with its stake transaction; a failed submission must be
+retried before that boundary.
+
+The relay runs Veritas and stores only encrypted screened output, without a raw
+plaintext fallback on model failure. `SqliteReasonRepository` binds rows to one
+deployment. `createOperatorServer` exposes bounded JSON reason routes with origin
+checks and generic errors. No credential-administration endpoint is exposed.
+Paid reads verify k/preview/purchased-option state, omit position IDs and salts,
+and encrypt to the immutable buyer key in the ledger. The SDK reads one reason
+per encrypted page to stay within channel size limits. Hoax-slashed positions are
+excluded from subsequent reads. Rewrites remain uncertain model output; they do
+not guarantee all identifying details were removed.
+
+Four tests cover signer/option/context/ciphertext rejection, late submissions,
+duplicate writes, model outage, SQLite reopen/scope/ciphertext-at-rest, HTTP and SDK
+retrieval, wrong buyer keys, malformed requests and denied origins. The repository
+adapter trusts server-private storage; this is not an independent audit. Production
+rate limiting, hosting, live indexer/Gemini adapters and frontend submission are
+not running. Client transaction integration must generate fresh reveal keys per
+position and receiving keys per market, rather than reusing the local profile's
+initial keys and linking otherwise anonymous records.

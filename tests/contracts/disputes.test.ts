@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { describe, expect, it } from "vitest";
-import * as RT from "@midnight-ntwrk/compact-runtime";
+import { verifierVoteCommitment } from "../../packages/sdk/src/verifier-vote";
 import { bytes, hash, committee, commitment } from "./harness";
 import { planTransitions } from "../../services/keeper/src/transitions";
 import { setupSideB, preview } from "../helpers/side-b";
@@ -11,9 +11,7 @@ function court() {
   const verifiers=Array.from({length:8},(_,i)=>({secret:bytes(160+i),salt:bytes(180+i),recipient:{bytes:bytes(200+i)}}));
   for(const v of verifiers)s.invoke("admitVerifier",hash(v.secret));
   const select=(i:number)=>{const v=verifiers[i];Object.assign(s.context.currentPrivateState,{verifier:v.secret,voteSalt:v.salt,verifierPath:s.state.verifierTree.findPathForLeaf(hash(v.secret))});};
-  const voteCommit=(i:number,choice:boolean,id=records[0].id)=>RT.persistentHash(new RT.CompactTypeVector(6,RT.Bytes32Descriptor),[
-    new Uint8Array([...new TextEncoder().encode("senyap:vote"),...new Uint8Array(21)]),s.context.currentQueryContext.address
-      ? RT.encodeContractAddress(s.context.currentQueryContext.address) : bytes(0),id,verifiers[i].secret,RT.convertFieldToBytes(32,choice?1n:0n,"test vote"),verifiers[i].salt]);
+  const voteCommit=(i:number,choice:boolean,id=records[0].id)=>verifierVoteCommitment({contract:s.context.currentQueryContext.address,position:id,secret:verifiers[i].secret,choice,salt:verifiers[i].salt});
   // Contract address is the constructor context's sampled circuit address.
   const commit=(i:number,choice:boolean,id=records[0].id)=>{select(i);return s.invoke("commitVote",id,voteCommit(i,choice,id),verifiers[i].recipient) as Uint8Array;};
   return {s,records,select,commit,verifiers};

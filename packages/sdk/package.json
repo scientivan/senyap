@@ -9,7 +9,9 @@
     "./paid-signals": "./src/paid-signals.ts",
     "./identity-reveal": "./src/identity-reveal.ts",
     "./private-state": "./src/private-state.ts",
-    "./workspace": "./src/workspace.ts"
+    "./workspace": "./src/workspace.ts",
+    "./reasons": "./src/reasons.ts",
+    "./verifier-vote": "./src/verifier-vote.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",
