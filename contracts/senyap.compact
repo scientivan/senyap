@@ -46,6 +46,8 @@ export ledger successMasks: Map<Uint<32>, Vector<4, Vector<8, Boolean>>>;
 export ledger denominators: Map<Uint<32>, Vector<4, Uint<64>>>;
 export ledger paidRewards: Map<Uint<32>, Vector<4, Uint<128>>>;
 export ledger marketRevenue: Map<Uint<32>, Uint<128>>;
+export ledger marketSubsidy: Map<Uint<32>, Uint<128>>;
+export ledger allocatedSubsidy: Map<Uint<32>, Uint<128>>;
 export ledger marketRemainder: Map<Uint<32>, Uint<128>>;
 export ledger marketPositions: Map<Uint<32>, Uint<32>>;
 export ledger marketClaims: Map<Uint<32>, Uint<32>>;
@@ -283,7 +285,7 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
   marketCreator.insert(marketId, disclose(creator));
   marketScouts.insert(marketId, 0);marketWeight.insert(marketId, 0);marketStake.insert(marketId, 0);
   marketPools.insert(marketId, [0,0,0,0]);denominators.insert(marketId, [0,0,0,0]);paidRewards.insert(marketId, [0,0,0,0]);
-  marketRevenue.insert(marketId, 0);marketPositions.insert(marketId, 0);marketClaims.insert(marketId, 0);
+  marketRevenue.insert(marketId, 0);marketSubsidy.insert(marketId, 0);allocatedSubsidy.insert(marketId, 0);marketPositions.insert(marketId, 0);marketClaims.insert(marketId, 0);
   marketBuyers.insert(marketId, [default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>]);
   outcomesReady.insert(marketId, [false,false,false,false]);needsDefault.insert(marketId, [false,false,false,false]);
   const emptyMask: Vector<8, Boolean> = [false,false,false,false,false,false,false,false];
@@ -645,12 +647,34 @@ export circuit proveHit(id: Uint<32>, slotNumber: Uint<8>, poolNumber: Uint<8>):
   }
 }
 
-circuit payout(pool: Uint<128>, weight: Uint<64>, denominator: Uint<64>): Uint<128> {
+circuit floorRatio(n: Uint<192>, d: Uint<64>): Uint<128> {
+  assert(d > 0, "Division denominator must be positive");const result = dividePayout(n, d);
+  assert(result.remainder < d && result.quotient * d + result.remainder == n, "Invalid payout division witness");return result.quotient;
+}
+
+circuit payout(pool: Uint<128>, subsidy: Uint<128>, weight: Uint<64>, denominator: Uint<64>): Uint<128> {
   assert(denominator > 0 && denominator < 1099511627776 && weight <= denominator && weight < 4294967296, "Invalid payout denominator or weight");
-  const n = (pool * 8500 * (weight as Uint<32>)) as Uint<192>;
-  const d = (denominator * 10000) as Uint<64>;const result = dividePayout(n, d);
-  assert(result.remainder < d && result.quotient * d + result.remainder == n, "Invalid payout division witness");
-  return result.quotient;
+  // Buyer payments retain 85/15; the entire subsidy enters the reward basis.
+  const n = ((pool * 8500 + subsidy * 10000) * (weight as Uint<32>)) as Uint<192>;
+  return floorRatio(n, (denominator * 10000) as Uint<64>);
+}
+
+export circuit allocateSubsidy(sourceId: Uint<32>, targetId: Uint<32>, amount: Uint<128>): [] {
+  assertOperator();const source = disclose(sourceId);const target = disclose(targetId);const grant = disclose(amount);
+  assert(markets.lookup(source).side == 0 && markets.lookup(target).side == 1, "Subsidy must flow from side A to side B");
+  const sourcePhase = marketPhase.lookup(source);const targetPhase = marketPhase.lookup(target);
+  assert(sourcePhase >= 7 && sourcePhase <= 9, "Source revenue not frozen");
+  assert((targetPhase == 3 || targetPhase == 6) && blockTimeLt(markets.lookup(target).outcomeUntil), "Target subsidy window closed");
+  assert(marketScouts.lookup(target) >= 5, "Subsidy target anonymity threshold not met");
+  const allowance = floorRatio((marketRevenue.lookup(source) * 500) as Uint<192>, 10000);
+  const allocated = allocatedSubsidy.lookup(source);
+  assert(grant > 0 && allocated + grant <= allowance, "Subsidy exceeds five percentage points of source revenue");
+  allocatedSubsidy.insert(source, (allocated + grant) as Uint<128>);
+  const subsidy = (marketSubsidy.lookup(target) + grant) as Uint<128>;
+  // Bound the total claimable buyer/subsidy funds before calculating rewards.
+  const total = (marketRevenue.lookup(target) + subsidy) as Uint<128>;
+  assert(total >= subsidy, "Subsidy accounting overflow");marketSubsidy.insert(target, subsidy);
+  if (sourcePhase == 9) { marketRemainder.insert(source, (marketRemainder.lookup(source) - grant) as Uint<128>); }
 }
 
 export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress): Uint<128> {
@@ -662,7 +686,8 @@ export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress):
   const claimId = persistentHash<Vector<2, Bytes<32>>>([pad(32, "senyap:claim"), nullifier]);
   assert(!usedNullifiers.member(disclose(claimId)), "Claim nullifier already used");
   const flags = hitFlags.lookup(disclose(nullifier));const pools = marketPools.lookup(marketId);const denoms = denominators.lookup(marketId);
-  const rewards = map((hit: Boolean, pool: Uint<128>, denom: Uint<64>): Uint<128> => hit ? payout(pool, position.weight, denom) : 0, flags, pools, denoms);
+  const subsidy = marketSubsidy.lookup(marketId);
+  const rewards = map((hit: Boolean, pool: Uint<128>, denom: Uint<64>): Uint<128> => hit ? payout(pool, subsidy, position.weight, denom) : 0, flags, pools, denoms);
   const reward = fold((acc: Uint<128>, value: Uint<128>): Uint<128> => (acc + value) as Uint<128>, 0, rewards);
   const amount = (position.stake + reward) as Uint<128>;
   sendUnshielded(dusdColor, disclose(amount), right<ContractAddress, UserAddress>(disclose(recipient)));
@@ -673,7 +698,7 @@ export circuit claim(id: Uint<32>, slotNumber: Uint<8>, recipient: UserAddress):
   const claimed = (marketClaims.lookup(marketId) + 1) as Uint<32>;marketClaims.insert(marketId, claimed);
   if (claimed == marketPositions.lookup(marketId)) {
     const totalPaid = fold((acc: Uint<128>, value: Uint<128>): Uint<128> => (acc + value) as Uint<128>, 0, updated);
-    marketRemainder.insert(marketId, (marketRevenue.lookup(marketId) - totalPaid) as Uint<128>);
+    marketRemainder.insert(marketId, (marketRevenue.lookup(marketId) + marketSubsidy.lookup(marketId) - totalPaid - allocatedSubsidy.lookup(marketId)) as Uint<128>);
     marketPhase.insert(marketId, 9);
   }
   return disclose(amount);

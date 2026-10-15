@@ -1,0 +1,44 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font-size",
+        "value": "12px",
+        "files": [
+          "design/private-state-vault.html"
+        ],
+        "createdAt": "2026-10-15T04:31:17.389Z",
+        "reason": "Approved compact Senyap app scale in AGENTS.md and DESIGN.md; landing type ramp does not own this app preview"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "13px",
+        "files": [
+          "design/private-state-vault.html"
+        ],
+        "createdAt": "2026-10-15T04:31:17.486Z",
+        "reason": "Approved compact Senyap app scale in AGENTS.md and DESIGN.md; landing type ramp does not own this app preview"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "16px",
+        "files": [
+          "design/private-state-vault.html"
+        ],
+        "createdAt": "2026-10-15T04:31:17.587Z",
+        "reason": "Approved compact Senyap app scale in AGENTS.md and DESIGN.md; landing type ramp does not own this app preview"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "26px",
+        "files": [
+          "design/private-state-vault.html"
+        ],
+        "createdAt": "2026-10-15T04:31:17.696Z",
+        "reason": "Approved compact Senyap app scale in AGENTS.md and DESIGN.md; landing type ramp does not own this app preview"
+      }
+    ]
+  }
+}

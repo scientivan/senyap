@@ -1,8 +1,8 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.7 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu dan D-05 sisi B disetujui 15 Oktober.**
+> Versi 0.8 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
 > Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
-> Sumber keputusan: living doc Bisik bagian 26 (v0.52), `task-tracker.md`, `AGENTS.md`.
+> Sumber keputusan: living doc Bisik bagian 26 (v0.53), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
 > boleh diubah Dien kapan saja, dan setiap perubahan dicatat; **[Spike]** asumsi teknis yang wajib
 > dibuktikan sebelum dipakai (lihat §9). v0.2 menambah §6.3b struct, §8.5 env, §8.6 antarmuka offchain,
@@ -190,7 +190,7 @@ kunci yang commitment-nya disimpan saat stake. Kontak scout dienkripsi ke kunci 
 - Scout membuktikan dengan ZK bahwa opsi yang dikomit termasuk mask sukses buyer `b` dan mendaftarkan
   bobotnya ke denominator buyer itu (`proveHit`). Opsi yang meleset tidak pernah dibuka.
 - Setelah jendela pendaftaran hit tutup, `claim` membayar stake + `pool_b * 85% * weight / denom_b` ke
-  **alamat bebas** mana pun (`sendUnshielded`), dengan nullifier klaim agar tidak dobel.
+  **alamat bebas** mana pun (`sendUnshielded`), dengan nullifier klaim agar tidak dobel. Untuk sisi B, rumus menjadi `floor((pool_b × 8500 + subsidy × 10000) × weight / (10000 × denom_b))`; subsidi tidak terkena potongan 15% kedua (keputusan Dien 15 Okt). Sisa pembulatan tetap mengikuti aturan platform yang telah disetujui.
 - Posisi yang meleset hanya mengklaim stake kembali.
 - Setiap hit menerbitkan **credential hit** ke `hitTree` (leaf `H(scoutSecret, positionNullifier)`).
 
@@ -408,6 +408,8 @@ kriptografi independen. Siapa yang boleh meminta pembukaan tetap ditegakkan laya
 5 proses dengan potongan kunci berbeda. Endpoint: potongan dekripsi + DLEQ untuk buyer terautentikasi,
 hitung histogram/D-05/lelang di antara anggota, kirim persetujuan onchain.
 
+Operator mengalokasikan subsidi secara publik lewat `allocateSubsidy(sourceA, targetB, amount)`. Batas kumulatif per sumber adalah `floor(pendapatan buyer A × 500 / 10000)` setelah pendapatan sumber dibekukan. Target harus sudah memiliki pratinjau dan lima scout, serta belum masuk outcome. Alokasi tidak mengubah denominator atau pool yang sudah dibekukan; remainder sumber dikurangi agar dana tidak dihitung dua kali. Subsidi hanya berasal dari pendapatan buyer, tidak dari pokok stake.
+
 ### 8.3 Keeper (`services/keeper`)
 
 Memicu `close`, jadwal pratinjau, `settleBid`, penutupan jendela, `markMissedReport`, rotasi epoch.
@@ -481,7 +483,7 @@ Dikerjakan pertama setelah aba-aba. Masing-masing menghasilkan kontrak/test keci
 | Opsi per scout per market | Maks 3 | D-17/v1 |
 | Opsi per market | Maks 8 | [Usulan, S2] |
 | Pembagian bayaran buyer | 85% scout / 15% platform | v1, 12 Okt |
-| Subsidi sisi B | 5 dari 15 poin persen platform sisi A | [Keputusan Dien, O-1 disetujui 14 Okt] |
+| Subsidi sisi B | Maksimal 5 dari 15 poin persen platform sisi A; 100% subsidi masuk basis hadiah scout B, pembayaran buyer B tetap 85/15 | [Keputusan Dien, O-1 disetujui 14 Okt, pembagian subsidi disetujui 15 Okt] |
 | Bobot | stake × pengali tier × bonus awal | v1 |
 | Ambang anonimitas | k = 5 per grup dan per market | v1 + 26.15 |
 | Komite | 3-dari-5 | [Keputusan Dien, M-6] |

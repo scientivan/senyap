@@ -72,8 +72,7 @@ position earns one hit credential even when eligible in several buyer pools.
 
 The full side A simulator path receives 820 dUSD, refunds bid ceilings by 160,
 pays 634 in scout claims and records a 26 remainder. These are simulated ledger
-effects. Subsidy transfers
-and platform withdrawal are still absent. No product contract is deployed.
+effects. Subsidy accounting now passes the two-market tests below; platform withdrawal is still absent. No product contract is deployed.
 
 A separate X25519/HKDF/AES-GCM helper tests encrypted buyer responses, including
 wrong keys, wrong contexts and tampering. It now connects to an immutable recipient key in BuyerAccess and a local committee
@@ -110,3 +109,18 @@ advance two. The source membership must still be active, and the target group mu
 be the next epoch with the same side/ecosystem. Expired or revoked members cannot
 renew; renewal happens once per scout/side/ecosystem and target epoch. Four
 simulator tests cover these boundaries. Proving/network execution remains pending.
+
+## Side A subsidy funding
+
+Dien approved the entire subsidy entering the side B reward basis, with no second
+15% deduction. Buyer payments retain 85/15. The operator may earmark up to five
+percentage points of a source side A market's frozen buyer revenue for a side B
+market with a preview and five scouts before its outcome. Source remainders are
+reduced whether earmarking precedes or follows final claims.
+
+The target payout is floor((buyerPool * 8500 + subsidy * 10000) * weight /
+(10000 * denominator)). Existing rounding-to-platform rules still apply. Deposited
+stake principal is not subsidy revenue. The two-market test receives 1280, pays
+1260 and records source/target remainders 16 and 4. It rejects excess/repeated
+allocation beyond the cap, forged division, wrong authorization/direction and
+allocation after target outcomes freeze. This remains simulator evidence.
