@@ -130,16 +130,22 @@ export async function verifyDecryptionShare(share: DecryptionShare, publicKey: P
 
 /** Public keys must come from trusted committee configuration, never the response itself. */
 export async function decryptToPoint(cipher: CipherPair, shares: readonly DecryptionShare[], publicKeys: readonly Point[], binding: string): Promise<Point> {
+  validatePoint(cipher.c2);
+  return subtract(cipher.c2,await combineDecryptionShares(cipher.c1,shares,publicKeys,binding));
+}
+
+/** Reconstruct the shared DH point after verifying every threshold-share proof. */
+export async function combineDecryptionShares(c1:Point, shares:readonly DecryptionShare[], publicKeys:readonly Point[], binding:string):Promise<Point>{
   const lambdas = lagrange(shares.map((s) => s.id));
   if (publicKeys.length !== 5) throw new Error("Need five configured member public keys");
-  validatePoint(cipher.c1, false); validatePoint(cipher.c2);
+  validatePoint(c1, false);
   let combined = IDENTITY;
   for (let i = 0; i < shares.length; i++) {
-    if (!await verifyDecryptionShare(shares[i], publicKeys[shares[i].id - 1], cipher.c1, binding))
+    if (!await verifyDecryptionShare(shares[i], publicKeys[shares[i].id - 1], c1, binding))
       throw new Error("Invalid decryption-share proof");
     combined = ecAdd(combined, ecMul(shares[i].point, lambdas[i]));
   }
-  return subtract(cipher.c2, combined);
+  return combined;
 }
 
 /** Inclusive bound. 2^40 is the approved aggregate limit, not the per-position limit. */

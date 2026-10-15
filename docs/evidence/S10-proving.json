@@ -1,0 +1,15 @@
+{
+  "compiler": "0.31.1",
+  "runtime": "0.16.0",
+  "proofServer": "8.1.3",
+  "circuit": "seal",
+  "formatVersion": 1,
+  "payloadBytes": 40,
+  "threshold": "3-of-5",
+  "elapsedMs": 31580,
+  "proofBytes": 4860,
+  "zkirBytes": 29802,
+  "proverKeyBytes": 42715403,
+  "verification": "Local proof server /check passed and /prove returned nonempty bytes; not an onchain transaction",
+  "limitation": "Experimental hashed-DH membership-card construction, not an independent cryptographic audit"
+}

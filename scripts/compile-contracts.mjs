@@ -13,7 +13,7 @@ if (version.status !== 0 || version.stdout.trim() !== "0.31.1") {
 
 function sources(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    if (entry.name === "managed") return [];
+    if (entry.name === "managed" || entry.name === "lib") return [];
     const path = join(dir, entry.name);
     return entry.isDirectory() ? sources(path) : entry.name.endsWith(".compact") ? [path] : [];
   });

@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version 0.23;
+import CompactStandardLibrary;
+import { LockedCard, encryptMembershipCard } from "../lib/LockedCardEncryption";
+export ledger cards: Map<Bytes<32>, LockedCard>;
+export sealed ledger committeePk: JubjubPoint;
+witness cardCommitment(): Bytes<32>;
+witness cardIndex(): Uint<64>;
+witness cardRandomHigh(): Uint<128>;
+witness cardRandomLow(): Uint<128>;
+constructor(pk: JubjubPoint) { committeePk = disclose(pk); }
+export circuit seal(context: Bytes<32>): [] {
+  assert(!cards.member(disclose(context)), "Card context already used");
+  const card = encryptMembershipCard(committeePk, cardCommitment(), cardIndex(), context, cardRandomHigh(), cardRandomLow());
+  cards.insert(disclose(context), disclose(card));
+}
