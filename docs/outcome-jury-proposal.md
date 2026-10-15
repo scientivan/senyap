@@ -1,8 +1,8 @@
-# Outcome jury proposal (pending owner approval)
+# Outcome jury plan (approved by Dien, 15 October 2026)
 
 The specification requires anonymous commit/reveal juries for subjective and
 contested outcomes. The implemented hoax jury decides whether a scout's stake
-should be slashed. It does not yet decide market success masks. This proposal
+should be slashed. It does not yet decide market success masks. Dien approved this plan on 15 October 2026. It
 defines that missing integration; it does not authorize deployment or transactions.
 
 ## Alternatives
@@ -27,7 +27,7 @@ defines that missing integration; it does not authorize deployment or transactio
   the existing objective mask scope). Unused options must remain false.
 - The reporter deposits **50 dUSD per case**, at most 400 dUSD for eight options,
   with an immutable refund address. This is an explicit proposal to extend the
-  existing reporter-bond amount to outcome cases, not an already approved rule.
+  existing reporter-bond amount to outcome cases, now approved for implementation.
 - The timely report receipt fulfills the buyer duty while voting continues. On
   Side B it fulfills the shared duty for every buyer. A missing report still uses
   the already approved missed-report/default rules.
@@ -49,7 +49,7 @@ defines that missing integration; it does not authorize deployment or transactio
   penalties. A challenged objective bit retains its original value. An unresolved
   subjective bit does not count as proven success. Other conclusive subjective
   successes still count. If no success remains, use the existing D-05 default.
-  This fallback is a proposed product rule and needs explicit owner approval.
+  This fallback is a proposed product rule and was approved with this plan.
 - Hit issuance, reward denominators, claims and market finalization wait for all
   hoax and outcome cases to resolve and for the reporting window to end. When
   the last late case resolves, preserve a full hit-registration window. An
@@ -65,5 +65,6 @@ keeper and typed SDK actions, compile, run simulator regressions and source-boun
 local proof checks. Frontend controls need a separate preview/approval if their
 design changes; a network run still requires explicit transaction authorization.
 
-AGENTS.md rule 5 requires Dien's decision because option-level cases, reporter
-collateral and inconclusive-outcome fallback are not fully specified yet.
+Dien explicitly approved option-level cases, reporter collateral and the
+inconclusive-outcome fallback in chat. Implementation/proof and network evidence
+remain separate acceptance gates. No deploy or transaction was authorized.

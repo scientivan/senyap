@@ -609,3 +609,13 @@ registry. Representasi baru harus lolos spike S11 (inspeksi transcript publik,
 penolakan bukti palsu/anggota dicabut, pemulihan kartu 3-dari-5, compile dan proof
 lokal) sebelum diintegrasikan. Rancangan: docs/group-privacy-spike-proposal.md.
 Persetujuan ini bukan izin deploy atau transaksi jaringan.
+
+
+## 13. Outcome jury (Dien, 15 Oktober 2026)
+
+Rancangan `docs/outcome-jury-proposal.md` disetujui seluruhnya: mode outcome
+objective/subjective immutable, satu kasus biner per opsi, bond reporter 50 dUSD
+dan collateral verifier 100 dUSD per kasus, tujuh commit pertama dan kuorum lima
+reveal, penalti minoritas 50%/tidak reveal 100%, aturan quorum/tie dan D-05, serta
+settlement menunggu seluruh kasus. Dokumen tersebut menjadi acceptance rinci
+untuk implementasi SPEC v0.15. Belum mengklaim kontrak atau proof terbaru selesai.
