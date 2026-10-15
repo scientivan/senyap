@@ -66,12 +66,17 @@ execution, not product-market integration.
 - `packages/sdk` (partial product helpers present): paid-total retrieval, consent-based
   contact delivery and encrypted persistent state pass local tests. Browser IndexedDB
   survives reload and restores signing/decryption keys in an isolated synthetic probe.
-  The product transaction wrapper, witnesses and frontend integration remain planned.
-- `apps/operator` (planned): credential verification, reason screening and relay.
+  The `/app/workspace` page creates and unlocks a real encrypted local key profile,
+  downloads encrypted backups and restores them without overwriting an existing workspace.
+  Leaving the page locks it. Product transaction wrappers and witnesses remain planned.
+- `apps/operator` (screening core present): Veritas duplication/style indicators,
+  privacy rewrites and a configurable Gemini adapter have stubbed-provider tests.
+  Live Gemini, credential verification and the authenticated reason relay remain pending.
 - `apps/committee` (local node core present): ledger-authorized, encrypted buyer
   shares pass local tests across five synthetic node keys. Five HTTP nodes and the paid-total SDK pass a local integration test. Trusted
   indexer adapters, process deployment and onchain relays remain planned.
-- `services/keeper` (planned): market transitions and settlement scheduling.
+- `services/keeper` (local planner/driver present): close, bid refunds and overdue
+  selections pass simulator tests. No live transaction adapter or daemon is running.
 
 The design keeps identities, options and secrets in private state, while the
 public ledger holds commitments, nullifiers (single-use codes), encrypted totals

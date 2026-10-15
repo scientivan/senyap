@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: Apache-2.0
+import type { ledger } from "../../../contracts/managed/senyap/contract/index.js";
+type State=ReturnType<typeof ledger>;
+export type KeeperAction={kind:"close";market:bigint}|{kind:"settleBid";market:bigint;buyer:Uint8Array}|{kind:"skipSelection";market:bigint;rank:bigint};
+export function planTransitions(state:State,blockTime:bigint):KeeperAction[] {
+  if(blockTime<0n||blockTime>=2n**64n)throw Error("Invalid keeper block time");
+  const actions:KeeperAction[]=[];
+  for(const [id,market] of state.markets){
+    const phase=state.marketPhase.lookup(id);
+    if(phase===1n&&blockTime>=market.openUntil)actions.push({kind:"close",market:id});
+    if(market.side!==0n||!state.auctionResults.member(id))continue;
+    for(const [buyer,bid] of state.bids)if(bid.marketId===id&&!bid.settled)actions.push({kind:"settleBid",market:id,buyer});
+    if(phase===5n&&state.selectionNext.lookup(id)<2n&&blockTime>=state.selectionDeadline.lookup(id)){
+      const result=state.auctionResults.lookup(id),rank=state.selectionNext.lookup(id),winner=rank===0n?result.first:result.second;
+      if(state.bids.lookup(winner).settled)actions.push({kind:"skipSelection",market:id,rank});
+    }
+  }
+  return actions;
+}
+const actionId=(action:KeeperAction)=>`${action.kind}/${action.market}/${action.kind==="settleBid"?Array.from(action.buyer,x=>x.toString(16).padStart(2,"0")).join(""):action.kind==="skipSelection"?action.rank:""}`;
+
+/** Host adapters must be fixed to one deployment and await finalization on submit.
+ * This module has no wallet/network access. Never run a real submit adapter until
+ * the specific transaction sequence has been authorized by the operator. */
+export async function runKeeperPass(adapter:{readSnapshot:()=>Promise<{state:State;blockTime:bigint}>;
+  submitFinalized:(action:KeeperAction)=>Promise<{txId:string}>},maxActions=32) {
+  if(!Number.isInteger(maxActions)||maxActions<1||maxActions>256)throw Error("Invalid keeper batch size");
+  const attempted=new Set<string>(),receipts:{action:KeeperAction;txId:string}[]=[];
+  while(receipts.length<maxActions){
+    const snapshot=await adapter.readSnapshot(),action=planTransitions(snapshot.state,snapshot.blockTime).find(value=>!attempted.has(actionId(value)));
+    if(!action)break;
+    attempted.add(actionId(action));const {txId}=await adapter.submitFinalized(action);receipts.push({action,txId});
+  }
+  return receipts;
+}

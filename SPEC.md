@@ -1,8 +1,8 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.8 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
+> Versi 0.9 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
 > Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
-> Sumber keputusan: living doc Bisik bagian 26 (v0.53), `task-tracker.md`, `AGENTS.md`.
+> Sumber keputusan: living doc Bisik bagian 26 (v0.54), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
 > boleh diubah Dien kapan saja, dan setiap perubahan dicatat; **[Spike]** asumsi teknis yang wajib
 > dibuktikan sebelum dipakai (lihat §9). v0.2 menambah §6.3b struct, §8.5 env, §8.6 antarmuka offchain,
@@ -178,6 +178,8 @@ kunci yang commitment-nya disimpan saat stake. Kontak scout dienkripsi ke kunci 
   verifier ikut dengan bukti keanggotaan + nullifier `H(verifierSecret, disputeId)`; 7 suara pertama yang
   ter-commit dipakai (tanpa undian acak onchain sampai sumber keacakan Midnight diverifikasi). Kuorum
   minimal 5 suara terungkap; mayoritas sederhana; jendela commit 24 jam dan reveal 24 jam (demo dipercepat).
+
+**Keputusan Dien, 15 Okt:** stake 100 dUSD dikunci per sengketa, bukan jaminan yang dipakai ulang lintas kasus. Pada putusan sah, minoritas kehilangan 50%, verifier tidak reveal kehilangan 100%, dan penalti dibagi ke mayoritas. Bila suara terungkap kurang dari 5 atau seri, kasus tidak diputuskan dan seluruh bond dikembalikan tanpa slash scout. Bond pelapor 50 dUSD dikembalikan bila hoax terbukti; bila laporan ditolak, bond dibagi kepada verifier mayoritas. Keanggotaan verifier tetap dibuktikan anonim.
 
 ### 3.10 F8 Sengketa hoax
 
@@ -435,6 +437,7 @@ Memicu `close`, jadwal pratinjau, `settleBid`, penutupan jendela, `markMissedRep
 | `COMMITTEE_SHARE_1` … `COMMITTEE_SHARE_5` | node komite | Potongan kunci Shamir, satu per proses. Di demo kelima node berjalan di satu mesin tim, jadi satu mesin memegang seluruh kunci; wajib diungkap di README |
 | `COMMITTEE_AUTH_SECRET_1` … `_5` | node komite | Secret autentikasi persetujuan onchain |
 | `GEMINI_API_KEY` | operator (Veritas) | Kunci Gemini milik Dien |
+| `GEMINI_GENERATION_MODEL`, `GEMINI_EMBEDDING_MODEL` | operator (Veritas) | Model ID eksplisit untuk endpoint generation/embedding yang tersedia di akun Dien; tidak diasumsikan dari default lama |
 | `RECLAIM_APP_ID`, `RECLAIM_APP_SECRET`, `RECLAIM_PROVIDER_ID` | operator | Kredensial Reclaim milik Dien (provider GitHub v1 Bisik) |
 | `VITE_SENYAP_CONTRACT_ADDRESS`, `VITE_OPERATOR_API_URL`, `VITE_COMMITTEE_URLS` | `apps/web` | Hanya nilai publik |
 
