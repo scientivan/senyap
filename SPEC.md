@@ -310,7 +310,7 @@ Akindo/
 | `proveHit` | Scout | Opsi terkomit ∈ mask; tambah bobot ke denominator; terbitkan credential hit |
 | `claim` | Scout | Nullifier klaim; kirim stake + payout ke alamat bebas |
 | `renewTier` | Scout | ≥h credential hit; sisipkan commitment epoch berikut |
-| `markMissedReport` | Keeper/siapa pun | Buyer tidak melapor; antrean pencabutan good standing |
+| `markMissedReport`, `markMissedSharedBuyer` | Keeper/siapa pun | Laporan terlewat A/shared B dan penandaan buyer B terpisah; antrean pencabutan good standing |
 | `mint` (dusd.compact) | Faucet demo | Token demo berlabel |
 
 ### 6.3 Witness (TypeScript, private state)

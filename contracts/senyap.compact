@@ -30,6 +30,8 @@ export ledger admittedBuyers: Set<Bytes<32>>;
 export ledger buyerLeaves: Map<Uint<64>, Bytes<32>>;
 export ledger buyerNextIndex: Uint<64>;
 export ledger missedReports: Set<Bytes<32>>;
+// Durable market marker separates the shared default from per-buyer sanctions.
+export ledger missedSharedReports: Set<Uint<32>>;
 export ledger missedBuyerIndices: Map<Bytes<32>, Uint<64>>;
 export ledger removedStanding: Set<Bytes<32>>;
 export struct Market {
@@ -959,21 +961,34 @@ export circuit finalizeMarket(id: Uint<32>): [] {
   marketPhase.insert(marketId, 9);
 }
 
-// Side B uses a shared outcome. Its missed-report responsibility is awaiting
-// Dien's decision; do not infer per-buyer penalties from a shared pool.
+// Approved shared Side B duty: default once, mark paid buyers separately.
+// Threshold disclosure and standing revocation remain separate actions.
 export circuit markMissedReport(id: Uint<32>, poolNumber: Uint<8>): [] {
   const marketId = disclose(id);const pool = disclose(poolNumber);const market = markets.lookup(marketId);
-  assert(market.side == 0 && pool < 4, "Only side A buyer pools are supported here");
+  assert(pool < 4 && (market.side == 0 || pool == 0), "Invalid missed report pool");
   assert(blockTimeGte(market.outcomeUntil), "Outcome reporting window still open");
-  const phase = marketPhase.lookup(marketId);assert(phase >= 5 && phase <= 7 && selectionNext.lookup(marketId) == 2, "Market not ready for missed reports");
+  const phase = marketPhase.lookup(marketId);
+  if (market.side == 0) { assert(phase >= 5 && phase <= 7 && selectionNext.lookup(marketId) == 2, "Market not ready for missed reports"); }
+  else { assert((phase == 3 || phase == 6 || phase == 7) && hasPurchases.lookup(marketId) && marketScouts.lookup(marketId) >= 5, "Market not ready for missed reports"); }
   const owners = marketBuyers.lookup(marketId);const owner = pool == 0 ? owners[0] : pool == 1 ? owners[1] : pool == 2 ? owners[2] : owners[3];
-  assert(owner != default<Bytes<32>>, "Outcome pool has no buyer");
+  if (market.side == 0) { assert(owner != default<Bytes<32>>, "Outcome pool has no buyer"); }
   const key = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:outcome"),marketId as Bytes<32>,pool as Bytes<32>]);
   assert(!outcomeEvidence.member(disclose(key)), "Outcome or missed report already recorded");
-  outcomeEvidence.insert(disclose(key), default<Bytes<32>>);missedReports.insert(owner);
+  outcomeEvidence.insert(disclose(key), default<Bytes<32>>);
+  if (market.side == 0) { missedReports.insert(owner); }
+  else { missedSharedReports.insert(marketId); }
   needsDefault.insert(marketId, map((i: Uint<8>, value: Boolean): Boolean => value || i == pool, [0,1,2,3], needsDefault.lookup(marketId)));
   const end = (checkedCurrentTime() + hitWindow) as Uint<64>;const previous = hitUntil.member(marketId) ? hitUntil.lookup(marketId) : 0;
   hitUntil.insert(marketId, previous > end ? previous : end);marketPhase.insert(marketId, 7);
+}
+export circuit markMissedSharedBuyer(id: Uint<32>, pseudonym: Bytes<32>): [] {
+  const marketId = disclose(id);const buyer = disclose(pseudonym);
+  assert(markets.lookup(marketId).side == 1 && missedSharedReports.member(marketId), "Shared report was not missed");
+  assert(buyerAccess.member(buyer), "Buyer has no paid access");
+  const access = buyerAccess.lookup(buyer);
+  assert(access.marketId == marketId && fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, access.bought), "Buyer has no paid access to market");
+  assert(!missedReports.member(buyer), "Buyer report already marked");
+  missedReports.insert(buyer);
 }
 export circuit approveMissedBuyer(pseudonym: Bytes<32>, index: Uint<64>, member: Uint<8>): [] {
   const buyer = disclose(pseudonym);assert(missedReports.member(buyer), "Buyer has no missed report");
