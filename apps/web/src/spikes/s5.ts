@@ -77,6 +77,7 @@ async function prepareInternal(walletId:string|undefined,onStage:(stage:string)=
   const safely=async<T>(action:()=>Promise<T>)=>{
     if(busy)throw new PublicS5Error("An S5 operation is already running.");
     if(progress.pendingTxId)throw new PublicS5Error("Inspect the recorded pending transaction before continuing; automatic retries are disabled.");
+    delete progress.errorCode;delete progress.errorKind;delete progress.errorTags;delete progress.errorFrames;
     busy=true;
     try{return await action();}
     catch(error){
@@ -114,6 +115,7 @@ async function prepareInternal(walletId:string|undefined,onStage:(stage:string)=
       deployed=await deployContract(providers,{compiledContract:fixture,privateStateId:"s5",initialPrivateState:{}});
       progress.contractAddress=deployed.deployTxData.public.contractAddress;
       progress.deployTxId=deployed.deployTxData.public.txId;
+      progress.stage="deployed";
       delete progress.pendingTxId;delete progress.pendingAction;
       remember();return {...progress};
     }),
@@ -121,12 +123,14 @@ async function prepareInternal(walletId:string|undefined,onStage:(stage:string)=
       if(!deployed)throw new PublicS5Error("Deploy the fixture in this tab before pinging.");
       if(progress.callTxId)throw new PublicS5Error("The single S5 call is already recorded. Refusing to repeat it.");
       activeAction="ping";
+      progress.stage="call-construction";
       const call=await deployed.callTx.ping();progress.callTxId=call.public.txId;remember();
       delete progress.pendingTxId;delete progress.pendingAction;remember();
       const state=await providers.publicDataProvider.queryContractState(progress.contractAddress!);
       if(!state)throw new PublicS5Error("Finalized contract state is unavailable.");
       progress.calls=ledger(state.data).calls.toString();remember();
       if(progress.calls!=="1")throw new PublicS5Error("Unexpected counter after the single S5 call.");
+      progress.stage="complete";remember();
       return {...progress};
     }),
   };

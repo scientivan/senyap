@@ -1,4 +1,4 @@
-# S5 browser spike (prepared, not executed on Preprod)
+# S5 browser spike (passed on Preprod)
 
 This fixture tests Lace, browser proving and a real circuit call. It does not
 implement Senyap markets or transfer/mint tokens. Product pages retain their
@@ -36,11 +36,25 @@ Dien explicitly authorized this one-deploy/one-ping Preprod sequence in chat on
 - Real-browser deployment construction initially failed because the SDK Bech32
   address codec references a global `Buffer`. The dev-only helper now supplies
   `buffer` 6.0.3; construction without balancing/signing/submission passes.
-- The authorized deployment reached Lace's **Sign transaction** confirmation.
-  After that button was clicked, Lace requested the wallet password. The owner
-  must enter it directly in Lace; no password is read or stored by the helper.
-  No pending submission ID has been recorded yet. Do not refresh the tab or
-  repeat the deployment while this request is active.
+- The authorized deployment and exactly one `ping()` finalized with
+  `SucceedEntirely` on Preprod. The queried contract counter is `1`.
+  [Public receipts and counter evidence](evidence/S5-preprod-counter.json) include
+  both transaction IDs and block metadata, without wallet addresses or keys.
+- Apple Events access was turned off after verification. A constant-only probe
+  was rejected by Brave as “Executing JavaScript through AppleScript is turned off”.
+
+## Finalized public fixture
+
+Contract `e8e06fb624ba2696972f42855a9aa1acdc1c3b5b44da3e54122021db53560516`.
+Deployment `002ccae7ce24e8553e6eabbb50d8e900f9dc3518ab7d145ddc75dcc7c4afd07c58`
+(block 2985065); ping
+`0088975940ece6fffc41f782ab65f427617047c6d72a2a58d9725b625237372fa6`
+(block 2985080). Both receipts report `SucceedEntirely`.
+
+This establishes the S5 browser/Lace circuit spike only. Product market contracts,
+settlement, frontend actions and the full product walkthrough remain unimplemented.
+The one-deploy/one-ping authorization has been consumed. Reproduction below is a
+procedure for a separately authorized future run, not permission to repeat it.
 
 ## Reproduce without submitting
 

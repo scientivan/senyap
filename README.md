@@ -10,11 +10,11 @@ their experience with ecosystems.
 
 This repository currently contains a React frontend with **labelled synthetic demo
 data**. Its actions update local demo state; they do not submit Midnight
-transactions. Dien confirmed that the real Lace Preprod address appears after connecting.
-An actual circuit call from that wallet remains pending. The repository now includes isolated Compact technical spikes,
+transactions. A separate developer-only fixture has completed a real Lace Preprod
+deployment and circuit call. The repository now includes isolated Compact technical spikes,
 runtime-compatible cryptography and a local test harness. Senyap product contracts,
 services and the frontend SDK integration have not been implemented. A permissionless demo-token fixture has been deployed and tested on the local
-network only. No Senyap product contract or Preprod contract is deployed.
+network only. No Senyap product market contract is deployed.
 
 The mechanisms described below are planned, not working features. See [SPEC.md](SPEC.md)
 for the approved specification and [PRODUCT.md](PRODUCT.md) for product context.
@@ -44,10 +44,11 @@ Compact 0.31.1 compilation and Vitest are available. See
 was proved by the local proof server; this does not establish end-to-end network
 execution of the Senyap market.
 
-The [S5 browser fixture](docs/S5-browser-spike.md) is prepared for an explicitly
-authorized Preprod test. Its simulator and browser module loading pass; its
-Preprod deployment and circuit call have not yet been executed. Dien reports
-that the actual Lace Preprod address appears in the application.
+The [S5 browser fixture](docs/S5-browser-spike.md) passed on Preprod: one
+counter deployment and one `ping()` through Lace, both `SucceedEntirely`, with
+final counter `1`. [Public receipts](docs/evidence/S5-preprod-counter.json) record
+the contract address and transaction IDs. This establishes browser circuit
+execution, not product-market integration.
 
 ## Planned architecture and Midnight integration
 

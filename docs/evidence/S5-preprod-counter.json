@@ -1,0 +1,31 @@
+{
+  "network": "preprod",
+  "fixture": "s5-browser-counter",
+  "source": "Real Brave page context, Lace 2.4.2/API 4.0.1 and configured indexer",
+  "contractAddress": "e8e06fb624ba2696972f42855a9aa1acdc1c3b5b44da3e54122021db53560516",
+  "calls": "1",
+  "deploy": {
+    "txId": "002ccae7ce24e8553e6eabbb50d8e900f9dc3518ab7d145ddc75dcc7c4afd07c58",
+    "status": "SucceedEntirely",
+    "txHash": "003f056033a3db991777f4e88da02d72d1c207268f19f8ab5c1241770b392e0f",
+    "blockHash": "f6762216cf0b6591be526b014e451d8faf839f5e84181d7a88a8f70b81b0749c",
+    "blockHeight": 2985065,
+    "blockTimestamp": 1792028226000
+  },
+  "ping": {
+    "txId": "0088975940ece6fffc41f782ab65f427617047c6d72a2a58d9725b625237372fa6",
+    "status": "SucceedEntirely",
+    "txHash": "cc50801a316973dc9698f33d03b660b08507a77a540f5b51ff39ef527789f36c",
+    "blockHash": "7272f3590e2d48f6dfa8b036ef352d9d90718410c5d94d3cd8ab169bf3c63661",
+    "blockHeight": 2985080,
+    "blockTimestamp": 1792028316000
+  },
+  "transactionsSubmitted": 2,
+  "appleEventsRestoredOff": true,
+  "appleEventsVerification": "Brave rejected a constant-only execute-JavaScript probe as turned off after the menu toggle",
+  "limitations": [
+    "Isolated counter fixture, not Senyap product contracts",
+    "No token mint, transfer, deposit or payout in this S5 scope",
+    "No wallet addresses, key material, raw transaction objects or configuration URLs recorded"
+  ]
+}
