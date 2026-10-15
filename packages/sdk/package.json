@@ -7,7 +7,9 @@
   "exports": {
     "./ephemeral-state": "./src/ephemeral-state.ts",
     "./paid-signals": "./src/paid-signals.ts",
-    "./identity-reveal": "./src/identity-reveal.ts", "./private-state": "./src/private-state.ts"
+    "./identity-reveal": "./src/identity-reveal.ts",
+    "./private-state": "./src/private-state.ts",
+    "./workspace": "./src/workspace.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",

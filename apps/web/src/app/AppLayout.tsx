@@ -81,6 +81,7 @@ export function AppLayout() {
                 {m.label}
               </NavLink>
             ))}
+            <NavLink to="/app/workspace" className={({ isActive }) => isActive ? "on" : ""}>Private workspace</NavLink>
           </nav>
           <div className="ah-right">
             <NavLink to="/app/faucet" className="ah-bal" title="Demo dUSD balance. Click for the faucet.">

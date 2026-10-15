@@ -10,6 +10,7 @@ import { Home } from "./app/pages/Home";
 import { Markets } from "./app/pages/Markets";
 import { MarketDetail } from "./app/pages/MarketDetail";
 import { Positions, Tier } from "./app/pages/Scout";
+import { Workspace } from "./app/pages/Workspace";
 import { Committee, Faucet, Guide, NewMarket, Operator, Profile, Registry, Verify } from "./app/pages/Other";
 
 function Landing() {
@@ -49,6 +50,7 @@ const router = createBrowserRouter([
       { path: "verify", element: <Verify /> },
       { path: "faucet", element: <Faucet /> },
       { path: "guide", element: <Guide /> },
+      { path: "workspace", element: <Workspace /> },
       { path: "*", element: <Navigate to="/app" replace /> },
     ],
   },

@@ -1,0 +1,14 @@
+{
+  "scope": "isolated headless Chrome profiles; synthetic passwords and local keys; no wallet or transaction",
+  "noOverflow": true,
+  "mismatch": true,
+  "created": true,
+  "encrypted": true,
+  "wrongPassword": true,
+  "unlocked": true,
+  "reloadLocked": true,
+  "pendingOpenStaysLocked": true,
+  "replacementRejected": true,
+  "badRestore": true,
+  "restored": true
+}
