@@ -13,8 +13,9 @@ key. The node takes the destination from the buyer's immutable ledger record and
 returns encrypted DLEQ-proven shares. The SDK tolerates two unavailable/bad nodes
 and requires three valid shares from the configured member IDs.
 
-Production hosting, a finalized-indexer adapter, node key provisioning, internal
-committee coordination and onchain approval relays are not wired yet. Preview/
+Production hosting, node key provisioning, internal committee coordination and
+onchain approval relays are not wired yet. The shared finalized snapshot reader
+below is implemented but is not yet connected to a deployed product service. Preview/
 default calculation helpers are tested locally; the contract checks eligibility
 and threshold approvals, not the secret strongest-option computation itself.
 
@@ -174,3 +175,28 @@ public prover/verifier keys and ZKIR to ignored `apps/web/public/contracts/senya
 It requires source-hash-matched key-generation evidence and writes an artifact
 manifest. This directory is large and is not committed. Hosting artifacts,
 selecting an approved deployment and wiring live pages remain required.
+
+
+## Finalized service snapshot reader
+
+`services/indexer/src/snapshot.ts` binds one network/deployment to a configured
+node, indexer, genesis hash and immutable operator commitment. It first reads
+chain_getFinalizedHead and chain_getBlockHash(0) from the trusted node. Both block
+metadata and contractAction state are queried at that same final hash. It decodes
+the serialized ContractState into the generated product ledger and compares the
+operator commitment. Request bodies cannot supply these endpoints or identities.
+
+The indexer's millisecond timestamp is converted to Compact's whole seconds.
+An unavailable indexer anchor, malformed state, wrong genesis/operator, future
+time or stale block fails closed, without retry or a cached fallback. The default
+60-second freshness limit is an operational setting, not a protocol deadline.
+Remote endpoints require HTTPS; HTTP is limited to localhost. Responses have a
+15-second deadline and 16 MiB bound; larger deployments need an explicitly revised
+service limit. Errors omit provider/configuration details. This still trusts the
+configured node/indexer; it is not a light-client proof of chain state.
+
+Four tests use serialized simulator ledger state and transport stubs. Separate
+read-only localhost queries verified finalized-head and anchored-block query
+shapes against the running node/indexer (4.3.3). No product deployment exists, so
+this does not establish a live product-state read. The host must compose the
+reader with committee, reason relay or keeper after deployment.
