@@ -4,6 +4,8 @@ import CompactStandardLibrary;
 
 export struct ScoutGroup { side: Uint<8>; tier: Uint<8>; epoch: Uint<64>; ecosystem: Bytes<32>; }
 export struct GroupLeaf { group: Bytes<32>; index: Uint<64>; }
+export struct BuilderEntry { profileHash: Bytes<32>; ownerCommit: Bytes<32>; consent: Boolean; registeredAt: Uint<64>; }
+export ledger builderRegistry: Map<Bytes<32>, BuilderEntry>;
 export sealed ledger operator: Bytes<32>;
 export sealed ledger committeeAuth: Vector<5, Bytes<32>>;
 export ledger scoutGroups: Map<Bytes<32>, HistoricMerkleTree<20, Bytes<32>>>;
@@ -20,6 +22,7 @@ witness operatorSecret(): Bytes<32>;
 witness committeeSecret(): Bytes<32>;
 witness scoutSecret(): Bytes<32>;
 witness memberPath(): MerkleTreePath<20, Bytes<32>>;
+witness builderSecret(): Bytes<32>;
 
 constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>) {
   operator = disclose(operatorCommit);
@@ -110,4 +113,26 @@ export circuit revokeMember(group: Bytes<32>, index: Uint<64>): [] {
   scoutGroups.lookup(disclose(group)).resetHistory();
   groupSize.insert(disclose(group), (groupSize.lookup(disclose(group)) - 1) as Uint<32>);
   consumedRevocations.insert(disclose(command));
+}
+
+export circuit registerBuilder(id: Bytes<32>, profileHash: Bytes<32>, registeredAt: Uint<64>): [] {
+  assert(id != default<Bytes<32>> && profileHash != default<Bytes<32>>, "Builder metadata required");
+  const ownerCommit = persistentHash<Vector<2, Bytes<32>>>([pad(32, "senyap:builder"), builderSecret()]);
+  if (builderRegistry.member(disclose(id))) {
+    const previous = builderRegistry.lookup(disclose(id));
+    assert(!previous.consent, "Builder already registered");
+    assert(previous.ownerCommit == ownerCommit, "Builder owner authorization failed");
+  }
+  assert(blockTimeGte(disclose(registeredAt)), "Registration timestamp is in future");
+  assert(registeredAt <= 18446744073709551555, "Registration timestamp overflow");
+  assert(blockTimeLt((disclose(registeredAt) + 60) as Uint<64>), "Registration timestamp is stale");
+  builderRegistry.insert(disclose(id), disclose(BuilderEntry { profileHash: profileHash, ownerCommit: ownerCommit, consent: true, registeredAt: registeredAt }));
+}
+
+export circuit withdrawBuilder(id: Bytes<32>): [] {
+  assert(builderRegistry.member(disclose(id)), "Unknown builder");
+  const entry = builderRegistry.lookup(disclose(id));
+  assert(entry.ownerCommit == persistentHash<Vector<2, Bytes<32>>>([pad(32, "senyap:builder"), builderSecret()]), "Builder owner authorization failed");
+  assert(entry.consent, "Builder already withdrawn");
+  builderRegistry.insert(disclose(id), BuilderEntry { profileHash: entry.profileHash, ownerCommit: entry.ownerCommit, consent: false, registeredAt: entry.registeredAt });
 }

@@ -1,0 +1,9 @@
+{
+  "compiler": "Compact 0.31.1 --skip-zk",
+  "networkTransactions": 0,
+  "scope": ["P2.1 scout groups", "P2.2 opt-in builder registry"],
+  "testFiles": ["tests/contracts/groups.test.ts", "tests/contracts/builders.test.ts"],
+  "passed": 5,
+  "checks": ["operator authorization", "immutable tier and epoch metadata", "duplicate admission", "Merkle leaf bound to scout secret and epoch", "three distinct committee approvals", "approval target binding", "replayed revocation", "historic root invalidation", "surviving member fresh proof", "builder owner withdrawal and re-registration", "builder metadata and block-time bounds"],
+  "limitations": ["Simulator execution, not network integration", "Product contract has not been deployed", "Market and stake circuits are separate upcoming work"]
+}
