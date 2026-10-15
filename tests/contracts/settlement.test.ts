@@ -30,7 +30,7 @@ describe("P2.5/P2.6 side B objective settlement",()=>{
     s.invoke("buyFlat",1n,0n);s.invoke("buyFlat",1n,1n);
     expect(s.state.marketPools.lookup(1n)).toEqual([20n,0n,0n,0n]);
     expect(()=>s.invoke("buyFlat",1n,0n)).toThrow(/already purchased/);
-    s.invoke("recordOutcome",1n,mask,bytes(90),false);expect(s.state.marketPhase.lookup(1n)).toBe(8n);
+    s.invoke("recordOutcome",1n,0n,mask,bytes(90),false);expect(s.state.marketPhase.lookup(1n)).toBe(8n);
     for(const r of records.slice(0,4)){
       Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",1n,1n,0n);
     }
@@ -67,10 +67,10 @@ describe("P2.5/P2.6 side B objective settlement",()=>{
   });
   it("rejects unpaid or forged outcomes, wrong commitments and inflated payout witnesses",()=>{
     const {s,records}=setupSideB();preview(s);
-    expect(()=>s.invoke("recordOutcome",1n,mask,bytes(90),false)).toThrow(/not purchased/);
+    expect(()=>s.invoke("recordOutcome",1n,0n,mask,bytes(90),false)).toThrow(/not purchased/);
     s.context.currentPrivateState.operator=other;
-    expect(()=>s.invoke("recordOutcome",1n,mask,bytes(90),true)).toThrow(/Operator authorization/);
-    s.invoke("buyFlat",1n,0n);s.invoke("recordOutcome",1n,mask,bytes(90),false);
+    expect(()=>s.invoke("recordOutcome",1n,0n,mask,bytes(90),true)).toThrow(/Operator authorization/);
+    s.invoke("buyFlat",1n,0n);s.invoke("recordOutcome",1n,0n,mask,bytes(90),false);
     const r=records[0];Object.assign(s.context.currentPrivateState,{scout:r.secret,option:1n,salt:r.salt});
     expect(()=>s.invoke("proveHit",1n,1n,0n)).toThrow(/Wrong committed/);
     s.context.currentPrivateState.option=0n;s.invoke("proveHit",1n,1n,0n);
@@ -82,7 +82,7 @@ describe("P2.5/P2.6 side B objective settlement",()=>{
   });
   it("keeps a no-success outcome pending committee default selection",()=>{
     const {s}=setupSideB();preview(s);s.invoke("buyFlat",1n,0n);
-    s.invoke("recordOutcome",1n,Array<boolean>(8).fill(false),bytes(90),false);
+    s.invoke("recordOutcome",1n,0n,Array<boolean>(8).fill(false),bytes(90),false);
     expect(s.state.marketPhase.lookup(1n)).toBe(7n);
     expect(()=>s.invoke("proveHit",1n,1n,0n)).toThrow(/window closed/);
     s.setTime(2700);expect(()=>s.invoke("claim",1n,1n,{bytes:bytes(120)})).toThrow(/Claims not open/);

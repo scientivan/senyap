@@ -34,6 +34,7 @@ export sealed ledger committeePk: JubjubPoint;
 export sealed ledger dusdColor: Bytes<32>;
 export sealed ledger epochLength: Uint<64>;
 export sealed ledger hitWindow: Uint<64>;
+export sealed ledger selectionWindow: Uint<64>;
 export struct Histogram { strong: Uint<8>; medium: Uint<8>; weak: Uint<8>; }
 export struct BuyerAccess { marketId: Uint<32>; bought: Vector<8, Boolean>; lockedCard: LockedCard; }
 export struct PayoutDivision { quotient: Uint<128>; remainder: Uint<64>; }
@@ -47,11 +48,27 @@ export ledger marketRevenue: Map<Uint<32>, Uint<128>>;
 export ledger marketRemainder: Map<Uint<32>, Uint<128>>;
 export ledger marketPositions: Map<Uint<32>, Uint<32>>;
 export ledger marketClaims: Map<Uint<32>, Uint<32>>;
-export ledger outcomeEvidence: Map<Uint<32>, Bytes<32>>;
+export ledger outcomeEvidence: Map<Bytes<32>, Bytes<32>>;
+export ledger marketBuyers: Map<Uint<32>, Vector<4, Bytes<32>>>;
+export ledger outcomesReady: Map<Uint<32>, Vector<4, Boolean>>;
+export ledger needsDefault: Map<Uint<32>, Vector<4, Boolean>>;
 export ledger hitUntil: Map<Uint<32>, Uint<64>>;
 export ledger hitFlags: Map<Bytes<32>, Vector<4, Boolean>>;
 export ledger issuedHits: Set<Bytes<32>>;
 export ledger hitTree: HistoricMerkleTree<20, Bytes<32>>;
+export ledger marketCreatorCards: Map<Uint<32>, LockedCard>;
+export struct Bid {
+  marketId: Uint<32>; enc: CipherPair; envelope: LockedCard; ceiling: Uint<128>;
+  refundRecipient: UserAddress; sequence: Uint<32>; settled: Boolean;
+}
+export struct AuctionResult { first: Bytes<32>; second: Bytes<32>; priceFirst: Uint<128>; priceSecond: Uint<128>; }
+export ledger bids: Map<Bytes<32>, Bid>;
+export ledger bidCount: Map<Uint<32>, Uint<32>>;
+export ledger bidEscrow: Map<Uint<32>, Uint<128>>;
+export ledger auctionResults: Map<Uint<32>, AuctionResult>;
+export ledger selectionNext: Map<Uint<32>, Uint<8>>;
+export ledger selectionDeadline: Map<Uint<32>, Uint<64>>;
+export ledger hiddenOptions: Map<Uint<32>, Vector<2, Vector<8, Boolean>>>;
 export struct CipherPair { c1: JubjubPoint; c2: JubjubPoint; }
 export struct Position {
   marketId: Uint<32>; group: Bytes<32>; optionCommit: Bytes<32>; weight: Uint<64>; stake: Uint<128>;
@@ -86,13 +103,18 @@ witness cardRandomHigh(): Uint<128>;
 witness cardRandomLow(): Uint<128>;
 witness divide(numerator: Uint<128>, denominator: Uint<64>): Division;
 witness dividePayout(numerator: Uint<192>, denominator: Uint<64>): PayoutDivision;
+witness bidAmount(): Uint<64>;
+witness currentTime(): Uint<64>;
+witness bidRandomHigh(): Uint<128>;
+witness bidRandomLow(): Uint<128>;
 
-constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>, pk: JubjubPoint, color: Bytes<32>, epochSeconds: Uint<64>, hitSeconds: Uint<64>) {
+constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>, pk: JubjubPoint, color: Bytes<32>, epochSeconds: Uint<64>, hitSeconds: Uint<64>, selectionSeconds: Uint<64>) {
   operator = disclose(operatorCommit);
   committeeAuth = disclose(authCommits);
   assert(epochSeconds > 0, "Epoch length must be positive");
   committeePk = disclose(pk);dusdColor = disclose(color);epochLength = disclose(epochSeconds);
   assert(hitSeconds > 0, "Hit registration window must be positive");hitWindow = disclose(hitSeconds);
+  assert(selectionSeconds > 60, "Selection window must exceed timestamp tolerance");selectionWindow = disclose(selectionSeconds);
   for (const i of [0, 1, 2, 3, 4]) {
     assert(authCommits[i] != default<Bytes<32>>, "Committee authentication must be nonzero");
     for (const j of [0, 1, 2, 3, 4]) {
@@ -232,9 +254,6 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
   assert(cfg.openAt < cfg.openUntil && cfg.openUntil <= cfg.auctionUntil && cfg.auctionUntil < cfg.outcomeUntil, "Invalid market schedule");
   assert(blockTimeGte(cfg.openAt) && blockTimeLt(cfg.openUntil), "Market not in open window");
   const owner = cfg.side == 0 ? buyerSecret() : operatorSecret();
-  // O-10: operator creates side B markets on verified builders' proposals.
-  if (cfg.side == 0) { assertBuyer(owner); }
-  else { assertOperatorKey(owner);assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction"); }
   for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) {
     if (i < cfg.nOptions) {
       assert(cfg.optionRefs[i] != default<Bytes<32>>, "Empty active option");
@@ -248,13 +267,22 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
     } else { assert(cfg.optionRefs[i] == default<Bytes<32>>, "Unused option must be empty"); }
   }
   const creator = persistentHash<Vector<2, Bytes<32>>>([owner, marketId as Bytes<32>]);
+  // O-10: operator creates side B markets on verified builders' proposals.
+  if (cfg.side == 0) {
+    const path = assertBuyer(owner);
+    const card = makeBuyerCard(path, creator, cardRandomHigh(), cardRandomLow());
+    marketCreatorCards.insert(marketId, disclose(card));
+  } else { assertOperatorKey(owner);assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction"); }
   markets.insert(marketId, cfg);marketPhase.insert(marketId, 1);
   marketCreator.insert(marketId, disclose(creator));
   marketScouts.insert(marketId, 0);marketWeight.insert(marketId, 0);marketStake.insert(marketId, 0);
   marketPools.insert(marketId, [0,0,0,0]);denominators.insert(marketId, [0,0,0,0]);paidRewards.insert(marketId, [0,0,0,0]);
   marketRevenue.insert(marketId, 0);marketPositions.insert(marketId, 0);marketClaims.insert(marketId, 0);
+  marketBuyers.insert(marketId, [default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>]);
+  outcomesReady.insert(marketId, [false,false,false,false]);needsDefault.insert(marketId, [false,false,false,false]);
   const emptyMask: Vector<8, Boolean> = [false,false,false,false,false,false,false,false];
   successMasks.insert(marketId, [emptyMask,emptyMask,emptyMask,emptyMask]);
+  bidCount.insert(marketId, 0);bidEscrow.insert(marketId, 0);hiddenOptions.insert(marketId, [emptyMask,emptyMask]);
   const zero = ecMulGenerator(0);
   tally.insert(marketId, map((i: Uint<8>): CipherPair => CipherPair { c1: zero, c2: zero }, [0,1,2,3,4,5,6,7]));
 }
@@ -367,16 +395,132 @@ export circuit postPreview(id: Uint<32>, histogram: Histogram, member: Uint<8>):
 circuit buyerId(secret: Bytes<32>, market: Uint<32>): Bytes<32> {
   return persistentHash<Vector<2, Bytes<32>>>([secret, market as Bytes<32>]);
 }
+circuit makeBuyerCard(path: MerkleTreePath<16, Bytes<32>>, context: Bytes<32>, high: Uint<128>, low: Uint<128>): LockedCard {
+  const index = fold((acc: PathIndex, entry: MerkleTreePathEntry): PathIndex =>
+    PathIndex { value: (acc.value + (entry.goes_left ? 0 : acc.power)) as Uint<64>, power: (acc.power * 2) as Uint<64> },
+    PathIndex { value: 0, power: 1 }, path.path).value;
+  return encryptMembershipCard(committeePk, path.leaf, index, context, high, low);
+}
 
-// The side A allocation/auction gate is implemented separately in P4.
+export circuit placeBid(id: Uint<32>, ceiling: Uint<128>, refundRecipient: UserAddress): Bytes<32> {
+  const marketId = disclose(id);const market = markets.lookup(marketId);
+  assert(market.side == 0 && marketPhase.lookup(marketId) == 4, "Market is not in auction");
+  assert(blockTimeGte(market.openUntil) && blockTimeLt(market.auctionUntil), "Outside auction window");
+  assert(ceiling > 0 && ceiling >= market.reservePrice, "Bid ceiling below reserve");
+  const secret = buyerSecret();const path = assertBuyer(secret);const pseudonym = buyerId(secret, marketId);
+  assert(!bids.member(disclose(pseudonym)), "Buyer already bid in market");
+  const amount = bidAmount();assert(amount > 0 && amount <= ceiling, "Bid exceeds ceiling or is zero");
+  const high = bidRandomHigh();const low = bidRandomLow();
+  assert(high < 19261898452744832053602769315862690560 || (high == 19261898452744832053602769315862690560 && low < 221192506920607668564158609621008198839), "Bid randomness outside subgroup");
+  const r = (high as Field) * (340282366920938463463374607431768211456 as Field) + (low as Field);assert(r != 0, "Bid randomness must be nonzero");
+  const enc = CipherPair { c1: ecMulGenerator(r), c2: ecAdd(ecMulGenerator(amount as Field), ecMul(committeePk, r)) };
+  const context = persistentHash<Vector<2, Bytes<32>>>([pad(32, "senyap:bid-envelope"), pseudonym]);
+  const cardHigh = cardRandomHigh();const cardLow = cardRandomLow();
+  const envelope = encryptMembershipCard(committeePk, amount as Bytes<32>, 0, context, cardHigh, cardLow);
+  const card = makeBuyerCard(path, pseudonym, cardHigh, cardLow);
+  const empty: Vector<8, Boolean> = [false,false,false,false,false,false,false,false];
+  buyerAccess.insert(disclose(pseudonym), disclose(BuyerAccess { marketId: marketId, bought: empty, lockedCard: card }));
+  const sequence = bidCount.lookup(marketId);
+  bids.insert(disclose(pseudonym), disclose(Bid { marketId: marketId, enc: enc, envelope: envelope, ceiling: ceiling, refundRecipient: refundRecipient, sequence: sequence, settled: false }));
+  receiveUnshielded(dusdColor, disclose(ceiling));
+  bidCount.insert(marketId, (sequence + 1) as Uint<32>);bidEscrow.insert(marketId, (bidEscrow.lookup(marketId) + disclose(ceiling)) as Uint<128>);
+  return disclose(pseudonym);
+}
+
+export circuit postAuctionResult(id: Uint<32>, proposed: AuctionResult, member: Uint<8>): [] {
+  const marketId = disclose(id);const result = disclose(proposed);const market = markets.lookup(marketId);
+  assert(market.side == 0 && marketPhase.lookup(marketId) == 4 && blockTimeGte(market.auctionUntil), "Auction result not ready");
+  const zero = default<Bytes<32>>;
+  assert(result.first != zero || result.second == zero, "Second winner without first");
+  assert(result.first == zero || result.first != result.second, "Auction winners must differ");
+  assert(result.priceFirst >= result.priceSecond, "Auction prices out of order");
+  if (result.first != zero) {
+    assert(bids.member(result.first), "Unknown first winner");const bid = bids.lookup(result.first);
+    assert(bid.marketId == marketId && result.priceFirst >= market.reservePrice && result.priceFirst <= bid.ceiling, "Invalid first winner price");
+  } else { assert(result.priceFirst == 0, "Price without first winner"); }
+  if (result.second != zero) {
+    assert(bids.member(result.second), "Unknown second winner");const bid = bids.lookup(result.second);
+    assert(bid.marketId == marketId && result.priceSecond >= market.reservePrice && result.priceSecond <= bid.ceiling, "Invalid second winner price");
+  } else { assert(result.priceSecond == 0, "Price without second winner"); }
+  const command = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:auction"), marketId as Bytes<32>, persistentHash<AuctionResult>(result)]);
+  if (approve(command, member) >= 3) {
+    const startedAt = disclose(currentTime());
+    assert(blockTimeGte(startedAt), "Selection timestamp is in future");
+    assert(blockTimeLt((startedAt + 61) as Uint<64>), "Selection timestamp is stale");
+    const deadline = (startedAt + selectionWindow) as Uint<64>;
+    assert(deadline < market.outcomeUntil, "Selection window exceeds outcome schedule");
+    selectionDeadline.insert(marketId, deadline);
+    auctionResults.insert(marketId, result);selectionNext.insert(marketId, result.first == zero ? 2 : 0);marketPhase.insert(marketId, 5);
+  }
+}
+
+export circuit settleBid(id: Uint<32>, pseudonym: Bytes<32>): [] {
+  const marketId = disclose(id);const buyer = disclose(pseudonym);
+  assert(auctionResults.member(marketId), "Auction result not finalized");
+  const result = auctionResults.lookup(marketId);const bid = bids.lookup(buyer);
+  assert(bid.marketId == marketId && !bid.settled, "Bid already settled or wrong market");
+  const first = buyer == result.first;const second = buyer == result.second;
+  const price = first ? result.priceFirst : second ? result.priceSecond : 0;
+  const refund = (bid.ceiling - price) as Uint<128>;
+  if (refund > 0) { sendUnshielded(dusdColor, refund, right<ContractAddress, UserAddress>(bid.refundRecipient)); }
+  bids.insert(buyer, Bid { ...bid, settled: true });bidEscrow.insert(marketId, (bidEscrow.lookup(marketId) - bid.ceiling) as Uint<128>);
+  if (first || second) {
+    const pools = marketPools.lookup(marketId);
+    marketPools.insert(marketId, [first ? price : pools[0],second ? price : pools[1],pools[2],pools[3]]);
+    marketRevenue.insert(marketId, (marketRevenue.lookup(marketId) + price) as Uint<128>);
+    const owners = marketBuyers.lookup(marketId);
+    marketBuyers.insert(marketId, [first ? buyer : owners[0],second ? buyer : owners[1],owners[2],owners[3]]);
+  }
+}
+
+export circuit selectHidden(id: Uint<32>, selected: Vector<8, Boolean>): [] {
+  const marketId = disclose(id);const rank = selectionNext.lookup(marketId);
+  assert(blockTimeLt(selectionDeadline.lookup(marketId)), "Winner selection deadline reached");
+  const secret = buyerSecret();assertBuyer(secret);const pseudonym = buyerId(secret, marketId);const result = auctionResults.lookup(marketId);
+  assert(pseudonym == (rank == 0 ? result.first : result.second), "Wrong winner selection order");
+  finishSelection(marketId, disclose(selected));
+}
+
+// Anyone may forfeit the pending winner's hiding choice after the common deadline.
+// Paid signal access is preserved; an empty hiding mask cannot block later buyers.
+export circuit skipSelection(id: Uint<32>): [] {
+  const marketId = disclose(id);
+  assert(blockTimeGte(selectionDeadline.lookup(marketId)), "Winner selection deadline not reached");
+  finishSelection(marketId, [false,false,false,false,false,false,false,false]);
+}
+
+circuit finishSelection(marketId: Uint<32>, mask: Vector<8, Boolean>): [] {
+  const market = markets.lookup(marketId);const rank = selectionNext.lookup(marketId);
+  assert(market.side == 0 && marketPhase.lookup(marketId) == 5 && rank < 2, "Selection is not open");
+  const result = auctionResults.lookup(marketId);const pseudonym = rank == 0 ? result.first : result.second;
+  assert(bids.lookup(pseudonym).settled, "Settle winning bid before selection");
+  const hidden = hiddenOptions.lookup(marketId);
+  const count = fold((acc: Uint<8>, value: Boolean): Uint<8> => (acc + (value ? 1 : 0)) as Uint<8>, 0, mask);
+  assert(count <= 3, "Winner can hide at most three options");
+  for (const i of [0,1,2,3,4,5,6,7]) { assert((i < market.nOptions || !mask[i]) && (rank == 0 || !mask[i] || !hidden[0][i]), "Invalid or already hidden option"); }
+  const visible = map((i: Uint<8>, taken: Boolean): Boolean => i < market.nOptions && (rank == 0 || !taken), [0,1,2,3,4,5,6,7], hidden[0]);
+  const access = buyerAccess.lookup(pseudonym);buyerAccess.insert(pseudonym, BuyerAccess { ...access, bought: visible });
+  hiddenOptions.insert(marketId, [rank == 0 ? mask : hidden[0],rank == 1 ? mask : hidden[1]]);
+  selectionNext.insert(marketId, rank == 0 && result.second != default<Bytes<32>> ? 1 : 2);
+}
+
 export circuit buyFlat(id: Uint<32>, optionNumber: Uint<8>): Bytes<32> {
   const marketId = disclose(id);const option = disclose(optionNumber);const market = markets.lookup(marketId);
-  assert(market.side == 1, "Side A purchase requires auction allocation");
   const phase = marketPhase.lookup(marketId);
-  assert((phase == 3 || phase == 6) && blockTimeLt(market.outcomeUntil), "Market not accepting purchases");
+  assert((phase == 6 || (market.side == 1 ? phase == 3 : phase == 5)) && blockTimeLt(market.outcomeUntil), "Market not accepting purchases");
   assert(marketScouts.lookup(marketId) >= 5, "Market anonymity threshold not met");
   assert(option < market.nOptions, "Purchase option outside market");
-  const secret = buyerSecret();const path = assertBuyer(secret);const pseudonym = buyerId(secret, marketId);
+  const secret = buyerSecret();const path = assertBuyer(secret);const pseudonym = disclose(buyerId(secret, marketId));
+  const owners = marketBuyers.lookup(marketId);
+  const pool: Uint<8> = market.side == 1 ? 0 : owners[2] == pseudonym ? 2 : owners[3] == pseudonym ? 3 : owners[2] == default<Bytes<32>> ? 2 : 3;
+  if (market.side == 0) {
+    assert(selectionNext.lookup(marketId) == 2, "Winner selection not finished");
+    const result = auctionResults.lookup(marketId);
+    assert(pseudonym != result.first && pseudonym != result.second, "Auction winner already has access");
+    assert((owners[2] == pseudonym || owners[3] == pseudonym) || owners[2] == default<Bytes<32>> || owners[3] == default<Bytes<32>>, "Two flat buyers already joined");
+    const hidden = hiddenOptions.lookup(marketId);
+    for (const i of [0,1,2,3,4,5,6,7]) { assert(option != i || (!hidden[0][i] && !hidden[1][i]), "Option hidden by auction winner"); }
+  }
   const exists = buyerAccess.member(disclose(pseudonym));
   const previous: Vector<8, Boolean> = exists ? buyerAccess.lookup(disclose(pseudonym)).bought : [false,false,false,false,false,false,false,false];
   for (const i of [0,1,2,3,4,5,6,7]) { assert(option != i || !previous[i], "Option already purchased"); }
@@ -393,27 +537,50 @@ export circuit buyFlat(id: Uint<32>, optionNumber: Uint<8>): Bytes<32> {
   }
   if (market.flatPrice > 0) { receiveUnshielded(dusdColor, market.flatPrice); }
   const pools = marketPools.lookup(marketId);
-  marketPools.insert(marketId, [(pools[0] + market.flatPrice) as Uint<128>,pools[1],pools[2],pools[3]]);
+  marketPools.insert(marketId, map((i: Uint<8>, value: Uint<128>): Uint<128> => i == pool ? (value + market.flatPrice) as Uint<128> : value, [0,1,2,3], pools));
+  if (market.side == 0) { marketBuyers.insert(marketId, [owners[0],owners[1],pool == 2 ? disclose(pseudonym) : owners[2],pool == 3 ? disclose(pseudonym) : owners[3]]); }
   marketRevenue.insert(marketId, (marketRevenue.lookup(marketId) + market.flatPrice) as Uint<128>);
   marketPhase.insert(marketId, 6);return disclose(pseudonym);
 }
 
-export circuit recordOutcome(id: Uint<32>, mask: Vector<8, Boolean>, evidence: Bytes<32>, byOperator: Boolean): [] {
+export circuit recordOutcome(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, Boolean>, evidence: Bytes<32>, byOperator: Boolean): [] {
   const marketId = disclose(id);const market = markets.lookup(marketId);const phase = marketPhase.lookup(marketId);
-  assert(market.side == 1, "Side A outcome requires buyer settlement slots");
-  assert((phase == 3 || phase == 6) && !outcomeEvidence.member(marketId), "Outcome already recorded or market not ready");
+  const pool = disclose(poolNumber);assert(pool < 4 && (market.side == 0 || pool == 0), "Invalid outcome pool");
+  const key = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:outcome"), marketId as Bytes<32>, pool as Bytes<32>]);
+  assert((phase == 3 || phase == 5 || phase == 6 || phase == 7) && !outcomeEvidence.member(disclose(key)), "Outcome already recorded or market not ready");
   assert(blockTimeGte(market.auctionUntil) && blockTimeLt(market.outcomeUntil), "Outside outcome window");
   const isOperator = disclose(byOperator);const secret = isOperator ? operatorSecret() : buyerSecret();
+  const owners = marketBuyers.lookup(marketId);const owner = pool == 0 ? owners[0] : pool == 1 ? owners[1] : pool == 2 ? owners[2] : owners[3];
+  if (market.side == 0) {
+    assert(owner != default<Bytes<32>>, "Outcome pool has no buyer");assert(selectionNext.lookup(marketId) == 2, "Winner selection not finished");
+    const result = auctionResults.lookup(marketId);
+    if (result.first != default<Bytes<32>>) { assert(bids.lookup(result.first).settled, "Winning bids not settled"); }
+    if (result.second != default<Bytes<32>>) { assert(bids.lookup(result.second).settled, "Winning bids not settled"); }
+  }
   if (isOperator) { assertOperatorKey(secret); }
-  else { assertBuyer(secret);assert(buyerAccess.member(disclose(buyerId(secret, marketId))), "Buyer has not purchased this market"); }
+  else {
+    assertBuyer(secret);const buyer = buyerId(secret, marketId);
+    assert(buyerAccess.member(disclose(buyer)), "Buyer has not purchased this market");
+    if (market.side == 0) { assert(buyer == owner, "Buyer does not own outcome pool"); }
+    assert(fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, buyerAccess.lookup(disclose(buyer)).bought), "Buyer has not purchased this market");
+  }
   assert(evidence != default<Bytes<32>>, "Outcome evidence required");
   const success = disclose(mask);
   for (const i of [0,1,2,3,4,5,6,7]) { assert(i < market.nOptions || !success[i], "Outcome includes unused option"); }
-  const masks = successMasks.lookup(marketId);successMasks.insert(marketId, [success,masks[1],masks[2],masks[3]]);
-  outcomeEvidence.insert(marketId, disclose(evidence));
+  if (market.side == 0) {
+    const bought = buyerAccess.lookup(owner).bought;
+    for (const i of [0,1,2,3,4,5,6,7]) { assert(!success[i] || bought[i], "Outcome includes unpurchased option"); }
+  }
+  const masks = successMasks.lookup(marketId);
+  successMasks.insert(marketId, [pool == 0 ? success : masks[0],pool == 1 ? success : masks[1],pool == 2 ? success : masks[2],pool == 3 ? success : masks[3]]);
+  outcomeEvidence.insert(disclose(key), disclose(evidence));
   hitUntil.insert(marketId, (market.outcomeUntil + hitWindow) as Uint<64>);
   const any = fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, success);
-  marketPhase.insert(marketId, any ? 8 : 7);
+  const ready = map((i: Uint<8>, value: Boolean): Boolean => i == pool ? any : value, [0,1,2,3], outcomesReady.lookup(marketId));
+  outcomesReady.insert(marketId, ready);
+  needsDefault.insert(marketId, map((i: Uint<8>, value: Boolean): Boolean => i == pool ? !any : value, [0,1,2,3], needsDefault.lookup(marketId)));
+  const required = map((i: Uint<8>, buyer: Bytes<32>, value: Boolean): Boolean => (market.side == 1 ? i != 0 : buyer == default<Bytes<32>>) || value, [0,1,2,3], owners, ready);
+  marketPhase.insert(marketId, fold((acc: Boolean, value: Boolean): Boolean => acc && value, true, required) ? 8 : 7);
 }
 
 export circuit proveHit(id: Uint<32>, slotNumber: Uint<8>, poolNumber: Uint<8>): [] {

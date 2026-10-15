@@ -11,9 +11,9 @@ export const commitment=(secret:Uint8Array,epoch:bigint)=>{
   const encoded=RT.convertFieldToBytes(32,epoch,"synthetic group epoch");
   return RT.persistentHash(new RT.CompactTypeVector(2,RT.Bytes32Descriptor),[secret,encoded]);
 };
-type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8Array;buyer:Uint8Array;option:bigint;salt:Uint8Array;badDivision?:boolean;badPayout?:boolean;path?:RT.MerkleTreePath<Uint8Array>;previousPath?:RT.MerkleTreePath<Uint8Array>;buyerPath?:RT.MerkleTreePath<Uint8Array>;standingPath?:RT.MerkleTreePath<Uint8Array>};
+type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8Array;buyer:Uint8Array;bid:bigint;now:bigint;option:bigint;salt:Uint8Array;badDivision?:boolean;badPayout?:boolean;path?:RT.MerkleTreePath<Uint8Array>;previousPath?:RT.MerkleTreePath<Uint8Array>;buyerPath?:RT.MerkleTreePath<Uint8Array>;standingPath?:RT.MerkleTreePath<Uint8Array>};
 export const config={side:0n,tier:1n,epoch:7n,ecosystem:bytes(0)};
-export function setupGroups(){
+export function setupGroups(selectionSeconds=300n){
   const contract=new Contract<PS>({
     operatorSecret:({privateState})=>[privateState,privateState.operator],
     committeeSecret:({privateState})=>[privateState,privateState.committee],
@@ -30,14 +30,16 @@ export function setupGroups(){
     cardRandomHigh:({privateState})=>[privateState,0n],cardRandomLow:({privateState})=>[privateState,33n],
     divide:({privateState},n,d)=>[privateState,{quotient:n/d+(privateState.badDivision?1n:0n),remainder:n%d}],
     dividePayout:({privateState},n,d)=>[privateState,{quotient:n/d+(privateState.badPayout?1n:0n),remainder:n%d}],
+    currentTime:({privateState})=>[privateState,privateState.now],
+    bidAmount:({privateState})=>[privateState,privateState.bid],bidRandomHigh:({privateState})=>[privateState,0n],bidRandomLow:({privateState})=>[privateState,77n],
     memberPath:({privateState})=>{if(!privateState.path)throw Error("Missing test path");return [privateState,privateState.path];},
   });
-  const initial=contract.initialState(RT.createConstructorContext<PS>({operator,scout,committee:committee[0],builder:bytes(40),buyer:bytes(60),option:0n,salt:bytes(61)},"0".repeat(64)),hash(operator),committee.map(hash),RT.ecMulGenerator(37n),bytes(62),128n,300n);
+  const initial=contract.initialState(RT.createConstructorContext<PS>({operator,scout,committee:committee[0],builder:bytes(40),buyer:bytes(60),bid:100n,now:1000n,option:0n,salt:bytes(61)},"0".repeat(64)),hash(operator),committee.map(hash),RT.ecMulGenerator(37n),bytes(62),128n,300n,selectionSeconds);
   let context=RT.createCircuitContext(RT.sampleContractAddress(),"0".repeat(64),initial.currentContractState,initial.currentPrivateState,undefined,undefined,1000);
   const invoke=<K extends keyof typeof contract.impureCircuits>(name:K,...args:Parameters<(typeof contract.impureCircuits)[K]> extends [unknown,...infer A]?A:never)=>{
     const circuit=contract.impureCircuits[name] as (...args:unknown[])=>RT.CircuitResults<PS,unknown>;
     const result=circuit(context,...args);context=result.context;return result.result;
   };
-  return {contract,invoke,setTime(time:number){context.currentQueryContext.block={...context.currentQueryContext.block,secondsSinceEpoch:BigInt(time)};},get context(){return context;},get state(){return ledger(context.currentQueryContext.state);}};
+  return {contract,invoke,setTime(time:number){context.currentPrivateState.now=BigInt(time);context.currentQueryContext.block={...context.currentQueryContext.block,secondsSinceEpoch:BigInt(time)};},get context(){return context;},get state(){return ledger(context.currentQueryContext.state);}};
 }
 

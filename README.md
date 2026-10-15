@@ -13,8 +13,11 @@ data**. Its actions update local demo state; they do not submit Midnight
 transactions. A separate developer-only fixture has completed a real Lace Preprod
 deployment and circuit call. The repository now includes isolated Compact technical spikes,
 runtime-compatible cryptography and a local test harness. Core group, builder registry, market creation, private stake/tally and demo-token
-contracts compile and have simulator tests. Outcome/settlement, auctions, services
-and the frontend SDK integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
+contracts compile and have simulator tests. Auction escrow, per-option flat purchases,
+objective outcomes and refundable settlement on both sides also pass simulator tests.
+Selection deadlines and permissionless skipping pass simulator tests.
+Committee defaults, subsidies, services and frontend SDK
+integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
 network only. No Senyap product market contract is deployed.
 
 The full product mechanism described below is still under implementation; simulator

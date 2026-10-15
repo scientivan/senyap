@@ -1,8 +1,8 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.4 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; penyempurnaan kartu hibrida dan batas total bobot market disetujui 15 Oktober.**
+> Versi 0.6 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, dan durasi seleksi disetujui 15 Oktober.**
 > Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
-> Sumber keputusan: living doc Bisik bagian 26 (v0.49), `task-tracker.md`, `AGENTS.md`.
+> Sumber keputusan: living doc Bisik bagian 26 (v0.51), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
 > boleh diubah Dien kapan saja, dan setiap perubahan dicatat; **[Spike]** asumsi teknis yang wajib
 > dibuktikan sebelum dipakai (lihat §9). v0.2 menambah §6.3b struct, §8.5 env, §8.6 antarmuka offchain,
@@ -148,7 +148,8 @@ nullifier posisi. Veritas menilai dan menulis ulang alasan (D-21; Gemini hanya p
   `bid <= ceiling`. Komite menghitung generalized second price dengan reserve, memposting hasil lewat
   persetujuan ambang (`postAuctionResult`). Bid kalah tidak pernah publik [Keputusan Dien, M-12].
 - Pemenang #1 memilih hingga 3 opsi untuk disembunyikan, lalu pemenang #2 dari sisanya; buyer lain
-  membeli sisa opsi dengan harga tetap (`buyFlat`).
+  membeli sisa opsi dengan harga tetap **per opsi** (`buyFlat`, keputusan Dien 15 Okt). Maksimal dua buyer flat berbeda; buyer yang sama boleh membeli beberapa opsi.
+- Jendela pemilihan pemenang adalah **5 menit demo / 24 jam produksi**, parameter kontrak, dimulai saat persetujuan komite ketiga memfinalkan hasil (keputusan Dien 15 Okt). Timestamp dikirim komite pada persetujuan ketiga dan wajib berada dalam rentang 0–60 detik sebelum blok finalisasi (toleransi disetujui Dien). Satu deadline bersama berlaku untuk kedua pemenang, tidak diulang saat giliran kedua. Sebelum deadline, pemenang dapat memilih; tepat pada/selepas deadline, siapa pun boleh `skipSelection` dengan mask sembunyi kosong. Hak akses berbayar tetap diberikan sesuai peringkat. Bid pemenang harus diselesaikan terlebih dahulu. Deadline harus mendahului `outcomeUntil`. Implementasi diuji simulator; belum diuji jaringan.
 
 ### 3.7 F5 Pembukaan sinyal ke buyer
 
