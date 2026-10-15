@@ -37,9 +37,9 @@ Senyap (Indonesian for "hushed, silent") is a private, stake-backed insider-sign
 
 ## Capabilities and Constraints
 
-- Up to 8 options per market, up to 3 positions per scout per market, stake 10–500 dUSD (demo unshielded token), 85% scouts / 15% platform, k = 5 anonymity threshold per group and per market.
+- Up to 8 options per market, up to 3 positions per scout per market, stake 10–500 dUSD (demo unshielded token), 85% scouts / 15% platform, k = 5 anonymity threshold per group and per market. Total public market weight is strictly below 2^40 (Dien, 15 Oct); option totals remain encrypted.
 - Side B questions must have a resolvable outcome and must never concern unannounced foundation decisions that could move a token price.
-- Frontend (landing + all app pages) is built in `apps/web` on labelled demo data. Isolated Compact spikes and the runtime-compatible crypto package have local tests. The demo-token fixture has local-network mint/deposit/payout evidence. Senyap product contracts and services are not built yet; S5 passed with a real Lace/Preprod counter deployment and circuit call (both finalized); this remains an isolated technical fixture. Status lives in `task-tracker.md`.
+- Frontend (landing + all app pages) is built in `apps/web` on labelled demo data. Isolated Compact spikes and the runtime-compatible crypto package have local tests. The demo-token fixture has local-network mint/deposit/payout evidence. Core group/registry/market/stake contracts and demo dUSD are tested in the simulator; outcome/settlement, auctions and services remain unfinished; S5 passed with a real Lace/Preprod counter deployment and circuit call (both finalized); this remains an isolated technical fixture. Status lives in `task-tracker.md`.
 - Dien approved SPEC v0.2, its proposed parameters (O-1 to O-9), and O-10 on 14 October 2026. Technical spikes remain required before P2. The production charity address must be supplied before deployment.
 
 ## Brand Commitments

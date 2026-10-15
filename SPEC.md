@@ -1,8 +1,8 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.2 · 14 Oktober 2026 · Status: **disetujui Dien di chat, termasuk seluruh usulan parameter dan O-10.**
-> Frontend (landing + halaman app dengan data demo) sudah ada di `apps/web`; kontrak dan layanan belum.
-> Sumber keputusan: living doc Bisik bagian 26 (v0.46), `task-tracker.md`, `AGENTS.md`.
+> Versi 0.4 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; penyempurnaan kartu hibrida dan batas total bobot market disetujui 15 Oktober.**
+> Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
+> Sumber keputusan: living doc Bisik bagian 26 (v0.49), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
 > boleh diubah Dien kapan saja, dan setiap perubahan dicatat; **[Spike]** asumsi teknis yang wajib
 > dibuktikan sebelum dipakai (lihat §9). v0.2 menambah §6.3b struct, §8.5 env, §8.6 antarmuka offchain,
@@ -313,6 +313,7 @@ tetap disimpan di private state, tidak dibuat acak ulang tiap panggilan (peringa
 
 ```text
 GroupId      = Bytes<32>                      // H("tier", level, epoch) atau H("eco", ecosystemId, epoch)
+LockedCard   = { version: Uint<8>, ephemeral: JubjubPoint, ciphertext: Bytes<40>, tag: Bytes<32> }
 CipherPair   = { c1: JubjubPoint, c2: JubjubPoint }   // cadangan M-8: { c1x, c1y, c2x, c2y: Field }
 BuilderEntry = { profileHash: Bytes<32>, consent: Boolean, registeredAt: Uint<64> }
 Market       = { id: Uint<32>, side: Uint<8> (0=A,1=B), category: Bytes<32>, questionHash: Bytes<32>,
@@ -322,7 +323,7 @@ Market       = { id: Uint<32>, side: Uint<8> (0=A,1=B), category: Bytes<32>, que
                  scouts: Uint<32>, stakeTotal: Uint<128>, successMask: Vector<4, Uint<16>>,
                  pools: Vector<4, Uint<128>>, denoms: Vector<4, Uint<64>>, buyerCount: Uint<8> }
 Position     = { marketId: Uint<32>, optionCommit: Bytes<32>, weight: Uint<64>, stake: Uint<128>,
-                 lockedCard: CipherPair, revealKeyCommit: Bytes<32>, status: Uint<8> }
+                 lockedCard: LockedCard, revealKeyCommit: Bytes<32>, status: Uint<8> }
 Bid          = { marketId: Uint<32>, pseudonym: Bytes<32>, enc: CipherPair, ceiling: Uint<128>, refunded: Boolean }
 ```
 
@@ -355,6 +356,8 @@ posisi, nominal stake, hasil yang disetujui komite. Opsi, secret, salt, randomne
 - **Cadangan bertingkat** [Keputusan Dien, M-8]: (1) simpan koordinat sebagai `Field` lalu
   `constructJubjubPoint`; (2) bila tetap gagal, opsi terenkripsi offchain ke komite + commitment onchain.
 
+**Batas dekripsi (disetujui Dien, 15 Okt):** jumlah bobot publik seluruh posisi dalam satu market wajib `< 2^40`. Ini lebih ketat dari batas per opsi sebelumnya dan menjamin seluruh total opsi tetap dapat dicari tanpa membuka distribusi dukungan.
+
 ### 7.2 Pembukaan untuk buyer
 
 Potongan `D_j = d_j·ΣC1_i` dikirim ke buyer terenkripsi, disertai bukti DLEQ bahwa `log_G Y_j =
@@ -377,6 +380,16 @@ generalized second price dua slot dengan reserve (seperti v1), memposting hasil 
 Circuit membuktikan isinya sama dengan leaf yang dipakai untuk bukti keanggotaan. Dibuka komite hanya
 saat hoax terbukti atau pelanggaran buyer.
 
+**Penyempurnaan disetujui Dien, 15 Okt:** payload 32 byte commitment dan 8 byte indeks memakai
+kartu hibrida JubJub + hash, bukan satu pasangan ElGamal aditif yang memerlukan log diskret besar.
+Format versi 1 menyimpan titik ephemeral, ciphertext 40 byte dan tag 32 byte; indeks scout dibatasi
+20 bit. Hash persisten dengan domain berbeda menghasilkan stream per blok dan tag terikat konteks.
+Potongan DH tetap 3-dari-5 dan diverifikasi DLEQ. Implementasi kandidat berada di
+`contracts/lib/LockedCardEncryption.compact` dan `packages/crypto/src/locked-card.ts`.
+S10 sudah lulus simulator dan proving lokal (docs/evidence/S10-proving.json); validasi mencakup kecocokan Compact/TypeScript, seluruh kombinasi tiga anggota, penolakan
+potongan/konteks/ciphertext salah serta proving lokal sebelum integrasi. Hasil pengujian bukan audit
+kriptografi independen. Siapa yang boleh meminta pembukaan tetap ditegakkan layanan komite.
+
 ## 8. Layanan offchain dan frontend
 
 ### 8.1 Operator (`apps/operator`)
@@ -398,7 +411,7 @@ Memicu `close`, jadwal pratinjau, `settleBid`, penutupan jendela, `markMissedRep
 
 ### 8.4 Frontend (`apps/web`) [Keputusan Dien: web + Lace di W2]
 
-- Vite + React + TypeScript; network `preprod` (diubah dari preview pada 14 Okt, M-7). `@midnight-ntwrk/dapp-connector-api` dan Midnight.js **direncanakan, belum terpasang**; `src/app/wallet.tsx` memakai tipe manual sampai F3/F5.
+- Vite + React + TypeScript; network `preprod` (diubah dari preview pada 14 Okt, M-7). API resmi `@midnight-ntwrk/dapp-connector-api` 4.0.1 dan Midnight.js 4.1.1 terpasang; koneksi Lace asli dan spike counter Preprod sudah terbukti, integrasi aksi produk belum.
 - Halaman: landing, panduan, daftar market (sisi A/B), detail market (histogram, lelang, beli), stake
   scout, posisi scout (hit, klaim, renew tier), registry builder, profil buyer (good standing),
   operator, komite (status), verifier (suara), faucet dUSD demo.
@@ -454,6 +467,7 @@ Dikerjakan pertama setelah aba-aba. Masing-masing menghasilkan kontrak/test keci
 | S6 | `Map` berisi `HistoricMerkleTree`, `insertIndexDefault` + `resetHistory` untuk pencabutan | Bukti keanggotaan lama ditolak setelah pencabutan |
 | S7 | Konversi `Uint`/`Field` ke `JubjubScalar` untuk `ecMul` | Bobot terenkripsi = bobot yang diharapkan |
 | S8 | Verifikasi DLEQ dan Lagrange di TypeScript cocok dengan titik dari runtime Compact | Test lintas paket lulus |
+| S10 | Kartu anggota hibrida JubJub + hash, sesuai persetujuan 15 Okt | Payload 256-bit + indeks pulih utuh, semua kombinasi 3-dari-5 valid, data salah ditolak dan proving lokal lulus |
 | S9 | Pembagian integer dan pengali pecahan di circuit (Compact mungkin tidak punya `/` untuk Uint): hasil bagi dari witness lalu dicek `q × d + r == n`, `r < d` | Bobot, payout, dan epoch dihitung benar di test |
 
 ## 10. Parameter ekonomi dan default
@@ -481,7 +495,7 @@ Dikerjakan pertama setelah aba-aba. Masing-masing menghasilkan kontrak/test keci
 | Banyak buyer | `proveHit(b)` dipanggil per buyer `b` yang mask suksesnya memuat opsi posisi; denominator per buyer | [Usulan] |
 | Jendela waktu (produksi / demo) | Open 48 j / 10 mnt · Lelang 24 j / 5 mnt · Pendaftaran hit 72 j / 5 mnt · Outcome 30 hari / 10 mnt · Sengketa commit 24 j + reveal 24 j / 3 + 3 mnt | [Usulan] |
 | Penegakan k = 5 | Slot dipakai berurutan (circuit membuktikan slot n hanya bila nullifier slot n-1 milik scout yang sama sudah ada); `scouts` bertambah hanya saat slot = 1. Kontrak menolak `buyFlat`/pembukaan bila `scouts < 5`; komite juga menolak membuka | [Usulan] |
-| Desimal dUSD | 0 desimal (1 unit = 1 dUSD) agar bobot dan total per opsi muat untuk baby-step giant-step; batas total per opsi `< 2^40` | [Usulan] |
+| Desimal dUSD | 0 desimal (1 unit = 1 dUSD) agar bobot dan total per opsi muat untuk baby-step giant-step; batas total seluruh market `< 2^40` (penyempurnaan disetujui Dien, 15 Okt) | [Usulan] |
 | Pengali dalam circuit | Ditulis sebagai bilangan bulat: tier 100/125/150, bonus awal 100/120; bobot = `stake × pengaliTier × bonus / 10000` dengan hasil bagi diberikan witness dan dicek lewat perkalian (lihat spike S9) | [Usulan] |
 | Batas buyer per market | Sisi A: maks 4 buyer berbayar (2 pemenang lelang + 2 flat) mengikuti vektor `pools`/`denoms`. Sisi B: satu pool dan satu mask untuk semua buyer (outcome tunggal) | [Usulan, menunggu Dien, O-9] |
 | Alamat amal | Konstanta konfigurasi kontrak, diisi Dien sebelum deploy; demo memakai alamat burn berlabel | [Usulan, menunggu Dien] |

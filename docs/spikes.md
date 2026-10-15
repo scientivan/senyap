@@ -117,3 +117,38 @@ exported test circuit; production can keep intermediary quotients private.
   supports Compact 0.31.1/runtime 0.16.0/Midnight.js 4.1.1/proof server 8.1.3.
 - Current reference pages can target a newer language/compiler. Actual pinned
   compilation and runtime tests determine what this project can use.
+
+## S10 (passed locally, experimental construction)
+
+Question: Can a threshold committee recover a full 32-byte membership commitment
+and its tree index without a large discrete-log search, while Compact proves the
+card's encryption relation?
+
+Dien approved a hybrid representation on 15 October. Version 1 uses a JubJub DH
+point, two domain-separated persistent-hash stream blocks, byte addition modulo
+256, and a separate context/ciphertext-bound authentication tag. Payload is the
+32-byte commitment followed by the little-endian 8-byte index (restricted to 20
+bits). The index and commitment stay private; only the encrypted card is stored.
+Randomness must be fresh, nonzero and canonical. Both implementations check the
+prime-order subgroup for the encryption key.
+
+Three simulator tests establish exact Compact/TypeScript ciphertext agreement,
+all ten 3-of-5 subsets, rejection of fewer/duplicate/invalid shares, modified
+ciphertext/tag/context, bad format, invalid index and randomness. S8's existing
+four crypto tests still pass after extracting shared-point reconstruction.
+
+Full compiler proving-key generation succeeded. The local proof server `/check`
+passed and `/prove` returned 4860 bytes in 31580 ms; this is local proof generation,
+not a network transaction or an independent cryptographic audit.
+[Proving evidence](evidence/S10-proving.json), [suite results](evidence/P2-tests.json).
+
+The product circuit must additionally bind the encrypted payload to the exact
+Merkle leaf and derive its index from the private path. Committee services must
+bind release authorization to the finalized dispute and recorded card; mathematical
+3-of-5 access alone does not enforce the reason for opening a card. All five demo
+nodes on one machine still share that machine's trust boundary.
+
+References for the used language/runtime primitives:
+[persistentHash](https://docs.midnight.network/api-reference/compact-runtime/functions/persistentHash),
+[Compact sequence and module syntax](https://docs.midnight.network/compact/reference/compact-reference).
+The repository pins runtime 0.16.0/compiler 0.31.1; published latest docs can differ.

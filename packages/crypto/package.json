@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
-  "exports": { ".": "./src/index.ts" },
+  "exports": { ".": "./src/index.ts", "./locked-card": "./src/locked-card.ts" },
   "dependencies": { "@midnight-ntwrk/compact-runtime": "0.16.0" }
 }

@@ -12,11 +12,13 @@ This repository currently contains a React frontend with **labelled synthetic de
 data**. Its actions update local demo state; they do not submit Midnight
 transactions. A separate developer-only fixture has completed a real Lace Preprod
 deployment and circuit call. The repository now includes isolated Compact technical spikes,
-runtime-compatible cryptography and a local test harness. Senyap product contracts,
-services and the frontend SDK integration have not been implemented. A permissionless demo-token fixture has been deployed and tested on the local
+runtime-compatible cryptography and a local test harness. Core group, builder registry, market creation, private stake/tally and demo-token
+contracts compile and have simulator tests. Outcome/settlement, auctions, services
+and the frontend SDK integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
 network only. No Senyap product market contract is deployed.
 
-The mechanisms described below are planned, not working features. See [SPEC.md](SPEC.md)
+The full product mechanism described below is still under implementation; simulator
+coverage and the isolated Preprod counter do not establish an end-to-end market. See [SPEC.md](SPEC.md)
 for the approved specification and [PRODUCT.md](PRODUCT.md) for product context.
 
 ## Run the frontend demo
@@ -53,12 +55,13 @@ execution, not product-market integration.
 ## Planned architecture and Midnight integration
 
 - `apps/web` (present): Vite, React and TypeScript frontend with demo state.
-- `contracts` (spikes present; product contracts planned): Compact market and
+- `contracts` (spikes and partial core contracts present): Compact market and
   unshielded demo-token contracts.
 - `packages/crypto` (local tests present; integration planned): additive ElGamal
   on JubJub and 3-of-5 threshold decryption (three committee members must cooperate
   to open a total).
-- `packages/sdk` (planned): Midnight.js wrapper, witnesses and private state.
+- `packages/sdk` (spike-only ephemeral state present): product wrapper, witnesses
+  and persistent private state remain planned.
 - `apps/operator` (planned): credential verification, reason screening and relay.
 - `apps/committee` (planned): five decryption nodes and onchain approvals.
 - `services/keeper` (planned): market transitions and settlement scheduling.

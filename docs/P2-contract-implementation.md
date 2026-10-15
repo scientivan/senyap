@@ -22,3 +22,21 @@ relabelled while existing members retain old proofs. Admission rejects duplicate
 commitments within a group. Revocation approvals are single use and cannot be
 replayed against another group or index. These are enforcement details of SPEC
 sections 3.2, 3.10, 6.1, 6.2 and 7.3.
+
+## Verified progress
+
+Groups, registry, verified market creation, staking and the demo faucet now compile
+and have simulator tests. `close` passes its exact time-boundary test; outcome and
+settlement are still pending. No product deployment/network transaction occurred.
+
+Stakes read the scout secret once, bind the private path leaf to the epoch
+commitment, derive the card index from that same path, and encrypt the card with
+the S10-validated helper. Sequential slots use a private depth-32 Merkle proof of
+the predecessor instead of disclosing its nullifier in a Set lookup. The public
+position nullifier and the private predecessor membership remain separate.
+
+Dien approved an aggregate market-weight bound strictly below 2^40 on 15 October;
+this stronger bound guarantees that every option stays inside the decryption
+search range. A boundary/overflow test exercises the same generated pure circuit
+used by `stake`. Group counts and weighted sums are public; the distribution
+across the eight encrypted tally slots remains private.
