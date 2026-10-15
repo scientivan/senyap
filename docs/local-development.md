@@ -46,10 +46,10 @@ The bboard test imports the official generated Contract class and exercises
 posting, removal and rejection cases in ESM. Spike tests and `spike:prove` run
 locally. The explicitly approved S3/S4 fixture sequence was executed on the local
 network; its public balances are 900/75/25. `scripts/inspect-local-token.ts` repeats
-only the read-only inspection. No Preprod contract or transaction exists. See [spikes.md](spikes.md) for what each result establishes.
+only the read-only inspection. The separate S5 counter fixture passed Preprod; no product market has been deployed. See [spikes.md](spikes.md) for what each result establishes.
 
 
-The main product contract has local proving-key evidence for 36 circuits in
+The main product contract has local proving-key evidence for 38 circuits in
 `docs/evidence/product-proving-keys.json`. After full key generation, run
 `pnpm exec tsx scripts/prove-product.ts` with the local proof server on port 6300.
 It builds synthetic stake and anonymous verifier-commit witnesses, calls /check
@@ -57,3 +57,11 @@ and /prove, and saves only public metadata in `product-proving.json`. It does no
 use a wallet, deploy, submit transactions or write private transcripts to logs.
 A simulator-only --skip-zk rebuild can clear these keys; do not rebuild before
 running the proof smoke check unless you intend to regenerate them.
+
+
+`pnpm exec tsx scripts/prove-cancellation.ts` separately checks/proves cancellation,
+full bid refund without an auction result, and a principal-only cancelled claim.
+Run proof checks separately from the test suite: proving is memory/CPU intensive
+and concurrent runs can exceed test timeouts. Do not raise timeouts to hide that
+resource contention. The resulting evidence remains local proof work, not a
+network transaction.

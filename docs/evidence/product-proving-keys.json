@@ -1,66 +1,71 @@
 {
   "compiler": "0.31.1",
-  "sourceSha256": "808d7830648a75f1ce2696278a4e6a699cb524a8c17622f9d0c101d6505504a5",
-  "circuits": 36,
+  "sourceSha256": "b9b8946cf2d8124dd1351965e7037e24d12f0c6f15c6fb112fdfa7cded64266b",
+  "circuits": 38,
   "provingKeys": [
     {
       "circuit": "admitBuyer",
-      "proverBytes": 2827443,
+      "proverBytes": 2827484,
       "verifierBytes": 2119
     },
     {
       "circuit": "admitScout",
-      "proverBytes": 5208883,
+      "proverBytes": 5208848,
       "verifierBytes": 2119
     },
     {
       "circuit": "admitVerifier",
-      "proverBytes": 2821361,
+      "proverBytes": 2821359,
       "verifierBytes": 2119
     },
     {
       "circuit": "allocateSubsidy",
-      "proverBytes": 2824202,
+      "proverBytes": 5220270,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveHoaxMember",
-      "proverBytes": 10007683,
+      "proverBytes": 10007813,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveMissedBuyer",
-      "proverBytes": 9996816,
+      "proverBytes": 9997001,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveRevocation",
-      "proverBytes": 5252069,
+      "proverBytes": 5252189,
       "verifierBytes": 2119
     },
     {
       "circuit": "buyFlat",
-      "proverBytes": 42803575,
+      "proverBytes": 42803582,
       "verifierBytes": 2311
     },
     {
+      "circuit": "cancelMarket",
+      "proverBytes": 148807,
+      "verifierBytes": 1351
+    },
+    {
       "circuit": "claim",
-      "proverBytes": 5221960,
+      "proverBytes": 5222653,
       "verifierBytes": 2119
     },
     {
       "circuit": "claimVerifier",
-      "proverBytes": 288318,
+      "proverBytes": 288321,
       "verifierBytes": 1351
     },
     {
       "circuit": "close",
-      "proverBytes": 74346,
+      "proverBytes": 74345,
       "verifierBytes": 1351
     },
     {
       "circuit": "commitVote",
-      "proverBytes": 5212874,
+      "proverBytes": 5212875,
       "verifierBytes": 2119
     },
     {
@@ -70,52 +75,52 @@
     },
     {
       "circuit": "createMarket",
-      "proverBytes": 42810190,
+      "proverBytes": 42810243,
       "verifierBytes": 2311
     },
     {
       "circuit": "finalizeMarket",
-      "proverBytes": 284476,
+      "proverBytes": 284475,
       "verifierBytes": 1351
     },
     {
       "circuit": "markMissedReport",
-      "proverBytes": 2834040,
+      "proverBytes": 2834034,
       "verifierBytes": 2119
     },
     {
       "circuit": "openDispute",
-      "proverBytes": 553748,
+      "proverBytes": 553951,
       "verifierBytes": 1351
     },
     {
       "circuit": "placeBid",
-      "proverBytes": 85074535,
+      "proverBytes": 85074601,
       "verifierBytes": 2311
     },
     {
       "circuit": "postAuctionResult",
-      "proverBytes": 9995233,
+      "proverBytes": 9995458,
       "verifierBytes": 2119
     },
     {
       "circuit": "postDefaultStrongest",
-      "proverBytes": 5250237,
+      "proverBytes": 5250327,
       "verifierBytes": 2119
     },
     {
       "circuit": "postPreview",
-      "proverBytes": 5245665,
+      "proverBytes": 5245912,
       "verifierBytes": 2119
     },
     {
       "circuit": "proveHit",
-      "proverBytes": 9998557,
+      "proverBytes": 9998560,
       "verifierBytes": 2119
     },
     {
       "circuit": "recordOutcome",
-      "proverBytes": 10015868,
+      "proverBytes": 10015890,
       "verifierBytes": 2119
     },
     {
@@ -125,7 +130,7 @@
     },
     {
       "circuit": "renewTier",
-      "proverBytes": 38576844,
+      "proverBytes": 38576802,
       "verifierBytes": 2119
     },
     {
@@ -134,38 +139,43 @@
       "verifierBytes": 1351
     },
     {
+      "circuit": "returnCancelledSubsidy",
+      "proverBytes": 2831529,
+      "verifierBytes": 2119
+    },
+    {
       "circuit": "revealVote",
       "proverBytes": 5217859,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeHoaxMember",
-      "proverBytes": 2826256,
+      "proverBytes": 2826220,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeMember",
-      "proverBytes": 5220777,
+      "proverBytes": 5220754,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeMissedBuyer",
-      "proverBytes": 2821601,
+      "proverBytes": 2821597,
       "verifierBytes": 2119
     },
     {
       "circuit": "scoutPseudonym",
-      "proverBytes": 5223634,
+      "proverBytes": 5223626,
       "verifierBytes": 2119
     },
     {
       "circuit": "selectHidden",
-      "proverBytes": 5245592,
+      "proverBytes": 5245591,
       "verifierBytes": 2119
     },
     {
       "circuit": "settleBid",
-      "proverBytes": 554017,
+      "proverBytes": 556275,
       "verifierBytes": 1351
     },
     {
@@ -175,7 +185,7 @@
     },
     {
       "circuit": "stake",
-      "proverBytes": 84985960,
+      "proverBytes": 84985923,
       "verifierBytes": 2311
     },
     {

@@ -18,8 +18,9 @@ objective outcomes and refundable settlement on both sides also pass simulator t
 Selection deadlines and permissionless skipping pass simulator tests.
 Threshold defaults, cross-market subsidies, reputation renewal and anonymous
 hoax disputes also pass simulator tests. Side A missed reports revoke buyer good
-standing after committee disclosure. Remaining lifecycle cases, live services and
-frontend transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
+standing after committee disclosure. Permissionless cancellation, full principal/bid refunds and returned subsidies
+also pass simulator tests. Remaining lifecycle cases, live services and frontend
+transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
 network only. No Senyap product market contract is deployed.
 
 The full product mechanism described below is still under implementation; simulator
@@ -49,7 +50,7 @@ Compact 0.31.1 compilation and Vitest are available. See
 [local development](docs/local-development.md) for setup, and
 [technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
 was proved by the local proof server; this does not establish end-to-end network
-execution of the Senyap market. The main contract also has 36 generated proving
+execution of the Senyap market. The main contract also has 38 generated proving
 keys and successful local `stake`/`commitVote` proof-server checks in
 [product proving evidence](docs/evidence/product-proving.json).
 
@@ -72,7 +73,9 @@ execution, not product-market integration.
   survives reload and restores signing/decryption keys in an isolated synthetic probe.
   The `/app/workspace` page creates and unlocks a real encrypted local key profile,
   downloads encrypted backups and restores them without overwriting an existing workspace.
-  Leaving the page locks it. Product transaction wrappers and witnesses remain planned.
+  Leaving the page locks it. Scoped user witnesses and a durable operation journal
+  pass local tests. An explicit Lace/Midnight.js transaction adapter has transport-stub
+  tests; product pages have not invoked it against a deployed market.
 - `apps/operator` (screening core present): Veritas duplication/style indicators,
   privacy rewrites and a configurable Gemini adapter have stubbed-provider tests.
   A Reclaim verification core pins provider/version, binds the started session and
@@ -84,7 +87,8 @@ execution, not product-market integration.
   shares pass local tests across five synthetic node keys. Five HTTP nodes and the paid-total SDK pass a local integration test. Trusted
   indexer adapters, process deployment and onchain relays remain planned.
 - `services/keeper` (local planner/driver present): close, bid refunds and overdue
-  selections, overdue disputes, missed side A reports and finalization pass simulator tests. No live transaction adapter or daemon is running.
+  selections, overdue disputes, missed side A reports, finalization, cancellation
+  and subsidy returns pass simulator tests. No live transaction adapter or daemon is running.
 
 The design keeps identities, options and secrets in private state, while the
 public ledger holds commitments, nullifiers (single-use codes), encrypted totals
@@ -133,11 +137,12 @@ outcomes.
 
 The Senyap frontend and technical spikes were written for the Midnight adaptation
 during Wave 2. The official bboard verification fixture retains its Apache-2.0
-attribution. Senyap product contracts and services will be written from scratch. Onchain encrypted
-tallies, anonymous tier groups and buyers, private settlement, portable
-reputation, hoax accountability, encrypted auctions and consent-based identity
-reveal are **planned**, not completed product innovations. The current contribution
-includes the demo interface, specification, local tests and proof-server experiment.
+attribution. Senyap product contracts and services were written from scratch for Midnight.
+Encrypted tallies, anonymous tier groups/buyers, settlement, reputation, hoax
+disputes and auctions have local circuit/simulator coverage; consent-based contact
+delivery has local cryptographic tests. This is implemented local work, with
+selected proof-server checks, rather than a completed deployed product. Live
+service integration and the full Preprod market walkthrough remain unfinished.
 
 ## Development and license
 

@@ -1,0 +1,27 @@
+{
+  "compiler": "0.31.1",
+  "runtime": "0.16.0",
+  "proofServer": "8.1.3",
+  "sourceSha256": "b9b8946cf2d8124dd1351965e7037e24d12f0c6f15c6fb112fdfa7cded64266b",
+  "results": [
+    {
+      "circuit": "cancelMarket",
+      "elapsedMs": 343,
+      "proofBytes": 2940,
+      "proverKeyBytes": 148807
+    },
+    {
+      "circuit": "settleBid",
+      "elapsedMs": 1042,
+      "proofBytes": 2940,
+      "proverKeyBytes": 556275
+    },
+    {
+      "circuit": "claim",
+      "elapsedMs": 3267,
+      "proofBytes": 4508,
+      "proverKeyBytes": 5222653
+    }
+  ],
+  "verification": "Local /check and /prove with synthetic unpurchased market; cancelled bid full refund and principal-only claim; no onchain transaction or security audit"
+}
