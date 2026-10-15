@@ -2,8 +2,8 @@
 import type {Contract as ContractTypes} from "@midnight-ntwrk/midnight-js-protocol/compact-js";
 import type {Contract,HitCredential} from "../../../contracts/managed/senyap/contract/index.js";
 import {actionState,preparePrivateBuyer,preparePrivateStake,preparePrivateVote,type ClientPrivateState} from "./client-state";
-import {verifierVoteCommitment} from "./verifier-vote";
-export type UserCircuit="registerBuilder"|"withdrawBuilder"|"createMarket"|"close"|"stake"|"placeBid"|"settleBid"|"selectHidden"|"skipSelection"|"buyFlat"|"recordOutcome"|"proveHit"|"cancelMarket"|"returnCancelledSubsidy"|"claim"|"renewTier"|"openDispute"|"commitVote"|"revealVote"|"resolveDispute"|"claimVerifier"|"finalizeMarket"|"markMissedReport";
+import {verifierVoteCommitment,outcomeVoteCommitment} from "./verifier-vote";
+export type UserCircuit="registerBuilder"|"withdrawBuilder"|"createMarket"|"close"|"stake"|"placeBid"|"settleBid"|"selectHidden"|"skipSelection"|"buyFlat"|"recordOutcome"|"recordSubjectiveOutcome"|"challengeOutcome"|"proveHit"|"cancelMarket"|"returnCancelledSubsidy"|"claim"|"renewTier"|"openDispute"|"commitVote"|"revealVote"|"resolveDispute"|"claimVerifier"|"finalizeMarket"|"markMissedReport";
 type Parameters<K extends UserCircuit>=ContractTypes.CircuitParameters<Contract<ClientPrivateState>,K>;
 export interface ProductCallTransport {
   call<K extends UserCircuit>(circuit:K,args:Parameters<K>|((prepared:ClientPrivateState)=>Parameters<K>),prepare:(state:ClientPrivateState)=>ClientPrivateState|Promise<ClientPrivateState>):Promise<{txId:string}>;
@@ -25,6 +25,11 @@ export function createProductActions(transport:ProductCallTransport){
     buy(input:Market&{option:bigint}){return transport.call("buyFlat",[input.market,input.option],state=>preparePrivateBuyer(state,input));},
     select(input:Market&{mask:boolean[]}){return transport.call("selectHidden",[input.market,input.mask],state=>actionState(state,input));},
     report(input:Market&{pool:bigint;mask:boolean[];evidence:Uint8Array}){return transport.call("recordOutcome",[input.market,input.pool,input.mask,input.evidence,false],state=>actionState(state,input));},
+    reportSubjective(input:Market&{pool:bigint;mask:boolean[];evidence:Uint8Array;reporter:Recipient}){return transport.call("recordSubjectiveOutcome",[input.market,input.pool,input.mask,input.evidence,false,input.reporter],state=>actionState(state,input));},
+    challengeOutcome(input:Market&{pool:bigint;option:bigint;evidence:Uint8Array;reporter:Recipient}){return transport.call("challengeOutcome",[input.market,input.pool,input.option,input.evidence,input.reporter],state=>actionState(state,input));},
+    commitOutcomeVote(input:Timed&{position:Uint8Array;choice:boolean;recipient:Recipient}){
+      return transport.call("commitVote",state=>{const vote=state.votes[key(input.position)];return [input.position,outcomeVoteCommitment({contract:state.contract,position:input.position,secret:state.secrets.verifier,choice:vote.choice,salt:vote.salt}),input.recipient] satisfies Parameters<"commitVote">;},state=>preparePrivateVote(state,input));
+    },
     hit(input:Position&{pool:bigint}){return transport.call("proveHit",[input.market,input.slot,input.pool],state=>actionState(state,input));},
     claim(input:Position&{recipient:Recipient}){return transport.call("claim",[input.market,input.slot,input.recipient],state=>actionState(state,input));},
     commitVote(input:Timed&{position:Uint8Array;choice:boolean;recipient:Recipient}){

@@ -345,3 +345,39 @@ Three tests use actual circuit-created market commitments, durable SQLite and
 local HTTP/SDK requests. They check tampering, option order, scope, corrupted
 storage, unavailable snapshots, origin denial and oversized responses. This is
 local validation, not a deployed metadata service or completed live UI.
+
+
+## Option-level outcome jury
+
+SPEC v0.15 and `docs/outcome-jury-proposal.md` were explicitly approved by Dien.
+`Market.subjective` is immutable at creation. Objective reports use `recordOutcome`;
+subjective reports use `recordSubjectiveOutcome` and lock 50 dUSD for each eligible
+option (the Side A pool's purchases, every configured Side B option). Reports
+require a valid purchased market; the receipt fulfills the existing buyer duty
+while votes continue. `challengeOutcome` opens one opposite-bit case for a recorded
+objective option before outcomeUntil. Each market/pool/option has at most one case.
+
+Outcome cases reuse the existing seven-seat, five-reveal escrow engine with an
+explicit kind tag and separate case-ID, verifier-nullifier and vote-commitment
+domains. Every commit receives a new 100 dUSD bond; a case cannot borrow collateral
+from another. A valid verdict refunds the reporter only when its proposed bit wins;
+otherwise its bond joins verifier penalties. Minority loses 50%, no reveal loses
+100%, and majority shares the proceeds with a recorded rounding remainder. An
+inconclusive case refunds everyone and preserves an objective bit, or leaves a
+subjective bit unproven. No outcome case slashes scout stake or opens a member card.
+
+`pendingDisputes` now counts both kinds and blocks hits/claims/finalization until
+all close. Per-pool `outcomePending` also blocks D-05 readiness. Default committee
+selection waits until the reporting/challenge deadline, so an early default cannot
+replace the objective bit being challenged. Only after all pool cases resolve can
+a no-success pool request the existing purchased-option default. Late resolution
+retains a complete hit-registration window. The existing keeper's generic
+resolveDispute action handles both kinds and rechecks its trusted snapshot.
+
+SDK `reportSubjective`, `challengeOutcome` and `commitOutcomeVote` persist private
+choices/salts through the existing action/journal boundary. `revealVote` uses the
+saved case choice. Read-model markets expose the onchain outcome mode and pending
+case counts. Local simulator tests cover both sides, mode bypass, case eligibility,
+independent funds, quorum/tie, timing, penalties, hoax isolation and late resolution.
+Proving artifacts must be regenerated for this changed source; historical evidence
+with an older source hash is not evidence of these new circuits.

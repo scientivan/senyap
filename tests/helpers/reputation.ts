@@ -6,7 +6,7 @@ export const cohort=[21,22,23,24,25].map(bytes),source=bytes(4),target=bytes(9);
 export function earnedHits(beforeHits?:(s:ReturnType<typeof setupGroups>)=>void){
   const s=setupGroups(),buyer=hash(s.context.currentPrivateState.buyer),ids:Uint8Array[]=[];
   s.invoke("admitBuyer",buyer);Object.assign(s.context.currentPrivateState,{buyerPath:s.state.buyerTree.findPathForLeaf(buyer),standingPath:s.state.goodStanding.findPathForLeaf(buyer)});
-  s.invoke("createMarket",1n,{side:1n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://reputation",nOptions:3n,optionRefs:[bytes(80),bytes(81),bytes(82),...Array.from({length:5},()=>bytes(0))],openAt:1000n,openUntil:1010n,auctionUntil:1010n,outcomeUntil:1020n,flatPrice:10n,reservePrice:0n});
+  s.invoke("createMarket",1n,{subjective:false,side:1n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://reputation",nOptions:3n,optionRefs:[bytes(80),bytes(81),bytes(82),...Array.from({length:5},()=>bytes(0))],openAt:1000n,openUntil:1010n,auctionUntil:1010n,outcomeUntil:1020n,flatPrice:10n,reservePrice:0n});
   for(let i=0;i<3;i++){
     s.invoke("configureScoutGroup",bytes(4+i),{side:1n,tier:1n,epoch:7n,ecosystem:bytes(80+i)});
     for(const secret of cohort)s.invoke("admitScout",bytes(4+i),commitment(secret,7n));

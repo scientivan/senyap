@@ -6,7 +6,7 @@ import { planTransitions,runKeeperPass } from "../../services/keeper/src/transit
 function openMarket(){
   const s=setupGroups(),buyer=hash(s.context.currentPrivateState.buyer);s.invoke("admitBuyer",buyer);
   Object.assign(s.context.currentPrivateState,{buyerPath:s.state.buyerTree.findPathForLeaf(buyer),standingPath:s.state.goodStanding.findPathForLeaf(buyer)});
-  s.invoke("createMarket",1n,{side:1n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://keeper",nOptions:1n,optionRefs:[bytes(80),...Array.from({length:7},()=>bytes(0))],openAt:1000n,openUntil:1600n,auctionUntil:1600n,outcomeUntil:2400n,flatPrice:10n,reservePrice:0n});
+  s.invoke("createMarket",1n,{subjective:false,side:1n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://keeper",nOptions:1n,optionRefs:[bytes(80),...Array.from({length:7},()=>bytes(0))],openAt:1000n,openUntil:1600n,auctionUntil:1600n,outcomeUntil:2400n,flatPrice:10n,reservePrice:0n});
   return s;
 }
 describe("P6.2 permissionless keeper transitions",()=>{

@@ -68,3 +68,11 @@ design changes; a network run still requires explicit transaction authorization.
 Dien explicitly approved option-level cases, reporter collateral and the
 inconclusive-outcome fallback in chat. Implementation/proof and network evidence
 remain separate acceptance gates. No deploy or transaction was authorized.
+
+
+## Implementation detail
+
+Default selection waits for the reporting/challenge deadline and zero pending
+option cases in that pool. This prevents a provisional D-05 mask from changing
+the objective bit before a permitted challenge. The global pending-case counter
+continues to include hoax cases as a separate settlement gate.

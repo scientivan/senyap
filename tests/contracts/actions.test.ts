@@ -53,4 +53,18 @@ describe("product action preparation against actual circuits",()=>{
     await actions.revealVote({position:records[0].id,blockTime:1900n});
     expect([...host.state.verifierVotes].some(([,vote])=>vote.revealed&&vote.choice)).toBe(true);
   });
+  it("reports a subjective mask and commits/reveals its saved vote in the distinct outcome domain",async()=>{
+    const {s}=setupSideB(5,true,true);preview(s);
+    const state=await createClientState(roots,{network:"local",contract:s.context.currentQueryContext.address});
+    s.invoke("admitBuyer",hash(state.secrets.buyer));s.invoke("admitVerifier",hash(state.secrets.verifier));
+    const host=simulatorTransport({...s.context,currentPrivateState:state}),actions=createProductActions(host.transport);
+    await actions.buy({market:1n,option:0n,blockTime:1600n});
+    await actions.reportSubjective({market:1n,pool:0n,mask:[true,false,false,false,false,false,false,false],evidence:bytes(220),reporter:{bytes:bytes(230)},blockTime:1600n});
+    expect(host.state.pendingDisputes.lookup(1n)).toBe(2n);
+    const id=[...host.state.outcomeCases].find(([,item])=>item.option===0n)![0];
+    await actions.commitOutcomeVote({position:id,choice:true,recipient:{bytes:bytes(231)},blockTime:1600n});
+    expect(host.calls.at(-1)!.args).not.toContain(true);
+    host.context.currentQueryContext.block={...host.context.currentQueryContext.block,secondsSinceEpoch:1900n};
+    await actions.revealVote({position:id,blockTime:1900n});expect([...host.state.verifierVotes][0][1]).toMatchObject({revealed:true,choice:true});
+  });
 });

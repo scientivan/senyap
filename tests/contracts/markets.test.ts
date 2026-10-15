@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { setupGroups,bytes,hash,other,operator } from "./harness";
 import type { Market } from "../../contracts/managed/senyap/contract/index.js";
 
-const sideA=():Market=>({side:0n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://synthetic-question",nOptions:2n,optionRefs:[bytes(80),bytes(81),...Array.from({length:6},()=>bytes(0))],openAt:1000n,openUntil:1600n,auctionUntil:1800n,outcomeUntil:2400n,flatPrice:10n,reservePrice:20n});
+const sideA=():Market=>({subjective:false,side:0n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://synthetic-question",nOptions:2n,optionRefs:[bytes(80),bytes(81),...Array.from({length:6},()=>bytes(0))],openAt:1000n,openUntil:1600n,auctionUntil:1800n,outcomeUntil:2400n,flatPrice:10n,reservePrice:20n});
 function setupMarket(){
   const s=setupGroups(),buyerCommit=hash(s.context.currentPrivateState.buyer);
   s.invoke("admitBuyer",buyerCommit);

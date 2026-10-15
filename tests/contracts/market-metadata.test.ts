@@ -16,7 +16,7 @@ async function fixture(){
   const s=setupGroups(),scope={network:"local",contract:s.context.currentQueryContext.address};
   const metadata:MarketMetadata={version:1,side:"B",category:hex(bytes(70)),question:"Which ecosystem can support this builder?",options:[{reference:hex(bytes(80)),label:"Ecosystem One"},{reference:hex(bytes(81)),label:"Ecosystem Two"}]};
   const digest=await marketMetadataHash(metadata);
-  s.invoke("createMarket",1n,{side:1n,category:bytes(70),questionHash:new Uint8Array(Buffer.from(digest,"hex")),questionUri:"https://untrusted.invalid/never-fetch",nOptions:2n,optionRefs:[bytes(80),bytes(81),...Array.from({length:6},()=>bytes(0))],openAt:1000n,openUntil:1600n,auctionUntil:1600n,outcomeUntil:2400n,flatPrice:10n,reservePrice:0n});
+  s.invoke("createMarket",1n,{subjective:false,side:1n,category:bytes(70),questionHash:new Uint8Array(Buffer.from(digest,"hex")),questionUri:"https://untrusted.invalid/never-fetch",nOptions:2n,optionRefs:[bytes(80),bytes(81),...Array.from({length:6},()=>bytes(0))],openAt:1000n,openUntil:1600n,auctionUntil:1600n,outcomeUntil:2400n,flatPrice:10n,reservePrice:0n});
   return {s,scope,metadata,market:readProductView(s.state,scope).markets[0]};
 }
 describe("ledger-committed public market metadata",()=>{

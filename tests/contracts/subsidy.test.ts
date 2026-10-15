@@ -6,7 +6,7 @@ import { bytes,commitment,committee,other,operator } from "./harness";
 const mask=(...options:number[])=>Array.from({length:8},(_,i)=>options.includes(i));
 function fundingMarkets(buyTarget=true){
   const {s,useBuyer,records}=setupAuction(),cohort=[31,32,33,34,35].map(bytes),bidIds:Uint8Array[]=[];
-  s.invoke("createMarket",2n,{side:1n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://subsidy",nOptions:2n,optionRefs:[bytes(90),bytes(91),...Array.from({length:6},()=>bytes(0))],openAt:1600n,openUntil:1900n,auctionUntil:1900n,outcomeUntil:5000n,flatPrice:10n,reservePrice:0n});
+  s.invoke("createMarket",2n,{subjective:false,side:1n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://subsidy",nOptions:2n,optionRefs:[bytes(90),bytes(91),...Array.from({length:6},()=>bytes(0))],openAt:1600n,openUntil:1900n,auctionUntil:1900n,outcomeUntil:5000n,flatPrice:10n,reservePrice:0n});
   for(let i=0;i<2;i++){
     s.invoke("configureScoutGroup",bytes(30+i),{side:1n,tier:1n,epoch:12n,ecosystem:bytes(90+i)});
     for(const secret of cohort)s.invoke("admitScout",bytes(30+i),commitment(secret,12n));
@@ -44,7 +44,7 @@ describe("P4.3 side A funded side B subsidy",()=>{
   for(const settled of [false,true])it(`returns cancelled subsidy and restores source capacity (settled=${settled})`,()=>{
     const {s,sideB,claimSource}=fundingMarkets(false);
     // A second eligible target remains open beyond cancellation of the first.
-    s.invoke("createMarket",3n,{side:1n,category:bytes(70),questionHash:bytes(72),questionUri:"demo://reroute",nOptions:2n,optionRefs:[bytes(90),bytes(91),...Array.from({length:6},()=>bytes(0))],openAt:3000n,openUntil:3100n,auctionUntil:3100n,outcomeUntil:6000n,flatPrice:0n,reservePrice:0n});
+    s.invoke("createMarket",3n,{subjective:false,side:1n,category:bytes(70),questionHash:bytes(72),questionUri:"demo://reroute",nOptions:2n,optionRefs:[bytes(90),bytes(91),...Array.from({length:6},()=>bytes(0))],openAt:3000n,openUntil:3100n,auctionUntil:3100n,outcomeUntil:6000n,flatPrice:0n,reservePrice:0n});
     const cohort=[41,42,43,44,45].map(bytes),group=bytes(40);
     s.invoke("configureScoutGroup",group,{side:1n,tier:1n,epoch:23n,ecosystem:bytes(90)});
     for(const secret of cohort)s.invoke("admitScout",group,commitment(secret,23n));

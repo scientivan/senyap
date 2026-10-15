@@ -28,7 +28,7 @@ async function fixture(){
     getUnshieldedAddress:async()=>({unshieldedAddress:account}),getConnectionStatus:async()=>({status:"connected",networkId:"preprod"}),
     getShieldedAddresses:async()=>({shieldedCoinPublicKey:"synthetic",shieldedEncryptionPublicKey:"synthetic"}),getProvingProvider:vi.fn(async()=>({})),
     balanceUnsealedTransaction:vi.fn(),submitTransaction:vi.fn(async()=>{expect(operation?.phase).toBe("submitted");expect(operation?.txId).toBe(txId);events.push("send");})} as unknown as ConnectedAPI;
-  sdk.snapshot.mockResolvedValue({state:{},blockHash:"cd".repeat(32)});sdk.query.mockResolvedValue({});sdk.key.mockResolvedValue(new Uint8Array([1]));
+  sdk.snapshot.mockResolvedValue({state:{},blockHash:"cd".repeat(32),blockHeight:42,blockTime:1600n});sdk.query.mockResolvedValue({});sdk.key.mockResolvedValue(new Uint8Array([1]));
   sdk.submit.mockImplementation(async providers=>{
     await providers.midnightProvider.submitTx({identifiers:()=>[txId],serialize:()=>new Uint8Array([1])});
     return {public:{txId,status:"SucceedEntirely"}};
@@ -63,9 +63,9 @@ describe("Lace product transport boundaries",()=>{
     expect(sdk.submit).not.toHaveBeenCalled();expect(f.api.submitTransaction).not.toHaveBeenCalled();
   });
   it("projects anchored ledger data without sending or returning private state",async()=>{
-    const f=await fixture(),{s}=setupSideB(0,false);sdk.snapshot.mockResolvedValueOnce({state:s.state,blockHash:"cd".repeat(32)});
+    const f=await fixture(),{s}=setupSideB(0,false);sdk.snapshot.mockResolvedValueOnce({state:s.state,blockHash:"cd".repeat(32),blockHeight:42,blockTime:1600n});
     const view=await f.product.view();expect(view.markets[0]).toMatchObject({id:1n,phase:"open",scouts:0n,histogram:null});
-    expect(view.positions).toEqual([]);expect(view).not.toHaveProperty("secrets");expect(view.scope).toEqual({network:"preprod",contract:address});
+    expect(view.positions).toEqual([]);expect(view.anchor).toEqual({blockHash:"cd".repeat(32),blockHeight:42,blockTime:1600n});expect(view).not.toHaveProperty("secrets");expect(view.scope).toEqual({network:"preprod",contract:address});
     expect(sdk.query).not.toHaveBeenCalled();expect(f.api.submitTransaction).not.toHaveBeenCalled();
   });
   it("refuses private views after an account change or a locked workspace and blocks unanchored sends",async()=>{
@@ -78,7 +78,7 @@ describe("Lace product transport boundaries",()=>{
     expect(sdk.query).not.toHaveBeenCalled();expect(sdk.submit).not.toHaveBeenCalled();
   });
   it("reads a fresh workspace without changing revisions and rejects a lock during the wallet check",async()=>{
-    const f=await fixture(),{s}=setupSideB(0,false);sdk.snapshot.mockResolvedValue({state:s.state,blockHash:"cd".repeat(32)});
+    const f=await fixture(),{s}=setupSideB(0,false);sdk.snapshot.mockResolvedValue({state:s.state,blockHash:"cd".repeat(32),blockHeight:42,blockTime:1600n});
     vi.spyOn(f.client.provider,"get").mockResolvedValueOnce(null);const update=vi.spyOn(f.client,"update");
     expect((await f.product.view()).markets).toHaveLength(1);expect(update).not.toHaveBeenCalled();
     f.client.provider.setContractAddress.mockImplementationOnce(()=>{throw Error("Workspace locked");});

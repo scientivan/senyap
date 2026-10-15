@@ -11,7 +11,7 @@ describe("P3.2 threshold default outcomes",()=>{
     Object.assign(s.context.currentPrivateState,{buyer:second,buyerPath:s.state.buyerTree.findPathForLeaf(hash(second)),standingPath:s.state.goodStanding.findPathForLeaf(hash(second))});
     s.invoke("buyFlat",1n,1n);s.invoke("recordOutcome",1n,0n,mask(),bytes(90),false);
     expect(s.state.purchasedOptions.lookup(1n)).toEqual(mask(0,1));
-    s.context.currentPrivateState.committee=committee[0];s.invoke("postDefaultStrongest",1n,0n,0n,0n);
+    s.context.currentPrivateState.committee=committee[0];expect(()=>s.invoke("postDefaultStrongest",1n,0n,0n,0n)).toThrow(/challenge deadline/);s.setTime(2400);s.invoke("postDefaultStrongest",1n,0n,0n,0n);
     expect(()=>s.invoke("postDefaultStrongest",1n,0n,0n,0n)).toThrow(/Duplicate committee/);
     s.context.currentPrivateState.committee=committee[1];s.invoke("postDefaultStrongest",1n,0n,1n,1n);
     s.context.currentPrivateState.committee=committee[2];s.invoke("postDefaultStrongest",1n,0n,0n,2n);
@@ -26,7 +26,7 @@ describe("P3.2 threshold default outcomes",()=>{
   it("rejects unpurchased options and gives a late default a complete hit window",()=>{
     const {s}=setupSideB();preview(s);s.invoke("buyFlat",1n,0n);
     s.invoke("recordOutcome",1n,0n,mask(),bytes(90),false);s.context.currentPrivateState.committee=committee[0];
-    expect(()=>s.invoke("postDefaultStrongest",1n,0n,1n,0n)).toThrow(/not purchased/);
+    s.setTime(2400);expect(()=>s.invoke("postDefaultStrongest",1n,0n,1n,0n)).toThrow(/not purchased/);
     expect(()=>s.invoke("postDefaultStrongest",1n,1n,0n,0n)).toThrow(/Invalid default pool/);
     s.setTime(2700);for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postDefaultStrongest",1n,0n,0n,BigInt(i));}
     expect(s.state.hitUntil.lookup(1n)).toBe(3000n);expect(s.state.marketPhase.lookup(1n)).toBe(8n);
@@ -37,7 +37,7 @@ describe("P3.2 threshold default outcomes",()=>{
     for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postAuctionResult",1n,result,BigInt(i));}
     s.invoke("settleBid",1n,winner);s.invoke("selectHidden",1n,mask());useBuyer(buyers[1]);s.invoke("buyFlat",1n,3n);
     s.invoke("recordOutcome",1n,2n,mask(),bytes(90),false);useBuyer(buyers[0]);s.invoke("recordOutcome",1n,0n,mask(0),bytes(91),false);
-    s.context.currentPrivateState.committee=committee[0];expect(()=>s.invoke("postDefaultStrongest",1n,2n,0n,0n)).toThrow(/not purchased/);
+    s.setTime(3000);s.context.currentPrivateState.committee=committee[0];expect(()=>s.invoke("postDefaultStrongest",1n,2n,0n,0n)).toThrow(/not purchased/);
     for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postDefaultStrongest",1n,2n,3n,BigInt(i));}
     expect(s.state.successMasks.lookup(1n)[2]).toEqual(mask(3));expect(s.state.marketPhase.lookup(1n)).toBe(8n);
   });

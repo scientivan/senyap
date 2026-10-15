@@ -328,7 +328,7 @@ GroupId      = Bytes<32>                      // H("tier", level, epoch) atau H(
 LockedCard   = { version: Uint<8>, ephemeral: JubjubPoint, ciphertext: Bytes<40>, tag: Bytes<32> }
 CipherPair   = { c1: JubjubPoint, c2: JubjubPoint }   // cadangan M-8: { c1x, c1y, c2x, c2y: Field }
 BuilderEntry = { profileHash: Bytes<32>, consent: Boolean, registeredAt: Uint<64> }
-Market       = { id: Uint<32>, side: Uint<8> (0=A,1=B), category: Bytes<32>, questionHash: Bytes<32>,
+Market       = { id: Uint<32>, subjective: Boolean, side: Uint<8> (0=A,1=B), category: Bytes<32>, questionHash: Bytes<32>,
                  questionUri: Opaque<"string">, nOptions: Uint<8>, optionRefs: Vector<8, Bytes<32>>,
                  creatorPseudonym: Bytes<32>, phase: Uint<8>, openUntil: Uint<64>, auctionUntil: Uint<64>,
                  outcomeUntil: Uint<64>, auction: Boolean, flatPrice: Uint<64>, reservePrice: Uint<64>,

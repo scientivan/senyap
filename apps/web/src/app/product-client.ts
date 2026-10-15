@@ -20,7 +20,7 @@ import {readProductView} from "@senyap/sdk/read-model";
 type ProductContract=Contract<ClientPrivateState>;
 import type { UserCircuit, ProductCallTransport } from "@senyap/sdk/actions";
 export type { UserCircuit } from "@senyap/sdk/actions";
-const allowed=new Set<UserCircuit>(["registerBuilder","withdrawBuilder","createMarket","close","stake","placeBid","settleBid","selectHidden","skipSelection","buyFlat","recordOutcome","proveHit","cancelMarket","returnCancelledSubsidy","claim","renewTier","openDispute","commitVote","revealVote","resolveDispute","claimVerifier","finalizeMarket","markMissedReport"]);
+const allowed=new Set<UserCircuit>(["registerBuilder","withdrawBuilder","createMarket","close","stake","placeBid","settleBid","selectHidden","skipSelection","buyFlat","recordOutcome","recordSubjectiveOutcome","challengeOutcome","proveHit","cancelMarket","returnCancelledSubsidy","claim","renewTier","openDispute","commitVote","revealVote","resolveDispute","claimVerifier","finalizeMarket","markMissedReport"]);
 
 /** Use only the approved, published deployment address and its reproducible
  * public artifacts. Operator and committee circuits are unavailable here. */
@@ -70,7 +70,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
     read,
     async view(){
       try{
-        await checkWallet();const state=await read();
+        await checkWallet();const anchor=await snapshot(),state=anchor.state;
         // A fresh workspace has no contract record yet. Its first view is public;
         // reading must not change a revision used by an in-flight operation.
         const privateState=await client.provider.get("client-v1");
@@ -78,7 +78,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
         // Synchronous provider check closes a workspace-lock race during the
         // asynchronous wallet check, before projecting any saved private choice.
         client.provider.setContractAddress(input.contract);
-        return readProductView(state,{network:"preprod",contract:input.contract},privateState??undefined);
+        return {...readProductView(state,{network:"preprod",contract:input.contract},privateState??undefined),anchor:{blockTime:anchor.blockTime,blockHeight:anchor.blockHeight,blockHash:anchor.blockHash}};
       }catch{throw Error("Product view unavailable. Reconnect the wallet and unlock the private workspace.");}
     },
     async call<K extends UserCircuit>(circuitId:K,args:ContractTypes.CircuitParameters<ProductContract,K>|((prepared:ClientPrivateState)=>ContractTypes.CircuitParameters<ProductContract,K>),prepare:(state:ClientPrivateState)=>ClientPrivateState|Promise<ClientPrivateState>){

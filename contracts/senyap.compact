@@ -35,6 +35,7 @@ export ledger missedSharedReports: Set<Uint<32>>;
 export ledger missedBuyerIndices: Map<Bytes<32>, Uint<64>>;
 export ledger removedStanding: Set<Bytes<32>>;
 export struct Market {
+  subjective: Boolean;
   side: Uint<8>; category: Bytes<32>; questionHash: Bytes<32>; questionUri: Opaque<"string">;
   nOptions: Uint<8>; optionRefs: Vector<8, Bytes<32>>;
   openAt: Uint<64>; openUntil: Uint<64>; auctionUntil: Uint<64>; outcomeUntil: Uint<64>;
@@ -106,12 +107,15 @@ export ledger marketScouts: Map<Uint<32>, Uint<32>>;
 export ledger marketWeight: Map<Uint<32>, Uint<64>>;
 export ledger marketStake: Map<Uint<32>, Uint<128>>;
 export ledger tally: Map<Uint<32>, Vector<8, CipherPair>>;
-export struct Dispute { marketId: Uint<32>; evidence: Bytes<32>; reporter: UserAddress; commitUntil: Uint<64>; revealUntil: Uint<64>;
+export struct Dispute { kind: Uint<8>; proposed: Boolean; marketId: Uint<32>; evidence: Bytes<32>; reporter: UserAddress; commitUntil: Uint<64>; revealUntil: Uint<64>;
   seats: Vector<7, Bytes<32>>; committed: Uint<8>; yes: Uint<8>; no: Uint<8>; result: Uint<8>; majorityBonus: Uint<64>; }
 export struct VerifierVote { dispute: Bytes<32>; commitment: Bytes<32>; recipient: UserAddress; revealed: Boolean; choice: Boolean; claimed: Boolean; }
 export ledger verifierTree: HistoricMerkleTree<16, Bytes<32>>;
 export ledger admittedVerifiers: Set<Bytes<32>>;
 export ledger disputes: Map<Bytes<32>, Dispute>;
+export struct OutcomeCase { marketId: Uint<32>; pool: Uint<8>; option: Uint<8>; original: Boolean; }
+export ledger outcomeCases: Map<Bytes<32>, OutcomeCase>;
+export ledger outcomePending: Map<Uint<32>, Vector<4, Uint<8>>>;
 export ledger verifierVotes: Map<Bytes<32>, VerifierVote>;
 export ledger pendingDisputes: Map<Uint<32>, Uint<32>>;
 export ledger disputeRemainder: Map<Bytes<32>, Uint<64>>;
@@ -336,7 +340,7 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
   markets.insert(marketId, cfg);marketPhase.insert(marketId, 1);
   marketCreator.insert(marketId, disclose(creator));
   marketScouts.insert(marketId, 0);marketWeight.insert(marketId, 0);marketStake.insert(marketId, 0);
-  pendingDisputes.insert(marketId, 0);
+  pendingDisputes.insert(marketId, 0);outcomePending.insert(marketId, [0,0,0,0]);
   marketPools.insert(marketId, [0,0,0,0]);denominators.insert(marketId, [0,0,0,0]);paidRewards.insert(marketId, [0,0,0,0]);
   hasPurchases.insert(marketId, false);marketRevenue.insert(marketId, 0);marketSubsidy.insert(marketId, 0);allocatedSubsidy.insert(marketId, 0);marketPositions.insert(marketId, 0);marketClaims.insert(marketId, 0);
   marketBuyers.insert(marketId, [default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>,default<Bytes<32>>]);
@@ -619,8 +623,9 @@ export circuit buyFlat(id: Uint<32>, optionNumber: Uint<8>): Bytes<32> {
   marketPhase.insert(marketId, 6);return disclose(pseudonym);
 }
 
-export circuit recordOutcome(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, Boolean>, evidence: Bytes<32>, byOperator: Boolean): [] {
+circuit recordOutcomeImpl(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, Boolean>, evidence: Bytes<32>, byOperator: Boolean, subjective: Boolean, reporter: UserAddress): [] {
   const marketId = disclose(id);const market = markets.lookup(marketId);const phase = marketPhase.lookup(marketId);
+  assert(market.subjective == disclose(subjective), "Wrong outcome mode");
   const pool = disclose(poolNumber);assert(pool < 4 && (market.side == 0 || pool == 0), "Invalid outcome pool");
   const key = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:outcome"), marketId as Bytes<32>, pool as Bytes<32>]);
   assert((phase == 3 || phase == 5 || phase == 6 || phase == 7) && !outcomeEvidence.member(disclose(key)), "Outcome already recorded or market not ready");
@@ -640,6 +645,7 @@ export circuit recordOutcome(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, 
     if (market.side == 0) { assert(buyer == owner, "Buyer does not own outcome pool"); }
     assert(fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, buyerAccess.lookup(disclose(buyer)).bought), "Buyer has not purchased this market");
   }
+  assert(marketScouts.lookup(marketId) >= 5 && hasPurchases.lookup(marketId), "Outcome requires valid purchased market");
   assert(evidence != default<Bytes<32>>, "Outcome evidence required");
   const success = disclose(mask);
   for (const i of [0,1,2,3,4,5,6,7]) { assert(i < market.nOptions || !success[i], "Outcome includes unused option"); }
@@ -647,18 +653,74 @@ export circuit recordOutcome(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, 
     const bought = buyerAccess.lookup(owner).bought;
     for (const i of [0,1,2,3,4,5,6,7]) { assert(!success[i] || bought[i], "Outcome includes unpurchased option"); }
   }
+  const zeroMask = [false,false,false,false,false,false,false,false];
+  const accepted = subjective ? zeroMask : success;
   const masks = successMasks.lookup(marketId);
-  successMasks.insert(marketId, [pool == 0 ? success : masks[0],pool == 1 ? success : masks[1],pool == 2 ? success : masks[2],pool == 3 ? success : masks[3]]);
+  successMasks.insert(marketId, [pool == 0 ? accepted : masks[0],pool == 1 ? accepted : masks[1],pool == 2 ? accepted : masks[2],pool == 3 ? accepted : masks[3]]);
   outcomeEvidence.insert(disclose(key), disclose(evidence));
   const normalEnd = (market.outcomeUntil + hitWindow) as Uint<64>;
   const previousEnd = hitUntil.member(marketId) ? hitUntil.lookup(marketId) : 0;
   hitUntil.insert(marketId, previousEnd > normalEnd ? previousEnd : normalEnd);
-  const any = fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, success);
-  const ready = map((i: Uint<8>, value: Boolean): Boolean => i == pool ? any : value, [0,1,2,3], outcomesReady.lookup(marketId));
-  outcomesReady.insert(marketId, ready);
-  needsDefault.insert(marketId, map((i: Uint<8>, value: Boolean): Boolean => i == pool ? !any : value, [0,1,2,3], needsDefault.lookup(marketId)));
+  if (subjective) {
+    const eligible = market.side == 1 ? map((i: Uint<8>): Boolean => i < market.nOptions, [0,1,2,3,4,5,6,7]) : buyerAccess.lookup(owner).bought;
+    for (const i of [0,1,2,3,4,5,6,7]) {
+      if (eligible[i]) { beginOutcomeCase(marketId, pool, i, success[i], false, evidence, reporter); }
+    }
+  }
+  refreshOutcomePool(marketId, pool);
+}
+export circuit recordOutcome(id: Uint<32>, pool: Uint<8>, mask: Vector<8, Boolean>, evidence: Bytes<32>, byOperator: Boolean): [] {
+  recordOutcomeImpl(id, pool, mask, evidence, byOperator, false, UserAddress { bytes: default<Bytes<32>> });
+}
+export circuit recordSubjectiveOutcome(id: Uint<32>, pool: Uint<8>, mask: Vector<8, Boolean>, evidence: Bytes<32>, byOperator: Boolean, reporter: UserAddress): [] {
+  recordOutcomeImpl(id, pool, mask, evidence, byOperator, true, reporter);
+}
+circuit outcomeCaseId(market: Uint<32>, pool: Uint<8>, option: Uint<8>): Bytes<32> {
+  return persistentHash<Vector<5, Bytes<32>>>([pad(32, "senyap:outcome-case"),kernel.self().bytes,market as Bytes<32>,pool as Bytes<32>,option as Bytes<32>]);
+}
+circuit beginOutcomeCase(market: Uint<32>, pool: Uint<8>, option: Uint<8>, proposed: Boolean, original: Boolean, evidence: Bytes<32>, reporter: UserAddress): [] {
+  const id = disclose(outcomeCaseId(market, pool, option));
+  assert(!disputes.member(id) && !outcomeCases.member(id), "Outcome option already has a jury");
+  const now = checkedCurrentTime();const commitUntil = (now + disputeCommitWindow) as Uint<64>;
+  const revealUntil = (commitUntil + disputeRevealWindow) as Uint<64>;
+  receiveUnshielded(dusdColor, 50);const zero = default<Bytes<32>>;
+  disputes.insert(id, Dispute { kind: 1, proposed: disclose(proposed), marketId: disclose(market), evidence: disclose(evidence), reporter: disclose(reporter), commitUntil: commitUntil,
+    revealUntil: revealUntil, seats: [zero,zero,zero,zero,zero,zero,zero], committed: 0, yes: 0, no: 0, result: 0, majorityBonus: 0 });
+  outcomeCases.insert(id, OutcomeCase { marketId: disclose(market), pool: disclose(pool), option: disclose(option), original: disclose(original) });
+  pendingDisputes.insert(disclose(market), (pendingDisputes.lookup(disclose(market)) + 1) as Uint<32>);
+  outcomePending.insert(disclose(market), map((i: Uint<8>, value: Uint<8>): Uint<8> => i == pool ? (value + 1) as Uint<8> : value, [0,1,2,3], outcomePending.lookup(disclose(market))));
+  const end = (revealUntil + hitWindow) as Uint<64>;
+  const previous = hitUntil.lookup(disclose(market));hitUntil.insert(disclose(market), previous > end ? previous : end);
+}
+circuit refreshOutcomePool(marketId: Uint<32>, pool: Uint<8>): [] {
+  const market = markets.lookup(disclose(marketId));const owners = marketBuyers.lookup(disclose(marketId));
+  const masks = successMasks.lookup(disclose(marketId));const mask = pool == 0 ? masks[0] : pool == 1 ? masks[1] : pool == 2 ? masks[2] : masks[3];
+  const counts = outcomePending.lookup(disclose(marketId));const pending = pool == 0 ? counts[0] : pool == 1 ? counts[1] : pool == 2 ? counts[2] : counts[3];
+  const any = fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, mask);
+  const ready = map((i: Uint<8>, value: Boolean): Boolean => i == pool ? pending == 0 && any : value, [0,1,2,3], outcomesReady.lookup(disclose(marketId)));
+  outcomesReady.insert(disclose(marketId), ready);
+  needsDefault.insert(disclose(marketId), map((i: Uint<8>, value: Boolean): Boolean => i == pool ? pending == 0 && !any : value, [0,1,2,3], needsDefault.lookup(disclose(marketId))));
   const required = map((i: Uint<8>, buyer: Bytes<32>, value: Boolean): Boolean => (market.side == 1 ? i != 0 : buyer == default<Bytes<32>>) || value, [0,1,2,3], owners, ready);
-  marketPhase.insert(marketId, fold((acc: Boolean, value: Boolean): Boolean => acc && value, true, required) ? 8 : 7);
+  marketPhase.insert(disclose(marketId), fold((acc: Boolean, value: Boolean): Boolean => acc && value, true, required) ? 8 : 7);
+}
+export circuit challengeOutcome(id: Uint<32>, poolNumber: Uint<8>, optionNumber: Uint<8>, evidence: Bytes<32>, reporter: UserAddress): Bytes<32> {
+  const marketId = disclose(id);const pool = disclose(poolNumber);const option = disclose(optionNumber);const market = markets.lookup(marketId);
+  assert(!market.subjective && pool < 4 && (market.side == 0 || pool == 0) && option < market.nOptions, "Invalid objective challenge");
+  assert(blockTimeGte(market.auctionUntil) && blockTimeLt(market.outcomeUntil), "Outside challenge window");
+  assert(marketScouts.lookup(marketId) >= 5 && hasPurchases.lookup(marketId), "Challenge requires valid purchased market");
+  const key = persistentHash<Vector<3, Bytes<32>>>([pad(32, "senyap:outcome"),marketId as Bytes<32>,pool as Bytes<32>]);
+  assert(outcomeEvidence.member(disclose(key)) && evidence != default<Bytes<32>>, "Recorded outcome and evidence required");
+  const owners = marketBuyers.lookup(marketId);const owner = pool == 0 ? owners[0] : pool == 1 ? owners[1] : pool == 2 ? owners[2] : owners[3];
+  if (market.side == 0) {
+    const bought = buyerAccess.lookup(owner).bought;
+    const eligible = map((i: Uint<8>, value: Boolean): Boolean => i == option && value, [0,1,2,3,4,5,6,7], bought);
+    assert(fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, eligible), "Challenge option was not purchased");
+  }
+  const masks = successMasks.lookup(marketId);const mask = pool == 0 ? masks[0] : pool == 1 ? masks[1] : pool == 2 ? masks[2] : masks[3];
+  const chosen = map((i: Uint<8>, value: Boolean): Boolean => i == option && value, [0,1,2,3,4,5,6,7], mask);
+  const original = fold((acc: Boolean, value: Boolean): Boolean => acc || value, false, chosen);
+  beginOutcomeCase(marketId, pool, option, !original, original, evidence, reporter);refreshOutcomePool(marketId, pool);
+  return disclose(outcomeCaseId(marketId, pool, option));
 }
 
 // The committee attests which eligible option is strongest without publishing totals.
@@ -666,6 +728,9 @@ export circuit postDefaultStrongest(id: Uint<32>, poolNumber: Uint<8>, optionNum
   const marketId = disclose(id);const pool = disclose(poolNumber);const option = disclose(optionNumber);const market = markets.lookup(marketId);
   assert(pool < 4 && (market.side == 0 || pool == 0), "Invalid default pool");
   assert(marketPhase.lookup(marketId) == 7, "Default selection is not pending");
+  assert(blockTimeGte(market.outcomeUntil), "Default waits for challenge deadline");
+  const cases = outcomePending.lookup(marketId);
+  assert((pool == 0 ? cases[0] : pool == 1 ? cases[1] : pool == 2 ? cases[2] : cases[3]) == 0, "Outcome juries still pending");
   const pending = needsDefault.lookup(marketId);
   assert(pool == 0 ? pending[0] : pool == 1 ? pending[1] : pool == 2 ? pending[2] : pending[3], "Pool does not need a default");
   const owners = marketBuyers.lookup(marketId);const owner = pool == 0 ? owners[0] : pool == 1 ? owners[1] : pool == 2 ? owners[2] : owners[3];
@@ -860,15 +925,16 @@ export circuit openDispute(positionId: Bytes<32>, evidence: Bytes<32>, reporter:
   const revealUntil = (commitUntil + disputeRevealWindow) as Uint<64>;
   receiveUnshielded(dusdColor, 50);
   const zero = default<Bytes<32>>;
-  disputes.insert(id, Dispute { marketId: position.marketId, evidence: disclose(evidence), reporter: disclose(reporter), commitUntil: commitUntil,
+  disputes.insert(id, Dispute { kind: 0, proposed: true, marketId: position.marketId, evidence: disclose(evidence), reporter: disclose(reporter), commitUntil: commitUntil,
     revealUntil: revealUntil, seats: [zero,zero,zero,zero,zero,zero,zero], committed: 0, yes: 0, no: 0, result: 0, majorityBonus: 0 });
   pendingDisputes.insert(position.marketId, (pendingDisputes.lookup(position.marketId) + 1) as Uint<32>);
   const end = (revealUntil + hitWindow) as Uint<64>;
   const previous = hitUntil.member(position.marketId) ? hitUntil.lookup(position.marketId) : 0;
   hitUntil.insert(position.marketId, previous > end ? previous : end);
 }
-circuit verifierPseudonym(secret: Bytes<32>, id: Bytes<32>): Bytes<32> {
-  return persistentHash<Vector<4, Bytes<32>>>([pad(32, "senyap:verifier"), kernel.self().bytes, secret, id]);
+circuit verifierPseudonym(secret: Bytes<32>, id: Bytes<32>, kind: Uint<8>): Bytes<32> {
+  const domain = kind == 0 ? pad(32, "senyap:verifier") : pad(32, "senyap:outcome-verifier");
+  return persistentHash<Vector<4, Bytes<32>>>([domain, kernel.self().bytes, secret, id]);
 }
 export circuit commitVote(dispute: Bytes<32>, commitment: Bytes<32>, recipient: UserAddress): Bytes<32> {
   const id = disclose(dispute);const item = disputes.lookup(id);
@@ -877,7 +943,7 @@ export circuit commitVote(dispute: Bytes<32>, commitment: Bytes<32>, recipient: 
   const secret = verifierSecret();const path = verifierPath();
   assert(path.leaf == persistentHash<Bytes<32>>(secret), "Verifier leaf does not belong to secret");
   assert(verifierTree.checkRoot(disclose(merkleTreePathRoot<16, Bytes<32>>(path))), "Verifier root not accepted");
-  const pseudonym = disclose(verifierPseudonym(secret, id));
+  const pseudonym = disclose(verifierPseudonym(secret, id, item.kind));
   assert(!verifierVotes.member(pseudonym), "Verifier already committed in this dispute");
   receiveUnshielded(dusdColor, 100);
   verifierVotes.insert(pseudonym, VerifierVote { dispute: id, commitment: disclose(commitment), recipient: disclose(recipient), revealed: false, choice: false, claimed: false });
@@ -888,9 +954,10 @@ export circuit commitVote(dispute: Bytes<32>, commitment: Bytes<32>, recipient: 
 export circuit revealVote(dispute: Bytes<32>, choice: Boolean): [] {
   const id = disclose(dispute);const item = disputes.lookup(id);
   assert(item.result == 0 && blockTimeGte(item.commitUntil) && blockTimeLt(item.revealUntil), "Vote reveal window closed");
-  const secret = verifierSecret();const pseudonym = disclose(verifierPseudonym(secret, id));const vote = verifierVotes.lookup(pseudonym);
+  const secret = verifierSecret();const pseudonym = disclose(verifierPseudonym(secret, id, item.kind));const vote = verifierVotes.lookup(pseudonym);
   assert(!vote.revealed, "Vote already revealed");
-  const committed = persistentHash<Vector<6, Bytes<32>>>([pad(32, "senyap:vote"),kernel.self().bytes,id,secret,choice ? (1 as Bytes<32>) : default<Bytes<32>>,voteSalt()]);
+  const domain = item.kind == 0 ? pad(32, "senyap:vote") : pad(32, "senyap:outcome-vote");
+  const committed = persistentHash<Vector<6, Bytes<32>>>([domain,kernel.self().bytes,id,secret,choice ? (1 as Bytes<32>) : default<Bytes<32>>,voteSalt()]);
   assert(vote.commitment == committed, "Wrong vote choice or salt");
   verifierVotes.insert(pseudonym, VerifierVote { ...vote, revealed: true, choice: disclose(choice) });
   disputes.insert(id, Dispute { ...item, yes: (item.yes + (disclose(choice) ? 1 : 0)) as Uint<8>, no: (item.no + (disclose(choice) ? 0 : 1)) as Uint<8> });
@@ -905,17 +972,27 @@ export circuit resolveDispute(dispute: Bytes<32>): Uint<8> {
     const vote = verifierVotes.lookup(seat);
     return (total + (!vote.revealed ? 100 : vote.choice != hoax ? 50 : 0)) as Uint<64>;
   }, 0, item.seats);
-  const pool: Uint<64> = valid ? (penalties + (hoax ? 0 : 50)) as Uint<64> : 0;
+  const reporterWins = hoax == item.proposed;
+  const pool: Uint<64> = valid ? (penalties + (reporterWins ? 0 : 50)) as Uint<64> : 0;
   const bonus: Uint<64> = valid ? checkedDivide(pool as Uint<128>, majority as Uint<64>) : 0;
   const result: Uint<8> = !valid ? 3 : hoax ? 1 : 2;
   disputes.insert(id, Dispute { ...item, result: result, majorityBonus: disclose(bonus) });
   disputeRemainder.insert(id, disclose(valid ? (pool - bonus * majority) as Uint<64> : 0));
-  if (!valid || hoax) { sendUnshielded(dusdColor, 50, right<ContractAddress, UserAddress>(item.reporter)); }
-  if (valid && hoax) {
+  if (!valid || reporterWins) { sendUnshielded(dusdColor, 50, right<ContractAddress, UserAddress>(item.reporter)); }
+  if (item.kind == 0 && valid && hoax) {
     const position = positions.lookup(id);assert(position.status == 0, "Disputed position not active");
     sendUnshielded(dusdColor, position.stake, right<ContractAddress, UserAddress>(charity));
     positions.insert(id, Position { ...position, status: 2 });
     marketClaims.insert(item.marketId, (marketClaims.lookup(item.marketId) + 1) as Uint<32>);
+  }
+  if (item.kind == 1) {
+    const outcome = outcomeCases.lookup(id);const masks = successMasks.lookup(item.marketId);
+    const old = outcome.pool == 0 ? masks[0] : outcome.pool == 1 ? masks[1] : outcome.pool == 2 ? masks[2] : masks[3];
+    const bit = valid ? hoax : outcome.original;
+    const updated = map((i: Uint<8>, value: Boolean): Boolean => i == outcome.option ? bit : value, [0,1,2,3,4,5,6,7], old);
+    successMasks.insert(item.marketId, [outcome.pool == 0 ? updated : masks[0],outcome.pool == 1 ? updated : masks[1],outcome.pool == 2 ? updated : masks[2],outcome.pool == 3 ? updated : masks[3]]);
+    outcomePending.insert(item.marketId, map((i: Uint<8>, value: Uint<8>): Uint<8> => i == outcome.pool ? (value - 1) as Uint<8> : value, [0,1,2,3], outcomePending.lookup(item.marketId)));
+    refreshOutcomePool(item.marketId, outcome.pool);
   }
   pendingDisputes.insert(item.marketId, (pendingDisputes.lookup(item.marketId) - 1) as Uint<32>);
   // A late finalizer must still leave a complete hit window after all cases close.
@@ -936,7 +1013,7 @@ export circuit claimVerifier(pseudonym: Bytes<32>): Uint<64> {
 // A proven hoax unlocks committee disclosure of this card. Three matching
 // authenticated attestations bind the decrypted member index to that exact card.
 export circuit approveHoaxMember(dispute: Bytes<32>, group: Bytes<32>, index: Uint<64>, member: Uint<8>): [] {
-  const id = disclose(dispute);assert(disputes.lookup(id).result == 1, "Hoax not proven");
+  const id = disclose(dispute);assert(disputes.lookup(id).kind == 0 && disputes.lookup(id).result == 1, "Hoax not proven");
   assert(!hoaxMembers.member(id), "Hoax member already revealed");const position = positions.lookup(id);
   const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: group, index: index });
   assert(groupLeaves.member(disclose(leafKey)), "Unknown hoax member index");
@@ -944,7 +1021,7 @@ export circuit approveHoaxMember(dispute: Bytes<32>, group: Bytes<32>, index: Ui
   if (approve(command, member) >= 3) { hoaxMembers.insert(id, GroupLeaf { group: disclose(group), index: disclose(index) }); }
 }
 export circuit revokeHoaxMember(dispute: Bytes<32>): [] {
-  assertOperator();const id = disclose(dispute);assert(disputes.lookup(id).result == 1 && hoaxMembers.member(id), "Hoax member not revealed");
+  assertOperator();const id = disclose(dispute);assert(disputes.lookup(id).kind == 0 && disputes.lookup(id).result == 1 && hoaxMembers.member(id), "Hoax member not revealed");
   const member = hoaxMembers.lookup(id);const leafKey = persistentHash<GroupLeaf>(member);
   assert(groupLeaves.member(leafKey), "Hoax member already revoked");
   groupLeaves.remove(leafKey);scoutGroups.lookup(member.group).insertIndexDefault(member.index);scoutGroups.lookup(member.group).resetHistory();

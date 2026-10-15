@@ -1,0 +1,54 @@
+{
+  "scope": "Local simulator tests only; no product deployment or transaction",
+  "date": "2026-10-16",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "compile": "Compact 0.31.1 --skip-zk passed",
+  "rootTypecheck": true,
+  "webTypecheck": true,
+  "webBuild": true,
+  "fullRuns": [
+    {
+      "passed": 146,
+      "failed": 1,
+      "total": 147,
+      "durationSeconds": 223.67,
+      "failure": "Valid-market assertion preceded authentication; authorization order subsequently restored without removing purchase requirement"
+    },
+    {
+      "passed": 146,
+      "failed": 2,
+      "total": 148,
+      "durationSeconds": 310.52,
+      "failures": [
+        "Eight-option fixture had a two-option histogram; preview fixture subsequently follows nOptions",
+        "Existing subsidy case timed out at 30861ms with 30000ms limit"
+      ]
+    }
+  ],
+  "focusedFinal": {
+    "command": "pnpm test tests/contracts/outcome-jury.test.ts tests/contracts/subsidy.test.ts tests/contracts/read-model.test.ts tests/frontend/product-client.test.ts --maxWorkers=1",
+    "passed": 23,
+    "files": 4,
+    "perInvocationWorkerOverride": 1,
+    "defaultWorkerCount": 2,
+    "testTimeoutUnchangedMs": 30000
+  },
+  "hostLoadObservation": {
+    "systemNotificationCpuPercent": 96.4,
+    "externalBrowserRendererCpuPercent": 64.9,
+    "spotlightWorkerCount": 36,
+    "interpretation": "Resource contention is plausible, not a proven exact root cause. No user/system process changed."
+  },
+  "coverage": [
+    "Eight independent cases and exact 400/800 dUSD collateral/refund conservation",
+    "Both market sides and immutable objective/subjective mode",
+    "Quorum/tie fallback, minority/non-reveal penalties and reporter/dust accounting",
+    "Case uniqueness, option eligibility and checked timestamp boundaries",
+    "Distinct hoax/outcome domains and no outcome-triggered scout slash/card opening",
+    "Late full hit window and shared buyer duty",
+    "Typed SDK subjective report and saved outcome commit/reveal",
+    "Trusted read-model jury modes/counts and browser finalized anchor"
+  ],
+  "fullCi": "Pending for implementation commit; no claim that final default-config full suite has passed yet",
+  "proving": "Keys/proofs for this changed source not generated yet; older source-bound evidence remains historical"
+}

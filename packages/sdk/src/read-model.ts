@@ -19,15 +19,16 @@ export function scoutPositionId(secret:Uint8Array,contract:string,market:bigint,
   return persistentHash(new CompactTypeVector(5,Bytes32Descriptor),[pad("senyap:position"),bytes(contract),secret,convertFieldToBytes(32,market,"market"),convertFieldToBytes(32,slot,"slot")]);
 }
 export type ProductMarketView={
-  id:bigint;side:"A"|"B";phase:ProductPhase;categoryHash:string;questionHash:string;questionUri:string;
+  id:bigint;outcomeMode:"objective"|"subjective";side:"A"|"B";phase:ProductPhase;categoryHash:string;questionHash:string;questionUri:string;
   creator:string;options:{id:number;reference:string}[];
   openAt:bigint;openUntil:bigint;auctionUntil:bigint;outcomeUntil:bigint;hitUntil:bigint|null;
   scouts:bigint;picks:bigint;stakeTotal:bigint;flatPrice:bigint;reservePrice:bigint;
   histogram:{strong:bigint;medium:bigint;weak:bigint}|null;
-  outcomes:{pool:number;successIds:number[];ready:boolean;needsDefault:boolean}[];
+  outcomes:{pool:number;successIds:number[];ready:boolean;needsDefault:boolean;pendingCases:bigint}[];
   buyer:null|{pseudonym:string;bought:number[];pool:number|null;winnerRank:number|null;ceiling:bigint|null;bidSettled:boolean|null;clearingPrice:bigint|null};
 };
 export type OwnedPositionView={id:string;market:bigint;slot:1|2|3;option:number;stake:bigint;weight:bigint;status:"active"|"claimed"|"slashed";hitPools:number[]};
+export type JuryCaseView={id:string;kind:"hoax"|"outcome";market:bigint;pool:number|null;option:number|null;proposed:boolean;evidenceHash:string;commitUntil:bigint;revealUntil:bigint;committed:bigint;yes:bigint;no:bigint;result:null|"yes"|"no"|"inconclusive"};
 /** Projects only ledger facts. No fabricated metadata, decrypted total, balance,
  * payout estimate or wall-clock phase transition. The caller must supply one
  * trusted deployment snapshot. Private state stays on-device, never an API body. */
@@ -53,13 +54,13 @@ export function readProductView(state:Ledger,scope:DeploymentScope,privateState?
       }
     }
     const masks=state.successMasks.lookup(id),ready=state.outcomesReady.lookup(id),defaults=state.needsDefault.lookup(id),owners=state.marketBuyers.lookup(id);
-    markets.push({id,side:market.side===0n?"A":"B",phase,categoryHash:hex(market.category),questionHash:hex(market.questionHash),questionUri:market.questionUri,
+    markets.push({id,outcomeMode:market.subjective?"subjective":"objective",side:market.side===0n?"A":"B",phase,categoryHash:hex(market.category),questionHash:hex(market.questionHash),questionUri:market.questionUri,
       creator:hex(state.marketCreator.lookup(id)),options:market.optionRefs.slice(0,Number(market.nOptions)).map((ref,i)=>({id:i,reference:hex(ref)})),
       openAt:market.openAt,openUntil:market.openUntil,auctionUntil:market.auctionUntil,outcomeUntil:market.outcomeUntil,hitUntil:state.hitUntil.member(id)?state.hitUntil.lookup(id):null,
       scouts:state.marketScouts.lookup(id),picks:state.marketPositions.lookup(id),stakeTotal:state.marketStake.lookup(id),flatPrice:market.flatPrice,reservePrice:market.reservePrice,
       histogram:state.previews.member(id)?{...state.previews.lookup(id)}:null,
-      outcomes:masks.flatMap((mask,pool)=>market.side===1n?pool===0?[{pool,successIds:selected(mask),ready:ready[pool],needsDefault:defaults[pool]}]:[]:
-        owners[pool].some(b=>b!==0)?[{pool,successIds:selected(mask),ready:ready[pool],needsDefault:defaults[pool]}]:[]),buyer});
+      outcomes:masks.flatMap((mask,pool)=>market.side===1n?pool===0?[{pool,successIds:selected(mask),ready:ready[pool],needsDefault:defaults[pool],pendingCases:state.outcomePending.lookup(id)[pool]}]:[]:
+        owners[pool].some(b=>b!==0)?[{pool,successIds:selected(mask),ready:ready[pool],needsDefault:defaults[pool],pendingCases:state.outcomePending.lookup(id)[pool]}]:[]),buyer});
   }
   const positions:OwnedPositionView[]=[];
   if(privateState)for(const [key,owned] of Object.entries(privateState.positions)){
@@ -72,5 +73,11 @@ export function readProductView(state:Ledger,scope:DeploymentScope,privateState?
     if(position.status>2n)throw Error("Unsupported position state");
     positions.push({id:hex(id),market,slot,option:Number(owned.option),stake:position.stake,weight:position.weight,status:position.status===0n?"active":position.status===1n?"claimed":"slashed",hitPools:selected(state.hitFlags.lookup(id))});
   }
-  return {scope:{...scope},markets,positions};
+  const juryCases:JuryCaseView[]=[];
+  for(const [id,item] of state.disputes){
+    if((item.kind!==0n&&item.kind!==1n)||item.result>3n)throw Error("Unsupported jury case state");
+    const outcome=item.kind===1n?state.outcomeCases.lookup(id):null;
+    juryCases.push({id:hex(id),kind:item.kind===0n?"hoax":"outcome",market:item.marketId,pool:outcome?Number(outcome.pool):null,option:outcome?Number(outcome.option):null,proposed:item.proposed,evidenceHash:hex(item.evidence),commitUntil:item.commitUntil,revealUntil:item.revealUntil,committed:item.committed,yes:item.yes,no:item.no,result:item.result===0n?null:item.result===1n?"yes":item.result===2n?"no":"inconclusive"});
+  }
+  return {scope:{...scope},markets,positions,juryCases};
 }

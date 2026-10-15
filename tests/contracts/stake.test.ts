@@ -10,7 +10,7 @@ function setupStake(epoch=7n,tier=1n,count=5){
   const s=setupGroups(),buyer=hash(s.context.currentPrivateState.buyer);
   s.invoke("admitBuyer",buyer);s.context.currentPrivateState.buyerPath=s.state.buyerTree.findPathForLeaf(buyer);s.context.currentPrivateState.standingPath=s.state.goodStanding.findPathForLeaf(buyer);
   for(let i=0;i<3;i++)s.invoke("registerBuilder",refs[i],bytes(90+i),1000n);
-  s.invoke("createMarket",1n,{side:0n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://stake",nOptions:3n,optionRefs:refs,openAt:1000n,openUntil:1600n,auctionUntil:1800n,outcomeUntil:2400n,flatPrice:10n,reservePrice:20n});
+  s.invoke("createMarket",1n,{subjective:false,side:0n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://stake",nOptions:3n,optionRefs:refs,openAt:1000n,openUntil:1600n,auctionUntil:1800n,outcomeUntil:2400n,flatPrice:10n,reservePrice:20n});
   s.invoke("configureScoutGroup",group,{side:0n,tier,epoch,ecosystem:bytes(0)});
   for(const secret of [bytes(21),bytes(22),scout,bytes(23),bytes(24)].slice(0,count))s.invoke("admitScout",group,commitment(secret,epoch));
   s.context.currentPrivateState.path=s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(scout,epoch));
