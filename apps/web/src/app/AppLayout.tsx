@@ -65,6 +65,7 @@ export function AppLayout() {
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
+  const live=loc.pathname.startsWith("/app/preprod");
   const current = roles.find((r) => r.id === role)!;
 
   return (
@@ -76,18 +77,19 @@ export function AppLayout() {
             <span>Senyap</span>
           </a>
           <nav className="ah-menu" aria-label={`${current.label} menu`}>
-            {menus[role].map((m) => (
+            {(live?[{to:"/app/preprod",label:"Preprod workspace"},{to:"/app",label:"Demo"}]:menus[role]).map((m) => (
               <NavLink key={m.to} to={m.to} end={m.to === "/app"} className={({ isActive }) => (isActive && (m.to.includes("?") ? loc.search && m.to.endsWith(loc.search) : true) ? "on" : "")}>
                 {m.label}
               </NavLink>
             ))}
+            {!live&&<NavLink to="/app/preprod" className={({isActive})=>isActive?"on":""}>Preprod</NavLink>}
             <NavLink to="/app/workspace" className={({ isActive }) => isActive ? "on" : ""}>Private workspace</NavLink>
           </nav>
           <div className="ah-right">
-            <NavLink to="/app/faucet" className="ah-bal" title="Demo dUSD balance. Click for the faucet.">
+            {live?<span className="ah-bal">Preprod</span>:<NavLink to="/app/faucet" className="ah-bal" title="Demo dUSD balance. Click for the faucet.">
               {balance.toLocaleString(undefined, { maximumFractionDigits: 2 })} dUSD
-            </NavLink>
-            <div className="ah-role" ref={roleRef}>
+            </NavLink>}
+            {!live&&<div className="ah-role" ref={roleRef}>
               <button type="button" className="ah-role-btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
                 <RoleIcon role={role} />
                 <span>
@@ -119,7 +121,7 @@ export function AppLayout() {
                   ))}
                 </ul>
               )}
-            </div>
+            </div>}
             <div className="ah-wallet">
               {state.status === "connected" ? (
                 <button type="button" className="abtn abtn-soft" onClick={() => setWalletOpen((o) => !o)}>
@@ -190,7 +192,7 @@ export function AppLayout() {
         <Outlet />
       </main>
       <footer className="af">
-        <span>Demo data. Every market, team and number in the app is synthetic until the Compact contracts are deployed to Midnight {NETWORK_ID}.</span>
+        <span>{live?"Preprod test network. Live data requires a verified product deployment; local choices stay encrypted in your workspace.":`Demo data. Every market, team and number here is synthetic. Preprod uses a separate workspace.`}</span>
         <span className="af-links">
           <NavLink to="/app/guide">Guide</NavLink>
           <NavLink to="/app/faucet">Faucet</NavLink>

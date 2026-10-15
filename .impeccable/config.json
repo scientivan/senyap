@@ -74,6 +74,42 @@
         ],
         "createdAt": "2026-10-15T04:55:23.858Z",
         "reason": "Case-insensitive macOS path alias for approved compact app headings"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "12px",
+        "files": [
+          "apps/web/src/app/pages/live-workspace.css"
+        ],
+        "createdAt": "2026-10-15T13:04:32.093Z",
+        "reason": "Dien approved compact app scale in AGENTS.md Design and live-product-workspace preview; root landing ramp is not app scale"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "13px",
+        "files": [
+          "apps/web/src/app/pages/live-workspace.css"
+        ],
+        "createdAt": "2026-10-15T13:04:32.196Z",
+        "reason": "Dien approved compact app scale in AGENTS.md Design and live-product-workspace preview; root landing ramp is not app scale"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "16px",
+        "files": [
+          "apps/web/src/app/pages/live-workspace.css"
+        ],
+        "createdAt": "2026-10-15T13:04:32.295Z",
+        "reason": "Dien approved compact app scale in AGENTS.md Design and live-product-workspace preview; root landing ramp is not app scale"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "26px",
+        "files": [
+          "apps/web/src/app/pages/live-workspace.css"
+        ],
+        "createdAt": "2026-10-15T13:04:32.393Z",
+        "reason": "Dien approved compact app scale in AGENTS.md Design and live-product-workspace preview; root landing ramp is not app scale"
       }
     ]
   }

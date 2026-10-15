@@ -299,11 +299,14 @@ weights remain internal to the labelled demo store, which exposes them through
 its existing simulated paid-access function. This is a separation of demo data,
 not a privacy guarantee for downloadable synthetic seed fixtures.
 
-The live app UI is not integrated yet. `design/live-product-workspace.html` is a
-static preview with connection, ready, proof-preparation and uncertain-result
-states, all explicitly synthetic. Eight isolated browser captures at 1440/390px
+The Preprod workspace is integrated at `/app/preprod`. `design/live-product-workspace.html` is a
+static design reference with connection, ready, proof-preparation and uncertain-result
+states, all explicitly synthetic. The approved app route connects the existing
+Lace/workspace flow to finalized ledger/verified metadata reads only when the
+public deployment binding is complete; its transaction controls remain pending. Eight isolated browser captures at 1440/390px
 pass the recorded DOM checks (`docs/evidence/live-preview-browser.json`). Design
-approval, deployment configuration and actual product transactions remain gates.
+approval was received. Deployment configuration and actual product transactions
+remain separate gates.
 
 
 ## Public market metadata
@@ -313,7 +316,7 @@ question, ordered option references and labels). `questionHash` commits to the
 SHA-256 of UTF-8 JSON `["senyap:market-metadata:v1", side, category, question,
 [[reference,label],...]]`. Strings are preserved exactly; outer whitespace,
 control characters and unpaired surrogates are rejected. The document allows
-2–8 distinct options, a question up to 2048 UTF-16 code units and labels up to
+1–8 distinct options, a question up to 2048 UTF-16 code units and labels up to
 120. Other input properties are dropped, never stored as metadata.
 
 Hash the document before `createMarket`; upload it after the market finalizes

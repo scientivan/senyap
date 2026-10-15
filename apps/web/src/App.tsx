@@ -1,3 +1,4 @@
+import {lazy,Suspense} from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
@@ -12,6 +13,8 @@ import { MarketDetail } from "./app/pages/MarketDetail";
 import { Positions, Tier } from "./app/pages/Scout";
 import { Workspace } from "./app/pages/Workspace";
 import { Committee, Faucet, Guide, NewMarket, Operator, Profile, Registry, Verify } from "./app/pages/Other";
+
+const LiveWorkspace=lazy(()=>import("./app/pages/LiveWorkspace").then(module=>({default:module.LiveWorkspace})));
 
 function Landing() {
   return (
@@ -51,6 +54,7 @@ const router = createBrowserRouter([
       { path: "faucet", element: <Faucet /> },
       { path: "guide", element: <Guide /> },
       { path: "workspace", element: <Workspace /> },
+      { path: "preprod", element: <Suspense fallback={<p role="status">Opening Preprod workspace</p>}><LiveWorkspace/></Suspense> },
       { path: "*", element: <Navigate to="/app" replace /> },
     ],
   },

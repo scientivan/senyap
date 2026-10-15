@@ -1,0 +1,51 @@
+{
+  "scope": "Fresh isolated Chrome profile; synthetic local workspace only; no wallet or transaction",
+  "checks": {
+    "deploymentBlocked": true,
+    "noDemoBalance": true,
+    "noSyntheticMarkets": true,
+    "walletAbsent": true,
+    "unlocked": true,
+    "leavingLocks": true,
+    "existingUnlockMode": true,
+    "storageChangeLocks": true
+  },
+  "screenshots": [
+    {
+      "state": "unavailable",
+      "width": 1440,
+      "path": "/private/tmp/senyap-live-app-unavailable-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unavailable",
+      "width": 390,
+      "path": "/private/tmp/senyap-live-app-unavailable-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "create",
+      "width": 1440,
+      "path": "/private/tmp/senyap-live-app-create-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "create",
+      "width": 390,
+      "path": "/private/tmp/senyap-live-app-create-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unlocked",
+      "width": 1440,
+      "path": "/private/tmp/senyap-live-app-unlocked-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unlocked",
+      "width": 390,
+      "path": "/private/tmp/senyap-live-app-unlocked-390.png",
+      "noOverflow": true
+    }
+  ]
+}

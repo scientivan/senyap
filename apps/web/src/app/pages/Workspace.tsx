@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { openWorkspace, workspaceExists, workspacePasswordValid, type WorkspaceSession } from "@senyap/sdk/workspace";
 import "./workspace.css";
 
-export function Workspace() {
+export function Workspace({onSession,embedded=false}:{onSession?:(session:WorkspaceSession|null)=>void;embedded?:boolean}={}) {
   const [mode, setMode] = useState<"create" | "unlock" | "restore">(() => workspaceExists() ? "unlock" : "create");
   const [unlocked, setUnlocked] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -14,13 +14,14 @@ export function Workspace() {
   const form = useRef<HTMLFormElement>(null);
   const alive = useRef(true);
   const generation = useRef(0);
+  const notify=useRef(onSession);notify.current=onSession;
   useEffect(() => {
     alive.current = true;
-    const lock = () => { generation.current++; session.current?.lock(); session.current = null; setUnlocked(false); form.current?.reset(); };
+    const lock = () => { generation.current++; session.current?.lock(); session.current = null; notify.current?.(null);setUnlocked(false); form.current?.reset(); };
     // Another tab changing the profile cannot leave this session attached to the old one.
     const changed = (event: StorageEvent) => { if (event.key === null || event.key === "senyap-workspace-v1") lock(); };
     window.addEventListener("pagehide", lock); window.addEventListener("storage", changed);
-    return () => { alive.current = false; generation.current++; session.current?.lock(); session.current = null;
+    return () => { alive.current = false; generation.current++; session.current?.lock(); session.current = null;notify.current?.(null);
       window.removeEventListener("pagehide", lock); window.removeEventListener("storage", changed); };
   }, []);
   function choose(next: typeof mode) { setMode(next); setMessage(""); setShow(false); form.current?.reset(); }
@@ -39,7 +40,7 @@ export function Workspace() {
     try {
       const opened = await openWorkspace(mode, password, mode === "restore" ? await (file as File).text() : undefined);
       if (!alive.current || operation !== generation.current) { opened.lock(); return; }
-      session.current = opened; setUnlocked(true); form.current?.reset(); setShow(false);
+      session.current = opened; setUnlocked(true); form.current?.reset(); setShow(false);notify.current?.(opened);
       setMessage(mode === "create" ? "Workspace created. Save an encrypted backup to keep a way back in."
         : mode === "restore" ? "Your encrypted backup has been restored on this device." : "Your private workspace is unlocked.");
     } catch (error) { if (alive.current && operation === generation.current) setMessage(error instanceof Error ? error.message : "Workspace could not be opened. Try again."); }
@@ -59,7 +60,7 @@ export function Workspace() {
     } catch { if (alive.current) setMessage("The backup could not be saved. Unlock your workspace and try again."); }
     finally { if (alive.current) setBusy(false); }
   }
-  function lock() { generation.current++; session.current?.lock(); session.current = null; setUnlocked(false); setMode("unlock"); setMessage("Your workspace is locked."); }
+  function lock() { generation.current++; session.current?.lock(); session.current = null;notify.current?.(null);setUnlocked(false); setMode("unlock"); setMessage("Your workspace is locked."); }
   return <div className="vault">
     <h1>{unlocked ? "Your private workspace" : mode === "create" ? "Create your private workspace" : mode === "restore" ? "Restore your private workspace" : "Unlock your private workspace"}</h1>
     <p className="vault-intro">{unlocked ? "Your local keys are encrypted on this device. Save a backup before you leave."
@@ -89,8 +90,8 @@ export function Workspace() {
     <section className="vault-note"><h2>Your wallet and private workspace are separate</h2><p>Lace handles transactions. This password protects your local keys. Clearing browser data removes the local copy, so keep an encrypted backup. Leaving this page locks the workspace.</p>
       {!unlocked && <button type="button" className="abtn abtn-soft" disabled={busy} onClick={() => choose(mode === "restore" ? "unlock" : "restore")}>{mode === "restore" ? "Back to unlock" : "Restore encrypted backup"}</button>}
     </section>
-    <Link className="vault-link" to="/app">Continue with labelled demo data</Link>
-    <p className="vault-hint">Local encrypted storage is available. Markets still use labelled demo data; product staking, purchases and claims are not connected yet.</p>
+    {!embedded&&<><Link className="vault-link" to="/app">Continue with labelled demo data</Link>
+    <p className="vault-hint">Local encrypted storage is available. Markets still use labelled demo data; product staking, purchases and claims are not connected yet.</p></>}
   </div>;
 }
 function Arrow() { return <span className="vault-disc" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></span>; }

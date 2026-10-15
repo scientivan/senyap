@@ -8,7 +8,7 @@ const text=(value:unknown,max:number):value is string=>typeof value==="string"&&
 export function parseMarketMetadata(input:unknown):MarketMetadata{
   if(!input||typeof input!=="object")throw Error("Invalid market metadata");
   const value=input as Record<string,unknown>;
-  if(value.version!==1||(value.side!=="A"&&value.side!=="B")||!hash(value.category)||!text(value.question,2048)||!Array.isArray(value.options)||value.options.length<2||value.options.length>8)throw Error("Invalid market metadata");
+  if(value.version!==1||(value.side!=="A"&&value.side!=="B")||!hash(value.category)||!text(value.question,2048)||!Array.isArray(value.options)||value.options.length<1||value.options.length>8)throw Error("Invalid market metadata");
   const options=value.options.map(item=>{
     if(!item||typeof item!=="object"||!hash(item.reference)||!text(item.label,120))throw Error("Invalid market option metadata");
     return {reference:item.reference as string,label:item.label as string};
