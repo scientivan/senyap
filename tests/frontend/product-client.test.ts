@@ -16,7 +16,7 @@ async function fixture(){
   let state=await createClientState({scout:new Uint8Array(32).fill(1),buyer:new Uint8Array(32).fill(2),builder:new Uint8Array(32).fill(3),verifier:new Uint8Array(32).fill(4)},{network:"preprod",contract:address});
   let operation:ClientOperation|null=null,account="mn_addr_preprod1synthetic",storageFails=false;
   const events:string[]=[];
-  const client={provider:{...ephemeralState<Awaited<ReturnType<typeof createClientState>>>(),setContractAddress:vi.fn(),get:async()=>state,set:vi.fn()},update:async change=>{state=await change(state);return state;},journal:{
+  const client={provider:{...ephemeralState<Awaited<ReturnType<typeof createClientState>>>(),setContractAddress:vi.fn(),get:async(_id:string)=>state,set:vi.fn()},update:async change=>{state=await change(state);return state;},journal:{
     get:async()=>operation,
     begin:async(id,kind)=>{if(operation&&["prepared","submitted","uncertain"].includes(operation.phase))throw Error("Pending");operation={id,kind,phase:"prepared"};},
     submitted:async(id,tx)=>{if(storageFails)throw Error("synthetic storage failure");if(operation?.id!==id)throw Error();operation={...operation,phase:"submitted",txId:tx};events.push("journal");},
@@ -39,7 +39,7 @@ afterEach(()=>vi.unstubAllGlobals());
 describe("Lace product transport boundaries",()=>{
   it("builds public arguments from the newly persisted private position without exposing its salt or secret",async()=>{
     const f=await fixture(),group=new Uint8Array(32).fill(4);
-    await f.product.call("stake",state=>[1n,group,1n,100n,state.positions["1/1"].revealKeyCommit],
+    await f.product.call("stake",state=>([1n,group,1n,100n,state.positions["1/1"].revealKeyCommit] satisfies [bigint,Uint8Array,bigint,bigint,Uint8Array]),
       state=>preparePrivateStake(state,{market:1n,slot:1n,group,option:2n,blockTime:1000n}));
     const saved=await f.client.provider.get("client-v1"),options=sdk.submit.mock.calls[0][1];
     expect(options.args[4]).toEqual(saved!.positions["1/1"].revealKeyCommit);
