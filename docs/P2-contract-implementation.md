@@ -76,9 +76,11 @@ effects. Committee defaults, subsidy transfers
 and platform withdrawal are still absent. No product contract is deployed.
 
 A separate X25519/HKDF/AES-GCM helper tests encrypted buyer responses, including
-wrong keys, wrong contexts and tampering. It is not yet connected to an onchain
-recipient key or a committee service, so it does not establish authenticated paid
-signal delivery.
+wrong keys, wrong contexts and tampering. It now connects to an immutable recipient key in BuyerAccess and a local committee
+node core. Five synthetic node shares recover the purchased total with valid DLEQ
+proofs; two shares, wrong buyers/keys/contexts, unpaid options, redirected destinations
+and forged proofs are rejected. This is a local core test, not five deployed nodes
+or a trusted-indexer integration.
 
 ## Approved selection timer
 

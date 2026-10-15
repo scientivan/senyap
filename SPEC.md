@@ -154,7 +154,7 @@ nullifier posisi. Veritas menilai dan menulis ulang alasan (D-21; Gemini hanya p
 ### 3.7 F5 Pembukaan sinyal ke buyer
 
 - Buyer meminta pembukaan ke tiap anggota komite (offchain, terautentikasi dengan bukti nama samaran).
-- Tiap anggota mengembalikan potongan dekripsi untuk opsi yang dibeli buyer itu, dienkripsi ke kunci
+- Tiap anggota membaca hak akses dan kunci publik X25519 buyer dari ledger (terikat saat bid/pembelian pertama, tidak bisa diganti lewat permintaan). Anggota mengembalikan potongan dekripsi untuk opsi yang dibeli buyer itu, dienkripsi ke kunci
   buyer, dengan bukti DLEQ (Chaum-Pedersen) bahwa potongan benar.
 - Buyer menggabungkan 3 potongan (Lagrange) dan membaca total per opsi. Komite tidak melihat total ini.
 - Alasan yang sudah dibersihkan Veritas untuk opsi yang dibeli diberikan ke buyer.
@@ -479,14 +479,14 @@ Dikerjakan pertama setelah aba-aba. Masing-masing menghasilkan kontrak/test keci
 | Opsi per scout per market | Maks 3 | D-17/v1 |
 | Opsi per market | Maks 8 | [Usulan, S2] |
 | Pembagian bayaran buyer | 85% scout / 15% platform | v1, 12 Okt |
-| Subsidi sisi B | Sebagian dari 15% platform sisi A | [Keputusan Dien, M-14]; besaran belum ditetapkan |
+| Subsidi sisi B | 5 dari 15 poin persen platform sisi A | [Keputusan Dien, O-1 disetujui 14 Okt] |
 | Bobot | stake × pengali tier × bonus awal | v1 |
 | Ambang anonimitas | k = 5 per grup dan per market | v1 + 26.15 |
 | Komite | 3-dari-5 | [Keputusan Dien, M-6] |
 | Lelang | Generalized second price 2 slot + reserve; pemenang sembunyikan ≤3 opsi | v1, sisi A saja |
 | Slash hoax | Stake posisi ke alamat amal | v1 |
 | Epoch tier | Usulan 30 hari (demo dipercepat) | v1 + M-11 |
-| Aturan tier per epoch | Tidak renew = keluar dari grup (tier kedaluwarsa, M-11) dan kembali lewat onboarding sebagai tier 1. Pertahankan tier: >=1 hit dalam 2 epoch terakhir. Naik 1: >=2 hit di epoch berjalan. Naik 2: >=3 hit. Hoax terbukti: dicabut dari grup | [Usulan, menunggu Dien] |
+| Aturan tier per epoch | Tidak renew = keluar dari grup (tier kedaluwarsa, M-11) dan kembali lewat onboarding sebagai tier 1. Pertahankan tier: >=1 hit dalam 2 epoch terakhir. Naik 1: >=2 hit di epoch berjalan. Naik 2: >=3 hit. Hoax terbukti: dicabut dari grup | [Keputusan Dien, parameter disetujui 14 Okt] |
 | Pengali tier dalam bobot | Tier 1 = 1,0; tier 2 = 1,25; tier 3 = 1,5 (tier dibuktikan lewat grup tempat bukti keanggotaan dibuat) | [Usulan] |
 | Bonus awal dalam bobot | 1,2 bila stake di 25% pertama jendela Open, selain itu 1,0 (dihitung dari `blockTimeLt`) | [Usulan] |
 | Rumus bobot | `weight = stake × pengali_tier × bonus_awal`, dibulatkan ke bawah ke integer, dibatasi `< 2^32` | [Usulan] |
@@ -498,7 +498,7 @@ Dikerjakan pertama setelah aba-aba. Masing-masing menghasilkan kontrak/test keci
 | Penegakan k = 5 | Slot dipakai berurutan (circuit membuktikan slot n hanya bila nullifier slot n-1 milik scout yang sama sudah ada); `scouts` bertambah hanya saat slot = 1. Kontrak menolak `buyFlat`/pembukaan bila `scouts < 5`; komite juga menolak membuka | [Usulan] |
 | Desimal dUSD | 0 desimal (1 unit = 1 dUSD) agar bobot dan total per opsi muat untuk baby-step giant-step; batas total seluruh market `< 2^40` (penyempurnaan disetujui Dien, 15 Okt) | [Usulan] |
 | Pengali dalam circuit | Ditulis sebagai bilangan bulat: tier 100/125/150, bonus awal 100/120; bobot = `stake × pengaliTier × bonus / 10000` dengan hasil bagi diberikan witness dan dicek lewat perkalian (lihat spike S9) | [Usulan] |
-| Batas buyer per market | Sisi A: maks 4 buyer berbayar (2 pemenang lelang + 2 flat) mengikuti vektor `pools`/`denoms`. Sisi B: satu pool dan satu mask untuk semua buyer (outcome tunggal) | [Usulan, menunggu Dien, O-9] |
+| Batas buyer per market | Sisi A: maks 4 buyer berbayar (2 pemenang lelang + 2 flat) mengikuti vektor `pools`/`denoms`. Sisi B: satu pool dan satu mask untuk semua buyer (outcome tunggal) | [Keputusan Dien, O-9 disetujui 14 Okt] |
 | Alamat amal | Konstanta konfigurasi kontrak, diisi Dien sebelum deploy; demo memakai alamat burn berlabel | [Usulan, menunggu Dien] |
 | Sumber epoch | `epoch = floor(blockTime / panjang_epoch)` dari kontrak; panjang epoch parameter konstruktor | [Usulan] |
 | Autentikasi operator | Operator membuktikan pengetahuan `operatorSecret` dengan `H(operatorSecret)` yang disimpan sealed di konstruktor | [Usulan] |

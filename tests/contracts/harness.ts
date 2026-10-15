@@ -11,7 +11,7 @@ export const commitment=(secret:Uint8Array,epoch:bigint)=>{
   const encoded=RT.convertFieldToBytes(32,epoch,"synthetic group epoch");
   return RT.persistentHash(new RT.CompactTypeVector(2,RT.Bytes32Descriptor),[secret,encoded]);
 };
-type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8Array;buyer:Uint8Array;bid:bigint;now:bigint;option:bigint;salt:Uint8Array;badDivision?:boolean;badPayout?:boolean;path?:RT.MerkleTreePath<Uint8Array>;previousPath?:RT.MerkleTreePath<Uint8Array>;buyerPath?:RT.MerkleTreePath<Uint8Array>;standingPath?:RT.MerkleTreePath<Uint8Array>};
+type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8Array;buyer:Uint8Array;receivingKey:Uint8Array;bid:bigint;now:bigint;option:bigint;salt:Uint8Array;badDivision?:boolean;badPayout?:boolean;path?:RT.MerkleTreePath<Uint8Array>;previousPath?:RT.MerkleTreePath<Uint8Array>;buyerPath?:RT.MerkleTreePath<Uint8Array>;standingPath?:RT.MerkleTreePath<Uint8Array>};
 export const config={side:0n,tier:1n,epoch:7n,ecosystem:bytes(0)};
 export function setupGroups(selectionSeconds=300n){
   const contract=new Contract<PS>({
@@ -19,6 +19,7 @@ export function setupGroups(selectionSeconds=300n){
     committeeSecret:({privateState})=>[privateState,privateState.committee],
     scoutSecret:({privateState})=>[privateState,privateState.scout],
     builderSecret:({privateState})=>[privateState,privateState.builder],
+    buyerReceivingKey:({privateState})=>[privateState,privateState.receivingKey],
     buyerSecret:({privateState})=>[privateState,privateState.buyer],
     buyerPath:({privateState})=>{if(!privateState.buyerPath)throw Error("Missing buyer test path");return [privateState,privateState.buyerPath];},
     standingPath:({privateState})=>{if(!privateState.standingPath)throw Error("Missing standing test path");return [privateState,privateState.standingPath];},
@@ -34,7 +35,7 @@ export function setupGroups(selectionSeconds=300n){
     bidAmount:({privateState})=>[privateState,privateState.bid],bidRandomHigh:({privateState})=>[privateState,0n],bidRandomLow:({privateState})=>[privateState,77n],
     memberPath:({privateState})=>{if(!privateState.path)throw Error("Missing test path");return [privateState,privateState.path];},
   });
-  const initial=contract.initialState(RT.createConstructorContext<PS>({operator,scout,committee:committee[0],builder:bytes(40),buyer:bytes(60),bid:100n,now:1000n,option:0n,salt:bytes(61)},"0".repeat(64)),hash(operator),committee.map(hash),RT.ecMulGenerator(37n),bytes(62),128n,300n,selectionSeconds);
+  const initial=contract.initialState(RT.createConstructorContext<PS>({operator,scout,committee:committee[0],builder:bytes(40),buyer:bytes(60),receivingKey:bytes(63),bid:100n,now:1000n,option:0n,salt:bytes(61)},"0".repeat(64)),hash(operator),committee.map(hash),RT.ecMulGenerator(37n),bytes(62),128n,300n,selectionSeconds);
   let context=RT.createCircuitContext(RT.sampleContractAddress(),"0".repeat(64),initial.currentContractState,initial.currentPrivateState,undefined,undefined,1000);
   const invoke=<K extends keyof typeof contract.impureCircuits>(name:K,...args:Parameters<(typeof contract.impureCircuits)[K]> extends [unknown,...infer A]?A:never)=>{
     const circuit=contract.impureCircuits[name] as (...args:unknown[])=>RT.CircuitResults<PS,unknown>;

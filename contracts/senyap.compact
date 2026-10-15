@@ -36,7 +36,7 @@ export sealed ledger epochLength: Uint<64>;
 export sealed ledger hitWindow: Uint<64>;
 export sealed ledger selectionWindow: Uint<64>;
 export struct Histogram { strong: Uint<8>; medium: Uint<8>; weak: Uint<8>; }
-export struct BuyerAccess { marketId: Uint<32>; bought: Vector<8, Boolean>; lockedCard: LockedCard; }
+export struct BuyerAccess { marketId: Uint<32>; bought: Vector<8, Boolean>; receivingKey: Bytes<32>; lockedCard: LockedCard; }
 export struct PayoutDivision { quotient: Uint<128>; remainder: Uint<64>; }
 export ledger previews: Map<Uint<32>, Histogram>;
 export ledger buyerAccess: Map<Bytes<32>, BuyerAccess>;
@@ -92,6 +92,7 @@ witness scoutSecret(): Bytes<32>;
 witness memberPath(): MerkleTreePath<20, Bytes<32>>;
 witness builderSecret(): Bytes<32>;
 witness buyerSecret(): Bytes<32>;
+witness buyerReceivingKey(): Bytes<32>;
 witness buyerPath(): MerkleTreePath<16, Bytes<32>>;
 witness standingPath(): MerkleTreePath<16, Bytes<32>>;
 witness previousPositionPath(): MerkleTreePath<32, Bytes<32>>;
@@ -418,8 +419,9 @@ export circuit placeBid(id: Uint<32>, ceiling: Uint<128>, refundRecipient: UserA
   const cardHigh = cardRandomHigh();const cardLow = cardRandomLow();
   const envelope = encryptMembershipCard(committeePk, amount as Bytes<32>, 0, context, cardHigh, cardLow);
   const card = makeBuyerCard(path, pseudonym, cardHigh, cardLow);
+  const receivingKey = buyerReceivingKey();assert(receivingKey != default<Bytes<32>>, "Buyer receiving key must be nonzero");
   const empty: Vector<8, Boolean> = [false,false,false,false,false,false,false,false];
-  buyerAccess.insert(disclose(pseudonym), disclose(BuyerAccess { marketId: marketId, bought: empty, lockedCard: card }));
+  buyerAccess.insert(disclose(pseudonym), disclose(BuyerAccess { marketId: marketId, bought: empty, receivingKey: receivingKey, lockedCard: card }));
   const sequence = bidCount.lookup(marketId);
   bids.insert(disclose(pseudonym), disclose(Bid { marketId: marketId, enc: enc, envelope: envelope, ceiling: ceiling, refundRecipient: refundRecipient, sequence: sequence, settled: false }));
   receiveUnshielded(dusdColor, disclose(ceiling));
@@ -530,7 +532,8 @@ export circuit buyFlat(id: Uint<32>, optionNumber: Uint<8>): Bytes<32> {
       PathIndex { value: (acc.value + (entry.goes_left ? 0 : acc.power)) as Uint<64>, power: (acc.power * 2) as Uint<64> },
       PathIndex { value: 0, power: 1 }, path.path).value;
     const card = encryptMembershipCard(committeePk, path.leaf, index, pseudonym, cardRandomHigh(), cardRandomLow());
-    buyerAccess.insert(disclose(pseudonym), disclose(BuyerAccess { marketId: marketId, bought: bought, lockedCard: card }));
+    const receivingKey = buyerReceivingKey();assert(receivingKey != default<Bytes<32>>, "Buyer receiving key must be nonzero");
+    buyerAccess.insert(disclose(pseudonym), disclose(BuyerAccess { marketId: marketId, bought: bought, receivingKey: receivingKey, lockedCard: card }));
   } else {
     const old = buyerAccess.lookup(disclose(pseudonym));
     buyerAccess.insert(disclose(pseudonym), BuyerAccess { ...old, bought: bought });

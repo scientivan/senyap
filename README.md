@@ -66,7 +66,9 @@ execution, not product-market integration.
 - `packages/sdk` (spike-only ephemeral state present): product wrapper, witnesses
   and persistent private state remain planned.
 - `apps/operator` (planned): credential verification, reason screening and relay.
-- `apps/committee` (planned): five decryption nodes and onchain approvals.
+- `apps/committee` (local node core present): ledger-authorized, encrypted buyer
+  shares pass local tests across five synthetic node keys. HTTP nodes, trusted
+  indexer integration, preview/default workflows and onchain relays remain planned.
 - `services/keeper` (planned): market transitions and settlement scheduling.
 
 The design keeps identities, options and secrets in private state, while the
