@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { persistentState, packPrivateKey, restorePrivateKey } from "./private-state";
+import type { ClientPrivateState } from "./client-state";
+import type { PrivateStateProvider } from "@midnight-ntwrk/midnight-js-types";
+import type { ClientOperation,OperationJournal } from "./operation";
 
 type Profile = { version: 1; scout: Uint8Array; buyer: Uint8Array; builder: Uint8Array; verifier: Uint8Array;
-  signing: Uint8Array; receiving: Uint8Array; signingPublic: Uint8Array; receivingPublic: Uint8Array };
+  signing: Uint8Array; receiving: Uint8Array; signingPublic: Uint8Array; receivingPublic: Uint8Array;
+  contracts?: Record<string,ClientPrivateState>; operations?:Record<string,ClientOperation> };
 const marker = "senyap-workspace-v1";
 const stateId = "profile";
 const hex = (bytes: Uint8Array) => Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
@@ -37,7 +41,10 @@ async function validateKeys(profile: Profile) {
   const same = a.every((n, i) => n === b[i]); a.fill(0); b.fill(0);
   if (!same) throw Error("Invalid workspace key");
 }
-export type WorkspaceSession = { backup: () => Promise<string>; lock: () => void };
+export type WorkspaceClient = { provider:PrivateStateProvider<"client-v1",ClientPrivateState>; journal:OperationJournal;
+  update:(change:(state:ClientPrivateState)=>Promise<ClientPrivateState>|ClientPrivateState)=>Promise<ClientPrivateState> };
+export type WorkspaceSession = { backup: () => Promise<string>; lock: () => void;
+  client:(scope:{network:string;contract:string})=>WorkspaceClient };
 export async function openWorkspace(mode: "create" | "unlock" | "restore", password: string, backup?: string): Promise<WorkspaceSession> {
   if (!navigator.locks) throw Error("This browser cannot safely open the workspace. Use a current browser on localhost or HTTPS.");
   return navigator.locks.request(marker, async () => {
@@ -64,10 +71,55 @@ export async function openWorkspace(mode: "create" | "unlock" | "restore", passw
       }
       const profile = await storage.get(stateId); validate(profile); await validateKeys(profile);
       if (mode !== "unlock") localStorage.setItem(marker, id);
-      return { backup: async () => {
-        if (!secret) throw Error("Workspace is locked.");
-        return JSON.stringify(await storage.exportPrivateStates({ maxStates: 1 }));
-      }, lock: () => { secret = ""; } };
+      const requireUnlocked=()=>{if(!secret||localStorage.getItem(marker)!==id)throw Error("Workspace is locked or changed.");};
+      return { client: (scope:{network:string;contract:string}) => {
+        if(!/^[a-z0-9-]{1,32}$/.test(scope.network)||!/^[a-f0-9]{64}$/.test(scope.contract))throw Error("Invalid client scope");
+        const key=JSON.stringify([scope.network,scope.contract]);
+        const check=(value:ClientPrivateState)=>{if(value.version!==1||value.network!==scope.network||value.contract!==scope.contract||!Number.isSafeInteger(value.revision)||value.revision<0)throw Error("Invalid client private state");};
+        const locked=<T,>(operation:()=>Promise<T>)=>navigator.locks.request(marker,async()=>{requireUnlocked();const result=await operation();requireUnlocked();return result;});
+        const load=async()=>{const value=await storage.get(stateId);requireUnlocked();validate(value);return value;};
+        const disabled=async():Promise<never>=>{throw Error("Use the complete encrypted workspace backup; client state deletion and maintenance keys are disabled.");};
+        const update:WorkspaceClient["update"]=(change)=>locked(async()=>{
+          const profile=await load();let current=profile.contracts?.[key];
+          if(!current){const {createClientState}=await import("./client-state");current=await createClientState(profile,scope);}
+          check(current);const result=await change(structuredClone(current));check(result);requireUnlocked();
+          if(current.revision!==result.revision)throw Error("Private state revision mismatch");
+          const saved={...result,revision:current.revision+1};if(!Number.isSafeInteger(saved.revision))throw Error("Private state revision exhausted");
+          await storage.set(stateId,{...profile,contracts:{...profile.contracts,[key]:saved}});return saved;
+        });
+        const journalChange=(change:(current:ClientOperation|null)=>ClientOperation)=>locked(async()=>{
+          const profile=await load(),operation=change(profile.operations?.[key]??null);requireUnlocked();
+          await storage.set(stateId,{...profile,operations:{...profile.operations,[key]:operation}});
+        });
+        const journal:OperationJournal={
+          get:()=>locked(async()=>{const profile=await load();return profile.operations?.[key]??null;}),
+          begin:(id,kind)=>journalChange(current=>{
+            if(!/^[a-f0-9]{32}$/.test(id)||!/^[a-zA-Z][a-zA-Z0-9]{0,63}$/.test(kind))throw Error("Invalid operation metadata");
+            if(current&&current.phase!=="finalized"&&current.phase!=="failed"&&current.phase!=="not-submitted")throw Error("Reconcile the existing operation before continuing");
+            return {id,kind,phase:"prepared"};
+          }),
+          submitted:(id,txId)=>journalChange(current=>{
+            if(!current||current.id!==id||current.phase!=="prepared"||!/^[a-f0-9]{64}$/.test(txId))throw Error("Operation submission mismatch");
+            return {...current,phase:"submitted",txId};
+          }),
+          finish:(id,phase,txId)=>journalChange(current=>{
+            if(!current||current.id!==id||current.phase==="finalized"||current.phase==="failed"||current.phase==="not-submitted")throw Error("Operation completion mismatch");
+            if(phase==="not-submitted"&&current.txId)throw Error("Submitted transaction must be reconciled");
+            if((phase==="finalized"||phase==="failed")&&(!current.txId||current.txId!==txId))throw Error("Finalized transaction does not match submission");
+            return {...current,phase};
+          })
+        };
+        const provider:PrivateStateProvider<"client-v1",ClientPrivateState>={
+          setContractAddress(address){requireUnlocked();if(address!==scope.contract)throw Error("Create a client for the other contract");},
+          get:async(id)=>{if(id!=="client-v1")throw Error("Unknown client state ID");return locked(async()=>{const profile=await load(),state=profile.contracts?.[key]??null;if(state)check(state);return state;});},
+          set:async(id,state)=>{if(id!=="client-v1")throw Error("Unknown client state ID");check(state);await update(current=>{if(current.revision!==state.revision)throw Error("Private state changed. Reconcile the pending transaction before continuing.");return state;});},
+          remove:disabled,clear:disabled,setSigningKey:disabled,getSigningKey:async()=>{requireUnlocked();return null;},removeSigningKey:disabled,clearSigningKeys:disabled,
+          exportPrivateStates:disabled,importPrivateStates:disabled,exportSigningKeys:disabled,importSigningKeys:disabled
+        };
+        return {provider,update,journal};
+      }, backup: () => navigator.locks.request(marker,async () => {
+        requireUnlocked();const backup=await storage.exportPrivateStates({ maxStates: 1 });requireUnlocked();return JSON.stringify(backup);
+      }), lock: () => { secret = ""; } };
     } catch { secret = ""; throw Error(mode === "create"
       ? "Workspace could not be created. Use a strong password without repeated characters or sequences, and allow browser storage."
       : "Workspace could not be opened. Check the password and backup, then try again."); }

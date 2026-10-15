@@ -11,7 +11,9 @@
     "./private-state": "./src/private-state.ts",
     "./workspace": "./src/workspace.ts",
     "./reasons": "./src/reasons.ts",
-    "./verifier-vote": "./src/verifier-vote.ts"
+    "./verifier-vote": "./src/verifier-vote.ts",
+    "./client-state": "./src/client-state.ts",
+    "./operation": "./src/operation.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",

@@ -10,5 +10,15 @@
   "pendingOpenStaysLocked": true,
   "replacementRejected": true,
   "badRestore": true,
-  "restored": true
+  "restored": true,
+  "concurrentUpdatesPreserved": true,
+  "staleRejected": true,
+  "lockedRejected": true,
+  "finalized": true,
+  "pendingBlocked": true,
+  "stillUncertain": true,
+  "reconciled": true,
+  "abandoned": true,
+  "noDuplicateSubmission": true,
+  "contractKeysRestored": true
 }

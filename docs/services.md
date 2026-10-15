@@ -106,3 +106,39 @@ rate limiting, hosting, live indexer/Gemini adapters and frontend submission are
 not running. Client transaction integration must generate fresh reveal keys per
 position and receiving keys per market, rather than reusing the local profile's
 initial keys and linking otherwise anonymous records.
+
+
+## Client private state and witnesses
+
+`packages/sdk/src/client-state.ts` derives distinct identity secrets per network
+and contract, creates signing keys per position and receiving keys per market,
+preserves option/salt/key data on retries, and supplies user witnesses for actual
+Compact circuits. Operator/committee secrets are unavailable in this factory.
+Paths are computed from the trusted public ledger snapshot in the witness context;
+private choices, bid amounts and vote salts come from the encrypted action state.
+Prepare and persist that state before asking a wallet to submit.
+
+`WorkspaceSession.client(scope)` stores those client records inside the same
+encrypted profile as the complete workspace backup. A browser-wide lock protects
+read/modify/write operations. Revision checks reject stale writes, and locking or
+changing the workspace disables retained provider handles. Whole-workspace backups
+restore contract keys and private position data together. Individual client-state
+export/import/deletion and contract-maintenance signing keys are disabled through
+this user provider. Transaction submission/finality reconciliation is not wired yet.
+
+Three tests run real simulator stake slots, buyer purchase and verifier commit/reveal
+with these witnesses. The browser probe verifies concurrent updates, stale-write
+rejection, lock rejection and restore of scoped keys/choice data on a fresh profile.
+The probe uses synthetic data; it does not sign or submit a transaction.
+
+
+The client operation journal is stored beside the private records, so recording
+a public submission ID does not invalidate the private-state revision that the
+SDK will persist after finality. `executeClientOperation` saves prepared keys,
+requires a durable ID before the host submits, and never retries an uncertain
+call. A trusted finalized-indexer lookup can reconcile success/failure; an unknown
+lookup leaves it blocked. Only an operation with no persisted send ID may be
+explicitly abandoned, and its late submission hook is then rejected. The browser
+probe uses a synthetic submitter to verify these transitions, no duplicate sends,
+and compatibility with the SDK private-state set after submission notification.
+No real product transaction adapter or wallet send has been exercised by this test.
