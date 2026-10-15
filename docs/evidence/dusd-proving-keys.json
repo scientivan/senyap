@@ -1,0 +1,16 @@
+{
+  "compiler": "0.31.1",
+  "sourceSha256": "26793ddd8db8b22f8fec5dfe7e1641950e516530cf68eb5eada0f4a9c2c8d7e4",
+  "keys": {
+    "prover": {
+      "bytes": 2821025,
+      "sha256": "b88a7bc734b258868b97ae17b8eaec49260afd98868b9754bdb3dd1b1ae87afb"
+    },
+    "verifier": {
+      "bytes": 2119,
+      "sha256": "a4c6a476af43b0bb2e12496fe89d9e8508285152562d82f2e00787f99c095ab9"
+    }
+  },
+  "scope": "Local compilation only; no product token deploy or mint",
+  "exitCode": 0
+}

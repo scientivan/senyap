@@ -1,0 +1,172 @@
+{
+  "plan": {
+    "version": 1,
+    "network": "undeployed",
+    "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+    "codeSha256": {
+      "runner": "d7baa8276d1771c412dde5c73dccb41997cba192ab55921856ec00e4ea374600",
+      "scenario": "d802f413f9d5f27743c80506364222911f0d1cd29590a440d3b489d2c53734a2",
+      "journal": "30345487eafedd25dbe03c4a97f6301fa8a84bada730ec1ac83cd88d2a66c8dc",
+      "token": "26793ddd8db8b22f8fec5dfe7e1641950e516530cf68eb5eada0f4a9c2c8d7e4"
+    },
+    "deploys": [
+      "dusd",
+      "senyap"
+    ],
+    "mint": "5000",
+    "circuits": [
+      "admitBuyer",
+      "admitBuyer",
+      "registerBuilder",
+      "registerBuilder",
+      "configureScoutGroup",
+      "admitScout",
+      "admitScout",
+      "admitScout",
+      "admitScout",
+      "admitScout",
+      "createMarket",
+      "stake",
+      "stake",
+      "stake",
+      "stake",
+      "stake",
+      "configureScoutGroup",
+      "admitScout",
+      "admitScout",
+      "admitScout",
+      "admitScout",
+      "admitScout",
+      "createMarket",
+      "stake",
+      "stake",
+      "stake",
+      "stake",
+      "stake",
+      "close",
+      "postPreview",
+      "postPreview",
+      "postPreview",
+      "placeBid",
+      "placeBid",
+      "close",
+      "postPreview",
+      "postPreview",
+      "postPreview",
+      "postAuctionResult",
+      "postAuctionResult",
+      "postAuctionResult",
+      "settleBid",
+      "selectHidden",
+      "settleBid",
+      "selectHidden",
+      "buyFlat",
+      "buyFlat",
+      "recordOutcome",
+      "recordOutcome",
+      "allocateSubsidy",
+      "recordOutcome",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "proveHit",
+      "claim",
+      "claim",
+      "claim",
+      "claim",
+      "claim",
+      "claim",
+      "claim",
+      "claim",
+      "claim",
+      "claim"
+    ],
+    "transactionCount": 79,
+    "genesisRegistration": false,
+    "parameters": {
+      "epochSeconds": 86400,
+      "hitSeconds": 300,
+      "selectionSeconds": 300,
+      "commitSeconds": 300,
+      "revealSeconds": 300
+    },
+    "endpoints": {
+      "node": "http://127.0.0.1:9944",
+      "indexer": "http://127.0.0.1:8088/api/v4/graphql",
+      "proofServer": "http://127.0.0.1:6300"
+    }
+  },
+  "planSha256": "c1244313cbf97cd8c363fbd47aa5e9ba8300b96d01fb9f350a47791629f2a369",
+  "simulation": {
+    "phases": [
+      "settled",
+      "settled"
+    ],
+    "claims": [
+      {
+        "market": "1",
+        "amount": "119"
+      },
+      {
+        "market": "1",
+        "amount": "119"
+      },
+      {
+        "market": "1",
+        "amount": "119"
+      },
+      {
+        "market": "1",
+        "amount": "119"
+      },
+      {
+        "market": "1",
+        "amount": "119"
+      },
+      {
+        "market": "2",
+        "amount": "104"
+      },
+      {
+        "market": "2",
+        "amount": "104"
+      },
+      {
+        "market": "2",
+        "amount": "104"
+      },
+      {
+        "market": "2",
+        "amount": "104"
+      },
+      {
+        "market": "2",
+        "amount": "104"
+      }
+    ],
+    "claimed": "1115",
+    "bidRefunds": "100",
+    "remainder": "25",
+    "input": "1240",
+    "conserved": true,
+    "note": "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."
+  },
+  "status": "simulator evidence; network execution, if approved, is recorded in a separate journal",
+  "generatedAt": "2026-10-15T22:15:59.963Z",
+  "readOnlyPreflight": {
+    "status": "passed; no wallet started or transaction submitted",
+    "genesisHash": "e624f91737add2cf1a6658b3cf3a5524d633faea8c943702b435820316d9e21e",
+    "blockTime": 1792102542
+  }
+}
