@@ -29,7 +29,8 @@ upstream bboard toolchain fixture retains its Apache-2.0 attribution.
 - Private hits/claims and portable reputation renewal, without opening misses.
 - Anonymous hoax commit/reveal juries with per-case collateral, approved penalties,
   fixed charity slashing and threshold-attested membership revocation.
-- Side A missed-report handling; cancellation with full principal/bid refunds;
+- Both sides' missed-report handling (shared B duty with independent buyer marks);
+  cancellation with full principal/bid refunds;
   return of cancelled Side B subsidy to its source allocation.
 - Encrypted local workspace/backup, scoped user witnesses, per-position signing
   keys, per-market receiving keys and a durable uncertain-operation journal.
@@ -39,8 +40,8 @@ upstream bboard toolchain fixture retains its Apache-2.0 attribution.
   against an injected SDK boundary. No real GitHub qualification proof yet.
 
 These are implemented local circuits/services and tests, not a completed deployed
-market. Latest integrated checks are in [S11 main tests](../evidence/S11-main-tests.json)
-(122-test full run plus subsequent focused regressions). Earlier suite output is
+market. Latest integrated checks are in [shared-report tests](../evidence/shared-report-tests.json)
+(127-test full run including S11 privacy regressions). Earlier suite output is
 retained in [P2-tests.json](../evidence/P2-tests.json).
 
 ## What ran on a network
@@ -55,7 +56,7 @@ local network. No Senyap product market is deployed on either network yet.
 
 ## Local proof evidence
 
-The current main contract has 38 generated prover/verifier pairs. The approved
+The current main contract has 39 generated prover/verifier pairs. The approved
 S11 integration removes public group references from stakes and encrypts group
 IDs inside the membership cards. Integrated Side B stake and three-hit renewal
 passed local /check and /prove with no selected group/leaf/root in the public-only
@@ -65,7 +66,8 @@ correlations remain possible. Cancellation, cancelled bid refund and principal-o
 claim also have local proofs. Earlier verifier-commit proofs retain their own
 historical source hash. Evidence:
 [product proofs](../evidence/product-proving.json),
-[cancellation proofs](../evidence/cancellation-proving.json).
+[cancellation proofs](../evidence/cancellation-proving.json),
+[shared report proofs](../evidence/shared-report-proving.json).
 These checks do not establish a security audit or network settlement.
 
 ## Still to complete before a final submission claim
@@ -77,8 +79,7 @@ These checks do not establish a security audit or network settlement.
 - Configured live operator/committee processes, trusted-dealer keys and relays.
 - A real Gemini screening call, actual Reclaim GitHub qualification and buyer
   verification policy/integration.
-- Subjective outcome juries, remaining Side B reporting responsibility and the
-  corresponding lifecycle integration.
+- Subjective outcome juries and network lifecycle integration.
 - Final judge instructions, deployed addresses, deck and recorded network demo.
 
 The owner must review final wording against actual receipts, make the repository

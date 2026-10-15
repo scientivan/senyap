@@ -1,16 +1,16 @@
 {
   "compiler": "0.31.1",
-  "sourceSha256": "9ea38fb234809fdd5f70357d2abd083ad9a2c66706001efa12095644a1836477",
-  "circuits": 38,
+  "sourceSha256": "f1f3e56941a11c2f4ffd3bf5218531a56b95d4285b7a40ee4ff182dc37a12f5c",
+  "circuits": 39,
   "provingKeys": [
     {
       "circuit": "admitBuyer",
-      "proverBytes": 2827487,
+      "proverBytes": 2827486,
       "verifierBytes": 2119
     },
     {
       "circuit": "admitScout",
-      "proverBytes": 9967508,
+      "proverBytes": 9967531,
       "verifierBytes": 2119
     },
     {
@@ -25,22 +25,22 @@
     },
     {
       "circuit": "approveHoaxMember",
-      "proverBytes": 10008172,
+      "proverBytes": 10008177,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveMissedBuyer",
-      "proverBytes": 9996998,
+      "proverBytes": 9996944,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveRevocation",
-      "proverBytes": 5252186,
+      "proverBytes": 5252149,
       "verifierBytes": 2119
     },
     {
       "circuit": "buyFlat",
-      "proverBytes": 42803582,
+      "proverBytes": 42803552,
       "verifierBytes": 2311
     },
     {
@@ -70,12 +70,12 @@
     },
     {
       "circuit": "configureScoutGroup",
-      "proverBytes": 2819382,
+      "proverBytes": 2819385,
       "verifierBytes": 2119
     },
     {
       "circuit": "createMarket",
-      "proverBytes": 42810261,
+      "proverBytes": 42810212,
       "verifierBytes": 2311
     },
     {
@@ -85,8 +85,13 @@
     },
     {
       "circuit": "markMissedReport",
-      "proverBytes": 2834034,
+      "proverBytes": 2834869,
       "verifierBytes": 2119
+    },
+    {
+      "circuit": "markMissedSharedBuyer",
+      "proverBytes": 147946,
+      "verifierBytes": 1351
     },
     {
       "circuit": "openDispute",
@@ -95,22 +100,22 @@
     },
     {
       "circuit": "placeBid",
-      "proverBytes": 85074601,
+      "proverBytes": 85074558,
       "verifierBytes": 2311
     },
     {
       "circuit": "postAuctionResult",
-      "proverBytes": 9995458,
+      "proverBytes": 9995432,
       "verifierBytes": 2119
     },
     {
       "circuit": "postDefaultStrongest",
-      "proverBytes": 5250326,
+      "proverBytes": 5250325,
       "verifierBytes": 2119
     },
     {
       "circuit": "postPreview",
-      "proverBytes": 5245908,
+      "proverBytes": 5245872,
       "verifierBytes": 2119
     },
     {
@@ -120,7 +125,7 @@
     },
     {
       "circuit": "recordOutcome",
-      "proverBytes": 10015889,
+      "proverBytes": 10015917,
       "verifierBytes": 2119
     },
     {
@@ -130,7 +135,7 @@
     },
     {
       "circuit": "renewTier",
-      "proverBytes": 38612937,
+      "proverBytes": 38612932,
       "verifierBytes": 2119
     },
     {
@@ -150,17 +155,17 @@
     },
     {
       "circuit": "revokeHoaxMember",
-      "proverBytes": 5219030,
+      "proverBytes": 5219065,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeMember",
-      "proverBytes": 9982563,
+      "proverBytes": 9982571,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeMissedBuyer",
-      "proverBytes": 2821602,
+      "proverBytes": 2821609,
       "verifierBytes": 2119
     },
     {
@@ -170,7 +175,7 @@
     },
     {
       "circuit": "selectHidden",
-      "proverBytes": 5245591,
+      "proverBytes": 5245592,
       "verifierBytes": 2119
     },
     {
@@ -194,5 +199,6 @@
       "verifierBytes": 2119
     }
   ],
-  "scope": "Local proving-key generation, not an onchain deployment or proof verification"
+  "scope": "Local proving-key generation, not an onchain deployment or proof verification",
+  "commentRecompile": "Final approval-comment update recompiled separately with --skip-zk; all 39 ZKIR files byte-identical to the full key generation inputs."
 }

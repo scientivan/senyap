@@ -279,6 +279,8 @@ Akindo/
 | `operator` | `Bytes<32>` (sealed) | Commitment kunci operator |
 | `committee` | `Vector<5, JubjubPoint>` + `committeePk: JubjubPoint` | Kunci publik per anggota dan kunci gabungan |
 | `scoutGroups` | `Map<GroupId, HistoricMerkleTree<20, Bytes<32>>>` [Spike S6: Map berisi tree] | Grup tier sisi A dan grup ekosistem sisi B per epoch |
+| `scoutRegistry` | `HistoricMerkleTree<32, Bytes<32>>` | Registry bersama metadata/root grup untuk bukti grup privat (S11) |
+| `missedSharedReports` | `Set<Uint<32>>` | Marker laporan B terlewat, tetap tersedia setelah settlement untuk penandaan buyer terpisah |
 | `buyerTree`, `goodStanding` | `HistoricMerkleTree<16, Bytes<32>>` | Buyer terverifikasi dan bereputasi baik |
 | `verifierTree` | `HistoricMerkleTree<16, Bytes<32>>` | Verifier outcome ber-stake |
 | `builderRegistry` | `Map<Bytes<32>, BuilderEntry>` | Tim opt-in (hash profil, status persetujuan) |
@@ -333,13 +335,14 @@ Market       = { id: Uint<32>, side: Uint<8> (0=A,1=B), category: Bytes<32>, que
                  scouts: Uint<32>, stakeTotal: Uint<128>, successMask: Vector<4, Uint<16>>,
                  pools: Vector<4, Uint<128>>, denoms: Vector<4, Uint<64>>, buyerCount: Uint<8> }
 Position     = { marketId: Uint<32>, optionCommit: Bytes<32>, weight: Uint<64>, stake: Uint<128>,
-                 lockedCard: LockedCard, revealKeyCommit: Bytes<32>, status: Uint<8> }
+                 lockedCard: GroupCard, revealKeyCommit: Bytes<32>, status: Uint<8> }
+GroupCard    = { version: Uint<8> (=2), ephemeral: JubjubPoint, ciphertext: Bytes<72>, tag: Bytes<32> }
 Bid          = { marketId: Uint<32>, pseudonym: Bytes<32>, enc: CipherPair, ceiling: Uint<128>, refunded: Boolean }
 ```
 
 - `draft` = market sudah dibuat tapi metadata (teks dan label) belum terkonfirmasi di operator API; `createMarket` langsung ke `open` bila metadata sudah ada.
 - Fase sebagai `Uint<8>`: 0 draft, 1 open, 2 closed, 3 preview, 4 auction, 5 allocated, 6 revealed,
-  7 outcome, 8 settling, 9 settled.
+  7 outcome, 8 settling, 9 settled, 10 cancelled.
 - Teks pertanyaan dan label opsi disimpan offchain (operator API, bagian 8.6); onchain hanya hash + URI.
   Untuk sisi A, `optionRefs` berisi kunci `builderRegistry`.
 - Token dUSD: `senyap.compact` menerima `color` token dUSD sebagai parameter konstruktor.

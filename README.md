@@ -17,8 +17,9 @@ contracts compile and have simulator tests. Auction escrow, per-option flat purc
 objective outcomes and refundable settlement on both sides also pass simulator tests.
 Selection deadlines and permissionless skipping pass simulator tests.
 Threshold defaults, cross-market subsidies, reputation renewal and anonymous
-hoax disputes also pass simulator tests. Side A missed reports revoke buyer good
-standing after committee disclosure. Permissionless cancellation, full principal/bid refunds and returned subsidies
+hoax disputes also pass simulator tests. Missed reports revoke buyer good standing after committee disclosure: Side A
+uses separate buyer pools; Side B has one shared duty and independent buyer marking
+([local proofs](docs/evidence/shared-report-proving.json)). Permissionless cancellation, full principal/bid refunds and returned subsidies
 also pass simulator tests. Remaining lifecycle cases, live services and frontend
 transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
 network only. No Senyap product market contract is deployed.
@@ -50,9 +51,9 @@ Compact 0.31.1 compilation and Vitest are available. See
 [local development](docs/local-development.md) for setup, and
 [technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
 was proved by the local proof server; this does not establish end-to-end network
-execution of the Senyap market. The main contract also has 38 generated proving
-keys ([key evidence](docs/evidence/product-proving-keys.json)). The latest source
-has successful Side B stake and three-hit renewal checks in
+execution of the Senyap market. The main contract also has 39 generated proving
+keys ([key evidence](docs/evidence/product-proving-keys.json)). Integrated Side B stake and three-hit renewal checks are recorded with their
+source hash in
 [S11 main proofs](docs/evidence/S11-main-proving.json). Earlier stake/verifier-commit
 checks remain labelled with their historical source hash in
 [product proving evidence](docs/evidence/product-proving.json).

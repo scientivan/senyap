@@ -1,0 +1,52 @@
+{
+  "sourceSha256": "f1f3e56941a11c2f4ffd3bf5218531a56b95d4285b7a40ee4ff182dc37a12f5c",
+  "fullSuite": {
+    "command": "pnpm test",
+    "passed": 127,
+    "failed": 0,
+    "files": 43,
+    "durationSeconds": 68.46,
+    "heavyWorkloadsInParallel": false
+  },
+  "focusedChecks": {
+    "sharedReporting": 4,
+    "sideAMissedReports": 2,
+    "keeper": 3,
+    "passed": 9
+  },
+  "gates": {
+    "compile": true,
+    "rootTypecheck": true,
+    "webTypecheck": true,
+    "webBuild": true,
+    "workspaceBrowserProbe": true
+  },
+  "workerRegression": {
+    "unchangedTestTimeoutMs": 30000,
+    "unchangedRpcTimeoutMs": 60000,
+    "unchangedWorkers": 2,
+    "yield": "afterEach awaits setImmediate",
+    "stressTestsPassed": 11,
+    "subsidyFileDurationMs": 68433,
+    "ciFixRun": 38733487605,
+    "ciFixConclusion": "success"
+  },
+  "earlierFailedRuns": [
+    "127 assertions passed but two unhandled RPC errors during parallel full keygen before yield fix",
+    "After yield fix, 126 tests passed and one subsidy test exceeded 30 seconds during parallel keygen; no RPC errors"
+  ],
+  "scope": "Local simulator and CI harness checks; network transactions/deployment not performed.",
+  "ci": {
+    "runId": 38734219619,
+    "commit": "644570d30369771b75a439c1c2014451b888796e",
+    "conclusion": "success",
+    "url": "https://github.com/scientivan/senyap/actions/runs/38734219619",
+    "gates": [
+      "compile",
+      "root typecheck",
+      "127 tests",
+      "web typecheck",
+      "web build"
+    ]
+  }
+}

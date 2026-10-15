@@ -22,7 +22,7 @@ and threshold approvals, not the secret strongest-option computation itself.
 ## Keeper
 
 `services/keeper/src/transitions.ts` plans permissionless `close`, `settleBid` and
-`skipSelection`, dispute resolution, side A missed reports, finalization, cancellation
+`skipSelection`, dispute resolution, both sides' missed reports, finalization, cancellation
 and returned-subsidy calls. It checks current block time and settlement prerequisites.
 The driver rereads state for each step, bounds each pass and avoids repeating an
 attempt against a lagging snapshot. Winner rank distinguishes the two overdue
@@ -31,8 +31,10 @@ selection steps. Submission errors stop the pass rather than being retried.
 The host must supply a deployment-bound adapter that awaits finalization and
 reconciles pending transaction IDs across restarts. No real adapter is included;
 tests submit only simulator calls. Running a live adapter requires explicit
-authorization for its transaction sequence. Side B reporting responsibility and epoch
-rotation are still pending.
+authorization for its transaction sequence. Side B now has an approved shared
+reporting duty: the keeper requests the shared default once, then independently
+marks paid buyers, including after settlement. A timely buyer/operator report
+satisfies every buyer's duty. Epoch rotation is still pending.
 
 ## Veritas
 
@@ -256,6 +258,21 @@ Two integration tests run the action layer against actual generated circuits:
 two private stake slots and cancelled principal refunds, then a buyer purchase/
 report and verifier commit/reveal. Four transport tests separately cover the
 wallet/journal boundary. No network send is performed. Market pages still use
-labelled demo state. The current Side B group reference leaks its option; these
-helpers do not solve that protocol issue. See the pending
-[S11 group-privacy proposal](group-privacy-spike-proposal.md).
+labelled demo state. S11 now removes the public group reference in the main
+contract and supplies private authorization/registry-path witnesses in the SDK.
+Integrated local stake and hit-based renewal proofs passed with no source
+group/leaf/root in public-only transcripts; funding/timing/cohort correlations
+remain outside that check. See [S11 verification](group-privacy-spike-proposal.md).
+
+
+## Hoax membership-card transport boundary
+
+S11 GroupCard v2 encrypts the group/member/index, and the crypto helper/tests
+recover that payload with three valid DLEQ shares. The main contract requires a
+proven hoax before three matching committee attestations can reveal the group
+and index for revocation. The current committee HTTP server only serves paid
+tally shares; it does not yet expose a hoax-card share endpoint or automate this
+operator workflow. Do not claim network card opening from the local crypto tests.
+A future endpoint must read trusted deployment state and reject pending, rejected
+or inconclusive disputes before any share operation; requests cannot supply the
+card or ledger state.

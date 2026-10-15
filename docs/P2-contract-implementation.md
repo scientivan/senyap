@@ -1,10 +1,11 @@
 # Core contract implementation
 
-Known issue (15 October): Side B options can be inferred from the publicly stored
-position group and its ecosystem metadata. Existing encrypted tally/proof tests
-do not establish Side B option privacy. The proposed private group-root registry
-and expanded card are awaiting approval in
-[group-privacy-spike-proposal.md](group-privacy-spike-proposal.md).
+The earlier public group reference revealed Side B options. Approved S11 now
+uses a shared authorization registry/private group proof and a 72-byte encrypted
+group/member/index card. Integrated public-transcript regressions and local
+stake/hit-renewal proofs passed; see
+[group-privacy-spike-proposal.md](group-privacy-spike-proposal.md) and its
+source-bound evidence. This is not a network privacy audit.
 
 This implements the already-approved SPEC v0.2 after all S1–S9 spikes passed.
 It does not authorize a deployment or network transaction.
@@ -38,7 +39,7 @@ committee default selection now passes three additional simulator tests. No prod
 
 Stakes read the scout secret once, bind the private path leaf to the epoch
 commitment, derive the card index from that same path, and encrypt the card with
-the S10-validated helper. Sequential slots use a private depth-32 Merkle proof of
+the S11-validated GroupCard v2 helper. Sequential slots use a private depth-32 Merkle proof of
 the predecessor instead of disclosing its nullifier in a Set lookup. The public
 position nullifier and the private predecessor membership remain separate.
 
@@ -182,9 +183,8 @@ unaffected buyers can obtain a fresh path and continue.
 
 A late missing-report marker or third default approval preserves a full hit
 window. Defaults stay pending until the committee responds rather than expiring
-with permanently locked funds. Side B reporting responsibility awaits Dien's
-explicit choice; this circuit currently rejects side B. This is a partial P5.3
-implementation, not a claim that the entire lifecycle is complete.
+with permanently locked funds. Side B reporting responsibility was approved subsequently; see Shared Side B
+reporting below. The network lifecycle remains unverified.
 
 
 ## Cancellation and returned subsidy
@@ -209,3 +209,16 @@ to another B, free purchases blocking cancellation, and exact conservation of
 principal, refunds, subsidy and source remainder. Keeper plans cancellation,
 cancelled bid refunds and route returns. These are simulator results, not network
 transactions.
+
+
+## Shared Side B reporting
+
+Dien approved shared duty on 15 October (SPEC v0.14). One timely valid buyer or
+operator report satisfies all paid buyers, including a report without successes.
+If absent, `markMissedReport(market, 0)` records a durable shared miss and requests
+default once. `markMissedSharedBuyer(market, pseudonym)` separately marks each paid
+buyer and remains callable after default/settlement. No loop over all buyers is
+needed in a circuit. Three committee attestations and the operator are still
+required to remove good standing; paid access and funds are preserved.
+Simulator checks cover timely reports, deadlines, repeated marks, settled markets,
+threshold revocation and cancelled markets without purchases.
