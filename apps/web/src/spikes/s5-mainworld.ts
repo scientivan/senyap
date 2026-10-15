@@ -18,12 +18,15 @@ if(!status){
     .finally(()=>{busy=false;});
   document.addEventListener("senyap-s5-command",async event=>{
     const action=(event as CustomEvent<string>).detail;
-    if(action!=="deploy"&&action!=="ping"&&action!=="funding")return;
+    if(action!=="deploy"&&action!=="ping"&&action!=="funding"&&action!=="checkConstruction")return;
     if(busy||!controller)return;
     busy=true;publish({phase:action==="deploy"?"deploying":action==="ping"?"calling":"checking-funding",progress:controller.publicProgress()});
     try{
       if(action==="funding"){
         publish({phase:"ready",readiness:await controller.funding(),progress:controller.publicProgress()});return;
+      }
+      if(action==="checkConstruction"){
+        publish({phase:"checked",progress:await controller.checkConstruction()});return;
       }
       const progress=await controller[action]();publish({phase:action==="deploy"?"deployed":"complete",progress});
     }catch{

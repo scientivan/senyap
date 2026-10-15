@@ -2,21 +2,25 @@
 // Development-only S5 helper, imported explicitly from the browser console.
 // Product pages retain demo behavior. Never log wallet APIs, configuration or tx objects.
 import { availableWallets, connectWallet } from "../app/wallet-connector";
+import { Buffer } from "buffer";
 import { ephemeralState } from "@senyap/sdk/ephemeral-state";
 import { CompiledContract } from "@midnight-ntwrk/midnight-js-protocol/compact-js";
 import { CostModel, Transaction } from "@midnight-ntwrk/midnight-js-protocol/ledger";
-import { fromHex, toHex } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
+import { fromHex, toHex, sampleSigningKey } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
 import { setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
-import { deployContract, type DeployedContract } from "@midnight-ntwrk/midnight-js-contracts";
+import { createUnprovenDeployTx, deployContract, type DeployedContract } from "@midnight-ntwrk/midnight-js-contracts";
 import { FetchZkConfigProvider } from "@midnight-ntwrk/midnight-js-fetch-zk-config-provider";
 import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
 import type { MidnightProviders } from "@midnight-ntwrk/midnight-js-types";
 import { Contract, ledger } from "../../../../contracts/managed/spikes/s5-browser-counter/contract/index.js";
 
+// The SDK address codec uses a Node Buffer global when decoding Lace Bech32 keys.
+if(!("Buffer" in globalThis))Object.defineProperty(globalThis,"Buffer",{value:Buffer,writable:true,configurable:true});
+
 const fixture=CompiledContract.make("SenyapS5BrowserCounter",Contract<{}>).pipe(
   CompiledContract.withVacantWitnesses,CompiledContract.withCompiledFileAssets("/spikes/s5"));
 const progressKey="senyap-s5-public-progress";
-type PublicProgress={network:"preprod";contractAddress?:string;deployTxId?:string;callTxId?:string;pendingTxId?:string;pendingAction?:"deploy"|"ping";calls?:string};
+type PublicProgress={network:"preprod";contractAddress?:string;deployTxId?:string;callTxId?:string;pendingTxId?:string;pendingAction?:"deploy"|"ping";calls?:string;stage?:string;errorCode?:number;errorKind?:string;errorTags?:string[];errorFrames?:string[]};
 class PublicS5Error extends Error {}
 
 async function prepareInternal(walletId:string|undefined,onStage:(stage:string)=>void){
@@ -46,16 +50,19 @@ async function prepareInternal(walletId:string|undefined,onStage:(stage:string)=
   const providers:MidnightProviders<"ping",string,{}>={
     privateStateProvider:ephemeralState<{}>(),zkConfigProvider:zk,
     publicDataProvider:indexerPublicDataProvider(config.indexerUri,config.indexerWsUri),
-    proofProvider:{proveTx:(tx)=>tx.prove(proving,CostModel.initialCostModel())},
+    proofProvider:{proveTx:(tx)=>{progress.stage="proving";return tx.prove(proving,CostModel.initialCostModel());}},
     walletProvider:{
       getCoinPublicKey:()=>addresses.shieldedCoinPublicKey,
       getEncryptionPublicKey:()=>addresses.shieldedEncryptionPublicKey,
       async balanceTx(tx){
+        progress.stage="wallet-balancing";
         const result=await api.balanceUnsealedTransaction(toHex(tx.serialize()));
+        progress.stage="balanced-transaction-decoding";
         return Transaction.deserialize("signature","proof","binding",fromHex(result.tx));
       },
     },
     midnightProvider:{async submitTx(tx){
+      progress.stage="submission";
       const id=tx.identifiers()[0];if(!id)throw new PublicS5Error("No transaction identifier.");
       if(!activeAction)throw new PublicS5Error("No active S5 operation.");
       // Keep only public IDs before handing off submission. An ambiguous failure
@@ -72,7 +79,17 @@ async function prepareInternal(walletId:string|undefined,onStage:(stage:string)=
     if(progress.pendingTxId)throw new PublicS5Error("Inspect the recorded pending transaction before continuing; automatic retries are disabled.");
     busy=true;
     try{return await action();}
-    catch(error){if(error instanceof PublicS5Error)throw error;throw new PublicS5Error("S5 operation failed or was rejected. Check Lace and public progress; private error details are omitted.");}
+    catch(error){
+      if(typeof error==="object"&&error!==null&&"code" in error&&typeof error.code==="number"&&Number.isInteger(error.code))progress.errorCode=error.code;
+      progress.errorKind=error instanceof TypeError?"TypeError":error instanceof RangeError?"RangeError":error instanceof Error?"Error":"unknown";
+      // Emit only fixed diagnostic vocabulary and public Vite source locations.
+      // Raw error messages/objects can carry keys or configuration and stay private.
+      const message=error instanceof Error?error.message.toLowerCase():"";
+      progress.errorTags=["bech32","checksum","hex","undefined","verifier","fetch","compact","network","key","encoding","wasm","length","expected","costmodel","invalid","constructor","contract","version"].filter(tag=>message.includes(tag));
+      progress.errorFrames=error instanceof Error?[...(error.stack??"").matchAll(/\/node_modules\/\.vite\/deps\/([\w.-]+\.js)(?:\?[^\s:)]*)?:(\d+):(\d+)/g)].slice(0,5).map(match=>`${match[1]}:${match[2]}:${match[3]}`):[];
+      remember();
+      if(error instanceof PublicS5Error)throw error;throw new PublicS5Error("S5 operation failed or was rejected. Check Lace and public progress; private error details are omitted.");
+    }
     finally{busy=false;activeAction=undefined;}
   };
   return {
@@ -82,11 +99,18 @@ async function prepareInternal(walletId:string|undefined,onStage:(stage:string)=
       return {network:"preprod",nightRaw:(currentBalances["0".repeat(64)]??0n).toString(),dustRaw:currentDust.balance.toString(),dustCapRaw:currentDust.cap.toString()};
     },
     publicProgress:()=>({...progress}),
+    checkConstruction:()=>safely(async()=>{
+      progress.stage="deployment-construction";
+      await createUnprovenDeployTx(providers,{compiledContract:fixture,signingKey:sampleSigningKey(),initialPrivateState:{}});
+      progress.stage="construction-checked-without-submission";
+      return {...progress};
+    }),
     deploy:()=>safely(async()=>{
       if(progress.contractAddress)throw new PublicS5Error("This tab already records a deployment. Refusing to deploy again.");
       const [currentBalances,currentDust]=await Promise.all([api.getUnshieldedBalances(),api.getDustBalance()]);
       if((currentBalances["0".repeat(64)]??0n)===0n||currentDust.balance===0n)throw new PublicS5Error("Wait for NIGHT/DUST readiness before deploying.");
       activeAction="deploy";
+      progress.stage="deployment-construction";delete progress.errorCode;delete progress.errorKind;
       deployed=await deployContract(providers,{compiledContract:fixture,privateStateId:"s5",initialPrivateState:{}});
       progress.contractAddress=deployed.deployTxData.public.contractAddress;
       progress.deployTxId=deployed.deployTxData.public.txId;
