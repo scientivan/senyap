@@ -200,3 +200,45 @@ read-only localhost queries verified finalized-head and anchored-block query
 shapes against the running node/indexer (4.3.3). No product deployment exists, so
 this does not establish a live product-state read. The host must compose the
 reader with committee, reason relay or keeper after deployment.
+
+
+## Local process entry points
+
+After an explicitly authorized product deployment, populate fixed deployment
+fields from its public manifest. Use separate ignored `.env.committee-1` through
+`.env.committee-5` files and `.env.operator`; do not load every private share into
+one node's environment. The committee entry point rejects any other member's
+nonempty private share. The reason operator rejects all committee shares.
+
+```sh
+node --env-file=.env.committee-1 --import tsx apps/committee/src/main.ts --serve --member 1
+node --env-file=.env.operator --import tsx apps/operator/src/main.ts --serve
+```
+
+Repeat committee startup separately for member IDs 2 through 5 with their own
+files. Default ports are 3101 through 3105; the reason operator defaults to 3001.
+Listeners bind localhost only, with explicit origin, header/request deadlines and
+bounded connections. Internet hosting, rate limiting and access infrastructure
+remain separate work. Neither entry point contains a wallet, onchain submission
+or automatic approval relay.
+
+Both processes require the finalized snapshot binding above. Committee scalar
+values are positive decimal strings, validated below the scalar order. The public
+master key is JSON `{ "x": "decimal", "y": "decimal" }`, and the five public
+share keys are an array in member-ID order. All configured points must be valid;
+the local scalar must match its public share key and the master key must match
+the deployed ledger. This is trusted-dealer demo configuration, not distributed
+key generation.
+
+The reason process imports an X25519 PKCS8 private key (base64, server-only),
+compares its public component to OPERATOR_REASON_PUBLIC_KEY (32-byte lowercase
+hex), and requires explicit Gemini model IDs. It stores encrypted screened output
+in a deployment-scoped `.states/operator-<network>-<contract>.sqlite` under a
+restrictive process umask. No real model request is made at startup. Admission/
+Reclaim HTTP administration remains absent.
+
+Invoking either entry point without `--serve` prints a fixed prepared message and
+starts no listener, wallet, snapshot read or model request. These no-start paths
+and typecheck have been checked; actual service startup awaits a product deployment
+and configured server keys. Core handler/repository behavior has the local HTTP
+and SQLite tests described above.
