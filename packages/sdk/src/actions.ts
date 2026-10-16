@@ -32,6 +32,10 @@ export function createProductActions(transport:ProductCallTransport){
     report(input:Market&{pool:bigint;mask:boolean[];evidence:Uint8Array}){return transport.call("recordOutcome",[input.market,input.pool,input.mask,input.evidence,false],state=>actionState(state,input));},
     reportSubjective(input:Market&{pool:bigint;mask:boolean[];evidence:Uint8Array;reporter:Recipient}){return transport.call("recordSubjectiveOutcome",[input.market,input.pool,input.mask,input.evidence,false,input.reporter],state=>actionState(state,input));},
     challengeOutcome(input:Market&{pool:bigint;option:bigint;evidence:Uint8Array;reporter:Recipient}){return transport.call("challengeOutcome",[input.market,input.pool,input.option,input.evidence,input.reporter],state=>actionState(state,input));},
+    reportHoax(input:Timed&{position:Uint8Array;evidence:Uint8Array;reporter:Recipient}){
+      if(input.position.length!==32)throw Error("Invalid public position");
+      return transport.call("openDispute",[input.position,input.evidence,input.reporter],state=>actionState(state,{blockTime:input.blockTime}));
+    },
     commitOutcomeVote(input:Timed&{position:Uint8Array;choice:boolean;recipient:Recipient}){
       return transport.call("commitVote",state=>{const vote=state.votes[key(input.position)];return [input.position,outcomeVoteCommitment({contract:state.contract,position:input.position,secret:state.secrets.verifier,choice:vote.choice,salt:vote.salt}),input.recipient] satisfies Parameters<"commitVote">;},state=>preparePrivateVote(state,input));
     },
@@ -47,6 +51,14 @@ export function createProductActions(transport:ProductCallTransport){
       return transport.call("revealVote",state=>{
         const vote=state.votes[key(input.position)];if(!vote)throw Error("Saved verifier vote unavailable");return [input.position,vote.choice] satisfies Parameters<"revealVote">;
       },state=>actionState(state,{blockTime:input.blockTime,dispute:key(input.position)}));
+    },
+    resolveCase(input:Timed&{dispute:Uint8Array}){
+      if(input.dispute.length!==32)throw Error("Invalid jury case");
+      return transport.call("resolveDispute",[input.dispute],state=>actionState(state,{blockTime:input.blockTime}));
+    },
+    claimVerifier(input:Timed&{pseudonym:Uint8Array}){
+      if(input.pseudonym.length!==32)throw Error("Invalid verifier pseudonym");
+      return transport.call("claimVerifier",[input.pseudonym],state=>actionState(state,input));
     },
     renew(input:Timed&{source:Uint8Array;target:Uint8Array;credentials:HitCredential[]}){return transport.call("renewTier",[input.source,input.target],state=>actionState(state,{blockTime:input.blockTime,group:input.source,credentials:input.credentials}));}
   };

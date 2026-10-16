@@ -14,6 +14,7 @@
     "./reason-delivery": "./src/reason-delivery.ts",
     "./eligibility": "./src/eligibility.ts",
     "./follow-up-eligibility": "./src/follow-up-eligibility.ts",
+    "./jury-eligibility": "./src/jury-eligibility.ts",
     "./hoax-card": "./src/hoax-card.ts",
     "./purchased-signal": "./src/purchased-signal.ts",
     "./verifier-vote": "./src/verifier-vote.ts",

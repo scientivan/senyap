@@ -118,5 +118,9 @@ describe("product action preparation against actual circuits",()=>{
     expect(host.calls.at(-1)!.args).not.toContain(true);
     host.context.currentQueryContext.block={...host.context.currentQueryContext.block,secondsSinceEpoch:1900n};
     await actions.revealVote({position:id,blockTime:1900n});expect([...host.state.verifierVotes][0][1]).toMatchObject({revealed:true,choice:true});
+    host.context.currentQueryContext.block={...host.context.currentQueryContext.block,secondsSinceEpoch:2200n};
+    await actions.resolveCase({dispute:id,blockTime:2200n});expect(host.state.disputes.lookup(id).result).toBe(3n);
+    const pseudonym=[...host.state.verifierVotes][0][0];
+    await actions.claimVerifier({pseudonym,blockTime:2200n});expect(host.state.verifierVotes.lookup(pseudonym).claimed).toBe(true);
   });
 });

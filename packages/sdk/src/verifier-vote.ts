@@ -11,3 +11,10 @@ function voteCommitment(domainName:string,args:{contract:string;position:Uint8Ar
 
 export function verifierVoteCommitment(args:Parameters<typeof voteCommitment>[1]){return voteCommitment("senyap:vote",args);}
 export function outcomeVoteCommitment(args:Parameters<typeof voteCommitment>[1]){return voteCommitment("senyap:outcome-vote",args);}
+
+/** Anonymous identity is bound to both deployment and case kind. */
+export function verifierPseudonym(input:{contract:string;secret:Uint8Array;dispute:Uint8Array;kind:"hoax"|"outcome"}){
+  if(!/^[a-f0-9]{64}$/.test(input.contract)||input.secret.length!==32||input.dispute.length!==32)throw Error("Invalid verifier scope");
+  const domain=new Uint8Array(32);domain.set(new TextEncoder().encode(input.kind==="hoax"?"senyap:verifier":"senyap:outcome-verifier"));
+  return persistentHash(new CompactTypeVector(4,Bytes32Descriptor),[domain,Uint8Array.from(input.contract.match(/../g)!,b=>parseInt(b,16)),input.secret,input.dispute]);
+}
