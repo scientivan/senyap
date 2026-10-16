@@ -3,10 +3,10 @@ import {describe,it,expect} from "vitest";
 import type {CircuitResults} from "@midnight-ntwrk/compact-runtime";
 import {Contract,ledger} from "../../contracts/managed/senyap/contract/index.js";
 import {createProductActions,type ProductCallTransport} from "../../packages/sdk/src/actions";
-import {createClientState,clientWitnesses,actionState,type ClientPrivateState} from "../../packages/sdk/src/client-state";
+import {createClientState,preparePrivateStake,clientWitnesses,actionState,type ClientPrivateState} from "../../packages/sdk/src/client-state";
 import {setupAuction} from "../helpers/auction";
 import {setupSideB,preview} from "../helpers/side-b";
-import {bytes,group,hash,commitment} from "./harness";
+import {bytes,group,hash,commitment,committee} from "./harness";
 import {deliverStakeReason,saveStakeReason} from "../../packages/sdk/src/reason-delivery";
 import {generateBuyerKey} from "../../packages/crypto/src/buyer-channel";
 import {openReason} from "../../packages/crypto/src/reason";
@@ -23,6 +23,34 @@ function simulatorTransport(initial:Parameters<Contract<ClientPrivateState>["imp
   return {transport,calls,get context(){return context;},set context(value){context=value;},get state(){return ledger(context.currentQueryContext.state);}};
 }
 describe("product action preparation against actual circuits",()=>{
+  it("runs the buyer auction and scout reward actions against actual circuits without publishing the private bid as an argument",async()=>{
+    const {s,records}=setupAuction(),state=await createClientState(roots,{network:"local",contract:s.context.currentQueryContext.address});
+    s.invoke("admitBuyer",hash(state.secrets.buyer));
+    const host=simulatorTransport({...s.context,currentPrivateState:state}),actions=createProductActions(host.transport);
+    await actions.bid({market:1n,amount:80n,ceiling:100n,refundRecipient:{bytes:bytes(200)},blockTime:1600n});
+    expect(host.calls[0].args).toEqual([1n,100n,{bytes:bytes(200)}]);
+    const buyer=[...host.state.bids][0][0];s.setTime(1800);
+    host.context.currentQueryContext.block={...host.context.currentQueryContext.block,secondsSinceEpoch:1800n};
+    for(let i=0;i<3;i++){
+      const saved=host.context.currentPrivateState;
+      const approved=s.contract.impureCircuits.postAuctionResult({...host.context,currentPrivateState:{...s.context.currentPrivateState,committee:committee[i]}},1n,{first:buyer,second:bytes(0),priceFirst:40n,priceSecond:0n},BigInt(i));
+      host.context={...approved.context,currentPrivateState:saved};
+    }
+    await actions.settleBid({market:1n,buyer,blockTime:1800n});expect(host.state.bids.lookup(buyer).settled).toBe(true);
+    await actions.select({market:1n,mask:Array<boolean>(8).fill(false),blockTime:1800n});
+    expect(host.state.buyerAccess.lookup(buyer).bought.every(Boolean)).toBe(true);
+    await actions.report({market:1n,pool:0n,mask:[true,false,false,false,false,false,false,false],evidence:bytes(220),blockTime:1800n});
+    const r=records[0];let scout={...host.context.currentPrivateState,secrets:{...host.context.currentPrivateState.secrets,scout:r.secret}};
+    scout=await preparePrivateStake(scout,{market:1n,slot:1n,group,option:r.option,blockTime:3000n});scout.positions["1/1"].salt=r.salt;
+    host.context={...host.context,currentPrivateState:scout};host.context.currentQueryContext.block={...host.context.currentQueryContext.block,secondsSinceEpoch:3000n};
+    await actions.hit({market:1n,slot:1n,pool:0n,blockTime:3000n});
+    host.context.currentQueryContext.block={...host.context.currentQueryContext.block,secondsSinceEpoch:3300n};
+    const before=[...host.context.currentQueryContext.effects.unshieldedOutputs.values()].reduce((a,b)=>a+b,0n);
+    await actions.claim({market:1n,slot:1n,recipient:{bytes:bytes(221)},blockTime:3300n});
+    const after=[...host.context.currentQueryContext.effects.unshieldedOutputs.values()].reduce((a,b)=>a+b,0n);
+    expect(after-before).toBe(134n);expect(host.state.positions.lookup(r.id).status).toBe(1n);
+    expect(host.calls.map(c=>c.name)).toEqual(["placeBid","settleBid","selectHidden","recordOutcome","proveHit","claim"]);
+  });
   it("recovers reason delivery without another stake, keeps text private and never overwrites its saved content",async()=>{
     const {s}=setupAuction(300n,bytes(88),true),state=await createClientState(roots,{network:"local",contract:s.context.currentQueryContext.address});
     s.invoke("admitScout",group,commitment(state.secrets.scout,7n));

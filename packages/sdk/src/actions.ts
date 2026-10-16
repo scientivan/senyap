@@ -20,8 +20,12 @@ export function createProductActions(transport:ProductCallTransport){
       return transport.call("stake",state=>([input.market,input.group,input.slot,input.amount,state.positions[`${input.market}/${input.slot}`].revealKeyCommit] satisfies Parameters<"stake">),async state=>{const next=await preparePrivateStake(state,input);return input.reason===undefined?next:saveStakeReason(next,input.market,input.slot,input.reason);});
     },
     bid(input:Market&{amount:bigint;ceiling:bigint;refundRecipient:Recipient}){
-      if(input.amount<0n||input.amount>input.ceiling||input.ceiling>=2n**64n)throw Error("Invalid private bid or ceiling");
+      if(input.amount<=0n||input.amount>input.ceiling||input.ceiling>=2n**64n)throw Error("Invalid private bid or ceiling");
       return transport.call("placeBid",[input.market,input.ceiling,input.refundRecipient],state=>preparePrivateBuyer(state,{...input,bid:input.amount}));
+    },
+    settleBid(input:Market&{buyer:Uint8Array}){
+      if(input.buyer.length!==32)throw Error("Invalid buyer pseudonym");
+      return transport.call("settleBid",[input.market,input.buyer],state=>actionState(state,input));
     },
     buy(input:Market&{option:bigint}){return transport.call("buyFlat",[input.market,input.option],state=>preparePrivateBuyer(state,input));},
     select(input:Market&{mask:boolean[]}){return transport.call("selectHidden",[input.market,input.mask],state=>actionState(state,input));},
