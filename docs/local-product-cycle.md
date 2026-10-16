@@ -201,3 +201,48 @@ node --import tsx scripts/local-product-cycle.ts --staged-after-confirmed-mint -
 # Only after the three additional maintenance transactions are explicitly approved
 node --import tsx scripts/local-product-cycle.ts --staged-after-confirmed-mint --execute-local --approved-plan-sha <reviewed-plan-digest>
 ```
+
+## Runtime resource gate and revised batch8 proposal (awaiting new permission)
+
+The approved12-key deploy was actually rejected by the node's transaction pool
+with1010 `Transaction would exhaust the block limits`. No maintenance followed.
+The retained staged journal and explicit rejection are separate evidence. This
+supersedes any inference that passing normalized ledger limits proves node admission.
+
+Read-only runtime API measurement found1458280000001 gas weight for that deploy,
+plus20000000000 configured overhead and108157000 base overhead, above the Normal
+maxExtrinsic1299891843000. These are the running node's queried limits; no limits
+or unsafe RPC settings were changed. `system_dryRun` was unavailable because the
+node denies it externally. The replacement uses the normal read-only
+`MidnightRuntimeApi_get_transaction_cost`, not transaction submission/application.
+The official node1.0.0 implementation maps this cost into dispatch weight and adds
+configured overhead:
+https://github.com/midnightntwrk/midnight-node/blob/node-1.0.0/pallets/midnight/src/lib.rs#L615
+
+The revised packaging is8+8+8+8+8+1 (all41keys). Actual proof/balance plus runtime
+cost checks passed for deploy and each of the five maintenance batches, with all
+submission callbacks intentionally blocked. Deploy requires1110228157001 weight;
+the four8-key updates require963148157001 each; the final1-key update requires
+149188157001. All are below1299891843000. The initial dry wallet reserved its
+unsubmitted fee inputs after five checks; the final update was measured in a
+separate fresh diagnostic wallet. This is resource evidence, not onchain receipts.
+See runtime-budget-proposal.json for all six checks and their limits.
+
+The runner now checks runtime cost, configured/base overhead, proof-size weight,
+extrinsic bytes and runtime version BEFORE persisting a submit ID or broadcasting
+every transaction. A failed or unavailable check stops with no new send. This
+reduces resource failures; it does not guarantee state validity or consensus.
+
+New permission is required for exactly one replacement Senyap deploy and two more
+maintenance transactions beyond the three approved earlier. That makes82remaining
+submissions (deploy+five installations+76original calls),84successful actions in
+the complete plan, and86total attempts including the rejected token and rejected
+12-key Senyap deploy. Token deployment and mint remain untouched. The explicit
+`--retry-rejected-staged-deploy` switch validates matching source/plan/rejection,
+fresh empty lookup/mempool, and retains the old journal; a new exclusive staged
+retry journal prevents a second run.
+
+```sh
+# Only after this new replacement/two-extra-maintenance scope is approved
+node --import tsx scripts/local-product-cycle.ts --staged-after-confirmed-mint --retry-rejected-staged-deploy --execute-local --approved-plan-sha <current-plan-digest>
+```

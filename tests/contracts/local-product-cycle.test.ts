@@ -4,9 +4,21 @@ import {mkdtemp, readFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {runScenario, simulatorDriver} from "../../scripts/lib/local-product-scenario";
-import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment} from "../../scripts/lib/local-submission-journal";
+import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment,validateRejectedStagedDeploy} from "../../scripts/lib/local-submission-journal";
 
 describe("local product network rehearsal", () => {
+  it("blocks a staged replacement unless its exact rejection is bound and both fresh lookups are clear",async()=>{
+    const sourceSha256="a".repeat(64),planSha256="b".repeat(64),txId="00"+"c".repeat(64);
+    const prior={network:"undeployed",sourceSha256,planSha256,transactions:[{action:"deploy:senyap",status:"submitted",txId}]};
+    const rejection={network:"undeployed",sourceSha256,planSha256,txId,nodeError:"1010 Invalid Transaction: Transaction would exhaust the block limits"};
+    const input={sourceSha256,prior,rejection,observe:async()=>({indexerMatches:0,pendingExtrinsics:0})};
+    expect(await validateRejectedStagedDeploy(input)).toBe(txId);
+    await expect(validateRejectedStagedDeploy({...input,rejection:{...rejection,planSha256:"d".repeat(64)}})).rejects.toThrow(/binding/);
+    await expect(validateRejectedStagedDeploy({...input,rejection:{...rejection,nodeError:"unknown"}})).rejects.toThrow(/Explicit/);
+    await expect(validateRejectedStagedDeploy({...input,observe:async()=>({indexerMatches:1,pendingExtrinsics:0})})).rejects.toThrow(/blocked/);
+    await expect(validateRejectedStagedDeploy({...input,observe:async()=>({indexerMatches:0,pendingExtrinsics:1})})).rejects.toThrow(/blocked/);
+    await expect(validateRejectedStagedDeploy({...input,prior:{...prior,transactions:[...prior.transactions,...prior.transactions]}})).rejects.toThrow(/Only one/);
+  });
   it("accepts another actual identifier without a repeat submission and rejects an unrelated wallet result",()=>{
     const ids=["00"+"a".repeat(64),"00"+"b".repeat(64)];
     expect(canonicalSubmittedId(ids,ids[1])).toBe(ids[0]);

@@ -16,6 +16,13 @@ export function confirmedTokenDeployment(input:{sourceSha256:string;prior:{netwo
   assert(receipt.actions.length===1&&receipt.actions[0].kind==="ContractDeploy"&&/^[a-f0-9]{64}$/.test(receipt.actions[0].address),"Exactly one token deployment required");
   return receipt.actions[0].address;
 }
+export async function validateRejectedStagedDeploy(input:{sourceSha256:string;prior:{network?:unknown;sourceSha256?:unknown;planSha256?:unknown;transactions?:{action?:unknown;status?:unknown;txId?:unknown}[]};rejection:{network?:unknown;sourceSha256?:unknown;planSha256?:unknown;txId?:unknown;nodeError?:unknown};observe:(id:string)=>Promise<{indexerMatches:number;pendingExtrinsics:number}>}){
+  const {prior,rejection}=input,entry=prior.transactions?.[0];
+  assert(prior.network==="undeployed"&&prior.sourceSha256===input.sourceSha256&&rejection.network==="undeployed"&&rejection.sourceSha256===input.sourceSha256&&prior.planSha256===rejection.planSha256,"Staged rejection binding mismatch");
+  assert(prior.transactions?.length===1&&entry?.action==="deploy:senyap"&&entry.status==="submitted"&&typeof entry.txId==="string"&&/^[a-f0-9]{66}$/.test(entry.txId),"Only one rejected staged deploy can be replaced");
+  assert(rejection.txId===entry.txId&&rejection.nodeError==="1010 Invalid Transaction: Transaction would exhaust the block limits","Explicit runtime rejection required");
+  const observed=await input.observe(entry.txId);assert(observed.indexerMatches===0&&observed.pendingExtrinsics===0,"Staged deploy included or lookup/mempool unavailable; replacement blocked");return entry.txId;
+}
 /** Narrow recovery gate; missing indexer data alone never authorizes a retry.
  * The caller still needs explicit approval for the replacement submission. */
 export async function validateRejectedFirstDeploy(input: {

@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-16T03:23:00.719109+00:00",
+  "txId": "00490af5f462c643402fcff1f4f6deb0d52d7fe512129d1a8dc7b8887044ac0060",
+  "nodeError": "1010 Invalid Transaction: Transaction would exhaust the block limits",
+  "indexer": {
+    "data": {
+      "transactions": []
+    }
+  },
+  "pendingExtrinsics": 0,
+  "scope": "read-only; no replacement submission authorized or attempted",
+  "network": "undeployed",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "planSha256": "708a577e1ce370ce5d6b7f68b9e028d233372027ca29707cdb00c4e5681bd561"
+}

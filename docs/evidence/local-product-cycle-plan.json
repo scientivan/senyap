@@ -4,11 +4,12 @@
     "network": "undeployed",
     "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
     "codeSha256": {
-      "runner": "e8990e9257eacbf84b4ddd6bc8b911f8cc43c344b5a919272e6ff14404d92f3c",
+      "runner": "458c136798a7fc069b7a1f48fa6e040ba024745f5b612aa1706ae5f704e67e6b",
       "scenario": "d802f413f9d5f27743c80506364222911f0d1cd29590a440d3b489d2c53734a2",
-      "journal": "0815498dd7613d929c408463f6704f9761e10a89bbbb3c0571f0eb1e5c1e4125",
+      "journal": "0b301bc81ca7a1b2a1fe52ab7a2f5d22537a77031835bae9bda7cc7cfcd28c14",
       "walletBalance": "7d4b97e1212e00ac100c66259a2c9e86a142bb746cc1b4de6a7343206c0991e0",
       "stagedDeployment": "8f856fd079de67492dbeffaad9d9aa81fe8169184b6824568cf109c189594145",
+      "resourceGate": "d6ebb0e547e03be3605a001b72a73fcdc1d452e707c5e32d1531238e2004de50",
       "token": "26793ddd8db8b22f8fec5dfe7e1641950e516530cf68eb5eada0f4a9c2c8d7e4"
     },
     "deploys": [
@@ -94,7 +95,7 @@
       "claim",
       "claim"
     ],
-    "transactionCount": 82,
+    "transactionCount": 84,
     "deploymentPackaging": {
       "batches": [
         [
@@ -105,17 +106,19 @@
           "revokeMember",
           "registerBuilder",
           "withdrawBuilder",
-          "admitBuyer",
+          "admitBuyer"
+        ],
+        [
           "createMarket",
           "close",
           "stake",
-          "postPreview"
-        ],
-        [
+          "postPreview",
           "placeBid",
           "postAuctionResult",
           "settleBid",
-          "selectHidden",
+          "selectHidden"
+        ],
+        [
           "skipSelection",
           "buyFlat",
           "recordOutcome",
@@ -133,17 +136,19 @@
           "admitVerifier",
           "openDispute",
           "commitVote",
-          "revealVote",
+          "revealVote"
+        ],
+        [
           "resolveDispute",
           "claimVerifier",
           "approveHoaxMember",
-          "revokeHoaxMember"
-        ],
-        [
+          "revokeHoaxMember",
           "finalizeMarket",
           "markMissedReport",
           "markMissedSharedBuyer",
-          "approveMissedBuyer",
+          "approveMissedBuyer"
+        ],
+        [
           "revokeMissedBuyer"
         ]
       ],
@@ -163,7 +168,7 @@
       "proofServer": "http://127.0.0.1:6300"
     }
   },
-  "planSha256": "708a577e1ce370ce5d6b7f68b9e028d233372027ca29707cdb00c4e5681bd561",
+  "planSha256": "8ed664451898ea450d75173315f7f11b25fb41b126e83a4280a21c4a69137944",
   "simulation": {
     "phases": [
       "settled",
@@ -219,10 +224,10 @@
     "note": "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."
   },
   "status": "simulator evidence; network execution, if approved, is recorded in a separate journal",
-  "generatedAt": "2026-10-16T03:16:36.709Z",
+  "generatedAt": "2026-10-16T03:41:02.564Z",
   "readOnlyPreflight": {
     "status": "passed; no wallet started or transaction submitted",
     "genesisHash": "e624f91737add2cf1a6658b3cf3a5524d633faea8c943702b435820316d9e21e",
-    "blockTime": 1792120578
+    "blockTime": 1792122048
   }
 }

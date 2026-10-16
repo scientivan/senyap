@@ -15,9 +15,10 @@ import {Contract} from "../contracts/managed/senyap/contract/index.js";
 import {Contract as TokenContract} from "../contracts/managed/dusd/contract/index.js";
 import {createSnapshotReader} from "../packages/sdk/src/snapshot";
 import {hash, operator} from "../tests/contracts/harness";
-import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment} from "./lib/local-submission-journal";
+import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment,validateRejectedStagedDeploy} from "./lib/local-submission-journal";
 import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
 import {stagedProductContract,verifierBatches,verifierInstallation} from "./lib/staged-product-deployment";
+import {createLocalResourceGate} from "./lib/local-resource-budget";
 import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
   type Driver, type Circuit, type LocalState, type Args, type Result} from "./lib/local-product-scenario";
 
@@ -28,13 +29,14 @@ const sourceSha256 = digest(await readFile("contracts/senyap.compact"));
 const simulated = simulatorDriver();
 const simulation = await runScenario(simulated.driver);
 const stagedMode=process.argv.includes("--staged-after-confirmed-mint");
-const installationBatches=verifierBatches(Object.keys(new Contract(witnesses).provableCircuits) as Circuit[]);
+const installationBatches=verifierBatches(Object.keys(new Contract(witnesses).provableCircuits) as Circuit[],8);
 const codeSha256 = {
   runner: digest(await readFile("scripts/local-product-cycle.ts")),
   scenario: digest(await readFile("scripts/lib/local-product-scenario.ts")),
   journal: digest(await readFile("scripts/lib/local-submission-journal.ts")),
   walletBalance: digest(await readFile("scripts/lib/local-wallet-balance.ts")),
   stagedDeployment: digest(await readFile("scripts/lib/staged-product-deployment.ts")),
+  resourceGate: digest(await readFile("scripts/lib/local-resource-budget.ts")),
   token: digest(await readFile("contracts/dusd.compact")),
 };
 const plan = {version: 1, network: "undeployed", sourceSha256, codeSha256, deploys: ["dusd", "senyap"], mint: "5000",
@@ -114,9 +116,18 @@ async function executeLocal() {
   setNetworkId("undeployed");
   const retry = process.argv.includes("--retry-rejected-first-deploy");
   const resume=process.argv.includes("--resume-confirmed-token");assert(!(retry&&(resume||stagedMode))&&!(resume&&stagedMode),"Choose only one recovery path");
-  const journalPath = stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
+  const retryStaged=process.argv.includes("--retry-rejected-staged-deploy");assert(!retryStaged||stagedMode,"Staged replacement requires its explicit reviewed plan");
+  const journalPath = retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let confirmedToken:string|undefined;
   let confirmedColor:string|undefined;
+  let stagedRejectedId:string|undefined;
+  if(retryStaged){
+    const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-staged-journal.json","utf8")),rejection=JSON.parse(await readFile("docs/evidence/staged-deployment-node-rejection.json","utf8"));
+    stagedRejectedId=await validateRejectedStagedDeploy({sourceSha256,prior,rejection,observe:async id=>{
+      const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){__typename}}",variables:{offset:{identifier:id}}})});
+      const reply=await response.json();assert(response.ok&&!reply.errors&&Array.isArray(reply.data?.transactions),"Staged replacement lookup unavailable");const pending=await rpc("author_pendingExtrinsics");assert(Array.isArray(pending),"Mempool unavailable");return {indexerMatches:reply.data.transactions.length,pendingExtrinsics:pending.length};
+    }});
+  }
   if(resume||stagedMode){
     const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-retry-journal.json","utf8"));
     const id=prior.transactions?.[0]?.txId;assert(typeof id==="string"&&/^[a-f0-9]{66}$/.test(id),"Prior identifier required");
@@ -156,21 +167,27 @@ async function executeLocal() {
   // no receipt was returned. Reconciliation is read-only and manual.
   const submissionLimit=plan.transactionCount-(stagedMode?2:resume?1:0);
   const journal = await createLocalJournal(journalPath, {sourceSha256, planSha256}, submissionLimit);
+  if(stagedRejectedId){journal.data.publicResult.replacesRejectedStagedId=stagedRejectedId;await journal.persist();}
   if(confirmedToken){journal.data.publicResult.resumesConfirmedToken=confirmedToken;journal.data.publicResult.previousJournal="local-product-cycle-retry-journal.json";await journal.persist();}
   if (rejectedId) {journal.data.publicResult.replacesRejectedId = rejectedId; await journal.persist();}
   let wallet: MidnightWalletProvider | undefined;
+  let resourceGate:Awaited<ReturnType<typeof createLocalResourceGate>>|undefined;
   try {
     const seed = Buffer.alloc(32); seed[31] = 1; // Public local genesis fixture, never an external wallet.
     wallet = await MidnightWalletProvider.build(logger, environment, seed.toString("hex"));
     wallet.balanceTx = synchronizedLocalBalance(wallet);
     // false skips automatic NIGHT registration. Insufficient DUST stops this run.
     await wallet.start(false);
+    resourceGate=await createLocalResourceGate(environment.nodeWS);
     await firstValueFrom(wallet.wallet.state().pipe(filter(s => s.dust.balance(new Date()) > 0n), timeout(120000)));
     const recipient = {bytes: Uint8Array.from(Buffer.from(wallet.unshieldedKeystore.getAddress(), "hex"))};
     const submitter = wallet;
     const originalSubmit = submitter.submitTx.bind(submitter);
     submitter.submitTx = async tx => {
       const id = tx.identifiers()[0]; assert(id, "Missing local transaction identifier");
+      const budget=await resourceGate!.check(tx);
+      journal.data.publicResult.lastResourceBudget={action:journal.data.transactions.at(-1)?.action,...budget};await journal.persist();
+      assert(budget.passed,"Transaction exceeds current node runtime resource limits; nothing submitted");
       const returnedId = await journal.submit(id, () => originalSubmit(tx));
       return canonicalSubmittedId(tx.identifiers(),returnedId);
     };
@@ -251,5 +268,5 @@ async function executeLocal() {
     // SDK error objects/transcripts may include witness data. Never print them.
     console.error(`Local cycle stopped. Inspect public journal ${journalPath}; private error payload omitted.`);
     process.exitCode = 1;
-  } finally {await wallet?.stop().catch(() => {console.error("Local wallet shutdown incomplete; private error payload omitted.");});}
+  } finally {await resourceGate?.close().catch(()=>{});await wallet?.stop().catch(() => {console.error("Local wallet shutdown incomplete; private error payload omitted.");});}
 }

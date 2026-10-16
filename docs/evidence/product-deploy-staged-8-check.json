@@ -1,0 +1,485 @@
+{
+  "scope": "Local wallet proof/balance plus read-only runtime cost when requested; registration and submission disabled",
+  "status": "Constructor passed; wallet preparation/resource results recorded separately",
+  "transactionBytes": 84765,
+  "initialLedgerParameters": "LedgerParameters { cost_model: TransactionCostModel { runtime_cost_model: CostModel { noop_constant: 58.049ns, noop_coeff_arg: 0.000s, lt: 1.005\u03bcs, eq: 1.006\u03bcs, type_null: 647.378ns, type_cell: 757.159ns, type_map: 627.432ns, type_bmt: 749.668ns, type_array: 583.371ns, size_map: 1.600\u03bcs, size_bmt: 725.665ns, size_array: 1.350\u03bcs, new_null: 374.871ns, new_cell: 814.951ns, new_map: 978.652ns, new_bmt: 845.753ns, new_array: 842.371ns, and: 784.624ns, or: 781.084ns, neg: 836.890ns, log_null_constant: 155.124ns, log_null_coeff_value_size: 0.000s, log_cell_constant: 314.563ns, log_cell_coeff_value_size: 0.000s, log_map_constant: 1.820\u03bcs, log_map_coeff_value_size: 0.000s, log_bmt_constant: 303.821ns, log_bmt_coeff_value_size: 1ps, log_array_constant: 610.437ns, log_array_coeff_value_size: 18.027ns, root: 777.264ns, pop: 574.527ns, popeq_constant: 385.050ns, popeq_coeff_value_size: 15ps, popeqc_constant: 383.608ns, popeqc_coeff_value_size: 14ps, addi: 816.807ns, subi: 817.066ns, push_null: 624.886ns, push_cell: 235.744ns, push_map: 5.764\u03bcs, push_bmt: 238.126ns, push_array: 737.159ns, pushs_null: 146.496ns, pushs_cell: 235.886ns, pushs_map: 1.006\u03bcs, pushs_bmt: 245.902ns, pushs_array: 742.982ns, branch_constant: 314.875ns, branch_coeff_arg: 8ps, jmp_constant: 54.347ns, jmp_coeff_arg: 3ps, add: 1.061\u03bcs, sub: 1.058\u03bcs, concat_constant: 1.283\u03bcs, concat_coeff_total_size: 446ps, concatc_constant: 1.294\u03bcs, concatc_coeff_total_size: 447ps, member_constant: 2.187\u03bcs, member_coeff_key_size: 1.196ns, member_coeff_container_log_size: 1.451ns, rem_map_constant: 2.637\u03bcs, rem_map_coeff_key_size: 2.244ns, rem_map_coeff_container_log_size: 927.384ns, rem_bmt_constant: 1.233\u03bcs, rem_bmt_coeff_key_size: 0.000s, rem_bmt_coeff_container_log_size: 51.495\u03bcs, remc_map_constant: 2.530\u03bcs, remc_map_coeff_key_size: 2.176ns, remc_map_coeff_container_log_size: 927.358ns, remc_bmt_constant: 1.771\u03bcs, remc_bmt_coeff_key_size: 0.000s, remc_bmt_coeff_container_log_size: 51.449\u03bcs, dup_constant: 1.544\u03bcs, dup_coeff_arg: 455.427ns, swap_constant: 1.076\u03bcs, swap_coeff_arg: 452.216ns, idx_map_constant: 3.950\u03bcs, idx_map_coeff_key_size: 2.710ns, idx_map_coeff_container_log_size: 771ps, idx_bmt_constant: 3.371\u03bcs, idx_bmt_coeff_key_size: 0.000s, idx_bmt_coeff_container_log_size: 4.721ns, idx_array: 3.499\u03bcs, idxp_map_constant: 4.790\u03bcs, idxp_map_coeff_key_size: 2.942ns, idxp_map_coeff_container_log_size: 0.000s, idxp_bmt_constant: 3.583\u03bcs, idxp_bmt_coeff_key_size: 0.000s, idxp_bmt_coeff_container_log_size: 5.227ns, idxp_array: 4.206\u03bcs, idxc_map_constant: 3.789\u03bcs, idxc_map_coeff_key_size: 2.676ns, idxc_map_coeff_container_log_size: 1.408ns, idxc_bmt_constant: 3.043\u03bcs, idxc_bmt_coeff_key_size: 0.000s, idxc_bmt_coeff_container_log_size: 6.069ns, idxc_array: 3.404\u03bcs, idxpc_map_constant: 4.634\u03bcs, idxpc_map_coeff_key_size: 2.953ns, idxpc_map_coeff_container_log_size: 1.779ns, idxpc_bmt_constant: 3.275\u03bcs, idxpc_bmt_coeff_key_size: 0.000s, idxpc_bmt_coeff_container_log_size: 6.234ns, idxpc_array: 4.172\u03bcs, ins_map_constant: 12.019\u03bcs, ins_map_coeff_key_size: 1.268ns, ins_map_coeff_container_log_size: 1.191\u03bcs, ins_bmt_constant: 2.961\u03bcs, ins_bmt_coeff_key_size: 0.000s, ins_bmt_coeff_container_log_size: 51.304\u03bcs, ins_array: 8.290\u03bcs, insc_map_constant: 12.219\u03bcs, insc_map_coeff_key_size: 2.177ns, insc_map_coeff_container_log_size: 1.113\u03bcs, insc_bmt_constant: 2.866\u03bcs, insc_bmt_coeff_key_size: 0.000s, insc_bmt_coeff_container_log_size: 51.323\u03bcs, insc_array: 8.278\u03bcs, ckpt: 69.432ns, signature_verify_constant: 59.433\u03bcs, signature_verify_coeff_size: 391ps, pedersen_valid: 178.190\u03bcs, verifier_key_load: 3.407ms, proof_verify_constant: 5.825ms, proof_verify_coeff_size: 3.309\u03bcs, hash_to_curve: 236.027\u03bcs, ec_add: 232.259ns, ec_mul: 85.080\u03bcs, transient_hash: 52.808\u03bcs, get_writes_constant: 19.262\u03bcs, get_writes_coeff_keys_added_size: 789.174ns, update_rcmap_constant: 1.055ms, update_rcmap_coeff_keys_added_size: 24.634\u03bcs, gc_rcmap_constant: 0.000s, gc_rcmap_coeff_keys_removed_size: 40.272\u03bcs, read_time_batched_4k: 2.000\u03bcs, read_time_synchronous_4k: 85.000\u03bcs }, parallelism_factor: 4, baseline_cost: RunningCost { read_time: 0.000s, compute_time: 100.000\u03bcs, bytes_written: 0, bytes_deleted: 0 } }, limits: TransactionLimits { transaction_byte_limit: 1048576, time_to_dismiss_per_byte: 2.000\u03bcs, min_time_to_dismiss: 15.000ms, block_limits: SyntheticCost { read_time: 1.000s, compute_time: 1.000s, block_usage: 200000, bytes_written: 50000, bytes_churned: 1000000 }, block_withdrawal_minimum_multiple: FixedPoint(0.5) }, dust: DustParameters { night_dust_ratio: 5000000000, generation_decay_rate: 8267, dust_grace_period: Duration(10800) }, fee_prices: FeePrices { overall_price: FixedPoint(10), read_factor: FixedPoint(1), compute_factor: FixedPoint(1), block_usage_factor: FixedPoint(1), write_factor: FixedPoint(1) }, global_ttl: Duration(3600), cost_dimension_min_ratio: FixedPoint(0.25), price_adjustment_a_parameter: FixedPoint(100), cardano_to_midnight_bridge_fee_basis_points: 500, c_to_m_bridge_min_amount: 1000 }",
+  "cost": {
+    "readTime": "1785000000",
+    "computeTime": "1975817471",
+    "blockUsage": "84693",
+    "bytesWritten": "102063",
+    "bytesChurned": "6144"
+  },
+  "exceedsInitialBlockLimits": true,
+  "walletCheck": {
+    "stage": "balance",
+    "noSubmission": true,
+    "staged": true,
+    "name": "(FiberFailure) Wallet.InsufficientFunds",
+    "flags": [
+      "dust",
+      "Funds",
+      "balance",
+      "Insufficient"
+    ],
+    "messageLength": 42
+  },
+  "stagedPackaging": [
+    {
+      "batchSize": 8,
+      "initialCircuits": [
+        "configureScoutGroup",
+        "admitScout",
+        "scoutPseudonym",
+        "approveRevocation",
+        "revokeMember",
+        "registerBuilder",
+        "withdrawBuilder",
+        "admitBuyer"
+      ],
+      "allCircuits": [
+        "configureScoutGroup",
+        "admitScout",
+        "scoutPseudonym",
+        "approveRevocation",
+        "revokeMember",
+        "registerBuilder",
+        "withdrawBuilder",
+        "admitBuyer",
+        "createMarket",
+        "close",
+        "stake",
+        "postPreview",
+        "placeBid",
+        "postAuctionResult",
+        "settleBid",
+        "selectHidden",
+        "skipSelection",
+        "buyFlat",
+        "recordOutcome",
+        "recordSubjectiveOutcome",
+        "challengeOutcome",
+        "postDefaultStrongest",
+        "proveHit",
+        "allocateSubsidy",
+        "cancelMarket",
+        "returnCancelledSubsidy",
+        "claim",
+        "renewTier",
+        "admitVerifier",
+        "openDispute",
+        "commitVote",
+        "revealVote",
+        "resolveDispute",
+        "claimVerifier",
+        "approveHoaxMember",
+        "revokeHoaxMember",
+        "finalizeMarket",
+        "markMissedReport",
+        "markMissedSharedBuyer",
+        "approveMissedBuyer",
+        "revokeMissedBuyer"
+      ],
+      "additionalTransactions": 5,
+      "costs": [
+        {
+          "kind": "deploy",
+          "bytes": 19211,
+          "cost": {
+            "readTime": "1785000000",
+            "computeTime": "1975817471",
+            "blockUsage": "19139",
+            "bytesWritten": "27029",
+            "bytesChurned": "6144"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 16309,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "16237",
+            "bytesWritten": "23352",
+            "bytesChurned": "19816"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 16729,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "16657",
+            "bytesWritten": "23352",
+            "bytesChurned": "19816"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 15746,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "15674",
+            "bytesWritten": "23352",
+            "bytesChurned": "19816"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 14247,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "14175",
+            "bytesWritten": "23352",
+            "bytesChurned": "19816"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 2458,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "2386",
+            "bytesWritten": "3003",
+            "bytesChurned": "8840"
+          },
+          "withinInitialLimits": true
+        }
+      ]
+    },
+    {
+      "batchSize": 10,
+      "initialCircuits": [
+        "configureScoutGroup",
+        "admitScout",
+        "scoutPseudonym",
+        "approveRevocation",
+        "revokeMember",
+        "registerBuilder",
+        "withdrawBuilder",
+        "admitBuyer",
+        "createMarket",
+        "close"
+      ],
+      "allCircuits": [
+        "configureScoutGroup",
+        "admitScout",
+        "scoutPseudonym",
+        "approveRevocation",
+        "revokeMember",
+        "registerBuilder",
+        "withdrawBuilder",
+        "admitBuyer",
+        "createMarket",
+        "close",
+        "stake",
+        "postPreview",
+        "placeBid",
+        "postAuctionResult",
+        "settleBid",
+        "selectHidden",
+        "skipSelection",
+        "buyFlat",
+        "recordOutcome",
+        "recordSubjectiveOutcome",
+        "challengeOutcome",
+        "postDefaultStrongest",
+        "proveHit",
+        "allocateSubsidy",
+        "cancelMarket",
+        "returnCancelledSubsidy",
+        "claim",
+        "renewTier",
+        "admitVerifier",
+        "openDispute",
+        "commitVote",
+        "revealVote",
+        "resolveDispute",
+        "claimVerifier",
+        "approveHoaxMember",
+        "revokeHoaxMember",
+        "finalizeMarket",
+        "markMissedReport",
+        "markMissedSharedBuyer",
+        "approveMissedBuyer",
+        "revokeMissedBuyer"
+      ],
+      "additionalTransactions": 4,
+      "costs": [
+        {
+          "kind": "deploy",
+          "bytes": 22976,
+          "cost": {
+            "readTime": "1785000000",
+            "computeTime": "1975817471",
+            "blockUsage": "22904",
+            "bytesWritten": "31503",
+            "bytesChurned": "6144"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 20556,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "20484",
+            "bytesWritten": "29166",
+            "bytesChurned": "22952"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 19991,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "19920",
+            "bytesWritten": "29166",
+            "bytesChurned": "22952"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 18475,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "18403",
+            "bytesWritten": "29166",
+            "bytesChurned": "22952"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 2458,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "2386",
+            "bytesWritten": "3003",
+            "bytesChurned": "8840"
+          },
+          "withinInitialLimits": true
+        }
+      ]
+    },
+    {
+      "batchSize": 12,
+      "initialCircuits": [
+        "configureScoutGroup",
+        "admitScout",
+        "scoutPseudonym",
+        "approveRevocation",
+        "revokeMember",
+        "registerBuilder",
+        "withdrawBuilder",
+        "admitBuyer",
+        "createMarket",
+        "close",
+        "stake",
+        "postPreview"
+      ],
+      "allCircuits": [
+        "configureScoutGroup",
+        "admitScout",
+        "scoutPseudonym",
+        "approveRevocation",
+        "revokeMember",
+        "registerBuilder",
+        "withdrawBuilder",
+        "admitBuyer",
+        "createMarket",
+        "close",
+        "stake",
+        "postPreview",
+        "placeBid",
+        "postAuctionResult",
+        "settleBid",
+        "selectHidden",
+        "skipSelection",
+        "buyFlat",
+        "recordOutcome",
+        "recordSubjectiveOutcome",
+        "challengeOutcome",
+        "postDefaultStrongest",
+        "proveHit",
+        "allocateSubsidy",
+        "cancelMarket",
+        "returnCancelledSubsidy",
+        "claim",
+        "renewTier",
+        "admitVerifier",
+        "openDispute",
+        "commitVote",
+        "revealVote",
+        "resolveDispute",
+        "claimVerifier",
+        "approveHoaxMember",
+        "revokeHoaxMember",
+        "finalizeMarket",
+        "markMissedReport",
+        "markMissedSharedBuyer",
+        "approveMissedBuyer",
+        "revokeMissedBuyer"
+      ],
+      "additionalTransactions": 3,
+      "costs": [
+        {
+          "kind": "deploy",
+          "bytes": 27488,
+          "cost": {
+            "readTime": "1785000000",
+            "computeTime": "1975817471",
+            "blockUsage": "27417",
+            "bytesWritten": "36233",
+            "bytesChurned": "6144"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 24615,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "24543",
+            "bytesWritten": "34980",
+            "bytesChurned": "26088"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 22686,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "22614",
+            "bytesWritten": "34980",
+            "bytesChurned": "26088"
+          },
+          "withinInitialLimits": true
+        },
+        {
+          "kind": "install-verifiers",
+          "bytes": 9428,
+          "cost": {
+            "readTime": "2040000000",
+            "computeTime": "2245675757",
+            "blockUsage": "9356",
+            "bytesWritten": "14631",
+            "bytesChurned": "15112"
+          },
+          "withinInitialLimits": true
+        }
+      ]
+    }
+  ],
+  "runtimeDryRunUnavailable": "system_dryRun rejected by node as unsafe externally; no unsafe setting changed and no send performed",
+  "runtimePreflight": {
+    "scope": "runtime cost only; never send or apply",
+    "passed": true,
+    "gasCost": "943040000001",
+    "extraWeight": "20000000000",
+    "baseWeight": "108157000",
+    "requiredWeight": "963148157001",
+    "maxExtrinsic": "1299891843000",
+    "proofSize": "0",
+    "maxProofSize": "11990383647911208550",
+    "bytes": 17498,
+    "maxBytes": 786432,
+    "runtimeSpecVersion": "1000000"
+  },
+  "runtimeChecks": [
+    {
+      "action": "deploy",
+      "scope": "runtime cost only; never send or apply",
+      "passed": true,
+      "gasCost": "1090120000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "1110228157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 22472,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    {
+      "action": "install-verifiers:1",
+      "scope": "runtime cost only; never send or apply",
+      "passed": true,
+      "gasCost": "943040000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "963148157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 19560,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    {
+      "action": "install-verifiers:2",
+      "scope": "runtime cost only; never send or apply",
+      "passed": true,
+      "gasCost": "943040000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "963148157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 19981,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    {
+      "action": "install-verifiers:3",
+      "scope": "runtime cost only; never send or apply",
+      "passed": true,
+      "gasCost": "943040000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "963148157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 18998,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    {
+      "action": "install-verifiers:4",
+      "scope": "runtime cost only; never send or apply",
+      "passed": true,
+      "gasCost": "943040000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "963148157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 17498,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    }
+  ],
+  "walletBatch": 8
+}

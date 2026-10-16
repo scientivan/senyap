@@ -29,9 +29,13 @@ proof-server checks, including separate collateral, quorum/refunds and settlemen
 gates ([proof evidence](docs/evidence/outcome-jury-proving.json)). The separate
 `/app/preprod` workspace connects wallet/private storage to finalized ledger and
 verified public metadata reads when its deployment configuration is complete.
-Transaction controls and a deployed product remain pending. A reviewed
-[local cycle runner](docs/local-product-cycle.md) rehearses both market sides in
-memory; its proposed 79 local-network transactions require separate owner approval.
+Reviewed controls now connect private stake/reason delivery, per-option purchase,
+objective report and cancelled-market refund to the explicit SDK adapter. Complete
+public deployment configuration and product network verification remain pending.
+The [local cycle runner](docs/local-product-cycle.md) has finalized a synthetic
+token deployment and5000mint; the Senyap market deploy hit node resource limits.
+A resource-gated staged-deployment recovery is prepared, awaiting its specific
+replacement/additional-transaction approval. The full A/B network cycle is incomplete.
 
 The full product mechanism described below is still under implementation; simulator
 coverage and the isolated Preprod counter do not establish an end-to-end market. See [SPEC.md](SPEC.md)

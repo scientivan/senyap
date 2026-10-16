@@ -1,0 +1,19 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "planSha256": "708a577e1ce370ce5d6b7f68b9e028d233372027ca29707cdb00c4e5681bd561",
+  "status": "uncertain; reconcile before any further submission",
+  "transactions": [
+    {
+      "action": "deploy:senyap",
+      "status": "submitted",
+      "txId": "00490af5f462c643402fcff1f4f6deb0d52d7fe512129d1a8dc7b8887044ac0060"
+    }
+  ],
+  "publicResult": {
+    "resumesConfirmedToken": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "previousJournal": "local-product-cycle-retry-journal.json",
+    "tokenContract": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "token": "f5cf17ce76865bbb37ac882d5f82e8237b40fce5f41f1ce5d8c2bca5142e80a7"
+  }
+}

@@ -39,8 +39,7 @@ satisfies every buyer's duty. Epoch rotation is still pending.
 The separate [local product runner](local-product-cycle.md) now prepares a bounded
 network adapter for one reviewed A/B fixture. It checks keeper-planned closes and
 bid settlements against finalized snapshots and journals IDs before sending.
-Its simulator rehearsal passes; the 79 network transactions have not been run
-and require separate approval. This is not a deployed keeper daemon.
+Its simulator rehearsal passes. The local token deployment and5000mint are now finalized; the Senyap deploy was rejected on runtime resources, and the A/B cycle is incomplete. The revised resource-gated staging plan and remaining authorization are documented separately. This is not a deployed keeper daemon.
 
 ## Veritas
 
@@ -391,8 +390,7 @@ choices/salts through the existing action/journal boundary. `revealVote` uses th
 saved case choice. Read-model markets expose the onchain outcome mode and pending
 case counts. Local simulator tests cover both sides, mode bypass, case eligibility,
 independent funds, quorum/tie, timing, penalties, hoax isolation and late resolution.
-Proving artifacts must be regenerated for this changed source; historical evidence
-with an older source hash is not evidence of these new circuits.
+The41key pairs and eight jury proofs for source4f039fa6 are recorded in the current local evidence. Historical evidence with an older source hash is not evidence of these circuits; these are local proofs, not network jury transactions.
 
 ## Live action integration checkpoint (16 Oct)
 

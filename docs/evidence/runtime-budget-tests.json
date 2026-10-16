@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-16T03:44:21.353565+00:00",
+  "fullRegression": {
+    "tests": 166,
+    "files": 53,
+    "seconds": 83.98,
+    "passed": true,
+    "workers": 2,
+    "timeoutSeconds": 30
+  },
+  "finalFocused": {
+    "tests": 12,
+    "files": 3,
+    "seconds": 4.41,
+    "passed": true
+  },
+  "rootTypecheck": true,
+  "webTypecheck": true,
+  "productionBuild": true,
+  "buildWarnings": "Existing assert externalization/isomorphic-ws export/chunk-size warnings retained; build exits0",
+  "constructorSourceUnchanged": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "scope": "Runtime resources measured with all diagnostic sends disabled; replacement plus two extra maintenance actions not yet authorized",
+  "planSha256": "8ed664451898ea450d75173315f7f11b25fb41b126e83a4280a21c4a69137944"
+}
