@@ -404,8 +404,8 @@ Authenticated duplicate delivery recovers the original receipt without overwriti
 screened content. The HTTP submission response contains only a bounded status.
 
 `VITE_OPERATOR_REASON_PUBLIC_KEY` is public X25519 configuration. Missing binding
-disables stake preparation. Subjective reports, admin and verifier forms remain
-pending. Auction controls and normal reward claims are described below. Paid
+disables stake preparation. Admin controls remain pending. Subjective reports and
+verifier forms are described below, alongside auction and reward controls. Paid
 signal opening remains a
 separate service integration, not an automatic second purchase.
 
@@ -474,3 +474,34 @@ not a connected wallet or service. `auction-rewards-browser.json` records eleven
 checks and eighteen captures, including claim review at 1440/390. Independent
 review scored its required claim-review correction resolved (1/1), disposition
 `ship` for that component. This is not a product transaction demonstration.
+
+
+## Jury and dispute UI (16 Oct)
+
+The approved `design/live-jury.html` is integrated by `LiveJury.tsx`. The seven
+explicit actions cover subjective reports, objective challenges, hoax reports,
+private vote commitment, saved vote reveal, case resolution and verifier claims.
+Each subjective option opens its own 50 dUSD reporter bond, including false
+proposals. Verifier collateral is 100 dUSD per case. All quorum, penalty and
+refund behavior remains the approved SPEC v0.15 behavior.
+
+The SDK derives case-kind/deployment-bound verifier pseudonyms and verifies the
+saved choice/salt against the actual onchain commitment before offering reveal.
+An unsent saved choice remains locked for that case. Missing or mismatched vote
+openings block reveal and prompt encrypted-backup restoration. The SDK projects
+exact returned collateral, majority bonus and fixed saved recipient; zero claims
+remain finalizable without a payment. Public reporting targets exclude already
+opened cases and closed report windows. No identity/member opening is sent to a
+reporting service.
+
+Every action has a separate review before proof preparation, and the host checks
+the finalized target, case kind, eligibility, reviewed choices, total bond or
+claim amounts and recipient again. Prepared/submitted/uncertain journals block
+new sends. The evidence hash shown for a case cannot retrieve or verify evidence;
+the UI asks verifiers to obtain the original reference from the reporter. There
+is no automatic evidence-retrieval or truth claim.
+
+`jury-browser.json` records fifteen checks and twenty-four desktop/mobile
+captures of the actual component with synthetic callbacks. Independent review
+returned `ship` for the reviewed component and code after the final build. This
+is not a live wallet, product service, network proof or transaction walkthrough.

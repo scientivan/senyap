@@ -1,0 +1,139 @@
+{
+  "scope": "Static synthetic design preview only; fresh isolated Chrome profile, no wallet/storage/service/transaction",
+  "checks": {
+    "requiresChoice": true,
+    "privateReview": true,
+    "editRetains": true,
+    "exactClaim": true,
+    "noSubmit": true,
+    "noExternalRequests": true
+  },
+  "screenshots": [
+    {
+      "state": "report",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/report-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "report",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/report-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "challenge",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/challenge-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "challenge",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/challenge-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "hoax",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/hoax-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "hoax",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/hoax-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "commit",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/commit-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "commit",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/commit-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "reveal",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/reveal-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "reveal",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/reveal-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "resolve",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/resolve-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "resolve",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/resolve-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "claim",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/claim-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "claim",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-preview/claim-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import {createProductActions} from "@senyap/sdk/actions";
 import {LiveMarketActions,type MarketIntent} from "./LiveMarketActions";
 import {LivePurchasedSignal} from "./LivePurchasedSignal";
 import {LiveAuctionRewards,type FollowUpIntent} from "./LiveAuctionRewards";
+import {LiveJury,type JuryIntent} from "./LiveJury";
 import {prepareProductClient} from "../product-client";
 import {productDeployment} from "../deployment";
 import {short,useWallet} from "../wallet";
@@ -131,6 +132,51 @@ export function LiveWorkspace(){
       throw Error("Operation needs review");
     }finally{sending.current=false;if(valid())setBusy(false);}
   }
+  async function executeJury(intent:JuryIntent){
+    if(sending.current||busy||pending||!connection.current)throw Error("Operation unavailable");
+    sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when Lace requests approval.");
+    const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
+    try{
+      const next=await product.view(),market=next.markets.find(m=>m.id===intent.market),eligible=next.eligibility[String(intent.market)],reporting=next.reporting[String(intent.market)],blockTime=BigInt(next.anchor.blockTime),actions=createProductActions(product);
+      if(!valid()||!market||!eligible||!reporting)throw Error("Refresh jury state");
+      const evidence=async(reference:string)=>{
+        const url=new URL(reference);if(!["https:","http:"].includes(url.protocol)||url.username||url.password)throw Error("Invalid evidence reference");
+        return new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(reference)));
+      };
+      if(intent.kind==="subjective"){
+        if(market.outcomeMode!=="subjective"||eligible.pool===null||eligible.pool!==intent.pool||!eligible.report.length||JSON.stringify(eligible.report)!==JSON.stringify(intent.options)||intent.bond!==50n*BigInt(eligible.report.length)||new Set(intent.success).size!==intent.success.length||intent.success.some(i=>!eligible.report.includes(i)))throw Error("Report changed");
+        await actions.reportSubjective({market:intent.market,pool:BigInt(intent.pool),mask:Array.from({length:8},(_,i)=>intent.success.includes(i)),evidence:await evidence(intent.reference),reporter:await product.recipient(),blockTime});
+      }else if(intent.kind==="challenge"){
+        if(!reporting.challenges.some(c=>c.pool===intent.pool&&c.option===intent.option&&c.original===intent.original))throw Error("Challenge changed");
+        await actions.challengeOutcome({market:intent.market,pool:BigInt(intent.pool),option:BigInt(intent.option),evidence:await evidence(intent.reference),reporter:await product.recipient(),blockTime});
+      }else if(intent.kind==="hoax"){
+        if(!reporting.hoaxPositions.includes(intent.position))throw Error("Hoax report unavailable");
+        await actions.reportHoax({position:decode(intent.position),evidence:await evidence(intent.reference),reporter:await product.recipient(),blockTime});
+      }else{
+        const item=next.juryCases.find(c=>c.id===intent.caseId&&c.market===intent.market),own=next.jury.find(e=>e.id===intent.caseId);
+        if(!item||!own)throw Error("Unknown case");
+        const position=decode(item.id);
+        if(intent.kind==="commit"){
+          if(!own.canCommit||item.kind!==intent.caseKind||(own.commitChoice!==null&&own.commitChoice!==intent.choice))throw Error("Commit unavailable");
+          const args={position,choice:intent.choice,recipient:await product.recipient(),blockTime};
+          if(item.kind==="hoax")await actions.commitVote(args);else await actions.commitOutcomeVote(args);
+        }else if(intent.kind==="reveal"){
+          if(!own.canReveal||own.revealChoice!==intent.choice)throw Error("Saved reveal unavailable");
+          await actions.revealVote({position,blockTime});
+        }else if(intent.kind==="resolve"){
+          if(!own.canResolve)throw Error("Resolution unavailable");await actions.resolveCase({dispute:position,blockTime});
+        }else{
+          const claim=own.claim;
+          if(!claim||claim.principal!==intent.principal||claim.bonus!==intent.bonus||claim.total!==intent.total||Array.from(claim.recipient,b=>b.toString(16).padStart(2,"0")).join("")!==intent.recipient)throw Error("Verifier claim changed");
+          await actions.claimVerifier({pseudonym:claim.pseudonym,blockTime});
+        }
+      }
+      if(valid()){const [updated,journal]=await Promise.all([product.view(),client.journal.get()]);if(valid()){setView(updated);setOperation(journal);setMessage("Operation confirmed. Finalized jury state refreshed.");}}
+    }catch{
+      if(valid()){try{const journal=await client.journal.get();if(valid())setOperation(journal);}catch{}if(valid())setMessage("The operation needs review. Check its saved transaction status before preparing anything again.");}
+      throw Error("Operation needs review");
+    }finally{sending.current=false;if(valid())setBusy(false);}
+  }
   return <div className="live-workspace">
     <div className="live-mode" role="group" aria-label="App data source"><Link to="/app">Demo</Link><span aria-current="page">Preprod</span></div>
     <div hidden={showWorkspace}>
@@ -149,7 +195,7 @@ export function LiveWorkspace(){
       </section>
       <button className="abtn abtn-red live-open" disabled={!canOpen||busy} onClick={()=>refresh()}>{busy?"Reading Preprod":view?"Refresh live markets":"Open live markets"}<Arrow/></button>
       {pending&&<section className="live-transaction"><h2>{operation.phase==="prepared"?"Saved transaction needs review":"Check your transaction before continuing"}</h2><p>{operation.phase==="prepared"?"A prepared operation is saved in your workspace. Review it before preparing another transaction.":"The final transaction result is not confirmed here. Check its status before sending another transaction."}</p>{operation.txId&&<p className="live-tx">Transaction {operation.txId}</p>}<button className="abtn abtn-soft" disabled={busy||!operation.txId} onClick={()=>refresh(true)}>Check transaction status</button></section>}
-      {view&&<section className="live-markets" aria-label="Finalized markets">{view.markets.map(market=><article className="live-market" key={String(market.id)}><h2>{metadata[String(market.id)]?.question??`Market #${market.id}`}</h2><p>{market.side} · {market.outcomeMode} outcomes · {market.phase} · {String(market.scouts)} scouts · {String(market.stakeTotal)} dUSD staked</p>{!metadata[String(market.id)]&&<p>Verified question and option labels unavailable.</p>}<p>{market.histogram?`${market.histogram.strong} strong, ${market.histogram.medium} medium, ${market.histogram.weak} weak options` :"Preview not published. Option totals remain sealed."}</p>{market.buyer&&<p>{market.buyer.bought.length} options purchased with this workspace.</p>}{metadata[String(market.id)]&&<LiveMarketActions market={market} metadata={metadata[String(market.id)]} eligibility={view.eligibility[String(market.id)]} positions={view.positions} disabled={busy||!!pending} reasonConfigured={!!deployment?.reasonPublicKey} onExecute={execute}/>}{metadata[String(market.id)]&&<LiveAuctionRewards key={`${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} eligibility={view.followUp[String(market.id)]} disabled={busy||!!pending} onExecute={executeFollowUp}/>}{metadata[String(market.id)]&&market.buyer?.bought.map(option=><LivePurchasedSignal key={`${generation.current}/${market.id}/${option}`} label={metadata[String(market.id)].options[option].label} configured={!!deployment?.committee} disabled={busy||!!pending} onOpen={offset=>openSignal(market.id,option,offset)}/>)}</article>)}</section>}
+      {view&&<section className="live-markets" aria-label="Finalized markets">{view.markets.map(market=><article className="live-market" key={String(market.id)}><h2>{metadata[String(market.id)]?.question??`Market #${market.id}`}</h2><p>{market.side} · {market.outcomeMode} outcomes · {market.phase} · {String(market.scouts)} scouts · {String(market.stakeTotal)} dUSD staked</p>{!metadata[String(market.id)]&&<p>Verified question and option labels unavailable.</p>}<p>{market.histogram?`${market.histogram.strong} strong, ${market.histogram.medium} medium, ${market.histogram.weak} weak options` :"Preview not published. Option totals remain sealed."}</p>{market.buyer&&<p>{market.buyer.bought.length} options purchased with this workspace.</p>}{metadata[String(market.id)]&&<LiveMarketActions market={market} metadata={metadata[String(market.id)]} eligibility={view.eligibility[String(market.id)]} positions={view.positions} disabled={busy||!!pending} reasonConfigured={!!deployment?.reasonPublicKey} onExecute={execute}/>}{metadata[String(market.id)]&&<LiveAuctionRewards key={`${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} eligibility={view.followUp[String(market.id)]} disabled={busy||!!pending} onExecute={executeFollowUp}/>}{metadata[String(market.id)]&&<LiveJury key={`jury/${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} cases={view.juryCases.filter(c=>c.market===market.id)} eligibility={view.jury} reporting={view.reporting[String(market.id)]} reportOptions={view.eligibility[String(market.id)].report} reportPool={view.eligibility[String(market.id)].pool} disabled={busy||!!pending} onExecute={executeJury}/>}{metadata[String(market.id)]&&market.buyer?.bought.map(option=><LivePurchasedSignal key={`${generation.current}/${market.id}/${option}`} label={metadata[String(market.id)].options[option].label} configured={!!deployment?.committee} disabled={busy||!!pending} onOpen={offset=>openSignal(market.id,option,offset)}/>)}</article>)}</section>}
       {view?.pendingReasons.map(key=><section className="live-transaction" key={key}><h2>Complete your reason delivery</h2><p>Position {key} has a saved reason awaiting confirmation. Delivery checks the finalized stake and never sends another stake.</p><button className="abtn abtn-soft" disabled={busy||!!pending||!deployment?.reasonPublicKey} onClick={()=>retryReason(key)}>Retry reason delivery</button></section>)}
       {view&&<section className="live-positions"><h2>Your saved picks on this deployment</h2>{view.positions.length?view.positions.map(position=><p key={position.id}>Market #{String(position.market)} · pick {position.slot} · option {position.option+1} · {String(position.stake)} dUSD · {position.status}</p>):<p>No onchain picks match this workspace.</p>}</section>}
       <p className="live-status" role="status" aria-live="polite">{message}</p>

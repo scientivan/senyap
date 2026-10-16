@@ -1,0 +1,46 @@
+{
+  "scope": "Jury/report SDK actual-circuit tests and synthetic UI, not a live product walkthrough",
+  "contractSourceUnchanged": true,
+  "fullRegression": {
+    "tests": 173,
+    "files": 55,
+    "seconds": 92.73,
+    "passed": true,
+    "configuration": "default2workers/30s; no proof/keygen in parallel"
+  },
+  "focusedTests": {
+    "tests": 17,
+    "files": 3,
+    "seconds": 9.03,
+    "passed": true
+  },
+  "rootTypecheck": "passed",
+  "webTypecheck": "passed",
+  "productionBuild": {
+    "passed": true,
+    "viteSeconds": 9.77
+  },
+  "browser": "jury-browser.json",
+  "productionWorkspaceProbe": "live-workspace-production-browser.json",
+  "review": {
+    "agent": "jury_actions_finish_reviewer",
+    "disposition": "ship",
+    "scope": "Actual synthetic component and reviewed code; build condition satisfied"
+  },
+  "detectors": {
+    "appModern": "[]",
+    "mandatedLegacy": "[]",
+    "htmlPreview": "DEGRADED missing parsers; type hierarchy warning follows explicit compact app scale; no suppression"
+  },
+  "livingDoc": {
+    "version": "0.67",
+    "pdfExitCode": 0,
+    "pdfBytes": 1444936
+  },
+  "limitations": [
+    "No Lace/product transactions",
+    "No live operator/committee/credential service configuration",
+    "Evidence hash alone does not retrieve evidence",
+    "Admin and further product workflows remain pending"
+  ]
+}

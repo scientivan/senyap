@@ -18,6 +18,7 @@ import {createSnapshotReader,type SnapshotConfig} from "@senyap/sdk/snapshot";
 import {readProductView} from "@senyap/sdk/read-model";
 import {marketEligibility} from "@senyap/sdk/eligibility";
 import {followUpEligibility} from "@senyap/sdk/follow-up-eligibility";
+import {juryEligibility,reportingEligibility} from "@senyap/sdk/jury-eligibility";
 import {deliverStakeReason} from "@senyap/sdk/reason-delivery";
 import {openPurchasedSignal} from "@senyap/sdk/purchased-signal";
 import {MidnightBech32m,UnshieldedAddress} from "@midnight-ntwrk/wallet-sdk-address-format";
@@ -92,7 +93,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
         // Synchronous provider check closes a workspace-lock race during the
         // asynchronous wallet check, before projecting any saved private choice.
         client.provider.setContractAddress(input.contract);
-        return {...readProductView(state,{network:"preprod",contract:input.contract},privateState??undefined),eligibility:Object.fromEntries([...state.markets].map(([id])=>[String(id),marketEligibility(state,privateState??undefined,id,BigInt(anchor.blockTime))])),followUp:Object.fromEntries([...state.markets].map(([id])=>[String(id),followUpEligibility(state,privateState??undefined,id,BigInt(anchor.blockTime))])),pendingReasons:Object.entries(privateState?.reasons??{}).filter(([,reason])=>!reason.delivered).map(([key])=>key),anchor:{blockTime:anchor.blockTime,blockHeight:anchor.blockHeight,blockHash:anchor.blockHash}};
+        return {...readProductView(state,{network:"preprod",contract:input.contract},privateState??undefined),eligibility:Object.fromEntries([...state.markets].map(([id])=>[String(id),marketEligibility(state,privateState??undefined,id,BigInt(anchor.blockTime))])),followUp:Object.fromEntries([...state.markets].map(([id])=>[String(id),followUpEligibility(state,privateState??undefined,id,BigInt(anchor.blockTime))])),jury:juryEligibility(state,{network:"preprod",contract:input.contract},privateState??undefined,BigInt(anchor.blockTime)),reporting:Object.fromEntries([...state.markets].map(([id])=>[String(id),reportingEligibility(state,input.contract,id,BigInt(anchor.blockTime))])),pendingReasons:Object.entries(privateState?.reasons??{}).filter(([,reason])=>!reason.delivered).map(([key])=>key),anchor:{blockTime:anchor.blockTime,blockHeight:anchor.blockHeight,blockHash:anchor.blockHash}};
       }catch{throw Error("Product view unavailable. Reconnect the wallet and unlock the private workspace.");}
     },
     async call<K extends UserCircuit>(circuitId:K,args:ContractTypes.CircuitParameters<ProductContract,K>|((prepared:ClientPrivateState)=>ContractTypes.CircuitParameters<ProductContract,K>),prepare:(state:ClientPrivateState)=>ClientPrivateState|Promise<ClientPrivateState>){

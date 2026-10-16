@@ -1,0 +1,166 @@
+{
+  "scope": "Actual jury React component with synthetic eligibility and callbacks; no wallet, service or transaction",
+  "checks": {
+    "fullReportBond": true,
+    "oppositeChallenge": true,
+    "unknownPositionBlocks": true,
+    "requiresChoice": true,
+    "commitReview": true,
+    "editPreserves": true,
+    "explicitCommit": true,
+    "savedChoiceLocked": true,
+    "missingOpeningBlocks": true,
+    "revealPublicChoice": true,
+    "claimBreakdown": true,
+    "pendingBlocks": true,
+    "unavailableBlocks": true,
+    "walletAbsent": true,
+    "noExternalRequests": true
+  },
+  "screenshots": [
+    {
+      "state": "subjective",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/subjective-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "subjective",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/subjective-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "challenge",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/challenge-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "challenge",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/challenge-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "hoax",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/hoax-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "hoax",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/hoax-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "commit",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/commit-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "commit",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/commit-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "reveal",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/reveal-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "reveal",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/reveal-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "resolve",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/resolve-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "resolve",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/resolve-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "verifier-claim",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/verifier-claim-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "verifier-claim",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/verifier-claim-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "review",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/review-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "review",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/review-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "claim-review",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/claim-review-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "claim-review",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/claim-review-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "opening-missing",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/opening-missing-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "opening-missing",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/opening-missing-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "pending",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/pending-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "pending",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/pending-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unavailable",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/unavailable-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unavailable",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/jury-app/unavailable-390.png",
+      "noOverflow": true
+    }
+  ]
+}
