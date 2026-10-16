@@ -33,8 +33,17 @@ export function createSnapshotReader(config:SnapshotConfig,dependencies:{fetch?:
       // Same anchor for time and state. Never combine latest-block time with an
       // independently fetched latest contract state.
       const result=await post(indexerUrl,{query:"query SenyapSnapshot($block: BlockOffset, $address: HexEncoded!, $action: ContractActionOffset) { block(offset: $block) { height hash timestamp } contractAction(address: $address, offset: $action) { state } }",variables:{block:{hash:blockHash},address:config.contract,action:{blockOffset:{hash:blockHash}}}});
-      if(!result||(result.errors!==undefined&&(!Array.isArray(result.errors)||result.errors.length)))throw Error();const block=result.data?.block,serialized=result.data?.contractAction?.state;
+      if(!result||(result.errors!==undefined&&(!Array.isArray(result.errors)||result.errors.length)))throw Error();const block=result.data?.block;let serialized=result.data?.contractAction?.state;
       if(!block||block.hash!==blockHash||!Number.isSafeInteger(block.height)||block.height<0||!Number.isSafeInteger(block.timestamp)||block.timestamp<0)throw Error();
+      // Indexer 4.3.3 matches a block offset only when the contract acted in that
+      // exact block. Otherwise use the latest action, which must not be newer
+      // than the finalized anchor (a newer one means state is ahead; reject).
+      if(serialized===undefined||serialized===null){
+        const latest=await post(indexerUrl,{query:"query SenyapLatest($address: HexEncoded!) { contractAction(address: $address) { state transaction { block { height hash } } } }",variables:{address:config.contract}});
+        if(!latest||(latest.errors!==undefined&&(!Array.isArray(latest.errors)||latest.errors.length)))throw Error();const action=latest.data?.contractAction;
+        if(!action||!Number.isSafeInteger(action.transaction?.block?.height)||action.transaction.block.height>block.height)throw Error();
+        serialized=action.state;
+      }
       // Indexer 4.3.3 returns milliseconds. Compact timers use whole seconds.
       const seconds=Math.floor(block.timestamp/1000),wall=Math.floor(now()/1000);
       if(!Number.isSafeInteger(wall)||seconds>wall+5||wall-seconds>maxAge)throw Error();
