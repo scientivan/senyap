@@ -7,6 +7,10 @@ import {createClientState,clientWitnesses,actionState,type ClientPrivateState} f
 import {setupAuction} from "../helpers/auction";
 import {setupSideB,preview} from "../helpers/side-b";
 import {bytes,group,hash,commitment} from "./harness";
+import {deliverStakeReason,saveStakeReason} from "../../packages/sdk/src/reason-delivery";
+import {generateBuyerKey} from "../../packages/crypto/src/buyer-channel";
+import {openReason} from "../../packages/crypto/src/reason";
+import {envelopeFromWire} from "../../packages/crypto/src/envelope-codec";
 const roots={scout:bytes(31),buyer:bytes(32),builder:bytes(33),verifier:bytes(34)};
 function simulatorTransport(initial:Parameters<Contract<ClientPrivateState>["impureCircuits"]["close"]>[0]){
   let context=initial;const contract=new Contract(clientWitnesses),calls:{name:string;args:unknown[]}[]=[];
@@ -19,6 +23,26 @@ function simulatorTransport(initial:Parameters<Contract<ClientPrivateState>["imp
   return {transport,calls,get context(){return context;},set context(value){context=value;},get state(){return ledger(context.currentQueryContext.state);}};
 }
 describe("product action preparation against actual circuits",()=>{
+  it("recovers reason delivery without another stake, keeps text private and never overwrites its saved content",async()=>{
+    const {s}=setupAuction(300n,bytes(88),true),state=await createClientState(roots,{network:"local",contract:s.context.currentQueryContext.address});
+    s.invoke("admitScout",group,commitment(state.secrets.scout,7n));
+    const host=simulatorTransport({...s.context,currentPrivateState:state}),actions=createProductActions(host.transport);
+    const text="This builder delivered the promised integration.";
+    await actions.stake({market:1n,group,slot:1n,option:2n,amount:100n,blockTime:1000n,reason:text});
+    const client:Parameters<typeof deliverStakeReason>[0]["client"]={provider:{get:async()=>host.context.currentPrivateState},update:async change=>{const next=await change(host.context.currentPrivateState);host.context={...host.context,currentPrivateState:next};return next;}};
+    expect(()=>saveStakeReason(host.context.currentPrivateState,1n,1n,"Changed reason")).toThrow(/cannot be replaced/);
+    const operator=await generateBuyerKey();let requests=0;
+    const deliver=()=>deliverStakeReason({client,market:1n,slot:1n,endpoint:"http://127.0.0.1:3001",operatorKey:operator.publicKey,read:async()=>({state:host.state,blockTime:1000n}),fetcher:async(_url,options)=>{
+      requests++;const wire=String(options!.body);expect(wire).not.toContain(text);const value=JSON.parse(wire);
+      const context={network:state.network,contract:state.contract,market:1n,position:Uint8Array.from(Buffer.from(value.position,"hex")),operatorKey:operator.publicKey};
+      const reason=await openReason(operator.privateKey,context,envelopeFromWire(value.envelope),host.state.positions.lookup(context.position));expect(reason.text).toBe(text);expect(reason.option).toBe(2);
+      return new Response(JSON.stringify({status:"screened"}),{status:requests===1?503:201});
+    }});
+    await expect(deliver()).rejects.toThrow(/Retry delivery/);expect(host.context.currentPrivateState.reasons!["1/1"].delivered).toBe(false);
+    await expect(deliver()).resolves.toEqual({status:"screened"});expect(host.context.currentPrivateState.reasons!["1/1"].delivered).toBe(true);
+    await deliver();expect(requests).toBe(2);expect(host.calls.map(c=>c.name)).toEqual(["stake"]);
+    await expect(deliverStakeReason({client,market:1n,slot:2n,endpoint:"http://127.0.0.1:3001",operatorKey:operator.publicKey,read:async()=>({state:host.state,blockTime:1000n})})).rejects.toThrow(/Saved reason unavailable/);
+  });
   it("keeps stake option/salt/signing keys private and refunds owned cancelled slots without their openings",async()=>{
     const {s}=setupAuction(300n,bytes(88),true),state=await createClientState(roots,{network:"local",contract:s.context.currentQueryContext.address});
     s.invoke("admitScout",group,commitment(state.secrets.scout,7n));

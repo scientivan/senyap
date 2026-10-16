@@ -393,3 +393,23 @@ case counts. Local simulator tests cover both sides, mode bypass, case eligibili
 independent funds, quorum/tie, timing, penalties, hoax isolation and late resolution.
 Proving artifacts must be regenerated for this changed source; historical evidence
 with an older source hash is not evidence of these new circuits.
+
+## Live action integration checkpoint (16 Oct)
+
+The Preprod workspace now offers stake, per-option flat purchase, objective report
+and cancelled-market refund forms. They require verified metadata, local
+membership/access projection from finalized ledger state, a separate review step,
+and explicit proof preparation. Stake reasons are saved with their per-position
+keys inside the encrypted workspace before proof construction. Successful stakes
+attempt a separate encrypted delivery; retrying that service never calls a wallet.
+Authenticated duplicate delivery recovers the original receipt without overwriting
+screened content. The HTTP submission response contains only a bounded status.
+
+`VITE_OPERATOR_REASON_PUBLIC_KEY` is public X25519 configuration. Missing binding
+disables stake preparation. Subjective reports, auction controls, normal reward
+claims, admin and verifier forms remain pending. Paid signal opening remains a
+separate service integration, not an automatic second purchase.
+
+The component browser harness is synthetic and never connects Lace or a service.
+Its14desktop/mobile captures and8interaction checks pass. Independent review's
+four corrections were scored resolved. This is not a product transaction test.

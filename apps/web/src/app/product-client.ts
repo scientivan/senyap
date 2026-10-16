@@ -16,6 +16,9 @@ import { executeClientOperation, reconcileClientOperation } from "@senyap/sdk/op
 import type { WorkspaceClient } from "@senyap/sdk/workspace";
 import {createSnapshotReader,type SnapshotConfig} from "@senyap/sdk/snapshot";
 import {readProductView} from "@senyap/sdk/read-model";
+import {marketEligibility} from "@senyap/sdk/eligibility";
+import {deliverStakeReason} from "@senyap/sdk/reason-delivery";
+import {MidnightBech32m,UnshieldedAddress} from "@midnight-ntwrk/wallet-sdk-address-format";
 
 type ProductContract=Contract<ClientPrivateState>;
 import type { UserCircuit, ProductCallTransport } from "@senyap/sdk/actions";
@@ -70,6 +73,8 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
   };
   const product={
     read,
+    async recipient(){await checkWallet();return {bytes:new Uint8Array(MidnightBech32m.parse(account).decode(UnshieldedAddress,"preprod").data)};},
+    async deliverReason(market:bigint,slot:bigint,endpoint:string,operatorKey:Uint8Array){await checkWallet();return deliverStakeReason({client,market,slot,endpoint,operatorKey,read:async()=>{await checkWallet();const anchor=await snapshot();return {state:anchor.state,blockTime:BigInt(anchor.blockTime)};}});},
     async view(){
       try{
         await checkWallet();const anchor=await snapshot(),state=anchor.state;
@@ -80,7 +85,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
         // Synchronous provider check closes a workspace-lock race during the
         // asynchronous wallet check, before projecting any saved private choice.
         client.provider.setContractAddress(input.contract);
-        return {...readProductView(state,{network:"preprod",contract:input.contract},privateState??undefined),anchor:{blockTime:anchor.blockTime,blockHeight:anchor.blockHeight,blockHash:anchor.blockHash}};
+        return {...readProductView(state,{network:"preprod",contract:input.contract},privateState??undefined),eligibility:Object.fromEntries([...state.markets].map(([id])=>[String(id),marketEligibility(state,privateState??undefined,id,BigInt(anchor.blockTime))])),pendingReasons:Object.entries(privateState?.reasons??{}).filter(([,reason])=>!reason.delivered).map(([key])=>key),anchor:{blockTime:anchor.blockTime,blockHeight:anchor.blockHeight,blockHash:anchor.blockHash}};
       }catch{throw Error("Product view unavailable. Reconnect the wallet and unlock the private workspace.");}
     },
     async call<K extends UserCircuit>(circuitId:K,args:ContractTypes.CircuitParameters<ProductContract,K>|((prepared:ClientPrivateState)=>ContractTypes.CircuitParameters<ProductContract,K>),prepare:(state:ClientPrivateState)=>ClientPrivateState|Promise<ClientPrivateState>){
@@ -127,7 +132,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
         return await Promise.race([receiptLookup.result,new Promise<LookupStatus>(resolve=>{timer=setTimeout(()=>resolve("unknown"),15000);})]);
       }finally{if(timer!==undefined)clearTimeout(timer);}
     });}
-  } satisfies ProductCallTransport & {read:()=>Promise<ReturnType<typeof ledger>>;reconcile:()=>ReturnType<typeof reconcileClientOperation>;view:()=>Promise<ReturnType<typeof readProductView>>};
+  } satisfies ProductCallTransport & {read:()=>Promise<ReturnType<typeof ledger>>;recipient:()=>Promise<{bytes:Uint8Array}>;deliverReason:(market:bigint,slot:bigint,endpoint:string,key:Uint8Array)=>Promise<{status:"screened"}>;reconcile:()=>ReturnType<typeof reconcileClientOperation>;view:()=>Promise<ReturnType<typeof readProductView>>};
   return product;
 }
 

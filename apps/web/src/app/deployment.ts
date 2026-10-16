@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-export type ProductDeployment={contract:string;operatorApi:string;snapshot:{nodeUrl:string;genesisHash:string;operatorCommitment:string}};
+export type ProductDeployment={contract:string;operatorApi:string;reasonPublicKey?:string;snapshot:{nodeUrl:string;genesisHash:string;operatorCommitment:string}};
 /** Public deployment data only. Missing/invalid configuration is an unavailable
  * product, never permission to use a synthetic address or demo state. */
 export function productDeployment(env:Record<string,unknown>):ProductDeployment|null{
@@ -9,5 +9,6 @@ export function productDeployment(env:Record<string,unknown>):ProductDeployment|
     try{if(typeof value!=="string")return false;const url=new URL(value);return !url.username&&!url.password&&!url.search&&!url.hash&&(url.protocol==="https:"||(url.protocol==="http:"&&["localhost","127.0.0.1","[::1]"].includes(url.hostname)));}catch{return false;}
   };
   if(!hash(contract)||!hash(genesisHash)||!hash(operatorCommitment)||!endpoint(nodeUrl)||!endpoint(operatorApi))return null;
-  return {contract,operatorApi,snapshot:{nodeUrl,genesisHash,operatorCommitment}};
+  const reasonPublicKey=env.VITE_OPERATOR_REASON_PUBLIC_KEY;
+  return {contract,operatorApi,...(hash(reasonPublicKey)?{reasonPublicKey}:{}),snapshot:{nodeUrl,genesisHash,operatorCommitment}};
 }

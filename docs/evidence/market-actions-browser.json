@@ -1,0 +1,99 @@
+{
+  "scope": "Actual React component in isolated synthetic test harness; no wallet, service or transaction",
+  "checks": {
+    "rejectsSmallStake": true,
+    "reviewBeforeSend": true,
+    "editPreservesChoice": true,
+    "explicitSubmit": true,
+    "membershipBlocks": true,
+    "pendingBlocks": true,
+    "walletAbsent": true,
+    "noExternalRequests": true
+  },
+  "screenshots": [
+    {
+      "state": "stake",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/stake-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "stake",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/stake-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "eligibility",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/eligibility-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "eligibility",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/eligibility-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "buy",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/buy-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "buy",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/buy-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "report",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/report-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "report",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/report-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "refund",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/refund-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "refund",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/refund-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "review",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/review-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "review",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/review-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "pending",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/pending-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "pending",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/market-actions-app/pending-390.png",
+      "noOverflow": true
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-16T03:05:45.382916+00:00",
+  "scope": "Local simulator, synthetic model/HTTP/browser evidence; no product Preprod transactions",
+  "fullSuite": {
+    "tests": 156,
+    "files": 50,
+    "passed": true,
+    "durationSeconds": 96.19,
+    "note": "Before final reviewer-copy/icon/eligibility-status corrections and two runner recovery tests; focused18tests passed afterwards."
+  },
+  "focusedAfterRecovery": {
+    "tests": 18,
+    "files": 3,
+    "passed": true,
+    "durationSeconds": 5.75
+  },
+  "rootTypecheck": true,
+  "webTypecheck": true,
+  "productionBuild": {
+    "passed": true,
+    "note": "Before final copy/icon/eligibility-status batch; current web typecheck passed. Existing assert externalization, isomorphic-ws export and chunk-size warnings remain."
+  },
+  "browser": "market-actions-browser.json",
+  "review": "four material fixes scored resolved; ship scoped to synthetic React component harness",
+  "sourceSha256": {
+    "packages/sdk/src/client-state.ts": "3bbc93664141220bb6981168b0162cb81e72913b6d203b89cffa9ca694916c85",
+    "packages/sdk/src/actions.ts": "18d99ef73aaf513da833bd606d91c8347f1a3ef3084d8e154ce9f59932836734",
+    "packages/sdk/src/eligibility.ts": "d7ced2d4bd883cb8bd34375534f09ac7e378de200e5816f97e05d4852ff9335e",
+    "packages/sdk/src/reason-delivery.ts": "1bfbb477e17a343138dc537465c78e4d7edd7682719afd4dbf8d010a3bfc81c1",
+    "apps/operator/src/reasons.ts": "b6a0b02dce29400d7821d3c9166dc9de50e5ac7c74d102947c15b469628b69fa",
+    "apps/operator/src/server.ts": "e8bc46ef23a4722d79f3a79bb3624f0afa7c596c10e13700f4b218b57f9dc852",
+    "apps/web/src/app/product-client.ts": "af68958b7c190711ab9636d375971a8330bc7babf29e56d8b1773910609a4136",
+    "apps/web/src/app/pages/LiveMarketActions.tsx": "b7e6c1f864578c41d9af857e523697b79b3bc632bd5e49bafd89b5752cc75ba3",
+    "apps/web/src/app/pages/LiveWorkspace.tsx": "2c8a1b39b66637f28ab07483b42146935023e68571cff4506c233e6df2f6ad03"
+  }
+}

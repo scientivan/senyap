@@ -45,7 +45,9 @@ export function createOperatorServer(config:{network:string;contract:string;orig
         const value=JSON.parse(body);
         if(typeof value.network!=="string"||typeof value.contract!=="string")throw Error();
         const result=await relay.submit({network:value.network,contract:value.contract,market:number(value.market),position:bytes(value.position),operatorKey:bytes(value.operatorKey)},envelopeFromWire(value.envelope));
-        res.writeHead(result.status==="screened"?201:503);res.end(JSON.stringify(result));
+        // Submission returns a bounded receipt. Screened text is released only
+        // through the encrypted paid-read route, never an HTTP plaintext echo.
+        res.writeHead(result.status==="screened"?201:503);res.end(JSON.stringify({status:result.status}));
       }else{
         const option=Number(number(url.searchParams.get("option"))),offset=Number(number(url.searchParams.get("offset")??"0"));
         const nonce=url.searchParams.get("nonce");if(typeof nonce!=="string")throw Error();

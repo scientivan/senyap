@@ -38,7 +38,9 @@ describe("P6.1 encrypted authenticated reasons",()=>{
     const f=await fixture(),envelope=await sealReason(f.signing,f.context,f.reason);
     expect((await f.relay.submit(f.context,envelope)).status).toBe("screened");
     expect(JSON.stringify(f.rows,(_key,v)=>typeof v==="bigint"?v.toString():v)).not.toContain(f.reason.text);expect(JSON.stringify(f.rows,(_key,v)=>typeof v==="bigint"?v.toString():v)).not.toContain("The team shipped");
-    await expect(f.relay.submit(f.context,envelope)).rejects.toThrow(/already submitted/);
+    expect((await f.relay.submit(f.context,envelope)).status).toBe("screened");expect(f.rows).toHaveLength(1);
+    const changed=await sealReason(f.signing,f.context,{...f.reason,text:"A different reason must never overwrite the accepted one."});
+    expect((await f.relay.submit(f.context,changed)).rewritten).toBe("The team shipped the promised integration.");expect(f.rows).toHaveLength(1);
     const request=f.paid(),response=await f.relay.read(request),binding=JSON.stringify(["senyap:paid-reasons:v1",shareBinding(request,f.s.state.tally.lookup(1n)[0]),0]);
     const text=new TextDecoder().decode(await decryptFromCommittee(f.buyer.privateKey,response,binding)),value=JSON.parse(text);
     expect(value.reasons[0].rewritten).toBe("The team shipped the promised integration.");expect(value.next).toBeNull();
@@ -65,7 +67,7 @@ describe("P6.1 encrypted authenticated reasons",()=>{
       server.listen(0,"127.0.0.1");await once(server,"listening");const endpoint=`http://127.0.0.1:${(server.address() as AddressInfo).port}`;
       const envelope=await sealReason(f.signing,f.context,f.reason),body=JSON.stringify({...f.context,market:"1",position:Buffer.from(f.context.position).toString("hex"),operatorKey:Buffer.from(f.context.operatorKey).toString("hex"),envelope:envelopeToWire(envelope)});
       const upload=await fetch(endpoint+"/reasons",{method:"POST",headers:{"Content-Type":"application/json"},body});expect(upload.status).toBe(201);
-      const replay=await fetch(endpoint+"/reasons",{method:"POST",headers:{"Content-Type":"application/json"},body});expect(replay.status).toBe(400);expect(await replay.text()).toBe('{"error":"Reason request rejected"}');
+      const replay=await fetch(endpoint+"/reasons",{method:"POST",headers:{"Content-Type":"application/json"},body});expect(replay.status).toBe(201);expect((await replay.json()).status).toBe("screened");
       const reopened=new SqliteReasonRepository(path,scope);expect(await reopened.list(1n)).toHaveLength(1);reopened.close();
       const raw=await readFile(path);expect(raw.includes(Buffer.from("The team shipped"))).toBe(false);expect(raw.includes(Buffer.from("scout@example.test"))).toBe(false);
       const request=f.paid(),args={endpoint,request,cipher:f.s.state.tally.lookup(1n)[0],privateKey:f.buyer.privateKey};

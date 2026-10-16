@@ -1,4 +1,4 @@
-# Live market actions (design preview)
+# Live market actions
 
 Mode Operate, existing-world local extension of the approved Preprod workspace.
 The compact Senyap app system remains fixed; do not change DESIGN.md or global tokens.
@@ -7,7 +7,7 @@ The task is to review a private stake, per-option purchase, objective report or
 cancelled-market refund before proof preparation and Lace approval. The first
 viewport shows the action, privacy consequences, synthetic-preview notice and a
 single form with a compact summary. Native field validation and a separate review
-step carry the interaction; there is no new identity concept or approved comp.
+step carry the interaction. This is a local extension of the existing identity.
 
 The static artifact is `design/live-market-actions.html`. Ten states cover stake,
 missing membership, purchase, objective report, cancellation refund, review,
@@ -16,7 +16,7 @@ Service retries must not repeat an onchain stake/purchase. Unknown transaction
 results keep new sends blocked. Every identity and amount is labelled synthetic.
 
 No wallet, key storage, service request or transaction belongs in this HTML.
-Integration into the application awaits Dien's design approval. Subjective report,
+Dien requested all remaining technical work after reviewing the pending integration list (16 Oct); integration now proceeds under that instruction. Subjective report,
 auction, verifier and admin forms remain later surfaces in the same approved system.
 
 The local hook exception for 13px hints is scoped only to this HTML, following
@@ -45,10 +45,60 @@ Its regex result `[]` is not a clean detector verdict. The mandatory legacy
 detector returned `[]` for `apps/web/src`. The 13px font exception remains scoped
 to `design/live-market-actions.html`; neither result broadens it.
 
-## Open decision and authorization boundary
+## Authorization and implementation boundary
 
-Dien owns the pending design approval for integration into the product. The
-reviewer's `ship` disposition closes the static preview review, not that decision.
-No product integration, working proof preparation, Lace approval or onchain action
-is demonstrated by this artifact. Local-network transaction authorization is a
-separate scope and does not approve this design or its integration.
+Dien's 16 Oct instruction to do all remaining technical work follows the explicit pending-preview integration item. The implementation preserves that preview's local extension. The static preview's earlier ship remains scoped to that artifact.
+The static artifact does not demonstrate working proof preparation, Lace approval
+or an onchain action. Local-network transaction authorization is a separate scope.
+
+## Actual component review checkpoint
+
+[Fakta] `apps/web/src/app/pages/LiveMarketActions.tsx` integrates four forms for
+private stake, per-option purchase, objective outcome report and cancelled-market
+stake refund. `LiveWorkspace.tsx` hosts these controls only after a real complete
+public deployment binding, connected Lace wallet, unlocked workspace and verified
+market metadata permit the live view. Missing metadata never receives synthetic
+option labels. These are implementation gates, not evidence of a live deployment.
+
+[Fakta] Stake shows a compact summary of membership availability, private option,
+public stake amount and the tDUST fee calculated by Lace. Native validation
+precedes review; review includes the chosen option, amount and private reason.
+Primary review and proof-preparation buttons use SVG arrows inside circular discs.
+The compact typography, solid palette, fields and pill controls remain governed by
+`DESIGN.md` and the app scale in `AGENTS.md`; no global tokens or new font
+exceptions are introduced.
+
+[Fakta] `packages/sdk/src/eligibility.ts` distinguishes a closed market, expired
+stake window, unavailable membership, exhausted position slots and exhausted
+eligible options. The component explains these states and separately explains a
+missing reason-service binding. Membership eligibility is projected locally from
+private state; circuits still enforce the rules at submission.
+
+[Fakta] `LiveWorkspace.tsx` blocks new sends while an operation is prepared,
+submitted or uncertain. The saved transaction must be checked before another send.
+`packages/sdk/src/reason-delivery.ts` checks a finalized saved position before
+encrypted reason delivery. Retrying delivery calls the service without another
+stake or wallet transaction. A paid total still requires committee-service access.
+
+[Fakta] `docs/evidence/market-actions-browser.json` records 14 captures at widths
+1440 and 390 for stake, eligibility, buy, report, refund, review and pending states,
+with no overflow. Its eight checks pass for invalid stake rejection, review before
+send, choice preservation while editing, explicit submit, membership blocking,
+pending blocking, absent wallet and absent external requests. This is the actual
+React component in an isolated synthetic harness, not a whole-workspace Lace,
+network or product-transaction demonstration.
+
+[Fakta] The independent finish reviewer opened all 14 component captures and
+requested four fixes (stake summary, arrow discs, eligibility explanations and
+the approval status in this brief). The batch was corrected and recaptured; the
+reviewer marked all four resolved with disposition `ship`. This verdict covers
+the reviewed component surface and does not expand the browser evidence scope.
+
+[Fakta] The current legacy detector result for `apps/web/src` is `[]`. The modern
+detector remains DEGRADED because parser dependencies are missing; its regex
+result is not a clean verdict. The existing 13px exception is still confined to
+`design/live-market-actions.html`.
+
+Subjective reports, auctions, normal reward claims, admin and verifier interfaces
+remain pending. The four integrated forms do not establish those capabilities or
+demonstrate a product transaction on Preprod.

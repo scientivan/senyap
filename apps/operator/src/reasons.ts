@@ -39,13 +39,19 @@ export function reasonRelay(config:{network:string;contract:string;publicKey:Uin
       if(state.marketPhase.lookup(request.market)!==1n||blockTime>=state.markets.lookup(request.market).openUntil)throw Error("Reason submission window closed");
       const reason=await openReason(config.privateKey,request,envelope,position);
       const previous=await stored(request.market);
-      if(previous.some(row=>hex(row.position)===hex(request.position)))throw Error("Reason already submitted");
+      // An authenticated retry recovers a lost HTTP receipt. Keep the original
+      // screened reason; never run the model again or overwrite its contents.
+      const accepted=previous.find(row=>hex(row.position)===hex(request.position));
+      if(accepted)return accepted.value.screening;
       const screening=await screenReason(reason.text,previous.slice(-64).map(row=>row.value.screening.rewritten!),model);
       if(screening.status!=="screened")return screening; // Never store or release raw fallback.
       const payload=new TextEncoder().encode(JSON.stringify({option:reason.option,screening}));
       if(payload.length>60000)throw Error("Screened reason exceeds encrypted delivery limit");
       const sealed=await encryptForBuyer(config.publicKey,payload,storageBinding(request));
-      if(!await repository.putIfAbsent({position:request.position,market:request.market,sealed}))throw Error("Reason already submitted");
+      if(!await repository.putIfAbsent({position:request.position,market:request.market,sealed})){
+        const winner=(await stored(request.market)).find(row=>hex(row.position)===hex(request.position));
+        if(!winner)throw Error("Reason receipt unavailable");return winner.value.screening;
+      }
       return screening;
     },
     async read(request:ShareRequest,offset=0){

@@ -3,6 +3,7 @@ import type {Contract as ContractTypes} from "@midnight-ntwrk/midnight-js-protoc
 import type {Contract,HitCredential} from "../../../contracts/managed/senyap/contract/index.js";
 import {actionState,preparePrivateBuyer,preparePrivateStake,preparePrivateVote,type ClientPrivateState} from "./client-state";
 import {verifierVoteCommitment,outcomeVoteCommitment} from "./verifier-vote";
+import {saveStakeReason} from "./reason-delivery";
 export type UserCircuit="registerBuilder"|"withdrawBuilder"|"createMarket"|"close"|"stake"|"placeBid"|"settleBid"|"selectHidden"|"skipSelection"|"buyFlat"|"recordOutcome"|"recordSubjectiveOutcome"|"challengeOutcome"|"proveHit"|"cancelMarket"|"returnCancelledSubsidy"|"claim"|"renewTier"|"openDispute"|"commitVote"|"revealVote"|"resolveDispute"|"claimVerifier"|"finalizeMarket"|"markMissedReport";
 type Parameters<K extends UserCircuit>=ContractTypes.CircuitParameters<Contract<ClientPrivateState>,K>;
 export interface ProductCallTransport {
@@ -14,9 +15,9 @@ const key=(value:Uint8Array)=>Array.from(value,b=>b.toString(16).padStart(2,"0")
  * transport. Private choices/salts/keys never become circuit arguments. */
 export function createProductActions(transport:ProductCallTransport){
   return {
-    stake(input:Position&{group:Uint8Array;option:bigint;amount:bigint}){
+    stake(input:Position&{group:Uint8Array;option:bigint;amount:bigint;reason?:string}){
       if(input.amount<10n||input.amount>500n)throw Error("Stake amount outside demo range");
-      return transport.call("stake",state=>([input.market,input.group,input.slot,input.amount,state.positions[`${input.market}/${input.slot}`].revealKeyCommit] satisfies Parameters<"stake">),state=>preparePrivateStake(state,input));
+      return transport.call("stake",state=>([input.market,input.group,input.slot,input.amount,state.positions[`${input.market}/${input.slot}`].revealKeyCommit] satisfies Parameters<"stake">),async state=>{const next=await preparePrivateStake(state,input);return input.reason===undefined?next:saveStakeReason(next,input.market,input.slot,input.reason);});
     },
     bid(input:Market&{amount:bigint;ceiling:bigint;refundRecipient:Recipient}){
       if(input.amount<0n||input.amount>input.ceiling||input.ceiling>=2n**64n)throw Error("Invalid private bid or ceiling");

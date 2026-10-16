@@ -11,6 +11,8 @@
     "./private-state": "./src/private-state.ts",
     "./workspace": "./src/workspace.ts",
     "./reasons": "./src/reasons.ts",
+    "./reason-delivery": "./src/reason-delivery.ts",
+    "./eligibility": "./src/eligibility.ts",
     "./verifier-vote": "./src/verifier-vote.ts",
     "./client-state": "./src/client-state.ts",
     "./operation": "./src/operation.ts",
