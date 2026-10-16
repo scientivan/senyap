@@ -110,6 +110,15 @@
         ],
         "createdAt": "2026-10-15T13:04:32.393Z",
         "reason": "Dien approved compact app scale in AGENTS.md Design and live-product-workspace preview; root landing ramp is not app scale"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "13px",
+        "files": [
+          "design/live-market-actions.html"
+        ],
+        "createdAt": "2026-10-16T00:16:43.302Z",
+        "reason": "AGENTS.md app controls and hints use12–14px; this preview extends the approved compact Preprod surface. Exception scoped to this preview only."
       }
     ]
   }

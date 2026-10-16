@@ -1,0 +1,195 @@
+{
+  "scope": "Static synthetic design preview only; fresh isolated Chrome profile, no wallet/storage/service/transaction",
+  "checks": {
+    "rejectsSmallStake": true,
+    "reviewsSavedChoice": true,
+    "editRetainsChoice": true,
+    "eligibilityBlocks": true,
+    "uncertainDoesNotResend": true,
+    "reasonDoesNotRestake": true,
+    "signalDoesNotRepurchase": true,
+    "noExternalRequests": true
+  },
+  "screenshots": [
+    {
+      "state": "stake",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/stake-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "stake",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/stake-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "eligibility",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/eligibility-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "eligibility",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/eligibility-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "buy",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/buy-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "buy",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/buy-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "report",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/report-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "report",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/report-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "withdraw",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/withdraw-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "withdraw",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/withdraw-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "review",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/review-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "review",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/review-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "pending",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/pending-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "pending",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/pending-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "uncertain",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/uncertain-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "uncertain",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/uncertain-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "reason",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/reason-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "reason",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/reason-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "signal",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/signal-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "signal",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/live-market-actions/signal-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    }
+  ]
+}
