@@ -404,8 +404,9 @@ Authenticated duplicate delivery recovers the original receipt without overwriti
 screened content. The HTTP submission response contains only a bounded status.
 
 `VITE_OPERATOR_REASON_PUBLIC_KEY` is public X25519 configuration. Missing binding
-disables stake preparation. Subjective reports, auction controls, normal reward
-claims, admin and verifier forms remain pending. Paid signal opening remains a
+disables stake preparation. Subjective reports, admin and verifier forms remain
+pending. Auction controls and normal reward claims are described below. Paid
+signal opening remains a
 separate service integration, not an automatic second purchase.
 
 The component browser harness is synthetic and never connects Lace or a service.
@@ -448,3 +449,28 @@ late responses cannot populate a different workspace.
 captures of the actual component with synthetic callbacks. Independent review
 returned `ship` for that component and the code integration. This is not a
 configured service deployment, full-wallet walkthrough or Preprod product test.
+
+
+## Auction and scout reward UI (16 Oct)
+
+The approved `design/live-auction-rewards.html` is integrated into the live
+workspace through `LiveAuctionRewards.tsx`. A local finalized-state projection
+checks buyer membership/good standing, auction windows, existing bids, settlement,
+winner order and deadline before offering actions. Owned position openings are
+validated before offering hit registrations or claims. Claim totals use the same
+integer floor formula as the contract, including the full Side B subsidy.
+
+The five controls prepare a private bid with a public escrow ceiling, settle the
+bid to its immutable refund address, choose up to three publicly withheld options,
+register eligible hits and claim stake plus rewards to the connected wallet.
+Whole dUSD inputs are parsed as bigint without JavaScript Number rounding. A
+separate review captures each action; claim review includes position, stake,
+reward, total and recipient. The host re-reads finalized eligibility and compares
+all reviewed claim amounts before proof preparation. Prepared/submitted/uncertain
+journals keep new sends blocked. No control submits on render or view refresh.
+
+The actual-component browser harness uses synthetic eligibility and callbacks,
+not a connected wallet or service. `auction-rewards-browser.json` records eleven
+checks and eighteen captures, including claim review at 1440/390. Independent
+review scored its required claim-review correction resolved (1/1), disposition
+`ship` for that component. This is not a product transaction demonstration.

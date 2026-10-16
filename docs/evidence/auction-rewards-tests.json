@@ -1,0 +1,59 @@
+{
+  "scope": "SDK actual-circuit simulation and synthetic UI; no deploy or network transaction",
+  "sourceUnchanged": true,
+  "focused": {
+    "tests": 11,
+    "files": 3,
+    "seconds": 24.28,
+    "passed": true
+  },
+  "fullRegression": {
+    "passed": 169,
+    "failed": 1,
+    "tests": 170,
+    "files": 54,
+    "seconds": 199.24,
+    "failure": "Existing subsidy settled=true test timed out at33104ms against30000ms",
+    "configuration": "unchanged default2workers/30s"
+  },
+  "subsidyRerun": {
+    "tests": 4,
+    "files": 1,
+    "seconds": 18.1,
+    "settledTrueMs": 5009,
+    "passed": true
+  },
+  "diagnostic": {
+    "loadAverages": [
+      66.67,
+      39.73,
+      29.24
+    ],
+    "causeProven": false,
+    "noUserProcessesStopped": true
+  },
+  "rootTypecheck": "passed",
+  "webTypecheck": "passed",
+  "finalProductionBuild": {
+    "passed": true,
+    "viteSeconds": 10.57
+  },
+  "componentBrowser": "auction-rewards-browser.json",
+  "previewBrowser": "auction-rewards-preview-browser.json",
+  "review": {
+    "disposition": "ship",
+    "requiredFixesResolved": 1,
+    "scope": "Actual synthetic component; claim review breakdown correction"
+  },
+  "livingDoc": {
+    "version": "0.66",
+    "pdfExit": 0,
+    "pdfBytes": 1439377
+  },
+  "limitations": [
+    "Full local regression had one timeout; focused rerun alone is not full-suite pass",
+    "No Lace or deployed product service walkthrough",
+    "Local transactions remain paused",
+    "No real model or credential admission"
+  ]
+}

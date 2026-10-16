@@ -8,6 +8,7 @@ import {fetchMarketMetadata} from "@senyap/sdk/market-metadata";
 import {createProductActions} from "@senyap/sdk/actions";
 import {LiveMarketActions,type MarketIntent} from "./LiveMarketActions";
 import {LivePurchasedSignal} from "./LivePurchasedSignal";
+import {LiveAuctionRewards,type FollowUpIntent} from "./LiveAuctionRewards";
 import {prepareProductClient} from "../product-client";
 import {productDeployment} from "../deployment";
 import {short,useWallet} from "../wallet";
@@ -97,6 +98,39 @@ export function LiveWorkspace(){
       return signal;
     }finally{sending.current=false;if(alive.current&&generation.current===current)setBusy(false);}
   }
+  async function executeFollowUp(intent:FollowUpIntent){
+    if(sending.current||busy||pending||!connection.current)throw Error("Operation unavailable");
+    sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when Lace requests approval.");
+    const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
+    try{
+      const next=await product.view(),market=next.markets.find(m=>m.id===intent.market),eligible=next.followUp[String(intent.market)],blockTime=BigInt(next.anchor.blockTime),actions=createProductActions(product);
+      if(!valid()||!market||!eligible)throw Error("Refresh market eligibility");
+      if(intent.kind==="bid"){
+        if(!eligible.bid||intent.ceiling<market.reservePrice)throw Error("Bid unavailable");
+        await actions.bid({market:intent.market,amount:intent.amount,ceiling:intent.ceiling,refundRecipient:await product.recipient(),blockTime});
+      }else if(intent.kind==="settle"){
+        const bid=eligible.settleBid;if(!bid||bid.price!==intent.price||bid.refund!==intent.refund)throw Error("Settlement changed");
+        await actions.settleBid({market:intent.market,buyer:bid.buyer,blockTime});
+      }else if(intent.kind==="select"){
+        const selection=eligible.selection;
+        if(!selection||selection.rank!==intent.rank||selection.deadline!==intent.deadline||intent.options.length>3||new Set(intent.options).size!==intent.options.length||intent.options.some(i=>!selection.options.includes(i)))throw Error("Selection changed");
+        await actions.select({market:intent.market,mask:Array.from({length:8},(_,i)=>intent.options.includes(i)),blockTime});
+      }else if(intent.kind==="hit"){
+        if(!eligible.hits.some(p=>p.slot===intent.slot&&p.pool===intent.pool))throw Error("Hit unavailable");
+        await actions.hit({market:intent.market,slot:BigInt(intent.slot),pool:BigInt(intent.pool),blockTime});
+      }else{
+        if(!eligible.claims.some(p=>p.slot===intent.slot&&p.total===intent.total&&p.stake===intent.stake&&p.reward===intent.reward))throw Error("Claim changed");
+        await actions.claim({market:intent.market,slot:BigInt(intent.slot),recipient:await product.recipient(),blockTime});
+      }
+      if(valid()){
+        const [updated,journal]=await Promise.all([product.view(),client.journal.get()]);
+        if(valid()){setView(updated);setOperation(journal);setMessage("Operation confirmed. Finalized market state refreshed.");}
+      }
+    }catch{
+      if(valid()){try{const journal=await client.journal.get();if(valid())setOperation(journal);}catch{}if(valid())setMessage("The operation needs review. Check its saved transaction status before preparing anything again.");}
+      throw Error("Operation needs review");
+    }finally{sending.current=false;if(valid())setBusy(false);}
+  }
   return <div className="live-workspace">
     <div className="live-mode" role="group" aria-label="App data source"><Link to="/app">Demo</Link><span aria-current="page">Preprod</span></div>
     <div hidden={showWorkspace}>
@@ -115,7 +149,7 @@ export function LiveWorkspace(){
       </section>
       <button className="abtn abtn-red live-open" disabled={!canOpen||busy} onClick={()=>refresh()}>{busy?"Reading Preprod":view?"Refresh live markets":"Open live markets"}<Arrow/></button>
       {pending&&<section className="live-transaction"><h2>{operation.phase==="prepared"?"Saved transaction needs review":"Check your transaction before continuing"}</h2><p>{operation.phase==="prepared"?"A prepared operation is saved in your workspace. Review it before preparing another transaction.":"The final transaction result is not confirmed here. Check its status before sending another transaction."}</p>{operation.txId&&<p className="live-tx">Transaction {operation.txId}</p>}<button className="abtn abtn-soft" disabled={busy||!operation.txId} onClick={()=>refresh(true)}>Check transaction status</button></section>}
-      {view&&<section className="live-markets" aria-label="Finalized markets">{view.markets.map(market=><article className="live-market" key={String(market.id)}><h2>{metadata[String(market.id)]?.question??`Market #${market.id}`}</h2><p>{market.side} · {market.outcomeMode} outcomes · {market.phase} · {String(market.scouts)} scouts · {String(market.stakeTotal)} dUSD staked</p>{!metadata[String(market.id)]&&<p>Verified question and option labels unavailable.</p>}<p>{market.histogram?`${market.histogram.strong} strong, ${market.histogram.medium} medium, ${market.histogram.weak} weak options` :"Preview not published. Option totals remain sealed."}</p>{market.buyer&&<p>{market.buyer.bought.length} options purchased with this workspace.</p>}{metadata[String(market.id)]&&<LiveMarketActions market={market} metadata={metadata[String(market.id)]} eligibility={view.eligibility[String(market.id)]} positions={view.positions} disabled={busy||!!pending} reasonConfigured={!!deployment?.reasonPublicKey} onExecute={execute}/>}{metadata[String(market.id)]&&market.buyer?.bought.map(option=><LivePurchasedSignal key={`${generation.current}/${market.id}/${option}`} label={metadata[String(market.id)].options[option].label} configured={!!deployment?.committee} disabled={busy||!!pending} onOpen={offset=>openSignal(market.id,option,offset)}/>)}</article>)}</section>}
+      {view&&<section className="live-markets" aria-label="Finalized markets">{view.markets.map(market=><article className="live-market" key={String(market.id)}><h2>{metadata[String(market.id)]?.question??`Market #${market.id}`}</h2><p>{market.side} · {market.outcomeMode} outcomes · {market.phase} · {String(market.scouts)} scouts · {String(market.stakeTotal)} dUSD staked</p>{!metadata[String(market.id)]&&<p>Verified question and option labels unavailable.</p>}<p>{market.histogram?`${market.histogram.strong} strong, ${market.histogram.medium} medium, ${market.histogram.weak} weak options` :"Preview not published. Option totals remain sealed."}</p>{market.buyer&&<p>{market.buyer.bought.length} options purchased with this workspace.</p>}{metadata[String(market.id)]&&<LiveMarketActions market={market} metadata={metadata[String(market.id)]} eligibility={view.eligibility[String(market.id)]} positions={view.positions} disabled={busy||!!pending} reasonConfigured={!!deployment?.reasonPublicKey} onExecute={execute}/>}{metadata[String(market.id)]&&<LiveAuctionRewards key={`${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} eligibility={view.followUp[String(market.id)]} disabled={busy||!!pending} onExecute={executeFollowUp}/>}{metadata[String(market.id)]&&market.buyer?.bought.map(option=><LivePurchasedSignal key={`${generation.current}/${market.id}/${option}`} label={metadata[String(market.id)].options[option].label} configured={!!deployment?.committee} disabled={busy||!!pending} onOpen={offset=>openSignal(market.id,option,offset)}/>)}</article>)}</section>}
       {view?.pendingReasons.map(key=><section className="live-transaction" key={key}><h2>Complete your reason delivery</h2><p>Position {key} has a saved reason awaiting confirmation. Delivery checks the finalized stake and never sends another stake.</p><button className="abtn abtn-soft" disabled={busy||!!pending||!deployment?.reasonPublicKey} onClick={()=>retryReason(key)}>Retry reason delivery</button></section>)}
       {view&&<section className="live-positions"><h2>Your saved picks on this deployment</h2>{view.positions.length?view.positions.map(position=><p key={position.id}>Market #{String(position.market)} · pick {position.slot} · option {position.option+1} · {String(position.stake)} dUSD · {position.status}</p>):<p>No onchain picks match this workspace.</p>}</section>}
       <p className="live-status" role="status" aria-live="polite">{message}</p>

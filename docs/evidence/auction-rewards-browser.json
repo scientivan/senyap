@@ -1,0 +1,126 @@
+{
+  "scope": "Actual auction/reward React component with synthetic eligibility and callbacks; no wallet, service or transaction",
+  "checks": {
+    "overCeilingBlocks": true,
+    "exactLargeBid": true,
+    "editPreserves": true,
+    "explicitSubmit": true,
+    "maxThree": true,
+    "savedRecipient": true,
+    "claimReview": true,
+    "pendingBlocks": true,
+    "unavailableBlocks": true,
+    "walletAbsent": true,
+    "noExternalRequests": true
+  },
+  "screenshots": [
+    {
+      "state": "bid",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/bid-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "bid",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/bid-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "settle",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/settle-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "settle",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/settle-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "select",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/select-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "select",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/select-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "hit",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/hit-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "hit",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/hit-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "claim",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/claim-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "claim",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/claim-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "review",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/review-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "review",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/review-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "claim-review",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/claim-review-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "claim-review",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/claim-review-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "pending",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/pending-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "pending",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/pending-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unavailable",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/unavailable-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unavailable",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-app/unavailable-390.png",
+      "noOverflow": true
+    }
+  ]
+}

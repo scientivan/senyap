@@ -1,0 +1,103 @@
+{
+  "scope": "Static synthetic design preview only; fresh isolated Chrome profile, no wallet/storage/service/transaction",
+  "checks": {
+    "ceilingBlocks": true,
+    "bidReview": true,
+    "editRetains": true,
+    "claimReview": true,
+    "noSubmit": true,
+    "noExternalRequests": true
+  },
+  "screenshots": [
+    {
+      "state": "bid",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/bid-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "bid",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/bid-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "settle",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/settle-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "settle",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/settle-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "select",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/select-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "select",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/select-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "hit",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/hit-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "hit",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/hit-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "claim",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/claim-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "claim",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/auction-rewards-preview/claim-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    }
+  ]
+}
