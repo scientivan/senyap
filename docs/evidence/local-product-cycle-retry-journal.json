@@ -1,0 +1,16 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "planSha256": "5aa06abfd45e9f9e3f8c4c3b11432d649b0824e805db4b4c24ce5e9306a2c3e9",
+  "status": "uncertain; reconcile before any further submission",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "submitted",
+      "txId": "00ce0e276e21c8eccb0c3bfed4a4124226fc66db1b94b5c64e748367889988b74d"
+    }
+  ],
+  "publicResult": {
+    "replacesRejectedId": "00f8d399c9a0e7a92eed7ae62dbab1f15607f72126e2796934a4b59c946708411b"
+  }
+}

@@ -6,7 +6,7 @@ import {resolve} from "node:path";
 import {setTimeout as pause} from "node:timers/promises";
 import {firstValueFrom, filter, timeout} from "rxjs";
 import {CompiledContract} from "@midnight-ntwrk/midnight-js-protocol/compact-js";
-import {deployContract} from "@midnight-ntwrk/midnight-js-contracts";
+import {deployContract,findDeployedContract} from "@midnight-ntwrk/midnight-js-contracts";
 import {setNetworkId} from "@midnight-ntwrk/midnight-js-network-id";
 import {MidnightWalletProvider, initializeMidnightProviders, inMemoryPrivateStateProvider, logger,
   type EnvironmentConfiguration} from "@midnight-ntwrk/testkit-js";
@@ -14,7 +14,7 @@ import {Contract} from "../contracts/managed/senyap/contract/index.js";
 import {Contract as TokenContract} from "../contracts/managed/dusd/contract/index.js";
 import {createSnapshotReader} from "../packages/sdk/src/snapshot";
 import {hash, operator} from "../tests/contracts/harness";
-import {createLocalJournal, validateRejectedFirstDeploy} from "./lib/local-submission-journal";
+import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment} from "./lib/local-submission-journal";
 import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
 import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
   type Driver, type Circuit, type LocalState, type Args, type Result} from "./lib/local-product-scenario";
@@ -107,7 +107,18 @@ async function executeLocal() {
   const readiness = await preflight();
   setNetworkId("undeployed");
   const retry = process.argv.includes("--retry-rejected-first-deploy");
-  const journalPath = retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
+  const resume=process.argv.includes("--resume-confirmed-token");assert(!(retry&&resume),"Choose only one recovery path");
+  const journalPath = resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
+  let confirmedToken:string|undefined;
+  if(resume){
+    const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-retry-journal.json","utf8"));
+    const id=prior.transactions?.[0]?.txId;assert(typeof id==="string"&&/^[a-f0-9]{66}$/.test(id),"Prior identifier required");
+    const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){block{height hash} contractActions{__typename address} ...on RegularTransaction{identifiers transactionResult{status}}}}",variables:{offset:{identifier:id}}})});
+    const reply=await response.json();assert(response.ok&&!reply.errors&&reply.data?.transactions?.length===1,"Exact receipt lookup required");
+    const receipt=reply.data.transactions[0],head=await rpc("chain_getFinalizedHead"),header=await rpc("chain_getHeader",[head]);
+    confirmedToken=confirmedTokenDeployment({sourceSha256,prior,receipt:{identifiers:receipt.identifiers,status:receipt.transactionResult?.status,actions:receipt.contractActions.map((item:{__typename:string;address:string})=>({kind:item.__typename,address:item.address})),blockHash:receipt.block.hash,blockHeight:receipt.block.height},canonicalBlockHash:(await rpc("chain_getBlockHash",[receipt.block.height])).slice(2),finalizedHeight:parseInt(header.number,16)});
+    assert((await rpc("author_pendingExtrinsics")).length===0,"Pending transaction blocks continuation");
+  }
   let rejectedId: string | undefined;
   if (retry) {
     const prior = JSON.parse(await readFile("docs/evidence/local-product-cycle-journal.json", "utf8"));
@@ -125,7 +136,9 @@ async function executeLocal() {
   }
   // Exclusive create prevents repeating an interrupted/uncertain run, even when
   // no receipt was returned. Reconciliation is read-only and manual.
-  const journal = await createLocalJournal(journalPath, {sourceSha256, planSha256}, plan.transactionCount);
+  const submissionLimit=plan.transactionCount-(resume?1:0);
+  const journal = await createLocalJournal(journalPath, {sourceSha256, planSha256}, submissionLimit);
+  if(confirmedToken){journal.data.publicResult.resumesConfirmedToken=confirmedToken;journal.data.publicResult.previousJournal="local-product-cycle-retry-journal.json";await journal.persist();}
   if (rejectedId) {journal.data.publicResult.replacesRejectedId = rejectedId; await journal.persist();}
   let wallet: MidnightWalletProvider | undefined;
   try {
@@ -141,10 +154,10 @@ async function executeLocal() {
     submitter.submitTx = async tx => {
       const id = tx.identifiers()[0]; assert(id, "Missing local transaction identifier");
       const returnedId = await journal.submit(id, () => originalSubmit(tx));
-      assert.equal(returnedId, id, "Submission ID changed"); return id;
+      return canonicalSubmittedId(tx.identifiers(),returnedId);
     };
     async function action<T>(name: string, perform: () => Promise<T>) {
-      console.log(JSON.stringify({stage: "preparing", action: name, ordinal: journal.data.transactions.length + 1, total: plan.transactionCount}));
+      console.log(JSON.stringify({stage: "preparing", action: name, ordinal: journal.data.transactions.length + 1, total: submissionLimit}));
       return journal.action(name, perform);
     }
     const tokenCompiled = CompiledContract.make("LocalDemoDUSD", TokenContract<{}>).pipe(CompiledContract.withVacantWitnesses,
@@ -152,7 +165,7 @@ async function executeLocal() {
     const tokenProviders = {...initializeMidnightProviders<"mint", {}>(wallet, environment,
       {zkConfigPath: resolve("contracts/managed/dusd"), privateStateStoreName: ".states/local-cycle-unused"}),
       privateStateProvider: inMemoryPrivateStateProvider<string, {}>()};
-    const token = await action("deploy:dusd", () => deployContract(tokenProviders, {compiledContract: tokenCompiled, privateStateId: "local-token", initialPrivateState: {}}));
+    const token = confirmedToken?await findDeployedContract(tokenProviders,{compiledContract:tokenCompiled,contractAddress:confirmedToken,privateStateId:"local-token",initialPrivateState:{}}):await action("deploy:dusd", () => deployContract(tokenProviders, {compiledContract: tokenCompiled, privateStateId: "local-token", initialPrivateState: {}}));
     journal.data.publicResult.tokenContract = token.deployTxData.public.contractAddress; await journal.persist();
     const minted = await action("mint:5000", () => token.callTx.mint(recipient, 5000n));
     const color = minted.private.result, colorHex = hex(color); journal.data.publicResult.token = colorHex; await journal.persist();
@@ -191,7 +204,7 @@ async function executeLocal() {
       },
     };
     const result = await runScenario(driver);
-    assert.equal(sequence, simulated.calls.length); assert.equal(journal.sent, plan.transactionCount);
+    assert.equal(sequence, simulated.calls.length); assert.equal(journal.sent, submissionLimit);
     const finalState = await providers.publicDataProvider.queryContractState(contract);
     const contractBalance = [...(finalState?.balance.entries() ?? [])].find(([type]) => type.tag === "unshielded" && type.raw === colorHex)?.[1] ?? 0n;
     assert.equal(contractBalance.toString(), result.remainder, "Contract balance does not match retained funds");

@@ -133,3 +133,30 @@ inputs; real committee decryption is tested separately. Side A flat buyers,
 subjective jury, cancellation and penalties have separate simulator/proof tests
 and are not additional transactions authorized by this plan. P4/P6 network
 acceptance remains pending until the network journal proves the proposed cycle.
+
+## Confirmed replacement deployment and continuation (16 Oct)
+
+The approved replacement deploy succeeded in finalized block11741. Its transaction
+has two identifiers. The wallet returned the second identifier while the journal
+persisted the first; the old equality assertion stopped the runner after inclusion.
+The canonical receipt is recorded in
+`evidence/local-product-cycle-replacement-reconciliation.json`. This is not another
+node rejection and the token must not be deployed again.
+
+The runner now accepts a returned identifier only when it belongs to the exact
+submitted transaction, returning its first identifier consistently to Midnight.js.
+The explicit `--resume-confirmed-token` path reads the retained replacement journal,
+requires exactly one matching successful deployment, checks its block hash against
+the node's canonical finalized chain, requires an empty mempool, and finds/verifies
+the existing token contract. A new exclusive continuation journal caps submission
+at78: one mint, one Senyap deploy and76calls, all under the original authorization.
+There is no automatic continuation or retry after another ambiguous action.
+
+```sh
+node --import tsx scripts/local-product-cycle.ts --execute-local --resume-confirmed-token --approved-plan-sha <current-plan-digest>
+```
+
+Original and replacement journals remain unchanged. Continuation uses
+`local-product-cycle-continuation-journal.json`; this does not grant additional
+transaction effects beyond the reviewed79successful actions (80total attempts
+including the rejected first deploy).

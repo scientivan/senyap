@@ -11,5 +11,19 @@
       }
     }
   },
-  "transactionSubmitted": false
+  "transactionSubmitted": false,
+  "hashComparison": {
+    "11300": "matches",
+    "11377": "diverges"
+  },
+  "recovery": {
+    "startedAt": "2026-10-16T02:29:10.329849+00:00",
+    "container": "midnight-indexer-recovery-20261016",
+    "originalContainer": "midnight-indexer (stopped and retained)",
+    "method": "fresh index replay using existing image; no volumes removed",
+    "onchainSubmission": false,
+    "status": "replay completed; read-only preflight passed",
+    "confirmedAt": "2026-10-16T03:00:27.024908+00:00",
+    "preflightEvidence": "local-product-cycle-plan.json"
+  }
 }

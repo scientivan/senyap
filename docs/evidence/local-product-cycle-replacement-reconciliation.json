@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-10-16T03:02:13.887374+00:00",
+  "txId": "00ce0e276e21c8eccb0c3bfed4a4124226fc66db1b94b5c64e748367889988b74d",
+  "network": "undeployed",
+  "readOnly": true,
+  "indexer": {
+    "data": {
+      "transactions": [
+        {
+          "__typename": "RegularTransaction"
+        }
+      ]
+    }
+  },
+  "pendingExtrinsicCount": 0,
+  "finalizedHead": "0x3b4c2928b017e5a84c339246172e9b43e50dddd436aad19d0c68b10ad99c0a68",
+  "limitation": "Included transaction observed. Do not repeat deploy. Finalized status and contract address must be checked before a separate resume of remaining actions.",
+  "receipt": {
+    "data": {
+      "transactions": [
+        {
+          "hash": "917daf391079c6b36b455f9e2bbdd09b56750364ba0535d6cbacb41c94245127",
+          "identifiers": [
+            "00ce0e276e21c8eccb0c3bfed4a4124226fc66db1b94b5c64e748367889988b74d",
+            "0066b8f1abe0ae3e6e86ada8faa553ae3396f162d74675eda64ebffb04eb318919"
+          ],
+          "transactionResult": {
+            "status": "SUCCESS",
+            "segments": null
+          },
+          "block": {
+            "height": 11741,
+            "hash": "6761f91f00522f0a191d85cb73031257d91e32448d48db0ea385a56bef6e9553"
+          },
+          "contractActions": [
+            {
+              "__typename": "ContractDeploy",
+              "address": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

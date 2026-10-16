@@ -4,9 +4,25 @@ import {mkdtemp, readFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {runScenario, simulatorDriver} from "../../scripts/lib/local-product-scenario";
-import {createLocalJournal, validateRejectedFirstDeploy} from "../../scripts/lib/local-submission-journal";
+import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment} from "../../scripts/lib/local-submission-journal";
 
 describe("local product network rehearsal", () => {
+  it("accepts another actual identifier without a repeat submission and rejects an unrelated wallet result",()=>{
+    const ids=["00"+"a".repeat(64),"00"+"b".repeat(64)];
+    expect(canonicalSubmittedId(ids,ids[1])).toBe(ids[0]);
+    expect(()=>canonicalSubmittedId(ids,"00"+"c".repeat(64))).toThrow(/unrelated/);
+  });
+  it("resumes only one successful token deployment on the canonical finalized chain",()=>{
+    const sourceSha256="a".repeat(64),txId="00"+"b".repeat(64),blockHash="c".repeat(64),address="d".repeat(64);
+    const input={sourceSha256,prior:{network:"undeployed",sourceSha256,transactions:[{action:"deploy:dusd",status:"submitted",txId}]},receipt:{identifiers:[txId],status:"SUCCESS",actions:[{kind:"ContractDeploy",address}],blockHash,blockHeight:100},canonicalBlockHash:blockHash,finalizedHeight:101};
+    expect(confirmedTokenDeployment(input)).toBe(address);
+    expect(()=>confirmedTokenDeployment({...input,finalizedHeight:99})).toThrow(/finalized/);
+    expect(()=>confirmedTokenDeployment({...input,canonicalBlockHash:"e".repeat(64)})).toThrow(/canonical/);
+    expect(()=>confirmedTokenDeployment({...input,receipt:{...input.receipt,status:"FAILURE"}})).toThrow(/Successful/);
+    expect(()=>confirmedTokenDeployment({...input,receipt:{...input.receipt,identifiers:[]}})).toThrow(/matching/);
+    expect(()=>confirmedTokenDeployment({...input,prior:{...input.prior,transactions:[...input.prior.transactions,...input.prior.transactions]}})).toThrow(/one previously/);
+    expect(()=>confirmedTokenDeployment({...input,receipt:{...input.receipt,actions:[...input.receipt.actions,...input.receipt.actions]}})).toThrow(/Exactly one/);
+  });
   it("requires a rejected first deploy, matching deployment and fresh empty-chain/mempool reads before explicit recovery", async () => {
     const sourceSha256 = "a".repeat(64), txId = "00" + "c".repeat(64);
     const prior = {network: "undeployed", sourceSha256, transactions: [{action: "deploy:dusd", status: "submitted", txId}]};

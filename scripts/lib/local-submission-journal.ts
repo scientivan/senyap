@@ -3,6 +3,19 @@ import assert from "node:assert/strict";
 import {writeFile} from "node:fs/promises";
 
 export type PublicEntry = {action: string; status: "prepared" | "submitted" | "finalized"; txId?: string};
+/** Wallet SDK may return another identifier of the same submitted transaction. */
+export function canonicalSubmittedId(identifiers:readonly string[],returned:string){
+  assert(identifiers.length>0&&identifiers.every(id=>/^[a-f0-9]{66}$/.test(id)),"Invalid transaction identifiers");
+  assert(identifiers.includes(returned),"Submission returned an unrelated identifier");return identifiers[0];
+}
+export function confirmedTokenDeployment(input:{sourceSha256:string;prior:{network?:unknown;sourceSha256?:unknown;transactions?:{action?:unknown;status?:unknown;txId?:unknown}[]};receipt:{identifiers:string[];status:string;actions:{kind:string;address:string}[];blockHash:string;blockHeight:number};canonicalBlockHash:string;finalizedHeight:number}){
+  const {prior,receipt}=input,entry=prior.transactions?.[0];
+  assert(prior.network==="undeployed"&&prior.sourceSha256===input.sourceSha256&&prior.transactions?.length===1&&entry?.action==="deploy:dusd"&&entry.status==="submitted","Only one previously submitted token deploy may be resumed");
+  assert(typeof entry.txId==="string"&&receipt.identifiers.includes(entry.txId)&&receipt.status==="SUCCESS","Successful matching receipt required");
+  assert(Number.isSafeInteger(receipt.blockHeight)&&receipt.blockHeight>=0&&input.finalizedHeight>=receipt.blockHeight&&/^[a-f0-9]{64}$/.test(receipt.blockHash)&&receipt.blockHash===input.canonicalBlockHash,"Receipt must be on the canonical finalized chain");
+  assert(receipt.actions.length===1&&receipt.actions[0].kind==="ContractDeploy"&&/^[a-f0-9]{64}$/.test(receipt.actions[0].address),"Exactly one token deployment required");
+  return receipt.actions[0].address;
+}
 /** Narrow recovery gate; missing indexer data alone never authorizes a retry.
  * The caller still needs explicit approval for the replacement submission. */
 export async function validateRejectedFirstDeploy(input: {
