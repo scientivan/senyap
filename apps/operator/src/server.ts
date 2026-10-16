@@ -2,19 +2,34 @@
 import { createServer } from "node:http";
 import type { reasonRelay } from "./reasons";
 import type {marketMetadataService} from "./market-metadata";
+import type {builderMetadataService} from "./builder-metadata";
 import { envelopeFromWire,envelopeToWire } from "../../../packages/crypto/src/envelope-codec";
 const bytes=(value:unknown)=>{if(typeof value!=="string"||!/^[a-f0-9]{64}$/.test(value))throw Error();return new Uint8Array(Buffer.from(value,"hex"));};
 const number=(value:unknown)=>{if(typeof value!=="string"||!/^(0|[1-9][0-9]{0,9})$/.test(value))throw Error();return BigInt(value);};
 /** Reason and public metadata routes. Credential/session administration is not an
  * unauthenticated route. Relay verifies submissions against finalized positions;
  * reads are encrypted to the buyer key in that ledger, never a request key. */
-export function createOperatorServer(config:{network:string;contract:string;origin:string},relay:ReturnType<typeof reasonRelay>,metadata?:ReturnType<typeof marketMetadataService>){
+export function createOperatorServer(config:{network:string;contract:string;origin:string},relay:ReturnType<typeof reasonRelay>,metadata?:ReturnType<typeof marketMetadataService>,builders?:ReturnType<typeof builderMetadataService>){
   return createServer(async(req,res)=>{
     res.setHeader("Content-Type","application/json");res.setHeader("Cache-Control","no-store");
     if(req.headers.origin&&req.headers.origin!==config.origin){res.writeHead(403);res.end('{"error":"Origin denied"}');return;}
     if(req.headers.origin){res.setHeader("Access-Control-Allow-Origin",config.origin);res.setHeader("Vary","Origin");}
     let url:URL;
     try{url=new URL(req.url??"/","http://operator.local");}catch{res.writeHead(400);res.end('{"error":"Reason request rejected"}');return;}
+    const builderRead=url.pathname.match(/^\/builders\/([a-f0-9]{64})\/meta$/),builderPost=url.pathname==="/builders/meta";
+    if(builders&&(builderRead||builderPost)){
+      if(req.method==="OPTIONS"){res.setHeader("Access-Control-Allow-Methods",builderPost?"POST":"GET");res.setHeader("Access-Control-Allow-Headers","Content-Type");res.writeHead(204);res.end();return;}
+      try{
+        if(req.method==="GET"&&builderRead){const value=await builders.read(builderRead[1]);res.writeHead(200);res.end(JSON.stringify(value));return;}
+        if(req.method==="POST"&&builderPost){
+          if(req.headers["content-type"]?.split(";")[0]!=="application/json"){res.writeHead(415);res.end('{"error":"JSON required"}');return;}
+          const chunks:Buffer[]=[];let length=0;for await(const chunk of req){length+=chunk.length;if(length>32768)throw Error();chunks.push(Buffer.from(chunk));}
+          const input=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(Buffer.concat(chunks))),value=await builders.publish(input);
+          res.writeHead(201);res.end(JSON.stringify(value));return;
+        }
+        res.writeHead(405);res.end('{"error":"Method not allowed"}');
+      }catch{if(!res.headersSent)res.writeHead(400);res.end('{"error":"Builder metadata unavailable"}');}return;
+    }
     const metaRead=url.pathname.match(/^\/markets\/(0|[1-9][0-9]{0,9})\/meta$/),metaPost=url.pathname==="/markets/meta";
     if(metadata&&(metaRead||metaPost)){
       if(req.method==="OPTIONS"){

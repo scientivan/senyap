@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import type {ProductMarketView} from "./read-model";
+import {fetchPublicMetadata} from "./metadata-fetch";
 export type MarketMetadata={version:1;side:"A"|"B";category:string;question:string;options:{reference:string;label:string}[]};
 const hash=(value:unknown):value is string=>typeof value==="string"&&/^[a-f0-9]{64}$/.test(value);
 const text=(value:unknown,max:number):value is string=>typeof value==="string"&&value.length>0&&value.length<=max&&value===value.trim()&&!/[\u0000-\u001f\u007f\ud800-\udfff]/u.test(value);
@@ -34,13 +35,7 @@ export async function verifyMarketMetadata(input:unknown,market:Pick<ProductMark
 export async function fetchMarketMetadata(endpoint:string,market:ProductMarketView,request:typeof fetch=fetch):Promise<MarketMetadata>{
   const url=new URL(endpoint);
   if(url.username||url.password||url.search||url.hash||!(url.protocol==="https:"||(url.protocol==="http:"&&["localhost","127.0.0.1","[::1]"].includes(url.hostname))))throw Error("Invalid metadata endpoint");
-  url.pathname=url.pathname.replace(/\/$/,"")+`/markets/${market.id}/meta`;
   try{
-    const response=await request(url,{credentials:"omit",redirect:"error",signal:AbortSignal.timeout(15000)});
-    if(!response.ok||!response.body)throw Error();
-    const reader=response.body.getReader(),chunks:Uint8Array[]=[];let length=0;
-    try{for(;;){const next=await reader.read();if(next.done)break;length+=next.value.length;if(length>32768){await reader.cancel();throw Error();}chunks.push(next.value);}}finally{reader.releaseLock();}
-    const bytes=new Uint8Array(length);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
-    return await verifyMarketMetadata(JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(bytes)),market);
+    return await verifyMarketMetadata(await fetchPublicMetadata(endpoint,`/markets/${market.id}/meta`,request),market);
   }catch{throw Error("Verified market metadata unavailable");}
 }

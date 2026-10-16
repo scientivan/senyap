@@ -6,7 +6,8 @@ import {createProductActions,type ProductCallTransport} from "../../packages/sdk
 import {createClientState,preparePrivateStake,clientWitnesses,actionState,type ClientPrivateState} from "../../packages/sdk/src/client-state";
 import {setupAuction} from "../helpers/auction";
 import {setupSideB,preview} from "../helpers/side-b";
-import {bytes,group,hash,commitment,committee} from "./harness";
+import {bytes,group,hash,commitment,committee,setupGroups} from "./harness";
+import {marketMetadataHash} from "../../packages/sdk/src/market-metadata";
 import {deliverStakeReason,saveStakeReason} from "../../packages/sdk/src/reason-delivery";
 import {generateBuyerKey} from "../../packages/crypto/src/buyer-channel";
 import {openReason} from "../../packages/crypto/src/reason";
@@ -23,6 +24,22 @@ function simulatorTransport(initial:Parameters<Contract<ClientPrivateState>["imp
   return {transport,calls,get context(){return context;},set context(value){context=value;},get state(){return ledger(context.currentQueryContext.state);}};
 }
 describe("product action preparation against actual circuits",()=>{
+  it("registers and withdraws builder consent, then creates a buyer-owned Side A market while refusing browser Side B creation",async()=>{
+    const s=setupGroups(),state=await createClientState(roots,{network:"local",contract:s.context.currentQueryContext.address});
+    s.invoke("admitBuyer",hash(state.secrets.buyer));
+    const host=simulatorTransport({...s.context,currentPrivateState:state}),actions=createProductActions(host.transport);
+    for(const id of [bytes(220),bytes(221)])await actions.registerBuilder({id,profileHash:bytes(222),blockTime:1000n});
+    await actions.withdrawBuilder({id:bytes(220),blockTime:1000n});expect(host.state.builderRegistry.lookup(bytes(220)).consent).toBe(false);
+    const metadata={version:1,side:"A",category:Buffer.from(bytes(70)).toString("hex"),question:"Which synthetic builder delivered?",options:[{reference:Buffer.from(bytes(220)).toString("hex"),label:"Synthetic builder one"},{reference:Buffer.from(bytes(221)).toString("hex"),label:"Synthetic builder two"}]};
+    const questionHash=new Uint8Array(Buffer.from(await marketMetadataHash(metadata),"hex"));
+    const config={subjective:false,side:0n,category:bytes(70),questionHash,questionUri:"demo://metadata",nOptions:2n,optionRefs:[bytes(220),bytes(221),...Array.from({length:6},()=>bytes(0))],openAt:1000n,openUntil:1600n,auctionUntil:1800n,outcomeUntil:3000n,flatPrice:10n,reservePrice:40n};
+    await expect(actions.createMarket({market:1n,config,blockTime:1000n})).rejects.toThrow(/withdrawn consent/);
+    await actions.registerBuilder({id:bytes(220),profileHash:bytes(223),blockTime:1000n});
+    await actions.createMarket({market:1n,config,blockTime:1000n});
+    expect(host.state.markets.lookup(1n).questionHash).toEqual(questionHash);expect(host.state.marketPhase.lookup(1n)).toBe(1n);
+    const before=host.calls.length;expect(()=>actions.createMarket({market:2n,config:{...config,side:1n},blockTime:1000n})).toThrow(/operator-only/);expect(host.calls).toHaveLength(before);
+    expect(host.calls[0].args).not.toContain(state.secrets.builder);
+  });
   it("runs the buyer auction and scout reward actions against actual circuits without publishing the private bid as an argument",async()=>{
     const {s,records}=setupAuction(),state=await createClientState(roots,{network:"local",contract:s.context.currentQueryContext.address});
     s.invoke("admitBuyer",hash(state.secrets.buyer));

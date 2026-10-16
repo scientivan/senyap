@@ -15,6 +15,18 @@ const key=(value:Uint8Array)=>Array.from(value,b=>b.toString(16).padStart(2,"0")
  * transport. Private choices/salts/keys never become circuit arguments. */
 export function createProductActions(transport:ProductCallTransport){
   return {
+    registerBuilder(input:Timed&{id:Uint8Array;profileHash:Uint8Array}){
+      if(input.id.length!==32||input.profileHash.length!==32||input.id.every(b=>b===0)||input.profileHash.every(b=>b===0))throw Error("Invalid builder metadata");
+      return transport.call("registerBuilder",[input.id,input.profileHash,input.blockTime],state=>actionState(state,{blockTime:input.blockTime}));
+    },
+    withdrawBuilder(input:Timed&{id:Uint8Array}){
+      if(input.id.length!==32)throw Error("Invalid builder reference");
+      return transport.call("withdrawBuilder",[input.id],state=>actionState(state,{blockTime:input.blockTime}));
+    },
+    createMarket(input:Market&{config:Parameters<"createMarket">[1]}){
+      if(input.config.side!==0n)throw Error("Side B market creation is operator-only");
+      return transport.call("createMarket",[input.market,input.config],state=>actionState(state,{market:input.market,blockTime:input.blockTime}));
+    },
     stake(input:Position&{group:Uint8Array;option:bigint;amount:bigint;reason?:string}){
       if(input.amount<10n||input.amount>500n)throw Error("Stake amount outside demo range");
       return transport.call("stake",state=>([input.market,input.group,input.slot,input.amount,state.positions[`${input.market}/${input.slot}`].revealKeyCommit] satisfies Parameters<"stake">),async state=>{const next=await preparePrivateStake(state,input);return input.reason===undefined?next:saveStakeReason(next,input.market,input.slot,input.reason);});

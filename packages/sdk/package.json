@@ -23,7 +23,8 @@
     "./actions": "./src/actions.ts",
     "./read-model": "./src/read-model.ts",
     "./snapshot": "./src/snapshot.ts",
-    "./market-metadata": "./src/market-metadata.ts"
+    "./market-metadata": "./src/market-metadata.ts",
+    "./builder-metadata": "./src/builder-metadata.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",
