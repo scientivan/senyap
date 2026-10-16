@@ -1,0 +1,82 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "planSha256": "817f66349d45ead3ea4f78f490d64c734267e3f3f51aab06f1ba76e2bcbc55da",
+  "status": "uncertain; reconcile before any further submission",
+  "transactions": [
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "009df97585d3f0ad4ab5fec32a19906d87bad97a3358ad55af5102de65d104c3a9"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "0038da1f2bea6fec8889d5228148cab7510949dfd42d68d8226559c1af1b8f5249"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "00217d36e7c091d3eab6a271553dc525d208a1bdaad4ce0544ccdcd801d61bc2bf"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "00e14afb99845f017b540df6ddd64d693651feaef1d98f2ca7116be911fb79966e"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "00f801d4654d826a79d272110649fe6caf4bde7dd33963e1ba344f2df6c2eb3bc5"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00f987ffea141e01b930e4b0dac2d66fa550ac65565e81e9b7deab2f5d49d80f94"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00b31c1123799213856b9af5fd5ae4973ecae9e1c6d186bbecae83248d69249412"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "001adc8e6de2d1cb20f22862cee64b370d3834a2b202c3fe7fb875b0fc009e40ec"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "0030db55de816ac31ade43801b4b91a1a139fec5f76f46eac4e1d84a29abe92c47"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "submitted",
+      "txId": "00e7afaeeec0f6f628004b3eceb9ff86536dfc1190498467a6d09ef435ede9568c"
+    }
+  ],
+  "publicResult": {
+    "resumesDeployedSenyap": "2493acc20de8a0ea6143f3f4c320e9113215e0a76f52ede6e8c6ab1b0ff723b1",
+    "previousStagedJournal": "local-product-cycle-staged-retry-journal.json",
+    "resumesConfirmedToken": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "previousJournal": "local-product-cycle-retry-journal.json",
+    "tokenContract": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "token": "f5cf17ce76865bbb37ac882d5f82e8237b40fce5f41f1ce5d8c2bca5142e80a7",
+    "contract": "2493acc20de8a0ea6143f3f4c320e9113215e0a76f52ede6e8c6ab1b0ff723b1",
+    "lastResourceBudget": {
+      "action": "configureScoutGroup",
+      "passed": true,
+      "gasCost": "13192138766",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "33300295766",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 5797,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "all41VerifiersInstalled": true
+  }
+}

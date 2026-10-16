@@ -1,0 +1,37 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "planSha256": "54417fdbfb32a3d537e99ddc9e7a9f86b7ae3c180cec8889ce61e6df85b54eda",
+  "status": "uncertain; reconcile before any further submission",
+  "transactions": [
+    {
+      "action": "configureScoutGroup",
+      "status": "submitted",
+      "txId": "0009d5fb3dbbed9d3502decd48a2973bcedea2e47684277c7d19bf5ac17253ba27"
+    }
+  ],
+  "publicResult": {
+    "resumesDeployedSenyap": "2493acc20de8a0ea6143f3f4c320e9113215e0a76f52ede6e8c6ab1b0ff723b1",
+    "previousStagedJournal": "local-product-cycle-staged-retry-journal.json",
+    "resumesConfirmedToken": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "previousJournal": "local-product-cycle-retry-journal.json",
+    "tokenContract": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "token": "f5cf17ce76865bbb37ac882d5f82e8237b40fce5f41f1ce5d8c2bca5142e80a7",
+    "contract": "2493acc20de8a0ea6143f3f4c320e9113215e0a76f52ede6e8c6ab1b0ff723b1",
+    "all41VerifiersInstalled": true,
+    "lastResourceBudget": {
+      "action": "configureScoutGroup",
+      "passed": true,
+      "gasCost": "13192138766",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "33300295766",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 5790,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    }
+  }
+}

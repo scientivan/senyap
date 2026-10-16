@@ -33,6 +33,11 @@ export async function createLocalResourceGate(nodeWS:string){
         const extra=(await extraQuery()).toJSON(),extrinsic=api.tx.midnight.sendMnTransaction(raw);
         return {...runtimeBudget({gasCost:BigInt(cost.asOk.toString()),extraWeight:BigInt(extra.refTime),baseWeight:BigInt(normal.baseExtrinsic.refTime),maxExtrinsic:BigInt(normal.maxExtrinsic.refTime),proofSize:BigInt(extra.proofSize)+BigInt(normal.baseExtrinsic.proofSize),maxProofSize:BigInt(normal.maxExtrinsic.proofSize),bytes:extrinsic.encodedLength,maxBytes:Number(length.max.normal)}),runtimeSpecVersion:version};
       },
+      /** Read-only transaction-pool validity check at the finalized head. Never broadcasts. */
+      async validate(tx:{serialize:()=>Uint8Array}){
+        const raw="0x"+Buffer.from(tx.serialize()).toString("hex"),extrinsic=api.tx.midnight.sendMnTransaction(raw),head=await api.rpc.chain.getFinalizedHead();
+        return (await api.call.taggedTransactionQueue.validateTransaction("External",extrinsic,head)).toHuman();
+      },
       close:async()=>{await api.disconnect();}
     };
   }catch(error){await api.disconnect();throw error;}

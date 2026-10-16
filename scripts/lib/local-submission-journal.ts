@@ -16,6 +16,25 @@ export function confirmedTokenDeployment(input:{sourceSha256:string;prior:{netwo
   assert(receipt.actions.length===1&&receipt.actions[0].kind==="ContractDeploy"&&/^[a-f0-9]{64}$/.test(receipt.actions[0].address),"Exactly one token deployment required");
   return receipt.actions[0].address;
 }
+type Receipt={identifiers:string[];status:string;actions:{kind:string;address:string}[];blockHash:string;blockHeight:number;canonicalBlockHash:string};
+/** Resume after a confirmed staged deploy whose first verifier update was included
+ * without effect. Requires both canonical receipts, an empty mempool and exactly
+ * the initial operations on chain. The caller still needs explicit approval. */
+export function validatePartialInstallation(input:{sourceSha256:string;prior:{network?:unknown;sourceSha256?:unknown;transactions?:{action?:unknown;status?:unknown;txId?:unknown}[];publicResult?:{contract?:unknown}};deploy:Receipt;install:Receipt;finalizedHeight:number;pendingExtrinsics:number;installed:readonly string[];initial:readonly string[]}){
+  const {prior}=input,[deploy,install]=prior.transactions??[];
+  assert(prior.network==="undeployed"&&prior.sourceSha256===input.sourceSha256&&prior.transactions?.length===2,"Partial installation binding mismatch");
+  assert(deploy?.action==="deploy:senyap"&&deploy.status==="finalized"&&install?.action==="install-verifiers:1"&&install.status==="submitted","Only a finalized staged deploy and one uncertain installation may resume");
+  const contract=prior.publicResult?.contract;assert(typeof contract==="string"&&/^[a-f0-9]{64}$/.test(contract),"Deployed contract required");
+  for(const [entry,receipt,status,kind] of [[deploy,input.deploy,"SUCCESS","ContractDeploy"],[install,input.install,"PARTIAL_SUCCESS","ContractUpdate"]] as const){
+    assert(typeof entry.txId==="string"&&receipt.identifiers.includes(entry.txId)&&receipt.status===status,"Matching receipt required");
+    assert(Number.isSafeInteger(receipt.blockHeight)&&input.finalizedHeight>=receipt.blockHeight&&receipt.blockHash===receipt.canonicalBlockHash,"Receipt must be on the canonical finalized chain");
+    assert(receipt.actions.length===1&&receipt.actions[0].kind===kind&&receipt.actions[0].address===contract,"Receipt must target the deployed contract");
+  }
+  assert(input.pendingExtrinsics===0,"Pending transaction blocks resume");
+  const installed=[...input.installed].sort(),initial=[...input.initial].sort();
+  assert(installed.length===initial.length&&installed.every((id,i)=>id===initial[i]),"On-chain operations must equal the initial deployment batch");
+  return contract;
+}
 export async function validateRejectedStagedDeploy(input:{sourceSha256:string;prior:{network?:unknown;sourceSha256?:unknown;planSha256?:unknown;transactions?:{action?:unknown;status?:unknown;txId?:unknown}[]};rejection:{network?:unknown;sourceSha256?:unknown;planSha256?:unknown;txId?:unknown;nodeError?:unknown};observe:(id:string)=>Promise<{indexerMatches:number;pendingExtrinsics:number}>}){
   const {prior,rejection}=input,entry=prior.transactions?.[0];
   assert(prior.network==="undeployed"&&prior.sourceSha256===input.sourceSha256&&rejection.network==="undeployed"&&rejection.sourceSha256===input.sourceSha256&&prior.planSha256===rejection.planSha256,"Staged rejection binding mismatch");

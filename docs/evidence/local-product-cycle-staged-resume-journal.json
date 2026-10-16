@@ -1,0 +1,15 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "planSha256": "d561b22f07dbcc4c616637c0ccdb458b8b2a7765c28110ef034db22f85a87fb3",
+  "status": "stopped; no automatic restart",
+  "transactions": [],
+  "publicResult": {
+    "resumesDeployedSenyap": "2493acc20de8a0ea6143f3f4c320e9113215e0a76f52ede6e8c6ab1b0ff723b1",
+    "previousStagedJournal": "local-product-cycle-staged-retry-journal.json",
+    "resumesConfirmedToken": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "previousJournal": "local-product-cycle-retry-journal.json",
+    "tokenContract": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "token": "f5cf17ce76865bbb37ac882d5f82e8237b40fce5f41f1ce5d8c2bca5142e80a7"
+  }
+}

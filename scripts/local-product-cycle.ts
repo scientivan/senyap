@@ -9,13 +9,14 @@ import {CompiledContract} from "@midnight-ntwrk/midnight-js-protocol/compact-js"
 import {deployContract,findDeployedContract,submitTx,verifyContractState,type FoundContract} from "@midnight-ntwrk/midnight-js-contracts";
 import {signingKeyFromBip340} from "@midnight-ntwrk/midnight-js-protocol/ledger";
 import {setNetworkId} from "@midnight-ntwrk/midnight-js-network-id";
+import {indexerPublicDataProvider} from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
 import {MidnightWalletProvider, initializeMidnightProviders, inMemoryPrivateStateProvider, logger,
   type EnvironmentConfiguration} from "@midnight-ntwrk/testkit-js";
 import {Contract} from "../contracts/managed/senyap/contract/index.js";
 import {Contract as TokenContract} from "../contracts/managed/dusd/contract/index.js";
 import {createSnapshotReader} from "../packages/sdk/src/snapshot";
 import {hash, operator} from "../tests/contracts/harness";
-import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment,validateRejectedStagedDeploy} from "./lib/local-submission-journal";
+import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment,validateRejectedStagedDeploy,validatePartialInstallation} from "./lib/local-submission-journal";
 import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
 import {stagedProductContract,verifierBatches,verifierInstallation} from "./lib/staged-product-deployment";
 import {createLocalResourceGate} from "./lib/local-resource-budget";
@@ -111,13 +112,24 @@ if (!execute) {
   await executeLocal();
 }
 
+// The first resume attempt stopped before any submission (private state scope
+// unset). Its journal is retained; a second exclusive journal is allowed only
+// when that first one is stopped with zero transactions.
+async function resumeJournalPath(){
+  const first="docs/evidence/local-product-cycle-staged-resume-journal.json";
+  let prior;try{prior=JSON.parse(await readFile(first,"utf8"));}catch{return first;}
+  assert(prior.status==="stopped; no automatic restart"&&Array.isArray(prior.transactions)&&prior.transactions.length===0&&prior.planSha256!==undefined,"Prior resume submitted transactions; reconcile manually");
+  return "docs/evidence/local-product-cycle-staged-resume2-journal.json";
+}
 async function executeLocal() {
   const readiness = await preflight();
   setNetworkId("undeployed");
   const retry = process.argv.includes("--retry-rejected-first-deploy");
   const resume=process.argv.includes("--resume-confirmed-token");assert(!(retry&&(resume||stagedMode))&&!(resume&&stagedMode),"Choose only one recovery path");
   const retryStaged=process.argv.includes("--retry-rejected-staged-deploy");assert(!retryStaged||stagedMode,"Staged replacement requires its explicit reviewed plan");
-  const journalPath = retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
+  const continueAfter=process.argv.includes("--continue-after-scout-group"),diagnose=process.argv.includes("--diagnose-next");
+  const resumeDeployed=process.argv.includes("--resume-deployed-senyap");assert(!resumeDeployed||stagedMode&&!retryStaged,"Deployed resume requires staged mode only");
+  const journalPath = diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let confirmedToken:string|undefined;
   let confirmedColor:string|undefined;
   let stagedRejectedId:string|undefined;
@@ -127,6 +139,31 @@ async function executeLocal() {
       const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){__typename}}",variables:{offset:{identifier:id}}})});
       const reply=await response.json();assert(response.ok&&!reply.errors&&Array.isArray(reply.data?.transactions),"Staged replacement lookup unavailable");const pending=await rpc("author_pendingExtrinsics");assert(Array.isArray(pending),"Mempool unavailable");return {indexerMatches:reply.data.transactions.length,pendingExtrinsics:pending.length};
     }});
+  }
+  let deployedSenyap:string|undefined;
+  // Continue after resume2: 41 verifiers and four calls finalized, then the
+  // fifth call (configureScoutGroup) never reached chain or mempool.
+  assert(!continueAfter||stagedMode&&!resumeDeployed&&!retryStaged,"Continuation requires staged mode only");assert(!diagnose||continueAfter,"Diagnosis requires continuation");
+  let skipCalls=0;
+  if(continueAfter){
+    const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-staged-resume2-journal.json","utf8")),t=prior.transactions;
+    const expected=["install-verifiers:1","install-verifiers:2","install-verifiers:3","install-verifiers:4","install-verifiers:5","admitBuyer","admitBuyer","registerBuilder","registerBuilder"];
+    assert(prior.network==="undeployed"&&prior.sourceSha256===sourceSha256&&prior.publicResult?.all41VerifiersInstalled===true&&/^[a-f0-9]{64}$/.test(prior.publicResult?.contract)&&t?.length===10&&expected.every((a,i)=>t[i].action===a&&t[i].status==="finalized")&&t[9].action==="configureScoutGroup"&&t[9].status==="submitted","Continuation binding mismatch");
+    const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){__typename}}",variables:{offset:{identifier:t[9].txId}}})});
+    const reply=await response.json();assert(response.ok&&!reply.errors&&reply.data?.transactions?.length===0&&(await rpc("author_pendingExtrinsics")).length===0,"Uncertain call included or pending; continuation blocked");
+    deployedSenyap=prior.publicResult.contract;skipCalls=4;
+  }
+  if(resumeDeployed){
+    const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-staged-retry-journal.json","utf8"));
+    const head=await rpc("chain_getFinalizedHead"),header=await rpc("chain_getHeader",[head]);
+    const receipt=async(id:unknown)=>{
+      assert(typeof id==="string"&&/^[a-f0-9]{66}$/.test(id),"Prior identifier required");
+      const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){block{height hash} contractActions{__typename address} ...on RegularTransaction{identifiers transactionResult{status}}}}",variables:{offset:{identifier:id}}})});
+      const reply=await response.json();assert(response.ok&&!reply.errors&&reply.data?.transactions?.length===1,"Exact receipt lookup required");const r=reply.data.transactions[0];
+      return {identifiers:r.identifiers,status:r.transactionResult?.status,actions:r.contractActions.map((item:{__typename:string;address:string})=>({kind:item.__typename,address:item.address})),blockHash:r.block.hash,blockHeight:r.block.height,canonicalBlockHash:(await rpc("chain_getBlockHash",[r.block.height])).slice(2)};
+    };
+    const state=await indexerPublicDataProvider(environment.indexer,environment.indexerWS).queryContractState(prior.publicResult?.contract);assert(state,"Deployed contract state unavailable");
+    deployedSenyap=validatePartialInstallation({sourceSha256,prior,deploy:await receipt(prior.transactions?.[0]?.txId),install:await receipt(prior.transactions?.[1]?.txId),finalizedHeight:parseInt(header.number,16),pendingExtrinsics:(await rpc("author_pendingExtrinsics")).length,installed:state.operations().map(op=>typeof op==="string"?op:new TextDecoder().decode(op)),initial:installationBatches[0]});
   }
   if(resume||stagedMode){
     const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-retry-journal.json","utf8"));
@@ -165,8 +202,9 @@ async function executeLocal() {
   }
   // Exclusive create prevents repeating an interrupted/uncertain run, even when
   // no receipt was returned. Reconciliation is read-only and manual.
-  const submissionLimit=plan.transactionCount-(stagedMode?2:resume?1:0);
+  const submissionLimit=plan.transactionCount-(continueAfter?12:resumeDeployed?3:stagedMode?2:resume?1:0);
   const journal = await createLocalJournal(journalPath, {sourceSha256, planSha256}, submissionLimit);
+  if(deployedSenyap){journal.data.publicResult.resumesDeployedSenyap=deployedSenyap;journal.data.publicResult.previousStagedJournal="local-product-cycle-staged-retry-journal.json";await journal.persist();}
   if(stagedRejectedId){journal.data.publicResult.replacesRejectedStagedId=stagedRejectedId;await journal.persist();}
   if(confirmedToken){journal.data.publicResult.resumesConfirmedToken=confirmedToken;journal.data.publicResult.previousJournal="local-product-cycle-retry-journal.json";await journal.persist();}
   if (rejectedId) {journal.data.publicResult.replacesRejectedId = rejectedId; await journal.persist();}
@@ -188,6 +226,7 @@ async function executeLocal() {
       const budget=await resourceGate!.check(tx);
       journal.data.publicResult.lastResourceBudget={action:journal.data.transactions.at(-1)?.action,...budget};await journal.persist();
       assert(budget.passed,"Transaction exceeds current node runtime resource limits; nothing submitted");
+      if(diagnose){console.log(JSON.stringify({poolValidity:await resourceGate!.validate(tx)}));throw Object.assign(Error("DIAGNOSE_SUBMIT_BLOCKED"),{diagnosticBlocked:true});}
       const returnedId = await journal.submit(id, () => originalSubmit(tx));
       return canonicalSubmittedId(tx.identifiers(),returnedId);
     };
@@ -215,15 +254,19 @@ async function executeLocal() {
     // Never use this known key for Preprod or real assets. It permits manual
     // recovery without persisting a maintenance secret in public evidence.
     const fixtureAuthority=stagedMode?signingKeyFromBip340(new Uint8Array(32).fill(201)):undefined;
-    let deployed:FoundContract<Contract<LocalState>> = await action("deploy:senyap", () => deployContract(providers, {compiledContract: deploymentCompiled, privateStateId: "local-product",...(fixtureAuthority?{signingKey:fixtureAuthority}:{}),
+    let deployed:FoundContract<Contract<LocalState>>|undefined;
+    // testkit's in-memory provider scopes state by address and throws before this is set.
+    if(deployedSenyap){providers.privateStateProvider.setContractAddress(deployedSenyap);await providers.privateStateProvider.setSigningKey(deployedSenyap,fixtureAuthority!);await providers.privateStateProvider.set("local-product",initialPrivateState());}
+    else deployed = await action("deploy:senyap", () => deployContract(providers, {compiledContract: deploymentCompiled, privateStateId: "local-product",...(fixtureAuthority?{signingKey:fixtureAuthority}:{}),
       initialPrivateState: initialPrivateState(), args: [...constructorArgs(color, recipient)]}));
-    const contract = deployed.deployTxData.public.contractAddress; journal.data.publicResult.contract = contract; await journal.persist();
+    const contract = deployedSenyap??deployed!.deployTxData.public.contractAddress; journal.data.publicResult.contract = contract; await journal.persist();
     if(stagedMode){
       const signingKey=await providers.privateStateProvider.getSigningKey(contract);assert(signingKey,"Deployment maintenance signing key unavailable");
       for(let i=1;i<installationBatches.length;i++){
         const current=await providers.publicDataProvider.queryContractState(contract);assert(current,"Product state unavailable during installation");
+        if(continueAfter&&installationBatches[i].every(id=>current.operation(id)))continue;
         const keys=await Promise.all(installationBatches[i].map(async id=>({id,key:await providers.zkConfigProvider.getVerifierKey(id)})));
-        const unprovenTx=verifierInstallation({contract,keys,counter:current.maintenanceAuthority.counter+1n,signingKey});
+        const unprovenTx=verifierInstallation({contract,keys,counter:current.maintenanceAuthority.counter,signingKey});
         await action(`install-verifiers:${i}`,async()=>{const receipt=await submitTx(providers,{unprovenTx});assert(receipt.status==="SucceedEntirely","Verifier installation failed");return receipt;});
       }
       const installed=await providers.publicDataProvider.queryContractState(contract);assert(installed,"Installed contract unavailable");
@@ -231,8 +274,10 @@ async function executeLocal() {
       journal.data.publicResult.all41VerifiersInstalled=true;await journal.persist();
       deployed=await findDeployedContract(providers,{compiledContract:compiled,contractAddress:contract,privateStateId:"local-product"});
     }
-    const snapshot = createSnapshotReader({network: "undeployed", contract, nodeUrl: environment.node, indexerUrl: environment.indexer,
+    const readSnapshot = createSnapshotReader({network: "undeployed", contract, nodeUrl: environment.node, indexerUrl: environment.indexer,
       genesisHash: readiness.genesisHash, operatorCommitment: hex(hash(operator))});
+    // Read-only retry: the indexer can trail the node's finalized head by a block.
+    const snapshot=async()=>{for(let attempt=1;;attempt++){try{return await readSnapshot();}catch(error){if(attempt>=8)throw error;await pause(3000);}}};
     let sequence = 0;
     const driver: Driver = {
       recipient,
@@ -249,10 +294,12 @@ async function executeLocal() {
       },
       async call<K extends Circuit>(name: K, ...args: Args<K>): Promise<Result<K>> {
         assert.equal(name, simulated.calls[sequence], "Local call differs from reviewed plan");
+        // Finalized in resume2; their results are unused by the scenario.
+        if(sequence<skipCalls){assert(name==="admitBuyer"||name==="registerBuilder","Only finalized admissions may be skipped");sequence++;return [] as unknown as Result<K>;}
         const anchor = await snapshot(); await driver.patch({now: anchor.blockTime});
         // The generated interface is a mapped type; narrow this dynamic dispatch
         // only after matching the simulator-validated circuit sequence.
-        const call = deployed.callTx[name] as unknown as (...args: Args<K>) => Promise<{private: {result: Result<K>}}>;
+        const call = deployed!.callTx[name] as unknown as (...args: Args<K>) => Promise<{private: {result: Result<K>}}>;
         const result = await action(name, () => call(...args)); sequence++; return result.private.result;
       },
     };
@@ -263,7 +310,12 @@ async function executeLocal() {
     assert.equal(contractBalance.toString(), result.remainder, "Contract balance does not match retained funds");
     await journal.complete({...result, contractBalance: contractBalance.toString()});
     console.log(JSON.stringify({status: "completed", journalPath, contract, transactions: journal.sent, result: journal.data.publicResult}, null, 2));
-  } catch {
+  } catch (error) {
+    if(diagnose){
+      // Local synthetic fixtures only. Long hex/base64 runs are redacted anyway.
+      const safe=(e:unknown,d=0):unknown=>e instanceof Error?{name:e.name,message:e.message.replace(/[A-Za-z0-9+/=]{40,}/g,"<redacted>").slice(0,400),...(d<4&&e.cause?{cause:safe(e.cause,d+1)}:{})}:String(e).slice(0,200);
+      console.error(JSON.stringify({diagnosis:safe(error),reachedSubmit:(error as {diagnosticBlocked?:boolean})?.diagnosticBlocked===true}));
+    }
     await journal.stop();
     // SDK error objects/transcripts may include witness data. Never print them.
     console.error(`Local cycle stopped. Inspect public journal ${journalPath}; private error payload omitted.`);

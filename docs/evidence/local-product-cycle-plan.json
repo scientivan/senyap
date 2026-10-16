@@ -4,12 +4,12 @@
     "network": "undeployed",
     "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
     "codeSha256": {
-      "runner": "458c136798a7fc069b7a1f48fa6e040ba024745f5b612aa1706ae5f704e67e6b",
+      "runner": "b3a2652b95b0e55d998ad513efbc467eb163a27becf8e5dcfbfb6b8cb3c8f2b6",
       "scenario": "d802f413f9d5f27743c80506364222911f0d1cd29590a440d3b489d2c53734a2",
-      "journal": "0b301bc81ca7a1b2a1fe52ab7a2f5d22537a77031835bae9bda7cc7cfcd28c14",
+      "journal": "bd76a6a3d33475d40997c29b14813006af12eaedd75bcc821bc7090b5275da37",
       "walletBalance": "7d4b97e1212e00ac100c66259a2c9e86a142bb746cc1b4de6a7343206c0991e0",
-      "stagedDeployment": "8f856fd079de67492dbeffaad9d9aa81fe8169184b6824568cf109c189594145",
-      "resourceGate": "d6ebb0e547e03be3605a001b72a73fcdc1d452e707c5e32d1531238e2004de50",
+      "stagedDeployment": "ffa4d5ce2f066d61ca6d26a614a0539f39c1354067d3984857700f7812050ad7",
+      "resourceGate": "fc97fcbc94c41aec763b086a316bb7e510e4f83c1b844ca70a4f9a129c6cdd9b",
       "token": "26793ddd8db8b22f8fec5dfe7e1641950e516530cf68eb5eada0f4a9c2c8d7e4"
     },
     "deploys": [
@@ -168,7 +168,7 @@
       "proofServer": "http://127.0.0.1:6300"
     }
   },
-  "planSha256": "8ed664451898ea450d75173315f7f11b25fb41b126e83a4280a21c4a69137944",
+  "planSha256": "70f9c31963b15d3ac7e06abf96a5e40cf2c26796131a082562c9f7d541388ed8",
   "simulation": {
     "phases": [
       "settled",
@@ -224,10 +224,5 @@
     "note": "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."
   },
   "status": "simulator evidence; network execution, if approved, is recorded in a separate journal",
-  "generatedAt": "2026-10-16T03:41:02.564Z",
-  "readOnlyPreflight": {
-    "status": "passed; no wallet started or transaction submitted",
-    "genesisHash": "e624f91737add2cf1a6658b3cf3a5524d633faea8c943702b435820316d9e21e",
-    "blockTime": 1792122048
-  }
+  "generatedAt": "2026-10-16T12:31:48.488Z"
 }
