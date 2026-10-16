@@ -1,0 +1,126 @@
+{
+  "scope": "Static synthetic design preview only; fresh isolated Chrome profile, no wallet/storage/service/transaction",
+  "checks": {
+    "requiresConsent": true,
+    "registrationReview": true,
+    "publicExport": true,
+    "editRetains": true,
+    "exactTerms": true,
+    "requiresOption": true,
+    "requiresSchedule": true,
+    "completeRecoveryDocument": true,
+    "uploadOnly": true,
+    "pendingBlocked": true,
+    "noExternalRequests": true
+  },
+  "screenshots": [
+    {
+      "state": "register",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/register-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "register",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/register-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "withdraw",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/withdraw-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "withdraw",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/withdraw-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "create",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/create-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "create",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/create-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "metadata",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/metadata-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "metadata",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/metadata-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "blocked",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/blocked-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "blocked",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/blocked-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "pending",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/pending-1440.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    },
+    {
+      "state": "pending",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/builder-preview/pending-390.png",
+      "noOverflow": true,
+      "previewLabel": true,
+      "noWallet": true,
+      "expectedPanelVisible": true
+    }
+  ]
+}

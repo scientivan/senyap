@@ -1,0 +1,46 @@
+{
+  "scope": "Local SDK upload-only helpers and synthetic UI preview; no wallet or transaction",
+  "focused": {
+    "tests": 5,
+    "files": 2,
+    "seconds": 3.55,
+    "passed": true
+  },
+  "rootTypecheck": "passed",
+  "previousCI": {
+    "commit": "6734e92",
+    "run": 38880381401,
+    "conclusion": "success"
+  },
+  "currentPreview": {
+    "captures": 12,
+    "checks": 11,
+    "syntheticOnly": true,
+    "integrationApproved": false
+  },
+  "detector": {
+    "legacyApp": [],
+    "modernHTML": "DEGRADED missing parser dependencies; compact type hierarchy advisory follows AGENTS.md"
+  },
+  "productTransactions": "paused",
+  "submissionMaterials": "excluded",
+  "readModelAndAdapter": {
+    "tests": 13,
+    "files": 2,
+    "seconds": 51.65,
+    "passed": true
+  },
+  "previewReview": {
+    "initialDisposition": "fix",
+    "finding": "Incomplete public JSON in recovery preview",
+    "resolved": 1,
+    "total": 1,
+    "finalDisposition": "ship",
+    "scope": "Verdict pass on the one synthetic-preview finding"
+  },
+  "webBuild": {
+    "passed": true,
+    "seconds": 19.97
+  },
+  "sdkCommit": "4faf87b"
+}
