@@ -26,6 +26,8 @@ jobs:
           sh /tmp/compact-installer.sh
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Pin compiler
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: compact update 0.31.1
       - run: pnpm install --frozen-lockfile
       - run: pnpm contracts:compile
