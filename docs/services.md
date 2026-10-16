@@ -286,12 +286,12 @@ remain outside that check. See [S11 verification](group-privacy-spike-proposal.m
 S11 GroupCard v2 encrypts the group/member/index, and the crypto helper/tests
 recover that payload with three valid DLEQ shares. The main contract requires a
 proven hoax before three matching committee attestations can reveal the group
-and index for revocation. The current committee HTTP server only serves paid
-tally shares; it does not yet expose a hoax-card share endpoint or automate this
-operator workflow. Do not claim network card opening from the local crypto tests.
-A future endpoint must read trusted deployment state and reject pending, rejected
-or inconclusive disputes before any share operation; requests cannot supply the
-card or ledger state.
+and index for revocation. The committee HTTP server now also exposes `/hoax-card` when a fixed operator
+recipient is configured. It reads trusted finalized state and rejects pending,
+rejected, inconclusive or outcome cases before producing a share. Callers cannot
+supply a card, state or recipient. Five-node HTTP tests demonstrate encrypted
+threshold recovery locally; automated onchain attestation/revocation and an
+actual product deployment remain pending. See the transport checkpoint below.
 
 
 ## Ledger-backed product views (F5 foundation)
@@ -413,3 +413,27 @@ separate service integration, not an automatic second purchase.
 The component browser harness is synthetic and never connects Lace or a service.
 Its14desktop/mobile captures and8interaction checks pass. Independent review's
 four corrections were scored resolved. This is not a product transaction test.
+
+## Proven-hoax card transport (local verification)
+
+Committee `/hoax-card` is now available only when the host configures the fixed
+public `OPERATOR_REASON_PUBLIC_KEY` recipient. Requests supply deployment, dispute
+ID and nonce only; caller-supplied recipients/cards are rejected. The node reads
+its own finalized snapshot and requires a kind0 hoax verdict result1 plus the
+matching slashed position before computing a share. Pending, rejected,
+inconclusive and outcome cases cannot use this route. Responses are encrypted to
+the fixed operator recipient; nonce, deployment and full card bind the envelope.
+
+The operator SDK verifies share proofs, requires three distinct members and opens
+the original GroupCard. It does not attest or revoke onchain. Three new tests with
+five local HTTP servers cover valid threshold opening, two outages, wrong private
+key, nonce replay, duplicate-member replay, recipient/card injection and rejected/
+inconclusive verdicts. Services still need real deployment/key configuration;
+this is local verification, not live member revocation.
+
+The purchased-signal SDK separately validates every3-of-5 public-key subset against
+the ledger's master key, uses the saved per-market buyer receiver and checks paid
+access before requests. A reason-service outage preserves a successfully opened
+total. It never calls buyFlat. Public committee URLs and shares are fixed deployment
+configuration; missing values do not create defaults. UI signal controls remain
+pending integration.

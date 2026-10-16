@@ -20,7 +20,9 @@ async function serve(){
   const parsed=publicKeys.map(point),expected=parsed[member-1],master=point(JSON.parse(required(process.env,"SENYAP_COMMITTEE_PUBLIC_KEY")));
   if(!equal(ecMulGenerator(share.scalar),expected))throw Error("Committee share does not match configured public key");
   const read=createSnapshotReader(config),snapshot=await read();if(!equal(snapshot.state.committeePk,master))throw Error("Committee public key does not match deployment");
-  const server=createCommitteeServer(config,share,async()=>{
+  const recipient=process.env.OPERATOR_REASON_PUBLIC_KEY?.trim();
+  if(recipient&&!/^[a-f0-9]{64}$/.test(recipient))throw Error("Invalid public operator recipient");
+  const server=createCommitteeServer({...config,...(recipient?{hoaxRecipient:Uint8Array.from(Buffer.from(recipient,"hex"))}:{})},share,async()=>{
     const current=await read();if(!equal(current.state.committeePk,master))throw Error("Committee deployment changed");return current.state;
   });
   server.requestTimeout=30000;server.headersTimeout=10000;server.maxConnections=40;

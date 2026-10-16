@@ -13,6 +13,8 @@
     "./reasons": "./src/reasons.ts",
     "./reason-delivery": "./src/reason-delivery.ts",
     "./eligibility": "./src/eligibility.ts",
+    "./hoax-card": "./src/hoax-card.ts",
+    "./purchased-signal": "./src/purchased-signal.ts",
     "./verifier-vote": "./src/verifier-vote.ts",
     "./client-state": "./src/client-state.ts",
     "./operation": "./src/operation.ts",

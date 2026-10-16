@@ -14,7 +14,7 @@ export function shareBinding(request:ShareRequest,cipher:CipherPair):string {
 export function encodeBuyerShare(share:DecryptionShare):Uint8Array {
   return new TextEncoder().encode(JSON.stringify(share,(_key,value)=>typeof value==="bigint"?value.toString():value));
 }
-function decodeBuyerShare(payload:Uint8Array):DecryptionShare {
+export function decodeBuyerShare(payload:Uint8Array):DecryptionShare {
   try {
     if(payload.length>4096)throw Error();
     const value=JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(payload));

@@ -18,6 +18,7 @@ import {createSnapshotReader,type SnapshotConfig} from "@senyap/sdk/snapshot";
 import {readProductView} from "@senyap/sdk/read-model";
 import {marketEligibility} from "@senyap/sdk/eligibility";
 import {deliverStakeReason} from "@senyap/sdk/reason-delivery";
+import {openPurchasedSignal} from "@senyap/sdk/purchased-signal";
 import {MidnightBech32m,UnshieldedAddress} from "@midnight-ntwrk/wallet-sdk-address-format";
 
 type ProductContract=Contract<ClientPrivateState>;
@@ -73,6 +74,11 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
   };
   const product={
     read,
+    async openSignal(market:bigint,option:number,services:{endpoints:readonly string[];publicKeys:readonly {x:bigint;y:bigint}[];operatorEndpoint:string}){
+      await checkWallet();const anchor=await snapshot(),saved=await client.provider.get("client-v1");if(!saved)throw Error("Saved buyer keys unavailable");
+      const signal=await openPurchasedSignal({state:anchor.state,privateState:saved,market,option,...services});
+      await checkWallet();client.provider.setContractAddress(input.contract);return signal;
+    },
     async recipient(){await checkWallet();return {bytes:new Uint8Array(MidnightBech32m.parse(account).decode(UnshieldedAddress,"preprod").data)};},
     async deliverReason(market:bigint,slot:bigint,endpoint:string,operatorKey:Uint8Array){await checkWallet();return deliverStakeReason({client,market,slot,endpoint,operatorKey,read:async()=>{await checkWallet();const anchor=await snapshot();return {state:anchor.state,blockTime:BigInt(anchor.blockTime)};}});},
     async view(){
@@ -132,7 +138,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
         return await Promise.race([receiptLookup.result,new Promise<LookupStatus>(resolve=>{timer=setTimeout(()=>resolve("unknown"),15000);})]);
       }finally{if(timer!==undefined)clearTimeout(timer);}
     });}
-  } satisfies ProductCallTransport & {read:()=>Promise<ReturnType<typeof ledger>>;recipient:()=>Promise<{bytes:Uint8Array}>;deliverReason:(market:bigint,slot:bigint,endpoint:string,key:Uint8Array)=>Promise<{status:"screened"}>;reconcile:()=>ReturnType<typeof reconcileClientOperation>;view:()=>Promise<ReturnType<typeof readProductView>>};
+  } satisfies ProductCallTransport & {read:()=>Promise<ReturnType<typeof ledger>>;openSignal:(market:bigint,option:number,services:{endpoints:readonly string[];publicKeys:readonly {x:bigint;y:bigint}[];operatorEndpoint:string})=>ReturnType<typeof openPurchasedSignal>;recipient:()=>Promise<{bytes:Uint8Array}>;deliverReason:(market:bigint,slot:bigint,endpoint:string,key:Uint8Array)=>Promise<{status:"screened"}>;reconcile:()=>ReturnType<typeof reconcileClientOperation>;view:()=>Promise<ReturnType<typeof readProductView>>};
   return product;
 }
 

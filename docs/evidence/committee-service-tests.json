@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-16T03:37:55.765665+00:00",
+  "scope": "Synthetic simulator verdicts plus five localhost HTTP committee servers; no product deployment or onchain transactions",
+  "fullRegression": {
+    "passed": true,
+    "tests": 166,
+    "files": 53,
+    "seconds": 83.98,
+    "workers": 2,
+    "timeoutSeconds": 30
+  },
+  "focusedHoax": {
+    "passed": true,
+    "tests": 4,
+    "files": 2,
+    "seconds": 5.01
+  },
+  "focusedPurchasedSignal": {
+    "passed": true,
+    "tests": 11,
+    "files": 3,
+    "seconds": 3.21
+  },
+  "rootTypecheck": true,
+  "webTypecheck": true,
+  "limits": [
+    "No live hosted service, real credentials, automatic attestation or revocation demonstrated",
+    "Purchased-signal SDK is connected to the explicit adapter; UI opening control remains pending"
+  ]
+}

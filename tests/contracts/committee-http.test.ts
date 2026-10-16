@@ -8,6 +8,10 @@ import { splitSecret } from "../../packages/crypto/src/index";
 import { generateBuyerKey } from "../../packages/crypto/src/buyer-channel";
 import { createCommitteeServer } from "../../apps/committee/src/server";
 import { collectPurchasedTotal } from "../../packages/sdk/src/paid-signals";
+import {openPurchasedSignal,verifyCommitteePublicKeys} from "../../packages/sdk/src/purchased-signal";
+import {createClientState} from "../../packages/sdk/src/client-state";
+import {packPrivateKey} from "../../packages/sdk/src/private-state";
+import {bytes} from "./harness";
 
 describe("five local committee HTTP nodes",()=>{
   it("serves ledger-authorized encrypted totals through the SDK, tolerates two unavailable nodes and rejects unauthorized access",async()=>{
@@ -20,6 +24,13 @@ describe("five local committee HTTP nodes",()=>{
       const args={endpoints,publicKeys:shares.map(x=>ecMulGenerator(x.scalar)),request:{network:configured.network,contract:configured.contract,market:1n,buyer:id,option:0,nonce:"b".repeat(64)},
         privateKey:buyer.privateKey,cipher:s.state.tally.lookup(1n)[0],maxTotal:s.state.marketWeight.lookup(1n)};
       expect(await collectPurchasedTotal(args)).toBe(480n);
+      const saved=await createClientState({scout:bytes(31),buyer:bytes(32),builder:bytes(33),verifier:bytes(34)},{network:configured.network,contract:configured.contract});
+      saved.secrets.buyer=s.context.currentPrivateState.buyer;saved.receiving["1"]={publicKey:buyer.publicKey,privateKey:await packPrivateKey(buyer.privateKey)};
+      const signalArgs={state:s.state,privateState:saved,market:1n,option:0,endpoints,publicKeys:args.publicKeys,operatorEndpoint:"http://127.0.0.1:3001",fetcher:async(url:URL|RequestInfo,init?:RequestInit)=>String(url).startsWith("http://127.0.0.1:3001/")?new Response("{}",{status:503}):fetch(url,init)};
+      expect(await openPurchasedSignal(signalArgs)).toEqual({total:480n,reasons:[],next:null,reasonsAvailable:false});
+      await expect(openPurchasedSignal({...signalArgs,option:1})).rejects.toThrow(/not been purchased/);
+      expect(()=>verifyCommitteePublicKeys(args.publicKeys,ecMulGenerator(38n))).toThrow(/deployed committee/);
+      const mismatched=args.publicKeys.slice();mismatched[4]=ecMulGenerator(999n);expect(()=>verifyCommitteePublicKeys(mismatched,s.state.committeePk)).toThrow(/deployed committee/);
       const unavailable=(count:number):typeof fetch=>async(input,init)=>{
         if(endpoints.slice(0,count).some(endpoint=>String(input).startsWith(endpoint+"/")))throw Error("Synthetic node unavailable");
         return fetch(input,init);
