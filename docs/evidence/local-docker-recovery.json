@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-16T02:24:24.024843+00:00",
+  "nodeFinalizedHash": "0xd9562f9df687bc586a01bb16e0057e0cff417bfee8ba62629f0b6cb745d3501f",
+  "nodeFinalizedHeight": 11377,
+  "indexer": {
+    "data": {
+      "block": {
+        "hash": "c60837ad36410110c08dc478719e9ac0943692316b5ace95d51a42c70f100134",
+        "height": 11432,
+        "timestamp": 1792109826002
+      }
+    }
+  },
+  "transactionSubmitted": false
+}

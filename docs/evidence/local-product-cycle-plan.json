@@ -164,5 +164,5 @@
     "note": "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."
   },
   "status": "simulator evidence; network execution, if approved, is recorded in a separate journal",
-  "generatedAt": "2026-10-16T00:17:25.870Z"
+  "generatedAt": "2026-10-16T02:23:54.953Z"
 }

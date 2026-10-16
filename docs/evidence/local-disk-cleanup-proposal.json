@@ -1,0 +1,1250 @@
+{
+  "status": "proposal only; nothing deleted",
+  "hostAvailableBytes": 188715008,
+  "candidateCount": 230,
+  "estimatedReclaimBytes": 1424764928,
+  "excludedActiveProfiles": [],
+  "preserved": [
+    "all source",
+    "contracts/managed proving keys",
+    "all transaction journals",
+    "all evidence screenshots",
+    "public manifest/verifier/ZKIR files",
+    "user Brave/Lace profiles",
+    "Docker containers/volumes"
+  ],
+  "candidates": [
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-Zbfhf3",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-wM2xmu",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-meta-test-Q5yfa9",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-mHEVUk",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-rAXwTy",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-rZu2yu",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-R7mNDO",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-c67pLP",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-g6A0S1",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-VWdtju",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-tAnF9K",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-lkEw4C",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-QktTz1",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-browser-GvEKlV",
+      "allocatedBytes": 43778048,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-3z6MDK",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-MPBOYQ",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-OYFk4Z",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-1UwulB",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-g4NJAb",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-ds1MMs",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-EIKn3J",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-browser-oogz55",
+      "allocatedBytes": 2314240,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-ZHOVD5",
+      "allocatedBytes": 49672192,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-YKMyrj",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-l6sfve",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-4JZ0y7",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-live-preview-k0RzMk",
+      "allocatedBytes": 28487680,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-A8DSPd",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-H4UKZp",
+      "allocatedBytes": 45273088,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-pD9QDS",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-0sfxoc",
+      "allocatedBytes": 45404160,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-lQl8cD",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-QXJig9",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-living-v059-x2nj7m5r",
+      "allocatedBytes": 3010560,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-ZgNITi",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-pbe79h",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-browser-5tFsyB",
+      "allocatedBytes": 2314240,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-VI50bX",
+      "allocatedBytes": 14823424,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-KXlFnL",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-hdeg0b",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-VCdLHI",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-Wc6Eko",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-meta-test-VSh9SG",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-ihK2Jg",
+      "allocatedBytes": 48132096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-iyqpYH",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-luQXM3",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-3iOlLz",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-QJlls1",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-9kq6do",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-vOT7oi",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-WLJ3As",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-live-preview-ljzzIQ",
+      "allocatedBytes": 2338816,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-tqXqKL",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-5jJdi7",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-IRZdO0",
+      "allocatedBytes": 15396864,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-qb8mFC",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-meta-test-Qd3hwS",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-browser-S9FAgZ",
+      "allocatedBytes": 7303168,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-bOLe65",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-Bfx0xo",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-OPhtgj",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-gexm8Q",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-u4n0oS",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-live-preview-jKurW4",
+      "allocatedBytes": 28508160,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-E58f4r",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-fBWOL3",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-Tx7oKy",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-I7kfVA",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-jOIIC5",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-JSonRI",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-cXYBNj",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-cv7F6o",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-OXyMZX",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-jCINwM",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-L03qhp",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-3S9uuZ",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-rky5Pc",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-5kn5AV",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-3sdo3V",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-live-preview-dZPtSx",
+      "allocatedBytes": 28368896,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-KimJpF",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-pkcaD9",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-Wn7Dfq",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-1NcB6Z",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-GtpL6f",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-lc0u5F",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-U3F3vi",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-LOIpYX",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-Fo1JVq",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-epeJlQ",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-e5hlAb",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-HLT8j5",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-jGBz7h",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-IEHRkA",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-WNw4Ny",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-dtuINg",
+      "allocatedBytes": 15626240,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-Fc1s5h",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-bQbwYh",
+      "allocatedBytes": 15618048,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-hPySwi",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-live-preview-YTcP1w",
+      "allocatedBytes": 28479488,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-d03Xvu",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-H889VG",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-bKU4tC",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-meta-test-cI3mTL",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-okZlih",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-live-preview-FGiy52",
+      "allocatedBytes": 2334720,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-XwYrQ7",
+      "allocatedBytes": 45539328,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-s0IV99",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-XtX8zZ",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-gmHw1K",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-NukIOj",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-2M6NiJ",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-lcEZjQ",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-JCk37H",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-hu6GMD",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-7E8LTj",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-mIHYvb",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-CTgNXp",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-bYuEyw",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-BEpgq4",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-9vtR8Z",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-HU9kGK",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-C7YEUH",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-UXekAO",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-d1mC9Y",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-vDnCQt",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-2sU5AS",
+      "allocatedBytes": 45924352,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-djB5dI",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-zKfYMK",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-xgwsXu",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-H7eP4L",
+      "allocatedBytes": 69156864,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-5rATNw",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-Dujb25",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-YzOMxG",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-6DzMJR",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-UtvgNI",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-VC25vK",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-LfZv1g",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-0kMrbZ",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-meta-test-09CcWw",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-69MbQH",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-live-preview-rekYgN",
+      "allocatedBytes": 14716928,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-eH0VjQ",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-SclCLD",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-meta-test-DtAQ0t",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-comment-compile-nbca5w0s",
+      "allocatedBytes": 4603904,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-wAxw0y",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-0axX54",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-browser-JLuQq8",
+      "allocatedBytes": 44064768,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-O3ihaM",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-CFbNgT",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-KXR7Le",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-3PfVJd",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-meta-test-PzqKJg",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-ttc0Mb",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-z40ySb",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-m9ipbE",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-W7d89s",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-live-preview-8EwJtC",
+      "allocatedBytes": 2338816,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-mmCORH",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-HKjVIW",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-cycle-AdQAOo",
+      "allocatedBytes": 4096,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-S94y7F",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-private-state-test-QtBbfc",
+      "allocatedBytes": 53248,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-MMw6uf",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reasons-test-rYPCsv",
+      "allocatedBytes": 12288,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-Ptg1LX",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-workspace-browser-2kMdxQ",
+      "allocatedBytes": 45273088,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-key-state-test-SnBqu8",
+      "allocatedBytes": 40960,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-reclaim-test-xBcDDF",
+      "allocatedBytes": 20480,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/var/folders/83/197l3bx91kx64h660_5c967h0000gn/T/senyap-client-state-IJBmQL",
+      "allocatedBytes": 28672,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v054-chrome",
+      "allocatedBytes": 3571712,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v058-chrome",
+      "allocatedBytes": 3555328,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v061",
+      "allocatedBytes": 3563520,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v060",
+      "allocatedBytes": 3047424,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-chrome",
+      "allocatedBytes": 3055616,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v056-chrome",
+      "allocatedBytes": 3555328,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v048-chrome",
+      "allocatedBytes": 3608576,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v052-chrome",
+      "allocatedBytes": 4317184,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v050-chrome",
+      "allocatedBytes": 4317184,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v055-chrome",
+      "allocatedBytes": 3555328,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-vault-mobile-profile-20261015",
+      "allocatedBytes": 2191360,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v049-chrome",
+      "allocatedBytes": 2531328,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v057-chrome",
+      "allocatedBytes": 2199552,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-vault-desktop-profile-20261015",
+      "allocatedBytes": 2199552,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-pdf-fb_zd_sx",
+      "allocatedBytes": 3616768,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v053-chrome",
+      "allocatedBytes": 3559424,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-app-review-chrome",
+      "allocatedBytes": 169586688,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/private/tmp/senyap-living-doc-v051-chrome",
+      "allocatedBytes": 2961408,
+      "kind": "inactive synthetic Senyap test/profile directory"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/admitBuyer.prover",
+      "allocatedBytes": 2830336,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/admitBuyer.prover",
+      "sha256": "876abd11b4c8d039abb9668505a1958c5d4298bbb5900494a748771232155e39"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/admitScout.prover",
+      "allocatedBytes": 9969664,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/admitScout.prover",
+      "sha256": "da3746bfeb2f181da27c2a45d93275edf8be50ab1859e1387650f3980cdceccc"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/admitVerifier.prover",
+      "allocatedBytes": 2822144,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/admitVerifier.prover",
+      "sha256": "94bfe823a3cf3b27d2b08f98de1542071b6cba66f1b27c69417c2bc86d3e5124"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/allocateSubsidy.prover",
+      "allocatedBytes": 5222400,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/allocateSubsidy.prover",
+      "sha256": "92ccfdfcd27afe37882f51932fe15bfc6b4934925640771bfc0c4511deb10dc9"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/approveHoaxMember.prover",
+      "allocatedBytes": 10010624,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/approveHoaxMember.prover",
+      "sha256": "26a674cf4d8cce24243165a1f50c6b07e011e6bf9b90c6a28b88c2c080814acc"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/approveMissedBuyer.prover",
+      "allocatedBytes": 9998336,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/approveMissedBuyer.prover",
+      "sha256": "12d698855042d512b4e4b449a4585c7e6815424ca972e0e96b3c616269d61ea7"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/approveRevocation.prover",
+      "allocatedBytes": 5255168,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/approveRevocation.prover",
+      "sha256": "e13e9ab04f13ffedb377730187e504a953b771b1cf9ebe61f5d0ae82984e36f6"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/buyFlat.prover",
+      "allocatedBytes": 42807296,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/buyFlat.prover",
+      "sha256": "7466892804e7787879dcbe0e1097176286165df650cd6f9b758b8f4abe822c5e"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/cancelMarket.prover",
+      "allocatedBytes": 151552,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/cancelMarket.prover",
+      "sha256": "481c3fc27fb7a1b7bffd9d52294ecca6fdc6f3fceeff40903ffd975f9b0e9c30"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/challengeOutcome.prover",
+      "allocatedBytes": 9986048,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/challengeOutcome.prover",
+      "sha256": "125cbaff4e6ffc482aa95e09afdd9ac382a85ec17443ef72bd84fe4f6848c1f6"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/claim.prover",
+      "allocatedBytes": 5226496,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/claim.prover",
+      "sha256": "562c90b95cfdef6a7252279f850a7f06264ffd590b4eaa8d620ff00698ceb307"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/claimVerifier.prover",
+      "allocatedBytes": 290816,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/claimVerifier.prover",
+      "sha256": "cd58fcca1a2d5ec38de79d539756f3bac767737189601fffd8d7dcc699da316e"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/close.prover",
+      "allocatedBytes": 77824,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/close.prover",
+      "sha256": "51961e25d82c52d7e0c334a04d074b36b3a7b190b422da86ea47c6ca78463e48"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/commitVote.prover",
+      "allocatedBytes": 5214208,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/commitVote.prover",
+      "sha256": "4449a77fd6c57c10f93c30c70fb8dcb2422eeb6d4daf4b94df6a267fa907c227"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/configureScoutGroup.prover",
+      "allocatedBytes": 2822144,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/configureScoutGroup.prover",
+      "sha256": "02394597c224e5c7ff35c6af89d5e0b87b5478ea1be55bcbbb9a211a775ce418"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/createMarket.prover",
+      "allocatedBytes": 42811392,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/createMarket.prover",
+      "sha256": "161672d2f934d220434b32b2830b533ff7face5292add8a61ab75570302603d3"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/finalizeMarket.prover",
+      "allocatedBytes": 286720,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/finalizeMarket.prover",
+      "sha256": "74aff4c284b51ed283da7c3472e60558a3c092a8096f4f4d42c66fe9c3f1a6b5"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/markMissedReport.prover",
+      "allocatedBytes": 2838528,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/markMissedReport.prover",
+      "sha256": "cfd9546671879644fd79cf0627cd870f50b4112d251097d1de65df4015e5c481"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/markMissedSharedBuyer.prover",
+      "allocatedBytes": 151552,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/markMissedSharedBuyer.prover",
+      "sha256": "3c99bee3e0aae3593e3e6f4ee3e4339dc42494bcbcf0b72386d59fdb85b107af"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/openDispute.prover",
+      "allocatedBytes": 557056,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/openDispute.prover",
+      "sha256": "0a28c2e3eed093b6fbc55b78d83e8f5261b253940cdd9a6cdc004147f5a350a2"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/placeBid.prover",
+      "allocatedBytes": 85078016,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/placeBid.prover",
+      "sha256": "1f542c0f9f31e60138a8de3ad0953ded97d55e7c5becccec0f45003a838a49b0"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/postAuctionResult.prover",
+      "allocatedBytes": 9998336,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/postAuctionResult.prover",
+      "sha256": "8c87171ca087060151b9757f68a8d55e9a633f72783766f2afa8994b5a9dbc02"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/postDefaultStrongest.prover",
+      "allocatedBytes": 5251072,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/postDefaultStrongest.prover",
+      "sha256": "6025ed85a2c29d0c50f4c10dfa7c2a4037d5d922991eac05f77303ea40d21bc7"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/postPreview.prover",
+      "allocatedBytes": 5246976,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/postPreview.prover",
+      "sha256": "21fee804f258cfd49aede7045ea57b7a7b8508ee41ded8f9b7be2b8cff9a914a"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/proveHit.prover",
+      "allocatedBytes": 10002432,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/proveHit.prover",
+      "sha256": "0e43f570b1fcf56f7d959af78ad636b424d8c0aa64ae08d092255e56fdc3943a"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/recordOutcome.prover",
+      "allocatedBytes": 10018816,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/recordOutcome.prover",
+      "sha256": "89ae929b4c9c149f62442d8fc34f26e4199803fe20e5a1032912f61b8bcae98f"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/recordSubjectiveOutcome.prover",
+      "allocatedBytes": 38690816,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/recordSubjectiveOutcome.prover",
+      "sha256": "71d131657bb73ff2e85f5818c9edf3cdb96b17ba631a8dce873a2651a3b49ce9"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/registerBuilder.prover",
+      "allocatedBytes": 2826240,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/registerBuilder.prover",
+      "sha256": "1874741212f6cf81a79e0c1c7a03a62420c2a9a3c8816d39c7dfbc367262e676"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/renewTier.prover",
+      "allocatedBytes": 38612992,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/renewTier.prover",
+      "sha256": "9e15bf1992e6a6f64428a92b75befc84c6a23d9d73713af8662879ef7cdaf52e"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/resolveDispute.prover",
+      "allocatedBytes": 2150400,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/resolveDispute.prover",
+      "sha256": "a5448afe0270b13a74dbc6fd6de06bef1158f94a7140f6ec3a01107b2a2b7c8f"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/returnCancelledSubsidy.prover",
+      "allocatedBytes": 2834432,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/returnCancelledSubsidy.prover",
+      "sha256": "631faaff56c63b580ef5cb174717073cfd74479b690064cd18dba5b9369440d9"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/revealVote.prover",
+      "allocatedBytes": 5218304,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/revealVote.prover",
+      "sha256": "b6ed26691d4ca9c8d40cb7aa778a099bb7285b54cddef9945a4c67b06de07f70"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/revokeHoaxMember.prover",
+      "allocatedBytes": 5222400,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/revokeHoaxMember.prover",
+      "sha256": "a44dfcbf2d70d852bbbc27018cb3e650d073f214b23330fdb201e68abe06e9ad"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/revokeMember.prover",
+      "allocatedBytes": 9986048,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/revokeMember.prover",
+      "sha256": "8f4bed59367e0e542865ef22e173e83f235f095f3b088e32ce3d446e08d22375"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/revokeMissedBuyer.prover",
+      "allocatedBytes": 2822144,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/revokeMissedBuyer.prover",
+      "sha256": "dacda6eacb3e940d6695993c672ed92f4845744739a755c24b78f6f33598c29b"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/scoutPseudonym.prover",
+      "allocatedBytes": 9990144,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/scoutPseudonym.prover",
+      "sha256": "16b33a6bc519a6ba019373b7a611eb9a180391d74e8433d3123591ebd7b6b513"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/selectHidden.prover",
+      "allocatedBytes": 5246976,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/selectHidden.prover",
+      "sha256": "23e4f4f24fc3844b3d89dfcc57e45a7af3ea7bdba416b0b7b5d0419724d3c357"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/settleBid.prover",
+      "allocatedBytes": 557056,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/settleBid.prover",
+      "sha256": "47f8183d2dd31796030ff0bb047ab796a516f2a635267833108410586cfc7e7d"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/skipSelection.prover",
+      "allocatedBytes": 151552,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/skipSelection.prover",
+      "sha256": "a84e4a2c520036cd8d6011cbb4c997c9663b6b0e248c5d5ff6b17f36ac0778b3"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/stake.prover",
+      "allocatedBytes": 85065728,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/stake.prover",
+      "sha256": "0ca27536abe3c5c3b395056df6ff1497f20f6d5258cc27c1bbe3b88ac24df03e"
+    },
+    {
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/apps/web/public/contracts/senyap/keys/withdrawBuilder.prover",
+      "allocatedBytes": 2822144,
+      "kind": "regenerable public prover copy; verified identical primary retained",
+      "retainedPrimary": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/contracts/managed/senyap/keys/withdrawBuilder.prover",
+      "sha256": "295c1119bc4ace09d88cc79144ad90aedff667e2885ede1b7ca7faac44933948"
+    }
+  ]
+}
