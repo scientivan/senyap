@@ -8,12 +8,13 @@ import {createLocalJournal, validateRejectedFirstDeploy} from "../../scripts/lib
 
 describe("local product network rehearsal", () => {
   it("requires a rejected first deploy, matching deployment and fresh empty-chain/mempool reads before explicit recovery", async () => {
-    const sourceSha256 = "a".repeat(64), txId = "c".repeat(64);
+    const sourceSha256 = "a".repeat(64), txId = "00" + "c".repeat(64);
     const prior = {network: "undeployed", sourceSha256, transactions: [{action: "deploy:dusd", status: "submitted", txId}]};
     const rejection = {network: "undeployed", txId, nodeRejection: "Malformed(InvalidDustSpendProof)"};
     const observe = async () => ({indexerMatches: 0, pendingExtrinsics: 0});
     const input = {sourceSha256, prior, rejection, observe};
     expect(await validateRejectedFirstDeploy(input)).toBe(txId);
+    await expect(validateRejectedFirstDeploy({...input, prior: {...prior, transactions: [{...prior.transactions[0], txId: "c".repeat(64)}]}})).rejects.toThrow("identifier");
     await expect(validateRejectedFirstDeploy({...input, prior: {...prior, network: "preprod"}})).rejects.toThrow("binding");
     await expect(validateRejectedFirstDeploy({...input, prior: {...prior, transactions: [...prior.transactions, ...prior.transactions]}})).rejects.toThrow("first deploy");
     await expect(validateRejectedFirstDeploy({...input, rejection: {...rejection, nodeRejection: undefined}})).rejects.toThrow("rejection evidence");

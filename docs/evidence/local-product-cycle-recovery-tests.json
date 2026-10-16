@@ -19,7 +19,7 @@
     "command": "pnpm exec vitest run tests/frontend/local-wallet-balance.test.ts tests/contracts/local-product-cycle.test.ts",
     "passed": 5,
     "files": 2,
-    "durationSeconds": 5.6,
+    "durationSeconds": 10.99,
     "rootTypecheck": true,
     "readOnlyPreflight": true
   },
@@ -31,7 +31,14 @@
   ],
   "sourceSha256": {
     "scripts/local-product-cycle.ts": "4a79470f3e06d511b261fb4ae8120bd3b3bb771a6939b7a80f8a0aec69fd39c5",
-    "scripts/lib/local-submission-journal.ts": "4dd2f8038b831e1f6c9d1901338a9569dc8ab3acffb8a4a760b31e3cdbb18312",
+    "scripts/lib/local-submission-journal.ts": "281ba054d28929f2e67a2967fe2f67339837a00da9b08b82774957ecebe1984e",
     "scripts/lib/local-wallet-balance.ts": "7d4b97e1212e00ac100c66259a2c9e86a142bb746cc1b4de6a7343206c0991e0"
+  },
+  "identifierRegression": "SDKTransactionId observed as66hex;64hex contract-address-style value rejected. First recovery command stopped at this validation before wallet/journal/submission, so replacement authorization was unused.",
+  "infrastructure": "Next command stopped in read-only preflight: local node socket closed, Docker overlay metadata I/O error, host free space around180MiB. Recovery journal still absent; no replacement submission.",
+  "ciBeforeIdentifierPatch": {
+    "head": "d98802efa99fa1a19902ce544a1295876438cc82",
+    "run": 38828024396,
+    "conclusion": "success"
   }
 }

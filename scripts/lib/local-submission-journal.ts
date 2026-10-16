@@ -15,7 +15,8 @@ export async function validateRejectedFirstDeploy(input: {
   assert(prior.network === "undeployed" && prior.sourceSha256 === input.sourceSha256, "Prior deployment binding mismatch");
   assert(Array.isArray(prior.transactions) && prior.transactions.length === 1 && prior.transactions[0]?.action === "deploy:dusd" && prior.transactions[0]?.status === "submitted", "Only a rejected first deploy can use this recovery");
   const id = prior.transactions[0].txId;
-  assert(typeof id === "string" && /^[a-f0-9]{64}$/.test(id), "Prior public identifier missing");
+  // Ledger 8.1.3 emits 66 hex characters, unlike 64-character contract addresses.
+  assert(typeof id === "string" && /^[a-f0-9]{66}$/.test(id), "Prior public identifier missing");
   assert(rejection.txId === id && rejection.nodeRejection === "Malformed(InvalidDustSpendProof)" && rejection.network === "undeployed", "Explicit rejection evidence required");
   const current = await input.observe(id);
   assert(current.indexerMatches === 0 && current.pendingExtrinsics === 0, "Prior deploy observed, mempool not empty or lookup unavailable; recovery blocked");
