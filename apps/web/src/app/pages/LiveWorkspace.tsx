@@ -10,6 +10,10 @@ import {LiveMarketActions,type MarketIntent} from "./LiveMarketActions";
 import {LivePurchasedSignal} from "./LivePurchasedSignal";
 import {LiveAuctionRewards,type FollowUpIntent} from "./LiveAuctionRewards";
 import {LiveJury,type JuryIntent} from "./LiveJury";
+import {LiveBuilderMarkets,type BuilderIntent,type BuilderLabel} from "./LiveBuilderMarkets";
+import {fetchBuilderMetadata,publishBuilderMetadata,builderMetadataHash} from "@senyap/sdk/builder-metadata";
+import {publishMarketMetadata} from "@senyap/sdk/market-metadata";
+import {prepareSideAMarket,saveMetadataDraft,markMetadataPublished,type PublicMetadataDraft} from "@senyap/sdk/creation";
 import {prepareProductClient} from "../product-client";
 import {productDeployment} from "../deployment";
 import {short,useWallet} from "../wallet";
@@ -21,10 +25,11 @@ const deployment=productDeployment(import.meta.env);
 
 export function LiveWorkspace(){
   const wallet=useWallet(),[unlocked,setUnlocked]=useState(false),[showWorkspace,setShowWorkspace]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState("");
+  const [builderLabels,setBuilderLabels]=useState<BuilderLabel[]>([]);
   const [view,setView]=useState<View|null>(null),[metadata,setMetadata]=useState<Record<string,MarketMetadata>>({}),[operation,setOperation]=useState<ClientOperation|null>(null);
   const session=useRef<WorkspaceSession|null>(null),connection=useRef<{product:Product;client:WorkspaceClient}|null>(null),generation=useRef(0),alive=useRef(true);
   const sending=useRef(false);
-  const invalidate=useCallback(()=>{generation.current++;connection.current=null;setView(null);setMetadata({});setOperation(null);setBusy(false);},[]);
+  const invalidate=useCallback(()=>{generation.current++;connection.current=null;setView(null);setBuilderLabels([]);setMetadata({});setOperation(null);setBusy(false);},[]);
   const opened=useCallback((next:WorkspaceSession|null)=>{if(!alive.current){next?.lock();return;}session.current=next;invalidate();setUnlocked(!!next);if(next)setShowWorkspace(false);},[invalidate]);
   useEffect(()=>{alive.current=true;return()=>{alive.current=false;generation.current++;connection.current=null;session.current?.lock();session.current=null;};},[]);
   useEffect(()=>{invalidate();setMessage("");},[wallet.api,wallet.state.status,wallet.state.status==="connected"?wallet.state.address:null,invalidate]);
@@ -38,10 +43,11 @@ export function LiveWorkspace(){
       const {product,client}=connection.current;
       if(reconcile)await product.reconcile();
       const [next,journal]=await Promise.all([product.view(),client.journal.get()]);if(!valid())return;
-      setView(next);setOperation(journal);setMetadata({});
+      setView(next);setOperation(journal);setMetadata({});setBuilderLabels([]);
       // Missing metadata stays visibly unavailable; no synthetic labels are used.
       const labels=await Promise.all(next.markets.map(async market=>{try{return [String(market.id),await fetchMarketMetadata(deployment.operatorApi,market)] as const;}catch{return null;}}));
-      if(!valid())return;setMetadata(Object.fromEntries(labels.filter((entry):entry is NonNullable<typeof entry>=>entry!==null)));
+      const builders=await Promise.all(next.builders.map(async entry=>{try{return {entry,metadata:await fetchBuilderMetadata(deployment.operatorApi,entry)};}catch{return {entry,metadata:null};}}));
+      if(!valid())return;setBuilderLabels(builders);setMetadata(Object.fromEntries(labels.filter((entry):entry is NonNullable<typeof entry>=>entry!==null)));
       setMessage(next.markets.length?"Finalized market state loaded.":"No markets exist in this finalized deployment.");
     }catch{if(valid()){setView(null);setMetadata({});connection.current=null;setMessage("Preprod state is unavailable. Check your wallet, workspace and configured deployment, then refresh.");}}
     finally{if(valid())setBusy(false);}
@@ -177,6 +183,75 @@ export function LiveWorkspace(){
       throw Error("Operation needs review");
     }finally{sending.current=false;if(valid())setBusy(false);}
   }
+  async function publishSaved(draft:PublicMetadataDraft,product:Product,client:WorkspaceClient){
+    if(!deployment)throw Error("Deployment unavailable");
+    const journal=await client.journal.get();
+    if(journal&&["prepared","submitted","uncertain"].includes(journal.phase))throw Error("Reconcile the saved transaction first");
+    const next=await product.view();
+    const saved=(await client.provider.get("client-v1"))?.metadataDrafts?.[`${draft.kind}/${draft.reference}`];
+    if(!saved||saved.hash!==draft.hash||saved.published)throw Error("Saved public metadata changed");
+    if(draft.kind==="builder"){
+      const entry=next.builders.find(b=>b.id===draft.reference&&b.owned&&b.consent&&b.profileHash===draft.hash);
+      if(!entry)throw Error("Builder registration not confirmed");
+      await publishBuilderMetadata(deployment.operatorApi,saved.document,entry);
+    }else{
+      const market=next.markets.find(m=>String(m.id)===draft.reference&&m.questionHash===draft.hash);
+      if(!market)throw Error("Market creation not confirmed");
+      await publishMarketMetadata(deployment.operatorApi,saved.document,market);
+    }
+    await client.update(state=>markMetadataPublished(state,draft));
+  }
+  async function executeBuilder(intent:BuilderIntent){
+    if(sending.current||busy||pending||!connection.current||!deployment)throw Error("Operation unavailable");
+    sending.current=true;setBusy(true);setMessage("Checking public terms before proof preparation.");
+    const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
+    try{
+      const next=await product.view(),blockTime=BigInt(next.anchor.blockTime),actions=createProductActions(product);let draft:PublicMetadataDraft|undefined;
+      if(!valid())throw Error("Workspace changed");
+      if(intent.kind==="withdraw"){
+        if(!next.builders.some(b=>b.id===intent.reference&&b.owned&&b.consent))throw Error("Builder ownership or consent changed");
+        await actions.withdrawBuilder({id:decode(intent.reference),blockTime});
+      }else if(intent.kind==="register"){
+        const existing=next.builders.find(b=>b.id===intent.document.reference);
+        if(existing&&(existing.consent||!existing.owned))throw Error("Builder registration unavailable");
+        const hash=await builderMetadataHash(intent.document);draft={kind:"builder",reference:intent.document.reference,document:intent.document,hash,published:false};
+        if(!valid())throw Error("Workspace changed");
+        await client.update(state=>saveMetadataDraft(state,draft!));
+        if(!valid())throw Error("Workspace changed");
+        await actions.registerBuilder({id:decode(intent.document.reference),profileHash:decode(hash),blockTime});
+      }else{
+        for(const option of intent.input.metadata.options){
+          const entry=next.builders.find(b=>b.id===option.reference&&b.consent);
+          if(!entry||(await fetchBuilderMetadata(deployment.operatorApi,entry)).label!==option.label)throw Error("Builder label or consent changed");
+        }
+        const prepared=await prepareSideAMarket(intent.input,next,blockTime,deployment.operatorApi);draft=prepared.draft;
+        if(!valid())throw Error("Workspace changed");
+        await client.update(state=>saveMetadataDraft(state,prepared.draft));
+        if(!valid())throw Error("Workspace changed");
+        await actions.createMarket({market:intent.input.id,config:prepared.config,blockTime});
+      }
+      let message="Builder consent withdrawal confirmed. Existing markets remain.";
+      if(draft){
+        message="Chain action confirmed. Public metadata published.";
+        if(valid())try{await publishSaved(draft,product,client);}catch{message="Chain action confirmed, metadata upload incomplete. Retry metadata only; do not repeat registration or creation.";}
+      }
+      if(valid()){
+        const [updated,journal]=await Promise.all([product.view(),client.journal.get()]);
+        const labels=await Promise.all(updated.builders.map(async entry=>{try{return {entry,metadata:await fetchBuilderMetadata(deployment.operatorApi,entry)};}catch{return {entry,metadata:null};}}));
+        if(valid()){setView(updated);setOperation(journal);setBuilderLabels(labels);setMessage(message);}
+      }
+    }catch{
+      if(valid()){try{const [journal,updated]=await Promise.all([client.journal.get(),product.view()]);if(valid()){setOperation(journal);setView(updated);}}catch{}if(valid())setMessage("Action not confirmed here. Review the saved transaction and finalized state before preparing again.");}
+      throw Error("Builder action needs review");
+    }finally{sending.current=false;if(valid())setBusy(false);}
+  }
+  async function retryMetadata(draft:PublicMetadataDraft){
+    if(sending.current||busy||pending||!connection.current)return;
+    sending.current=true;setBusy(true);const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
+    try{await publishSaved(draft,product,client);if(valid()){const updated=await product.view();if(valid()){setView(updated);setMessage("Public metadata published. No chain action was repeated. Refresh live markets to load its verified labels.");}}}
+    catch{if(valid())setMessage("Metadata unavailable or registration not confirmed. Check the saved transaction first; do not repeat the chain action.");throw Error("Upload unavailable");}
+    finally{sending.current=false;if(valid())setBusy(false);}
+  }
   return <div className="live-workspace">
     <div className="live-mode" role="group" aria-label="App data source"><Link to="/app">Demo</Link><span aria-current="page">Preprod</span></div>
     <div hidden={showWorkspace}>
@@ -195,6 +270,7 @@ export function LiveWorkspace(){
       </section>
       <button className="abtn abtn-red live-open" disabled={!canOpen||busy} onClick={()=>refresh()}>{busy?"Reading Preprod":view?"Refresh live markets":"Open live markets"}<Arrow/></button>
       {pending&&<section className="live-transaction"><h2>{operation.phase==="prepared"?"Saved transaction needs review":"Check your transaction before continuing"}</h2><p>{operation.phase==="prepared"?"A prepared operation is saved in your workspace. Review it before preparing another transaction.":"The final transaction result is not confirmed here. Check its status before sending another transaction."}</p>{operation.txId&&<p className="live-tx">Transaction {operation.txId}</p>}<button className="abtn abtn-soft" disabled={busy||!operation.txId} onClick={()=>refresh(true)}>Check transaction status</button></section>}
+      {view&&<LiveBuilderMarkets key={`builder/${generation.current}`} builders={builderLabels} canCreateSideA={view.canCreateSideA} markets={view.markets} drafts={view.metadataDrafts} scope={view.scope} disabled={busy||!!pending} onExecute={executeBuilder} onUpload={retryMetadata}/>}
       {view&&<section className="live-markets" aria-label="Finalized markets">{view.markets.map(market=><article className="live-market" key={String(market.id)}><h2>{metadata[String(market.id)]?.question??`Market #${market.id}`}</h2><p>{market.side} · {market.outcomeMode} outcomes · {market.phase} · {String(market.scouts)} scouts · {String(market.stakeTotal)} dUSD staked</p>{!metadata[String(market.id)]&&<p>Verified question and option labels unavailable.</p>}<p>{market.histogram?`${market.histogram.strong} strong, ${market.histogram.medium} medium, ${market.histogram.weak} weak options` :"Preview not published. Option totals remain sealed."}</p>{market.buyer&&<p>{market.buyer.bought.length} options purchased with this workspace.</p>}{metadata[String(market.id)]&&<LiveMarketActions market={market} metadata={metadata[String(market.id)]} eligibility={view.eligibility[String(market.id)]} positions={view.positions} disabled={busy||!!pending} reasonConfigured={!!deployment?.reasonPublicKey} onExecute={execute}/>}{metadata[String(market.id)]&&<LiveAuctionRewards key={`${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} eligibility={view.followUp[String(market.id)]} disabled={busy||!!pending} onExecute={executeFollowUp}/>}{metadata[String(market.id)]&&<LiveJury key={`jury/${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} cases={view.juryCases.filter(c=>c.market===market.id)} eligibility={view.jury} reporting={view.reporting[String(market.id)]} reportOptions={view.eligibility[String(market.id)].report} reportPool={view.eligibility[String(market.id)].pool} disabled={busy||!!pending} onExecute={executeJury}/>}{metadata[String(market.id)]&&market.buyer?.bought.map(option=><LivePurchasedSignal key={`${generation.current}/${market.id}/${option}`} label={metadata[String(market.id)].options[option].label} configured={!!deployment?.committee} disabled={busy||!!pending} onOpen={offset=>openSignal(market.id,option,offset)}/>)}</article>)}</section>}
       {view?.pendingReasons.map(key=><section className="live-transaction" key={key}><h2>Complete your reason delivery</h2><p>Position {key} has a saved reason awaiting confirmation. Delivery checks the finalized stake and never sends another stake.</p><button className="abtn abtn-soft" disabled={busy||!!pending||!deployment?.reasonPublicKey} onClick={()=>retryReason(key)}>Retry reason delivery</button></section>)}
       {view&&<section className="live-positions"><h2>Your saved picks on this deployment</h2>{view.positions.length?view.positions.map(position=><p key={position.id}>Market #{String(position.market)} · pick {position.slot} · option {position.option+1} · {String(position.stake)} dUSD · {position.status}</p>):<p>No onchain picks match this workspace.</p>}</section>}

@@ -84,5 +84,5 @@ export function readProductView(state:Ledger,scope:DeploymentScope,privateState?
     const outcome=item.kind===1n?state.outcomeCases.lookup(id):null;
     juryCases.push({id:hex(id),kind:item.kind===0n?"hoax":"outcome",market:item.marketId,pool:outcome?Number(outcome.pool):null,option:outcome?Number(outcome.option):null,proposed:item.proposed,evidenceHash:hex(item.evidence),commitUntil:item.commitUntil,revealUntil:item.revealUntil,committed:item.committed,yes:item.yes,no:item.no,result:item.result===0n?null:item.result===1n?"yes":item.result===2n?"no":"inconclusive"});
   }
-  return {scope:{...scope},markets,positions,juryCases,builders,canCreateSideA};
+  return {scope:{...scope},markets,positions,juryCases,builders,canCreateSideA,metadataDrafts:Object.values(privateState?.metadataDrafts??{}).filter(d=>!d.published)};
 }

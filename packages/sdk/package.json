@@ -5,6 +5,7 @@
   "type": "module",
   "license": "Apache-2.0",
   "exports": {
+    "./creation": "./src/creation.ts",
     "./ephemeral-state": "./src/ephemeral-state.ts",
     "./paid-signals": "./src/paid-signals.ts",
     "./identity-reveal": "./src/identity-reveal.ts",

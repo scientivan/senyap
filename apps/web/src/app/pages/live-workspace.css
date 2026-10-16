@@ -5,3 +5,5 @@
 .live-actions h4{font:inherit;font-weight:500;margin:20px 0 8px}.live-actions ul{padding-left:22px;line-height:1.65;overflow-wrap:anywhere}.live-actions li{margin-bottom:6px}.live-actions p{overflow-wrap:anywhere}
 
 .live-stake-summary dd{overflow-wrap:anywhere}
+
+.live-builder h2{font-size:16px;font-weight:500}.live-builder{font-size:14px}.live-builder p{font-size:14px;line-height:1.65}.live-builder input[type=datetime-local]{min-width:0}.live-metadata-recovery{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
