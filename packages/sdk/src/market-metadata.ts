@@ -39,3 +39,11 @@ export async function fetchMarketMetadata(endpoint:string,market:ProductMarketVi
     return await verifyMarketMetadata(await fetchPublicMetadata(endpoint,`/markets/${market.id}/meta`,request),market);
   }catch{throw Error("Verified market metadata unavailable");}
 }
+/** Upload-only recovery for an already finalized market. No chain call exists
+ * here; an unavailable response must never cause another createMarket send. */
+export async function publishMarketMetadata(endpoint:string,input:unknown,market:Pick<ProductMarketView,"id"|"questionHash"|"side"|"categoryHash"|"options">,request:typeof fetch=fetch):Promise<MarketMetadata>{
+  if(market.id<0n||market.id>=2n**32n)throw Error("Invalid metadata market ID");
+  const value=await verifyMarketMetadata(input,market);
+  try{return await verifyMarketMetadata(await fetchPublicMetadata(endpoint,"/markets/meta",request,{market:String(market.id),metadata:value}),market);}
+  catch{throw Error("Market metadata upload unavailable; do not repeat market creation");}
+}

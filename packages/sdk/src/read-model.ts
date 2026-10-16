@@ -29,12 +29,17 @@ export type ProductMarketView={
 };
 export type OwnedPositionView={id:string;market:bigint;slot:1|2|3;option:number;stake:bigint;weight:bigint;status:"active"|"claimed"|"slashed";hitPools:number[]};
 export type JuryCaseView={id:string;kind:"hoax"|"outcome";market:bigint;pool:number|null;option:number|null;proposed:boolean;evidenceHash:string;commitUntil:bigint;revealUntil:bigint;committed:bigint;yes:bigint;no:bigint;result:null|"yes"|"no"|"inconclusive"};
+export type BuilderRegistryView={id:string;profileHash:string;consent:boolean;registeredAt:bigint;owned:boolean};
 /** Projects only ledger facts. No fabricated metadata, decrypted total, balance,
  * payout estimate or wall-clock phase transition. The caller must supply one
  * trusted deployment snapshot. Private state stays on-device, never an API body. */
 export function readProductView(state:Ledger,scope:DeploymentScope,privateState?:ClientPrivateState){
   if(!/^[a-z0-9-]{1,32}$/.test(scope.network)||!/^[a-f0-9]{64}$/.test(scope.contract))throw Error("Invalid read deployment");
   if(privateState&&(privateState.version!==1||privateState.network!==scope.network||privateState.contract!==scope.contract))throw Error("Private read scope mismatch");
+  const builderOwner=privateState?hex(persistentHash(new CompactTypeVector(2,Bytes32Descriptor),[pad("senyap:builder"),privateState.secrets.builder])):null;
+  const builders:BuilderRegistryView[]=[...state.builderRegistry].map(([id,entry])=>({id:hex(id),profileHash:hex(entry.profileHash),consent:entry.consent,registeredAt:entry.registeredAt,owned:builderOwner!==null&&builderOwner===hex(entry.ownerCommit)}));
+  const buyerLeaf=privateState?persistentHash(Bytes32Descriptor,privateState.secrets.buyer):null;
+  const canCreateSideA=!!buyerLeaf&&!!state.buyerTree.findPathForLeaf(buyerLeaf)&&!!state.goodStanding.findPathForLeaf(buyerLeaf);
   const markets:ProductMarketView[]=[];
   for(const [id,market] of state.markets){
     const phase=productPhases[Number(state.marketPhase.lookup(id))];
@@ -79,5 +84,5 @@ export function readProductView(state:Ledger,scope:DeploymentScope,privateState?
     const outcome=item.kind===1n?state.outcomeCases.lookup(id):null;
     juryCases.push({id:hex(id),kind:item.kind===0n?"hoax":"outcome",market:item.marketId,pool:outcome?Number(outcome.pool):null,option:outcome?Number(outcome.option):null,proposed:item.proposed,evidenceHash:hex(item.evidence),commitUntil:item.commitUntil,revealUntil:item.revealUntil,committed:item.committed,yes:item.yes,no:item.no,result:item.result===0n?null:item.result===1n?"yes":item.result===2n?"no":"inconclusive"});
   }
-  return {scope:{...scope},markets,positions,juryCases};
+  return {scope:{...scope},markets,positions,juryCases,builders,canCreateSideA};
 }

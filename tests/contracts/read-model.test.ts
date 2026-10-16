@@ -5,10 +5,29 @@ import {readProductView,buyerPseudonym,scoutPositionId} from "../../packages/sdk
 import {createClientState,preparePrivateBuyer,preparePrivateStake,clientWitnesses} from "../../packages/sdk/src/client-state";
 import {setupSideB,preview} from "../helpers/side-b";
 import {setupAuction} from "../helpers/auction";
-import {bytes,hash,commitment,group} from "./harness";
+import {bytes,hash,commitment,group,setupGroups} from "./harness";
 import {marketEligibility} from "../../packages/sdk/src/eligibility";
 const root={scout:bytes(31),buyer:bytes(32),builder:bytes(33),verifier:bytes(34)};
 describe("ledger-backed product read model",()=>{
+  it("derives builder ownership and buyer creation eligibility locally from the exact workspace secrets",async()=>{
+    const s=setupGroups(),scope={network:"local",contract:s.context.currentQueryContext.address},state=await createClientState(root,scope);
+    expect(readProductView(s.state,scope,state)).toMatchObject({builders:[],canCreateSideA:false});
+    s.context.currentPrivateState.builder=state.secrets.builder;
+    s.invoke("registerBuilder",bytes(220),bytes(221),1000n);
+    s.invoke("admitBuyer",hash(state.secrets.buyer));
+    const view=readProductView(s.state,scope,state);
+    expect(view.canCreateSideA).toBe(true);
+    expect(view.builders).toEqual([{id:Buffer.from(bytes(220)).toString("hex"),profileHash:Buffer.from(bytes(221)).toString("hex"),consent:true,registeredAt:1000n,owned:true}]);
+    expect(readProductView(s.state,scope).builders[0].owned).toBe(false);
+    expect(readProductView(s.state,scope).canCreateSideA).toBe(false);
+    const other=await createClientState({...root,builder:bytes(222),buyer:bytes(223)},scope);
+    expect(readProductView(s.state,scope,other)).toMatchObject({builders:[{owned:false}],canCreateSideA:false});
+    s.invoke("withdrawBuilder",bytes(220));
+    expect(readProductView(s.state,scope,state).builders[0]).toMatchObject({consent:false,owned:true});
+    const output=JSON.stringify(view,(_k,v)=>typeof v==="bigint"?String(v):v);
+    expect(output).not.toContain(Buffer.from(state.secrets.builder).toString("hex"));
+    expect(output).not.toContain(Buffer.from(state.secrets.buyer).toString("hex"));
+  });
   it("uses actual phases, public counters and optional preview without plaintext totals or invented labels",()=>{
     const {s}=setupSideB(0,false),scope={network:"local",contract:s.context.currentQueryContext.address};
     let view=readProductView(s.state,scope);

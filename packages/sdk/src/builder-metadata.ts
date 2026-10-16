@@ -23,3 +23,10 @@ export async function fetchBuilderMetadata(endpoint:string,builder:{id:string;pr
   try{return await verifyBuilderMetadata(await fetchPublicMetadata(endpoint,`/builders/${builder.id}/meta`,request),builder);}
   catch{throw Error("Verified builder metadata unavailable");}
 }
+/** Upload-only recovery. The caller supplies a fresh finalized builder entry.
+ * This function has no wallet/transport and never repeats registration. */
+export async function publishBuilderMetadata(endpoint:string,input:unknown,builder:{id:string;profileHash:string;consent:boolean},request:typeof fetch=fetch){
+  const value=await verifyBuilderMetadata(input,builder);
+  try{return await verifyBuilderMetadata(await fetchPublicMetadata(endpoint,"/builders/meta",request,value),builder);}
+  catch{throw Error("Builder metadata upload unavailable; do not repeat registration");}
+}

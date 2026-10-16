@@ -518,3 +518,26 @@ Public builder metadata v1 contains only version, reference and label. Its canon
 Run `node --env-file=.env --import tsx scripts/probe-gemini.ts` with explicit GEMINI_GENERATION_MODEL and GEMINI_EMBEDDING_MODEL. The probe sends synthetic fixture text only and prints status/counts, never model text, vectors or keys. It is a provider smoke check, not a privacy or model-effectiveness evaluation. Gemini JSON generation uses responseMimeType and responseJsonSchema; the responseFormat form produced HTTP 400 during the real probe. Embedding returned two 3072-dimensional vectors. A bounded synthetic live probe passed with gemini-3.5-flash and gemini-embedding-001 (both HTTP 200, screened rewrite and one claim). gemini-3.8-flash exceeded the request deadline; gemini-2.5-flash-lite returned 404 despite appearing in the model list. Model listing alone is not endpoint validation. These names were passed as process settings; the local .env was not changed. Missing/unavailable generation withholds the rewrite.
 
 Reclaim credentials are present locally, but credential presence is not proof verification. Authenticated admission still requires an HTTPS callback, provider-specific qualification policy and an actual user proof. No proof or automatic admission was fabricated.
+
+
+### Public metadata upload recovery
+
+`publishBuilderMetadata` and `publishMarketMetadata` are SDK upload-only helpers
+for documents bound to a supplied finalized registry/market snapshot. They verify
+the exact document before HTTP, use the fixed operator route with omitted
+credentials, reject redirects, bound request/response bodies to 32 KiB, and verify
+the returned document. Invalid labels never reach HTTP. Failed uploads report
+that registration/creation must not be repeated. No wallet or chain transport is
+accepted by these helpers. Re-reading finalized eligibility before offering an
+upload and retaining the exact document across reloads remain host obligations.
+
+Focused HTTP/SQLite tests exercise outage followed by explicit successful retry,
+unchanged registry/market counts, rejected local substitutions, and a substituted
+market response. This is local integration evidence, not deployed product service.
+
+`readProductView` also projects public builder references, profile hashes, consent
+and registration times. Ownership is compared locally with the workspace builder
+secret's owner commitment. The view returns only an ownership boolean, never the
+secret. Side A creation eligibility requires both buyer-tree membership and good
+standing for the local buyer secret; a connected wallet alone is insufficient.
+These facts are available before the new builder UI is approved or integrated.
