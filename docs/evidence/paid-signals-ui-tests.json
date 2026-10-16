@@ -1,0 +1,36 @@
+{
+  "scope": "Read-only paid signal UI integration; no deploy or network transaction",
+  "webTypecheck": "passed",
+  "productionBuild": {
+    "passed": true,
+    "viteSeconds": 9.26,
+    "existingWarnings": [
+      "assert browser externalization",
+      "isomorphic-ws WebSocket export",
+      "large chunks"
+    ]
+  },
+  "focusedTests": {
+    "files": 2,
+    "tests": 5,
+    "seconds": 6.36,
+    "passed": true
+  },
+  "componentProbe": "paid-signals-browser.json",
+  "workspaceProductionProbe": "live-workspace-production-browser.json",
+  "review": {
+    "agent": "paid_signal_finish_reviewer",
+    "disposition": "ship",
+    "scope": "Actual synthetic component and code integration, not full-wallet service walkthrough"
+  },
+  "detectors": {
+    "currentModernCommand": "[]",
+    "mandatedLegacyCommand": "[]",
+    "newExceptions": false
+  },
+  "limitations": [
+    "No live product service configuration",
+    "No Lace/Preprod product transaction",
+    "Synthetic callback component states"
+  ]
+}

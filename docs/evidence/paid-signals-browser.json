@@ -1,0 +1,101 @@
+{
+  "scope": "Actual paid signal React component with synthetic callbacks; no wallet, service or transaction",
+  "checks": {
+    "openIsExplicit": true,
+    "pageFailurePreservesResult": true,
+    "retrySamePage": true,
+    "paginationAppends": true,
+    "totalSurvivesReasonOutage": true,
+    "unmountedResultDiscarded": true,
+    "configurationBlocks": true,
+    "blockedBlocks": true,
+    "walletAbsent": true,
+    "noExternalRequests": true
+  },
+  "screenshots": [
+    {
+      "state": "ready",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/ready-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "ready",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/ready-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "loading",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/loading-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "loading",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/loading-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unavailable",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/unavailable-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "unavailable",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/unavailable-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "reasons-outage",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/reasons-outage-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "reasons-outage",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/reasons-outage-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "success",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/success-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "success",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/success-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "configuration",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/configuration-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "configuration",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/configuration-390.png",
+      "noOverflow": true
+    },
+    {
+      "state": "blocked",
+      "width": 1440,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/blocked-1440.png",
+      "noOverflow": true
+    },
+    {
+      "state": "blocked",
+      "width": 390,
+      "path": "/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/.impeccable/review/paid-signals-app/blocked-390.png",
+      "noOverflow": true
+    }
+  ]
+}
