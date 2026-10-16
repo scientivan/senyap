@@ -1,0 +1,14 @@
+{
+  "network": "undeployed",
+  "spike": "S12",
+  "results": [
+    {
+      "step": "deploy",
+      "submitted": false,
+      "poolValidity": "node panic: 4003: Client error: Execution failed: Execution aborted due to trap: wasm trap: wasm `unreachable` instruction executed",
+      "error": "S12 pool validation failed; not submitted"
+    }
+  ],
+  "date": "2026-10-16T12:36:28.705Z",
+  "note": "Synthetic local fixture. Pool validity is the node's read-only TaggedTransactionQueue_validate_transaction result at the finalized head."
+}

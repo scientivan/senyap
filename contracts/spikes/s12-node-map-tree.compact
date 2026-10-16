@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: Apache-2.0
+// S12: which ledger write makes the local node panic during pool validation?
+pragma language_version 0.23;
+import CompactStandardLibrary;
+
+export ledger groups: Map<Bytes<32>, HistoricMerkleTree<20, Bytes<32>>>;
+export ledger plain: Map<Bytes<32>, Uint<64>>;
+export ledger counter: Uint<64>;
+export ledger tree: HistoricMerkleTree<20, Bytes<32>>;
+
+// (b) Insert a new key into a plain Map and update a Cell.
+export circuit mapAndCell(key: Bytes<32>): [] {
+  plain.insert(disclose(key), 1);
+  counter = (counter + 1) as Uint<64>;
+}
+
+// (c) Insert into a top-level HistoricMerkleTree.
+export circuit directTree(member: Bytes<32>): [] {
+  tree.insert(disclose(member));
+}
+
+// (a) Insert a default HistoricMerkleTree as a new Map value (configureScoutGroup line 196).
+export circuit mapDefaultTree(group: Bytes<32>): [] {
+  groups.insert(disclose(group), default<HistoricMerkleTree<20, Bytes<32>>>);
+}
+
+// (d) Insert a member into a tree nested in a Map.
+export circuit mapTreeInsert(group: Bytes<32>, member: Bytes<32>): [] {
+  groups.lookup(disclose(group)).insert(disclose(member));
+}
