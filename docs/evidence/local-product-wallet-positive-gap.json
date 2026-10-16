@@ -1,0 +1,17 @@
+{
+  "scope": "Read-only synthetic fixture; both submit methods disabled",
+  "firstPositive": {
+    "time": "2026-10-16T00:06:50.745Z",
+    "shieldedSynced": false,
+    "unshieldedSynced": true,
+    "dustSynced": false,
+    "dustPositive": true
+  },
+  "synced": {
+    "time": "2026-10-16T00:07:20.512Z",
+    "shieldedSynced": true,
+    "unshieldedSynced": true,
+    "dustSynced": true,
+    "dustPositive": true
+  }
+}

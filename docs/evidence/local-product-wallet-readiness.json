@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-16T00:06:24.119Z",
+  "scope": "Read-only local fixture wallet; submit methods disabled, no registration or network transaction",
+  "first": {
+    "shieldedSynced": false,
+    "unshieldedSynced": false,
+    "dustSynced": false,
+    "dustPositive": false
+  },
+  "synced": {
+    "shieldedSynced": true,
+    "unshieldedSynced": true,
+    "dustSynced": true,
+    "dustPositive": true
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-16T00:09:11.364Z",
+  "network": "undeployed",
+  "txId": "00f8d399c9a0e7a92eed7ae62dbab1f15607f72126e2796934a4b59c946708411b",
+  "nodeRejection": "Malformed(InvalidDustSpendProof)",
+  "nodeErrorCode": 170,
+  "nodePublicLog": "2026-10-16 00:03:07 Transaction malformed: dust spend proof failed to verify; Rejected transaction from mempool: Transaction Error: Malformed(InvalidDustSpendProof)",
+  "indexerMatches": 0,
+  "pendingExtrinsics": 0,
+  "finalizedHead": "0x2590787e74ffa351a18277d04c702460304757607d7c355b27670edbf1078864",
+  "scope": "Read-only reconciliation, not a new submission. No product deployment or mint observed. Original journal retained unchanged.",
+  "limitation": "An empty lookup alone is not proof of permanent absence. Recovery also requires the explicit node rejection and a separate approval for the replacement submission."
+}

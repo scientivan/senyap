@@ -4,9 +4,10 @@
     "network": "undeployed",
     "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
     "codeSha256": {
-      "runner": "d7baa8276d1771c412dde5c73dccb41997cba192ab55921856ec00e4ea374600",
+      "runner": "4a79470f3e06d511b261fb4ae8120bd3b3bb771a6939b7a80f8a0aec69fd39c5",
       "scenario": "d802f413f9d5f27743c80506364222911f0d1cd29590a440d3b489d2c53734a2",
-      "journal": "30345487eafedd25dbe03c4a97f6301fa8a84bada730ec1ac83cd88d2a66c8dc",
+      "journal": "4dd2f8038b831e1f6c9d1901338a9569dc8ab3acffb8a4a760b31e3cdbb18312",
+      "walletBalance": "7d4b97e1212e00ac100c66259a2c9e86a142bb746cc1b4de6a7343206c0991e0",
       "token": "26793ddd8db8b22f8fec5dfe7e1641950e516530cf68eb5eada0f4a9c2c8d7e4"
     },
     "deploys": [
@@ -107,7 +108,7 @@
       "proofServer": "http://127.0.0.1:6300"
     }
   },
-  "planSha256": "c1244313cbf97cd8c363fbd47aa5e9ba8300b96d01fb9f350a47791629f2a369",
+  "planSha256": "01afb123ffb95f71eeb2764463cf7eebe6777d5fbcd7cc9a2d91c356dcac2c1e",
   "simulation": {
     "phases": [
       "settled",
@@ -163,10 +164,10 @@
     "note": "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."
   },
   "status": "simulator evidence; network execution, if approved, is recorded in a separate journal",
-  "generatedAt": "2026-10-15T22:15:59.963Z",
+  "generatedAt": "2026-10-16T00:09:59.030Z",
   "readOnlyPreflight": {
     "status": "passed; no wallet started or transaction submitted",
     "genesisHash": "e624f91737add2cf1a6658b3cf3a5524d633faea8c943702b435820316d9e21e",
-    "blockTime": 1792102542
+    "blockTime": 1792109382
   }
 }

@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-16",
+  "scope": "No replacement transaction; simulator, fake-state regression and read-only wallet/node diagnostics only",
+  "failedAttempt": {
+    "action": "deploy:dusd",
+    "txId": "00f8d399c9a0e7a92eed7ae62dbab1f15607f72126e2796934a4b59c946708411b",
+    "nodeError": "Malformed(InvalidDustSpendProof)",
+    "code": 170,
+    "journal": "local-product-cycle-journal.json"
+  },
+  "diagnostics": [
+    "local-product-wallet-readiness.json",
+    "local-product-wallet-positive-gap.json",
+    "local-product-cycle-rejection.json"
+  ],
+  "observedGapSeconds": 29.767,
+  "fix": "Wait for official syncWallet complete markers before every local balanceTx",
+  "tests": {
+    "command": "pnpm exec vitest run tests/frontend/local-wallet-balance.test.ts tests/contracts/local-product-cycle.test.ts",
+    "passed": 5,
+    "files": 2,
+    "durationSeconds": 5.6,
+    "rootTypecheck": true,
+    "readOnlyPreflight": true
+  },
+  "recovery": "Prepared only; explicit replacement approval required; original journal retained, new journal exclusive; fresh inclusion/mempool lookup and source/rejection binding required",
+  "limits": [
+    "Gap observation establishes premature readiness, not proof that a replacement submission will succeed",
+    "Empty transaction lookup alone does not prove permanent absence",
+    "No product deploy, mint, stake or lifecycle confirmed"
+  ],
+  "sourceSha256": {
+    "scripts/local-product-cycle.ts": "4a79470f3e06d511b261fb4ae8120bd3b3bb771a6939b7a80f8a0aec69fd39c5",
+    "scripts/lib/local-submission-journal.ts": "4dd2f8038b831e1f6c9d1901338a9569dc8ab3acffb8a4a760b31e3cdbb18312",
+    "scripts/lib/local-wallet-balance.ts": "7d4b97e1212e00ac100c66259a2c9e86a142bb746cc1b4de6a7343206c0991e0"
+  }
+}

@@ -17,8 +17,8 @@ node was stale; the subsequent check passed once fresh blocks finalized.
 
 ## Exact proposed execution
 
-Explicit owner approval under AGENTS.md rule 2 and codex-prompt.md rule 4 is still
-required for this entire sequence. The reviewed plan contains **79 transactions**:
+Dien approved the original entire sequence on 16 October 2026 under AGENTS.md
+rule 2 and codex-prompt.md rule 4. The reviewed plan contains **79 transactions**:
 
 | Action | Count | Effect |
 | --- | ---: | --- |
@@ -51,7 +51,44 @@ node --import tsx scripts/local-product-cycle.ts --execute-local --approved-plan
 ```
 
 The hash check is an execution guard, not a replacement for owner approval.
-No execution command has been run during preparation.
+The original execution was attempted once after approval. It stopped on the
+first dUSD deployment, rejected by the local node with error 170,
+`Malformed(InvalidDustSpendProof)`. No subsequent action was attempted. The
+original journal is preserved; it must not be overwritten or deleted.
+
+## Prepared recovery after the rejected first deployment
+
+Read-only replay found a positive DUST balance while DUST synchronization was
+still incomplete. Full synchronization followed about 30 seconds later
+([measurement](evidence/local-product-wallet-positive-gap.json)). The runner now
+requires the official SDK's full shielded/unshielded/DUST synchronization before
+every balance operation. The regression test proves that a positive balance and
+even completed DUST alone cannot bypass another incomplete replay component.
+This closes the observed readiness gap; success of a replacement deployment has
+not yet been demonstrated.
+
+The node rejection and subsequent empty transaction lookup/mempool are recorded
+in [reconciliation evidence](evidence/local-product-cycle-rejection.json).
+An empty lookup alone does not prove permanent absence. Recovery requires that
+explicit rejection record, the exact original deployment/source binding, only
+one prior attempted action (`deploy:dusd`), and fresh empty lookup/mempool reads.
+Any included transaction, pending extrinsic, additional prior action or failed
+lookup blocks recovery.
+
+The replacement submission needs separate owner approval. The remaining 78
+actions retain their original authorization. After approval, use the current
+digest from the regenerated plan with an explicit recovery switch:
+
+```sh
+node --import tsx scripts/local-product-cycle.ts --execute-local --retry-rejected-first-deploy --approved-plan-sha <reviewed-current-plan-digest>
+```
+
+This creates `local-product-cycle-retry-journal.json` exclusively and retains the
+original rejected ID in its public result. It permits at most 79 replacement-run
+submissions (one replacement deploy plus the remaining 78 actions), so there can
+be 80 total submission attempts including the original rejected one. It cannot
+restart again automatically. Transaction effects and scenario parameters remain
+the original approved 79-action plan; only synchronization/recovery guards changed.
 
 ## Time, receipts and failure handling
 
@@ -83,7 +120,8 @@ refunds every scout stake and conserves all funds: deposits 1,240 = bid refunds
 latency crosses the early-stake bonus boundary; network acceptance checks the
 actual ledger and token balance rather than assuming those simulator rewards.
 
-Three focused tests cover the shared scenario, persist-before-send on an
+Five focused tests cover full-sync balancing, the narrow recovery gate, the shared
+scenario, persist-before-send on an
 ambiguous transport failure, exclusive creation, refusal to retry and the exact
 transaction cap. Root typecheck and read-only preflight passed during preparation.
 

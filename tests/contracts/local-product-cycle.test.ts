@@ -4,9 +4,24 @@ import {mkdtemp, readFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {runScenario, simulatorDriver} from "../../scripts/lib/local-product-scenario";
-import {createLocalJournal} from "../../scripts/lib/local-submission-journal";
+import {createLocalJournal, validateRejectedFirstDeploy} from "../../scripts/lib/local-submission-journal";
 
 describe("local product network rehearsal", () => {
+  it("requires a rejected first deploy, matching deployment and fresh empty-chain/mempool reads before explicit recovery", async () => {
+    const sourceSha256 = "a".repeat(64), txId = "c".repeat(64);
+    const prior = {network: "undeployed", sourceSha256, transactions: [{action: "deploy:dusd", status: "submitted", txId}]};
+    const rejection = {network: "undeployed", txId, nodeRejection: "Malformed(InvalidDustSpendProof)"};
+    const observe = async () => ({indexerMatches: 0, pendingExtrinsics: 0});
+    const input = {sourceSha256, prior, rejection, observe};
+    expect(await validateRejectedFirstDeploy(input)).toBe(txId);
+    await expect(validateRejectedFirstDeploy({...input, prior: {...prior, network: "preprod"}})).rejects.toThrow("binding");
+    await expect(validateRejectedFirstDeploy({...input, prior: {...prior, transactions: [...prior.transactions, ...prior.transactions]}})).rejects.toThrow("first deploy");
+    await expect(validateRejectedFirstDeploy({...input, rejection: {...rejection, nodeRejection: undefined}})).rejects.toThrow("rejection evidence");
+    for (const state of [{indexerMatches: 1, pendingExtrinsics: 0}, {indexerMatches: 0, pendingExtrinsics: 1}]) {
+      await expect(validateRejectedFirstDeploy({...input, observe: async () => state})).rejects.toThrow("recovery blocked");
+    }
+    await expect(validateRejectedFirstDeploy({...input, observe: async () => {throw Error("offline");}})).rejects.toThrow("offline");
+  });
   it("settles both sides with two auction pools, shared purchases, subsidy and exact conservation", async () => {
     const {driver, calls} = simulatorDriver();
     const result = await runScenario(driver);

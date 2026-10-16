@@ -14,7 +14,8 @@ import {Contract} from "../contracts/managed/senyap/contract/index.js";
 import {Contract as TokenContract} from "../contracts/managed/dusd/contract/index.js";
 import {createSnapshotReader} from "../packages/sdk/src/snapshot";
 import {hash, operator} from "../tests/contracts/harness";
-import {createLocalJournal} from "./lib/local-submission-journal";
+import {createLocalJournal, validateRejectedFirstDeploy} from "./lib/local-submission-journal";
+import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
 import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
   type Driver, type Circuit, type LocalState, type Args, type Result} from "./lib/local-product-scenario";
 
@@ -28,6 +29,7 @@ const codeSha256 = {
   runner: digest(await readFile("scripts/local-product-cycle.ts")),
   scenario: digest(await readFile("scripts/lib/local-product-scenario.ts")),
   journal: digest(await readFile("scripts/lib/local-submission-journal.ts")),
+  walletBalance: digest(await readFile("scripts/lib/local-wallet-balance.ts")),
   token: digest(await readFile("contracts/dusd.compact")),
 };
 const plan = {version: 1, network: "undeployed", sourceSha256, codeSha256, deploys: ["dusd", "senyap"], mint: "5000",
@@ -104,14 +106,32 @@ if (!execute) {
 async function executeLocal() {
   const readiness = await preflight();
   setNetworkId("undeployed");
-  const journalPath = "docs/evidence/local-product-cycle-journal.json";
+  const retry = process.argv.includes("--retry-rejected-first-deploy");
+  const journalPath = retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
+  let rejectedId: string | undefined;
+  if (retry) {
+    const prior = JSON.parse(await readFile("docs/evidence/local-product-cycle-journal.json", "utf8"));
+    const reconciliation = JSON.parse(await readFile("docs/evidence/local-product-cycle-rejection.json", "utf8"));
+    rejectedId = await validateRejectedFirstDeploy({sourceSha256, prior, rejection: reconciliation, observe: async txId => {
+      const response = await fetch(environment.indexer, {method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({query: "query($offset: TransactionOffset!) { transactions(offset: $offset) { __typename } }", variables: {offset: {identifier: txId}}}), signal: AbortSignal.timeout(10000)});
+      assert(response.ok, "Prior transaction reconciliation unavailable");
+      const reply = await response.json(), pending = await rpc("author_pendingExtrinsics");
+      assert(!reply.errors && Array.isArray(reply.data?.transactions) && Array.isArray(pending), "Local recovery lookup unavailable");
+      return {indexerMatches: reply.data.transactions.length, pendingExtrinsics: pending.length};
+    }});
+    // This explicit recovery switch and a newly reviewed digest require owner
+    // approval for the replacement submission. Nothing retries automatically.
+  }
   // Exclusive create prevents repeating an interrupted/uncertain run, even when
   // no receipt was returned. Reconciliation is read-only and manual.
   const journal = await createLocalJournal(journalPath, {sourceSha256, planSha256}, plan.transactionCount);
+  if (rejectedId) {journal.data.publicResult.replacesRejectedId = rejectedId; await journal.persist();}
   let wallet: MidnightWalletProvider | undefined;
   try {
     const seed = Buffer.alloc(32); seed[31] = 1; // Public local genesis fixture, never an external wallet.
     wallet = await MidnightWalletProvider.build(logger, environment, seed.toString("hex"));
+    wallet.balanceTx = synchronizedLocalBalance(wallet);
     // false skips automatic NIGHT registration. Insufficient DUST stops this run.
     await wallet.start(false);
     await firstValueFrom(wallet.wallet.state().pipe(filter(s => s.dust.balance(new Date()) > 0n), timeout(120000)));
