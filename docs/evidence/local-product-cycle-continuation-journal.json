@@ -1,0 +1,23 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+  "planSha256": "a411baa53e94e7cd9a919fa1cee925ecbbd9a4eecee78ab99fd2844ad5efff06",
+  "status": "stopped; no automatic restart",
+  "transactions": [
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "0020bb455b6e7402ea6a8b343a2e73cbbbcdbcb34458c9c84b6bbf66866a4fc83d"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "prepared"
+    }
+  ],
+  "publicResult": {
+    "resumesConfirmedToken": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "previousJournal": "local-product-cycle-retry-journal.json",
+    "tokenContract": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2",
+    "token": "f5cf17ce76865bbb37ac882d5f82e8237b40fce5f41f1ce5d8c2bca5142e80a7"
+  }
+}

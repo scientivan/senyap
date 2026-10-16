@@ -6,7 +6,8 @@ import {resolve} from "node:path";
 import {setTimeout as pause} from "node:timers/promises";
 import {firstValueFrom, filter, timeout} from "rxjs";
 import {CompiledContract} from "@midnight-ntwrk/midnight-js-protocol/compact-js";
-import {deployContract,findDeployedContract} from "@midnight-ntwrk/midnight-js-contracts";
+import {deployContract,findDeployedContract,submitTx,verifyContractState,type FoundContract} from "@midnight-ntwrk/midnight-js-contracts";
+import {signingKeyFromBip340} from "@midnight-ntwrk/midnight-js-protocol/ledger";
 import {setNetworkId} from "@midnight-ntwrk/midnight-js-network-id";
 import {MidnightWalletProvider, initializeMidnightProviders, inMemoryPrivateStateProvider, logger,
   type EnvironmentConfiguration} from "@midnight-ntwrk/testkit-js";
@@ -16,6 +17,7 @@ import {createSnapshotReader} from "../packages/sdk/src/snapshot";
 import {hash, operator} from "../tests/contracts/harness";
 import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment} from "./lib/local-submission-journal";
 import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
+import {stagedProductContract,verifierBatches,verifierInstallation} from "./lib/staged-product-deployment";
 import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
   type Driver, type Circuit, type LocalState, type Args, type Result} from "./lib/local-product-scenario";
 
@@ -25,15 +27,19 @@ const digest = (value: string | Uint8Array) => createHash("sha256").update(value
 const sourceSha256 = digest(await readFile("contracts/senyap.compact"));
 const simulated = simulatorDriver();
 const simulation = await runScenario(simulated.driver);
+const stagedMode=process.argv.includes("--staged-after-confirmed-mint");
+const installationBatches=verifierBatches(Object.keys(new Contract(witnesses).provableCircuits) as Circuit[]);
 const codeSha256 = {
   runner: digest(await readFile("scripts/local-product-cycle.ts")),
   scenario: digest(await readFile("scripts/lib/local-product-scenario.ts")),
   journal: digest(await readFile("scripts/lib/local-submission-journal.ts")),
   walletBalance: digest(await readFile("scripts/lib/local-wallet-balance.ts")),
+  stagedDeployment: digest(await readFile("scripts/lib/staged-product-deployment.ts")),
   token: digest(await readFile("contracts/dusd.compact")),
 };
 const plan = {version: 1, network: "undeployed", sourceSha256, codeSha256, deploys: ["dusd", "senyap"], mint: "5000",
-  circuits: simulated.calls, transactionCount: simulated.calls.length + 3,
+  circuits: simulated.calls, transactionCount: simulated.calls.length + 3+(stagedMode?installationBatches.length-1:0),
+  ...(stagedMode?{deploymentPackaging:{batches:installationBatches,requireAllVerifiersBeforeCalls:true}}:{}),
   genesisRegistration: false, parameters: {epochSeconds: 86400, hitSeconds: 300, selectionSeconds: 300, commitSeconds: 300, revealSeconds: 300},
   endpoints: {node: "http://127.0.0.1:9944", indexer: "http://127.0.0.1:8088/api/v4/graphql", proofServer: "http://127.0.0.1:6300"}};
 const planSha256 = digest(JSON.stringify(plan));
@@ -107,10 +113,11 @@ async function executeLocal() {
   const readiness = await preflight();
   setNetworkId("undeployed");
   const retry = process.argv.includes("--retry-rejected-first-deploy");
-  const resume=process.argv.includes("--resume-confirmed-token");assert(!(retry&&resume),"Choose only one recovery path");
-  const journalPath = resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
+  const resume=process.argv.includes("--resume-confirmed-token");assert(!(retry&&(resume||stagedMode))&&!(resume&&stagedMode),"Choose only one recovery path");
+  const journalPath = stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let confirmedToken:string|undefined;
-  if(resume){
+  let confirmedColor:string|undefined;
+  if(resume||stagedMode){
     const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-retry-journal.json","utf8"));
     const id=prior.transactions?.[0]?.txId;assert(typeof id==="string"&&/^[a-f0-9]{66}$/.test(id),"Prior identifier required");
     const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){block{height hash} contractActions{__typename address} ...on RegularTransaction{identifiers transactionResult{status}}}}",variables:{offset:{identifier:id}}})});
@@ -118,6 +125,17 @@ async function executeLocal() {
     const receipt=reply.data.transactions[0],head=await rpc("chain_getFinalizedHead"),header=await rpc("chain_getHeader",[head]);
     confirmedToken=confirmedTokenDeployment({sourceSha256,prior,receipt:{identifiers:receipt.identifiers,status:receipt.transactionResult?.status,actions:receipt.contractActions.map((item:{__typename:string;address:string})=>({kind:item.__typename,address:item.address})),blockHash:receipt.block.hash,blockHeight:receipt.block.height},canonicalBlockHash:(await rpc("chain_getBlockHash",[receipt.block.height])).slice(2),finalizedHeight:parseInt(header.number,16)});
     assert((await rpc("author_pendingExtrinsics")).length===0,"Pending transaction blocks continuation");
+  }
+  if(stagedMode){
+    const previous=JSON.parse(await readFile("docs/evidence/local-product-cycle-continuation-journal.json","utf8")),entries=previous.transactions;
+    assert(previous.network==="undeployed"&&previous.sourceSha256===sourceSha256&&entries?.length===2&&entries[0]?.action==="mint:5000"&&entries[0]?.status==="finalized"&&entries[1]?.action==="deploy:senyap"&&entries[1]?.status==="prepared"&&!entries[1]?.txId,"Only a confirmed mint and unsent product deploy may use staged recovery");
+    assert(previous.publicResult?.tokenContract===confirmedToken&&/^[a-f0-9]{64}$/.test(previous.publicResult?.token),"Confirmed token binding required");
+    const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){block{height hash} contractActions{__typename address} unshieldedCreatedOutputs{tokenType value} ...on RegularTransaction{identifiers transactionResult{status}}}}",variables:{offset:{identifier:entries[0].txId}}})});
+    const reply=await response.json();assert(response.ok&&!reply.errors&&reply.data?.transactions?.length===1,"Mint receipt unavailable");const mint=reply.data.transactions[0];
+    const head=await rpc("chain_getFinalizedHead"),header=await rpc("chain_getHeader",[head]);
+    assert(mint.identifiers?.includes(entries[0].txId)&&mint.transactionResult?.status==="SUCCESS"&&mint.block.height<=parseInt(header.number,16)&&(await rpc("chain_getBlockHash",[mint.block.height])).slice(2)===mint.block.hash,"Mint must be canonically finalized");
+    assert(mint.contractActions.length===1&&mint.contractActions[0].address===confirmedToken&&mint.contractActions[0].__typename==="ContractCall"&&mint.unshieldedCreatedOutputs.some((output:{tokenType:string;value:string})=>output.tokenType===previous.publicResult.token&&BigInt(output.value)===5000n),"Exact5000mint output required");
+    confirmedColor=previous.publicResult.token;
   }
   let rejectedId: string | undefined;
   if (retry) {
@@ -136,7 +154,7 @@ async function executeLocal() {
   }
   // Exclusive create prevents repeating an interrupted/uncertain run, even when
   // no receipt was returned. Reconciliation is read-only and manual.
-  const submissionLimit=plan.transactionCount-(resume?1:0);
+  const submissionLimit=plan.transactionCount-(stagedMode?2:resume?1:0);
   const journal = await createLocalJournal(journalPath, {sourceSha256, planSha256}, submissionLimit);
   if(confirmedToken){journal.data.publicResult.resumesConfirmedToken=confirmedToken;journal.data.publicResult.previousJournal="local-product-cycle-retry-journal.json";await journal.persist();}
   if (rejectedId) {journal.data.publicResult.replacesRejectedId = rejectedId; await journal.persist();}
@@ -167,17 +185,35 @@ async function executeLocal() {
       privateStateProvider: inMemoryPrivateStateProvider<string, {}>()};
     const token = confirmedToken?await findDeployedContract(tokenProviders,{compiledContract:tokenCompiled,contractAddress:confirmedToken,privateStateId:"local-token",initialPrivateState:{}}):await action("deploy:dusd", () => deployContract(tokenProviders, {compiledContract: tokenCompiled, privateStateId: "local-token", initialPrivateState: {}}));
     journal.data.publicResult.tokenContract = token.deployTxData.public.contractAddress; await journal.persist();
-    const minted = await action("mint:5000", () => token.callTx.mint(recipient, 5000n));
-    const color = minted.private.result, colorHex = hex(color); journal.data.publicResult.token = colorHex; await journal.persist();
+    const color=confirmedColor?Uint8Array.from(Buffer.from(confirmedColor,"hex")):(await action("mint:5000", () => token.callTx.mint(recipient, 5000n))).private.result;
+    const colorHex = hex(color); journal.data.publicResult.token = colorHex; await journal.persist();
     await firstValueFrom(wallet.wallet.state().pipe(filter(s => (s.unshielded.balances[colorHex] ?? 0n) >= 5000n), timeout(120000)));
     const compiled = CompiledContract.make("SenyapLocalCycle", Contract<LocalState>).pipe(CompiledContract.withWitnesses(witnesses),
       CompiledContract.withCompiledFileAssets(resolve("contracts/managed/senyap")));
     const providers = {...initializeMidnightProviders<Circuit, LocalState>(wallet, environment,
       {zkConfigPath: resolve("contracts/managed/senyap"), privateStateStoreName: ".states/local-cycle-unused"}),
       privateStateProvider: inMemoryPrivateStateProvider<string, LocalState>()};
-    const deployed = await action("deploy:senyap", () => deployContract(providers, {compiledContract: compiled, privateStateId: "local-product",
+    const deploymentCompiled=stagedMode?CompiledContract.make("SenyapLocalStaged",stagedProductContract(installationBatches[0])).pipe(CompiledContract.withWitnesses(witnesses),CompiledContract.withCompiledFileAssets(resolve("contracts/managed/senyap"))):compiled;
+    // Public local fixture authority, like the local operator/committee fixtures.
+    // Never use this known key for Preprod or real assets. It permits manual
+    // recovery without persisting a maintenance secret in public evidence.
+    const fixtureAuthority=stagedMode?signingKeyFromBip340(new Uint8Array(32).fill(201)):undefined;
+    let deployed:FoundContract<Contract<LocalState>> = await action("deploy:senyap", () => deployContract(providers, {compiledContract: deploymentCompiled, privateStateId: "local-product",...(fixtureAuthority?{signingKey:fixtureAuthority}:{}),
       initialPrivateState: initialPrivateState(), args: [...constructorArgs(color, recipient)]}));
     const contract = deployed.deployTxData.public.contractAddress; journal.data.publicResult.contract = contract; await journal.persist();
+    if(stagedMode){
+      const signingKey=await providers.privateStateProvider.getSigningKey(contract);assert(signingKey,"Deployment maintenance signing key unavailable");
+      for(let i=1;i<installationBatches.length;i++){
+        const current=await providers.publicDataProvider.queryContractState(contract);assert(current,"Product state unavailable during installation");
+        const keys=await Promise.all(installationBatches[i].map(async id=>({id,key:await providers.zkConfigProvider.getVerifierKey(id)})));
+        const unprovenTx=verifierInstallation({contract,keys,counter:current.maintenanceAuthority.counter+1n,signingKey});
+        await action(`install-verifiers:${i}`,async()=>{const receipt=await submitTx(providers,{unprovenTx});assert(receipt.status==="SucceedEntirely","Verifier installation failed");return receipt;});
+      }
+      const installed=await providers.publicDataProvider.queryContractState(contract);assert(installed,"Installed contract unavailable");
+      verifyContractState(await Promise.all(installationBatches.flat().map(async id=>[id,await providers.zkConfigProvider.getVerifierKey(id)] satisfies Parameters<typeof verifyContractState>[0][number])),installed);
+      journal.data.publicResult.all41VerifiersInstalled=true;await journal.persist();
+      deployed=await findDeployedContract(providers,{compiledContract:compiled,contractAddress:contract,privateStateId:"local-product"});
+    }
     const snapshot = createSnapshotReader({network: "undeployed", contract, nodeUrl: environment.node, indexerUrl: environment.indexer,
       genesisHash: readiness.genesisHash, operatorCommitment: hex(hash(operator))});
     let sequence = 0;

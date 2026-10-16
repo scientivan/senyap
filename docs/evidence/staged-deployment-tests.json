@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-16T03:17:35.021504+00:00",
+  "focusedTests": {
+    "passed": true,
+    "tests": 7,
+    "files": 2,
+    "durationSeconds": 4.82
+  },
+  "rootTypecheck": true,
+  "stagedDryWallet": "product-deploy-staged-check.json",
+  "fullDeployDryWallet": "product-deploy-constructor-check.json",
+  "permission": "three additional maintenance transactions not yet authorized",
+  "planSha256": "708a577e1ce370ce5d6b7f68b9e028d233372027ca29707cdb00c4e5681bd561",
+  "remainingSubmissions": 80,
+  "totalAttemptCapProposed": 83
+}

@@ -1,0 +1,31 @@
+{
+  "data": {
+    "transactions": [
+      {
+        "identifiers": [
+          "0020bb455b6e7402ea6a8b343a2e73cbbbcdbcb34458c9c84b6bbf66866a4fc83d",
+          "00acea27173dc6824557822ae18d1a4b751b5232b7663d129f8b97bbd05c87575b"
+        ],
+        "transactionResult": {
+          "status": "SUCCESS"
+        },
+        "unshieldedCreatedOutputs": [
+          {
+            "tokenType": "f5cf17ce76865bbb37ac882d5f82e8237b40fce5f41f1ce5d8c2bca5142e80a7",
+            "value": "5000"
+          }
+        ],
+        "block": {
+          "height": 11791,
+          "hash": "ed9cda9e1fbf3b9101e1c88305984115d6438d36dbf6daeb4aa795e667bc1e3b"
+        },
+        "contractActions": [
+          {
+            "__typename": "ContractCall",
+            "address": "693183da3b0419e28d7691cb0a2eacd141b1701bf5293b6973ce7622018b04e2"
+          }
+        ]
+      }
+    ]
+  }
+}

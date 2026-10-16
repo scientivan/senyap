@@ -160,3 +160,44 @@ Original and replacement journals remain unchanged. Continuation uses
 `local-product-cycle-continuation-journal.json`; this does not grant additional
 transaction effects beyond the reviewed79successful actions (80total attempts
 including the rejected first deploy).
+
+## Staged verifier installation proposal (awaiting permission)
+
+The confirmed token deployment and5000mint are retained. The Senyap deploy has
+only a prepared journal entry, with no send ID. A submission-disabled wallet
+reproduction failed at balance with the static ledger error
+`exceeded block limit in transaction fee computation`. Constructor creation passes.
+The full initial deployment's estimated bytesWritten is102063 against an initial
+ledger block limit50000. This is a resource limit, not permission to remove features.
+
+The prepared alternative installs every41verifier in12+12+12+5 batches. The initial
+12-operation deploy estimates36233bytesWritten; the three maintenance transactions
+estimate34980,34980,14631. All normalize within initial ledger limits. A real local
+wallet dry run reached the intentionally blocked submission boundary for the
+12-operation deploy; it did not send. Maintenance cost checks are unproven estimates,
+not network receipts. Evidence: product-deploy-constructor-check.json and
+product-deploy-staged-check.json.
+
+`--staged-after-confirmed-mint` requires the retained successful token and mint
+receipts on the canonical finalized chain, the exact unsent deploy entry, and an
+empty mempool. It skips both token deployment and mint. It uses a new exclusive
+staged journal, with a limit80remaining submissions: one Senyap deploy, three
+verifier-installation transactions, and the originally reviewed76calls. Therefore
+there are82successful actions planned overall, or83attempts including the original
+rejected token deploy. Compared with prior authorization, exactly three maintenance
+transactions need new approval. No registration, Preprod, Lace or real assets.
+
+No market or user call is allowed before all41installed verifier keys are compared
+to the complete local manifest. Constructor ledger data is byte-for-byte equivalent
+to the full constructor; only initial entry-point packaging differs. The known
+public local fixture maintenance authority is restricted to this undeployed runner,
+like its public genesis/operator/committee fixtures. Never use it for Preprod.
+A failure or uncertain receipt stops without retry. Private keys are never printed
+or placed in public journals. Existing journals remain retained unchanged.
+
+```sh
+# Read-only plan/preflight (no new permission needed)
+node --import tsx scripts/local-product-cycle.ts --staged-after-confirmed-mint --preflight
+# Only after the three additional maintenance transactions are explicitly approved
+node --import tsx scripts/local-product-cycle.ts --staged-after-confirmed-mint --execute-local --approved-plan-sha <reviewed-plan-digest>
+```
