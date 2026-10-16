@@ -78,7 +78,8 @@ private state; circuits still enforce the rules at submission.
 submitted or uncertain. The saved transaction must be checked before another send.
 `packages/sdk/src/reason-delivery.ts` checks a finalized saved position before
 encrypted reason delivery. Retrying delivery calls the service without another
-stake or wallet transaction. A paid total still requires committee-service access.
+stake or wallet transaction. The paid-signal controls described below now expose
+committee-service reads when the deployment is configured.
 
 [Fakta] `docs/evidence/market-actions-browser.json` records 14 captures at widths
 1440 and 390 for stake, eligibility, buy, report, refund, review and pending states,
@@ -94,11 +95,55 @@ the approval status in this brief). The batch was corrected and recaptured; the
 reviewer marked all four resolved with disposition `ship`. This verdict covers
 the reviewed component surface and does not expand the browser evidence scope.
 
-[Fakta] The current legacy detector result for `apps/web/src` is `[]`. The modern
-detector remains DEGRADED because parser dependencies are missing; its regex
-result is not a clean verdict. The existing 13px exception is still confined to
+[Fakta] At this earlier four-form checkpoint the legacy detector result for
+`apps/web/src` was `[]`. The modern detector was DEGRADED because parser
+dependencies were missing; its regex result was not a clean verdict. The existing
+13px exception is still confined to
 `design/live-market-actions.html`.
 
 Subjective reports, auctions, normal reward claims, admin and verifier interfaces
 remain pending. The four integrated forms do not establish those capabilities or
 demonstrate a product transaction on Preprod.
+
+## Purchased-signal component checkpoint (16 Oct)
+
+[Fakta] `apps/web/src/app/pages/LivePurchasedSignal.tsx`, hosted by
+`LiveWorkspace.tsx` and styled by `live-workspace.css`, extends this same compact
+surface with explicit read-only opening of purchased options. The SDK receives
+the real finalized snapshot and private buyer key through the product adapter;
+the component displays aggregate weight and screened reasons, including claims,
+opinions and screening flags. Screening copy explains that it does not verify
+claims or determine outcomes. This extension introduces no global design/token
+changes or new font exceptions.
+
+[Fakta] Opening and retrying call the signal service without purchasing again or
+sending a payment. A failed page preserves the aggregate and earlier reasons;
+retry requests the same failed offset, and successful pagination appends reasons.
+A reasons-service outage retains the opened total. Missing committee
+configuration and pending operations block the control. Workspace generation
+checks and component unmount checks reject stale responses. Results live only in
+component memory, with no new persistent storage. These contracts are implemented
+in `LivePurchasedSignal.tsx` and `LiveWorkspace.tsx`.
+
+[Fakta] `docs/evidence/paid-signals-browser.json` records ten passing checks and
+14 captures at 1440 and 390 for ready, loading, unavailable, reasons-outage,
+success, configuration and blocked states, all without overflow. Checks cover
+explicit opening, preservation after page failure, same-page retry, appended
+pagination, total retention during reason outage, unmount rejection,
+configuration/pending blocking, absent wallet and absent external requests.
+The harness renders the actual React component with SYNTHETIC callbacks; it
+does not call real services, a wallet or a transaction API.
+
+[Fakta] Independent finish reviewer `paid_signal_finish_reviewer` opened all
+14 captures and returned `ship` for the component and code integration scope.
+Web typecheck/build passed, as did five focused tests across two files (6.36s).
+These results do not establish full-shell browser behavior or live-network
+service delivery.
+
+[Fakta] Modern and legacy detector commands both returned `[]` in this checkpoint.
+The earlier DEGRADED modern runs above remain historical evidence rather than
+the current result. No detector or font exception was added.
+
+Subjective reports, auctions, normal reward claims, verifier and admin interfaces
+remain pending. This paid-signal UI checkpoint establishes no live service
+deployment, product transaction or end-to-end Preprod proof.

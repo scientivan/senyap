@@ -433,5 +433,18 @@ The purchased-signal SDK separately validates every3-of-5 public-key subset agai
 the ledger's master key, uses the saved per-market buyer receiver and checks paid
 access before requests. A reason-service outage preserves a successfully opened
 total. It never calls buyFlat. Public committee URLs and shares are fixed deployment
-configuration; missing values do not create defaults. UI signal controls remain
-pending integration.
+configuration; missing values do not create defaults.
+
+Paid options now expose an explicit read-only opening control inside their live
+market, using verified metadata labels. Aggregate weight and encrypted screened
+reasons are held in component memory only. The UI preserves prior pages and the
+aggregate on a service failure, retries the failed offset and appends the next
+page without purchasing again. Screening is labelled informational, not evidence
+verification. Missing committee configuration or a pending operation disables
+opening. Wallet/workspace invalidation or refresh remounts the scoped controls;
+late responses cannot populate a different workspace.
+
+`paid-signals-browser.json` records ten passing checks and fourteen desktop/mobile
+captures of the actual component with synthetic callbacks. Independent review
+returned `ship` for that component and the code integration. This is not a
+configured service deployment, full-wallet walkthrough or Preprod product test.
