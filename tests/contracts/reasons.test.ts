@@ -16,6 +16,12 @@ import { shareBinding,type ShareRequest } from "../../packages/crypto/src/buyer-
 import { reasonRelay,type ReasonRepository,type StoredReason } from "../../apps/operator/src/reasons";
 import { setupAuction,buyers } from "../helpers/auction";
 import { bytes,committee } from "./harness";
+import {ecMulGenerator} from "@midnight-ntwrk/compact-runtime";
+import {splitSecret} from "../../packages/crypto/src/index";
+import {createCommitteeServer} from "../../apps/committee/src/server";
+import {openPurchasedSignal} from "../../packages/sdk/src/purchased-signal";
+import {createClientState} from "../../packages/sdk/src/client-state";
+import {packPrivateKey} from "../../packages/sdk/src/private-state";
 async function fixture(modelAvailable=true,persistent?:ReasonRepository){
   const signing=await generateRevealKey(),operator=await generateBuyerKey(),buyer=await generateBuyerKey();
   const {s,useBuyer,records}=setupAuction(300n,signing.commitment,true),rows:StoredReason[]=[];
@@ -72,6 +78,22 @@ describe("P6.1 encrypted authenticated reasons",()=>{
       const raw=await readFile(path);expect(raw.includes(Buffer.from("The team shipped"))).toBe(false);expect(raw.includes(Buffer.from("scout@example.test"))).toBe(false);
       const request=f.paid(),args={endpoint,request,cipher:f.s.state.tally.lookup(1n)[0],privateKey:f.buyer.privateKey};
       const result=await fetchPaidReasonPage(args);expect(result.reasons[0].rewritten).toBe("The team shipped the promised integration.");expect(result.next).toBeNull();
+      // Exercise the complete read path after the existing purchase. A failed
+      // reason service must not discard a valid total or require another buy.
+      const shares=splitSecret(37n,[11n,17n]),nodes=shares.map(share=>createCommitteeServer({...scope,origin:"http://127.0.0.1:5174"},share,async()=>f.s.state));
+      try{
+        await Promise.all(nodes.map(async node=>{node.listen(0,"127.0.0.1");await once(node,"listening");}));
+        const saved=await createClientState({scout:bytes(31),buyer:bytes(32),builder:bytes(33),verifier:bytes(34)},scope);
+        saved.secrets.buyer=f.s.context.currentPrivateState.buyer;saved.receiving["1"]={publicKey:f.buyer.publicKey,privateKey:await packPrivateKey(f.buyer.privateKey)};
+        const signal={state:f.s.state,privateState:saved,market:1n,option:0,endpoints:nodes.map(node=>`http://127.0.0.1:${(node.address() as AddressInfo).port}`),publicKeys:shares.map(share=>ecMulGenerator(share.scalar)),operatorEndpoint:endpoint};
+        const before=f.s.state.buyerAccess.lookup(request.buyer);
+        const outage:typeof fetch=async(input,init)=>String(input).startsWith(endpoint+"/")?new Response("{}",{status:503}):fetch(input,init);
+        const unavailable=await openPurchasedSignal({...signal,fetcher:outage});expect(unavailable.reasonsAvailable).toBe(false);
+        const recovered=await openPurchasedSignal(signal);expect(recovered.reasonsAvailable).toBe(true);expect(recovered.total).toBe(unavailable.total);
+        expect(recovered.reasons[0].rewritten).toBe(result.reasons[0].rewritten);
+        expect(f.s.state.buyerAccess.lookup(request.buyer)).toEqual(before);
+        expect(await repository.list(1n)).toHaveLength(1);
+      }finally{await Promise.all(nodes.map(node=>new Promise<void>((resolve,reject)=>{node.closeAllConnections();if(!node.listening){resolve();return;}node.close(error=>error?reject(error):resolve());})));}
       const stranger=await generateBuyerKey();await expect(fetchPaidReasonPage({...args,privateKey:stranger.privateKey})).rejects.toThrow(/authentication/);
       const denied=await fetch(endpoint+"/reasons",{method:"POST",headers:{Origin:"https://unapproved.example","Content-Type":"application/json"},body});expect(denied.status).toBe(403);
       const broken=await fetch(endpoint+"/reasons",{method:"POST",headers:{"Content-Type":"application/json"},body:'{"state":"cannot-inject-ledger"}'});expect(broken.status).toBe(400);

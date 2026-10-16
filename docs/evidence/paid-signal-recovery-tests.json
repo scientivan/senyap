@@ -1,0 +1,22 @@
+{
+  "scope": "Local simulator plus five committee HTTP servers and operator HTTP/SQLite; no network transactions, no real model",
+  "tests": {
+    "command": "pnpm exec vitest run tests/contracts/reasons.test.ts tests/contracts/committee-http.test.ts",
+    "files": 2,
+    "tests": 5,
+    "durationSeconds": 6.88,
+    "passed": true
+  },
+  "rootTypecheck": "passed",
+  "checks": {
+    "operatorOutagePreservesTotal": true,
+    "recoveryReturnsEncryptedReason": true,
+    "buyerAccessUnchanged": true,
+    "storedReasonCountUnchanged": true
+  },
+  "limitations": [
+    "No product deployment or network transaction",
+    "No UI paid-read control",
+    "No real Gemini/Reclaim credentials"
+  ]
+}
