@@ -20,8 +20,9 @@ export function verifyCommitteePublicKeys(keys:readonly Point[],master:Point){
 }
 /** Read only. Retrying a paid signal cannot call buyFlat or touch the wallet.
  * Inputs come from one finalized snapshot and its scoped encrypted workspace. */
-export async function openPurchasedSignal(input:{state:Ledger;privateState:ClientPrivateState;market:bigint;option:number;endpoints:readonly string[];publicKeys:readonly Point[];operatorEndpoint:string;fetcher?:typeof fetch}){
+export async function openPurchasedSignal(input:{state:Ledger;privateState:ClientPrivateState;market:bigint;option:number;endpoints:readonly string[];publicKeys:readonly Point[];operatorEndpoint:string;offset?:number;fetcher?:typeof fetch}){
   const {state,privateState,market,option}=input;
+  if(input.offset!==undefined&&(!Number.isSafeInteger(input.offset)||input.offset<0||input.offset>=2**32))throw Error("Invalid reason page");
   if(!state.markets.member(market)||!Number.isInteger(option)||option<0||option>=Number(state.markets.lookup(market).nOptions))throw Error("Unknown signal option");
   const buyer=buyerPseudonym(privateState.secrets.buyer,market);
   if(!state.buyerAccess.member(buyer)||!state.buyerAccess.lookup(buyer).bought[option])throw Error("Option has not been purchased");
@@ -33,6 +34,6 @@ export async function openPurchasedSignal(input:{state:Ledger;privateState:Clien
   const nonce=Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,"0")).join(""),request={network:privateState.network,contract:privateState.contract,market,buyer,option,nonce};
   const privateKey=await restorePrivateKey(receiver.privateKey,"X25519"),cipher=state.tally.lookup(market)[option];
   const total=await collectPurchasedTotal({endpoints:input.endpoints,publicKeys:input.publicKeys,request,privateKey,cipher,maxTotal:state.marketWeight.lookup(market),fetcher:input.fetcher});
-  try{const page=await fetchPaidReasonPage({endpoint:input.operatorEndpoint,request,privateKey,cipher,fetcher:input.fetcher});return {total,reasons:page.reasons,next:page.next,reasonsAvailable:true as const};}
+  try{const page=await fetchPaidReasonPage({endpoint:input.operatorEndpoint,request,privateKey,cipher,offset:input.offset,fetcher:input.fetcher});return {total,reasons:page.reasons,next:page.next,reasonsAvailable:true as const};}
   catch{return {total,reasons:[],next:null,reasonsAvailable:false as const};}
 }
