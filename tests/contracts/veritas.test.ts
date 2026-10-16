@@ -33,7 +33,7 @@ describe("P6.1 Veritas screening core",()=>{
     const adapter=geminiReasonModel({apiKey:"synthetic-api-key-never-deployed",generationModel:"gemini-synthetic-test",embeddingModel:"gemini-embedding-synthetic-test"},fetcher);
     const result=await screenReason("Payment followed approval.",["A grant was paid."],adapter);expect(result.status).toBe("screened");
     expect(requests.length).toBe(2);for(const request of requests){expect(request.url).not.toContain("synthetic-api-key");expect(request.headers.get("x-goog-api-key")).toBe("synthetic-api-key-never-deployed");}
-    const generation=requests.find(r=>r.url.endsWith(":generateContent"))!;expect(generation.body.generationConfig.responseFormat.text.mimeType).toBe("application/json");expect(generation.body.tools).toBeUndefined();
+    const generation=requests.find(r=>r.url.endsWith(":generateContent"))!;expect(generation.body.generationConfig.responseMimeType).toBe("application/json");expect(generation.body.generationConfig.responseJsonSchema.required).toContain("rewritten");expect(generation.body.generationConfig.responseFormat).toBeUndefined();expect(generation.body.tools).toBeUndefined();
     const failed=geminiReasonModel({apiKey:"synthetic-api-key",generationModel:"gemini-synthetic-test",embeddingModel:"gemini-embedding-synthetic-test"},async()=>new Response("synthetic-sensitive-error",{status:403}));
     await expect(failed.assess("synthetic")).rejects.toThrow(/^Reason model request failed$/);
     const truncated=geminiReasonModel({apiKey:"synthetic-api-key",generationModel:"gemini-synthetic-test",embeddingModel:"gemini-embedding-synthetic-test"},async()=>new Response(JSON.stringify({candidates:[{finishReason:"MAX_TOKENS"}]})));

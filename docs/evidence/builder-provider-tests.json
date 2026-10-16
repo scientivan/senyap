@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-16",
+  "builderFocused": {
+    "tests": 11,
+    "files": 3,
+    "seconds": 8.7,
+    "passed": true
+  },
+  "metadataReasonsRegression": {
+    "tests": 9,
+    "files": 3,
+    "seconds": 6.38,
+    "passed": true
+  },
+  "providerCore": {
+    "tests": 6,
+    "files": 2,
+    "seconds": 0.332,
+    "passed": true
+  },
+  "rootTypecheck": "passed",
+  "webBuild": {
+    "passed": true,
+    "seconds": 17.34
+  },
+  "juryCI": {
+    "run": 38878842098,
+    "commit": "5ef7733",
+    "conclusion": "success"
+  },
+  "networkTransactions": false,
+  "liveGemini": {
+    "syntheticOnly": true,
+    "embedding": {
+      "httpStatus": 200,
+      "vectors": 2,
+      "dimensions": 3072
+    },
+    "generation": {
+      "model": "gemini-3.5-flash",
+      "httpStatus": 200,
+      "status": "screened",
+      "hasRewrite": true,
+      "claims": 1,
+      "opinions": 0
+    },
+    "initialFailures": [
+      "responseFormat MIME rejected HTTP400",
+      "gemini-3.8-flash deadline exceeded",
+      "gemini-2.5-flash-lite HTTP404"
+    ]
+  },
+  "reclaim": {
+    "credentialPresence": true,
+    "realProofVerified": false
+  }
+}

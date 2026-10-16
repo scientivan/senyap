@@ -505,3 +505,16 @@ is no automatic evidence-retrieval or truth claim.
 captures of the actual component with synthetic callbacks. Independent review
 returned `ship` for the reviewed component and code after the final build. This
 is not a live wallet, product service, network proof or transaction walkthrough.
+
+
+### Builder consent and public labels
+
+SDK actions registerBuilder and withdrawBuilder preserve the builder-owned consent boundary. createMarket permits Side A buyer creation; browser Side B creation is rejected before transport. No operator key is added to the browser.
+
+Public builder metadata v1 contains only version, reference and label. Its canonical SHA-256 commitment binds the reference and label to the current registry profileHash. POST /builders/meta accepts a document only after active registry consent and hash verification. GET /builders/{reference}/meta revalidates consent and hash against current finalized state. Withdrawal withholds the stored public document; it does not delete database rows. Labels are self-authored and do not establish identity, credentials or quality. SQLite records are deployment scoped. SDK reads use a fixed configured operator endpoint, omit credentials, reject redirects and bound responses to 32 KiB.
+
+### Live provider diagnostics
+
+Run `node --env-file=.env --import tsx scripts/probe-gemini.ts` with explicit GEMINI_GENERATION_MODEL and GEMINI_EMBEDDING_MODEL. The probe sends synthetic fixture text only and prints status/counts, never model text, vectors or keys. It is a provider smoke check, not a privacy or model-effectiveness evaluation. Gemini JSON generation uses responseMimeType and responseJsonSchema; the responseFormat form produced HTTP 400 during the real probe. Embedding returned two 3072-dimensional vectors. A bounded synthetic live probe passed with gemini-3.5-flash and gemini-embedding-001 (both HTTP 200, screened rewrite and one claim). gemini-3.8-flash exceeded the request deadline; gemini-2.5-flash-lite returned 404 despite appearing in the model list. Model listing alone is not endpoint validation. These names were passed as process settings; the local .env was not changed. Missing/unavailable generation withholds the rewrite.
+
+Reclaim credentials are present locally, but credential presence is not proof verification. Authenticated admission still requires an HTTPS callback, provider-specific qualification policy and an actual user proof. No proof or automatic admission was fabricated.
