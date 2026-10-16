@@ -20,7 +20,9 @@ export function marketEligibility(state:Ledger,privateState:ClientPrivateState|u
       result.stakeStatus="options-used";
       for(let option=0;option<Number(config.nOptions);option++){
         if(config.side===1n&&hex(config.optionRefs[option])!==hex(group.ecosystem))continue;
-        if(Object.entries(privateState.positions).some(([key,p])=>key.startsWith(`${market}/`)&&p.option===BigInt(option)))continue;
+        const draft=privateState.positions[`${market}/${slot}`];
+        if(draft&&(draft.option!==BigInt(option)||hex(draft.group)!==hex(id)))continue;
+        if(Object.entries(privateState.positions).some(([key,p])=>key.startsWith(`${market}/`)&&p.option===BigInt(option)&&state.positions.member(scoutPositionId(privateState.secrets.scout,privateState.contract,market,BigInt(key.split("/")[1])))))continue;
         if(!result.stake.some(item=>item.option===option))result.stake.push({option,group:hex(id),slot});
       }
     }

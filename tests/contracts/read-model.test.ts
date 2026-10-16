@@ -41,6 +41,7 @@ describe("ledger-backed product read model",()=>{
     expect(marketEligibility(s.state,state,1n,1000n).stake).toContainEqual({option:2,group:Buffer.from(group).toString("hex"),slot:1});
     expect(marketEligibility(s.state,state,1n,100000n).stake).toEqual([]);
     state=await preparePrivateStake(state,{market:1n,slot:1n,group,option:2n,blockTime:1000n});
+    expect(marketEligibility(s.state,state,1n,1000n).stake.map(item=>item.option)).toEqual([2]);
     expect(readProductView(s.state,scope,state).positions).toEqual([]);
     const contract=new Contract(clientWitnesses),call=contract.impureCircuits.stake({...s.context,currentPrivateState:state},1n,group,1n,100n,state.positions["1/1"].revealKeyCommit),current=ledger(call.context.currentQueryContext.state);
     expect(marketEligibility(current,state,1n,1000n).stake.every(item=>item.slot===2&&item.option!==2)).toBe(true);
