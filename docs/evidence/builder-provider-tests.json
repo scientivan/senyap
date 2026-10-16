@@ -53,5 +53,13 @@
   "reclaim": {
     "credentialPresence": true,
     "realProofVerified": false
+  },
+  "fullRegression": {
+    "tests": 176,
+    "files": 56,
+    "seconds": 125.88,
+    "passed": true,
+    "workers": 2,
+    "timeoutSeconds": 30
   }
 }
