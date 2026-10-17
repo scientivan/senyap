@@ -7,7 +7,7 @@ import {constructorArgs,initialPrivateState,witnesses,type Circuit} from "../../
 describe("staged deployment packaging",()=>{
   it("preserves all constructor data while limiting initial operations, with no omitted final circuit",()=>{
     const full=new Contract(witnesses),ids=Object.keys(full.provableCircuits) as Circuit[],batches=verifierBatches(ids);
-    expect(batches.map(x=>x.length)).toEqual([12,12,12,5]);expect(batches.flat()).toEqual(ids);
+    expect(batches.map(x=>x.length)).toEqual([12,12,12,6]);expect(batches.flat()).toEqual(ids);
     expect(verifierBatches(ids,8).map(x=>x.length)).toEqual([8,8,8,8,8,1]);
     const subset=new (stagedProductContract(batches[0]))(witnesses),args=constructorArgs(new Uint8Array(32).fill(5),{bytes:new Uint8Array(32).fill(6)});
     const original=full.initialState(createConstructorContext(initialPrivateState(),"a".repeat(64)),...args);
@@ -17,7 +17,7 @@ describe("staged deployment packaging",()=>{
     expect(staged.currentContractState.operations()).toHaveLength(12);
     expect(Object.keys(subset.provableCircuits)).toEqual(batches[0]);
     expect(staged.currentContractState.operation(batches[1][0])).toBeUndefined();
-    expect(()=>verifierBatches(ids.slice(1))).toThrow(/complete41/);
+    expect(()=>verifierBatches(ids.slice(1))).toThrow(/complete42/);
     expect(()=>stagedProductContract([ids[0],ids[0]])).toThrow(/Distinct/);
   });
 });

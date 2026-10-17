@@ -389,35 +389,9 @@ circuit assertBuyer(secret: Bytes<32>): MerkleTreePath<16, Bytes<32>> {
   return path;
 }
 
-export circuit createMarket(id: Uint<32>, config: Market): [] {
-  const cfg = disclose(config);const marketId = disclose(id);
-  assert(!markets.member(marketId), "Market already exists");
-  assert(cfg.side <= 1 && cfg.nOptions >= 1 && cfg.nOptions <= 8, "Invalid market side or option count");
-  assert(cfg.questionHash != default<Bytes<32>> && cfg.category != default<Bytes<32>>, "Market metadata required");
-  assert(cfg.openAt < cfg.openUntil && cfg.openUntil <= cfg.auctionUntil && cfg.auctionUntil < cfg.outcomeUntil, "Invalid market schedule");
-  assert(blockTimeGte(cfg.openAt) && blockTimeLt(cfg.openUntil), "Market not in open window");
-  const owner = cfg.side == 0 ? buyerSecret() : operatorSecret();
-  for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) {
-    if (i < cfg.nOptions) {
-      assert(cfg.optionRefs[i] != default<Bytes<32>>, "Empty active option");
-      for (const j of [0, 1, 2, 3, 4, 5, 6, 7]) {
-        assert(j >= cfg.nOptions || i == j || cfg.optionRefs[i] != cfg.optionRefs[j], "Duplicate market option");
-      }
-      if (cfg.side == 0) {
-        assert(builderRegistry.member(cfg.optionRefs[i]), "Unknown option builder");
-        assert(builderRegistry.lookup(cfg.optionRefs[i]).consent, "Builder has withdrawn consent");
-      }
-    } else { assert(cfg.optionRefs[i] == default<Bytes<32>>, "Unused option must be empty"); }
-  }
-  const creator = persistentHash<Vector<2, Bytes<32>>>([owner, marketId as Bytes<32>]);
-  // O-10: operator creates side B markets on verified builders' proposals.
-  if (cfg.side == 0) {
-    const path = assertBuyer(owner);
-    const card = makeBuyerCard(path, creator, cardRandomHigh(), cardRandomLow());
-    marketCreatorCards.insert(marketId, disclose(card));
-  } else { assertOperatorKey(owner);assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction"); }
+circuit initMarket(marketId: Uint<32>, cfg: Market, creator: Bytes<32>): [] {
   markets.insert(marketId, cfg);marketPhase.insert(marketId, 1);
-  marketCreator.insert(marketId, disclose(creator));
+  marketCreator.insert(marketId, creator);
   marketScouts.insert(marketId, 0);marketWeight.insert(marketId, 0);marketStake.insert(marketId, 0);
   pendingDisputes.insert(marketId, 0);outcomePending.insert(marketId, [0,0,0,0]);
   marketPools.insert(marketId, [0,0,0,0]);denominators.insert(marketId, [0,0,0,0]);paidRewards.insert(marketId, [0,0,0,0]);
@@ -430,6 +404,55 @@ export circuit createMarket(id: Uint<32>, config: Market): [] {
   bidCount.insert(marketId, 0);bidEscrow.insert(marketId, 0);hiddenOptions.insert(marketId, [emptyMask,emptyMask]);
   const zero = ecMulGenerator(0);
   tally.insert(marketId, map((i: Uint<8>): CipherPair => CipherPair { c1: zero, c2: zero }, [0,1,2,3,4,5,6,7]));
+}
+// Side A and Side B are separate circuits: a single circuit with a buyer-only
+// branch made the proof server panic ("task join error") for Side B (17 Oct).
+export circuit createMarket(id: Uint<32>, config: Market): [] {
+  const cfg = disclose(config);const marketId = disclose(id);
+  assert(cfg.side == 0, "Side B markets use createSideBMarket");
+  assert(!markets.member(marketId), "Market already exists");
+  assert(cfg.side <= 1 && cfg.nOptions >= 1 && cfg.nOptions <= 8, "Invalid market side or option count");
+  assert(cfg.questionHash != default<Bytes<32>> && cfg.category != default<Bytes<32>>, "Market metadata required");
+  assert(cfg.openAt < cfg.openUntil && cfg.openUntil <= cfg.auctionUntil && cfg.auctionUntil < cfg.outcomeUntil, "Invalid market schedule");
+  assert(blockTimeGte(cfg.openAt) && blockTimeLt(cfg.openUntil), "Market not in open window");
+  const owner = buyerSecret();
+  for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) {
+    if (i < cfg.nOptions) {
+      assert(cfg.optionRefs[i] != default<Bytes<32>>, "Empty active option");
+      for (const j of [0, 1, 2, 3, 4, 5, 6, 7]) {
+        assert(j >= cfg.nOptions || i == j || cfg.optionRefs[i] != cfg.optionRefs[j], "Duplicate market option");
+      }
+      assert(builderRegistry.member(cfg.optionRefs[i]), "Unknown option builder");
+      assert(builderRegistry.lookup(cfg.optionRefs[i]).consent, "Builder has withdrawn consent");
+    } else { assert(cfg.optionRefs[i] == default<Bytes<32>>, "Unused option must be empty"); }
+  }
+  const creator = persistentHash<Vector<2, Bytes<32>>>([owner, marketId as Bytes<32>]);
+  const path = assertBuyer(owner);
+  const card = makeBuyerCard(path, creator, cardRandomHigh(), cardRandomLow());
+  marketCreatorCards.insert(marketId, disclose(card));
+  initMarket(marketId, cfg, disclose(creator));
+}
+// O-10: operator creates side B markets on verified builders' proposals.
+export circuit createSideBMarket(id: Uint<32>, config: Market): [] {
+  const cfg = disclose(config);const marketId = disclose(id);
+  assert(cfg.side == 1, "Side A markets use createMarket");
+  assert(!markets.member(marketId), "Market already exists");
+  assert(cfg.side <= 1 && cfg.nOptions >= 1 && cfg.nOptions <= 8, "Invalid market side or option count");
+  assert(cfg.questionHash != default<Bytes<32>> && cfg.category != default<Bytes<32>>, "Market metadata required");
+  assert(cfg.openAt < cfg.openUntil && cfg.openUntil <= cfg.auctionUntil && cfg.auctionUntil < cfg.outcomeUntil, "Invalid market schedule");
+  assert(blockTimeGte(cfg.openAt) && blockTimeLt(cfg.openUntil), "Market not in open window");
+  const owner = operatorSecret();
+  for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) {
+    if (i < cfg.nOptions) {
+      assert(cfg.optionRefs[i] != default<Bytes<32>>, "Empty active option");
+      for (const j of [0, 1, 2, 3, 4, 5, 6, 7]) {
+        assert(j >= cfg.nOptions || i == j || cfg.optionRefs[i] != cfg.optionRefs[j], "Duplicate market option");
+      }
+    } else { assert(cfg.optionRefs[i] == default<Bytes<32>>, "Unused option must be empty"); }
+  }
+  const creator = persistentHash<Vector<2, Bytes<32>>>([owner, marketId as Bytes<32>]);
+  assertOperatorKey(owner);assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction");
+  initMarket(marketId, cfg, disclose(creator));
 }
 
 export circuit close(id: Uint<32>): [] {

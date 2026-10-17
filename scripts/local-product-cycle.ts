@@ -70,7 +70,7 @@ async function preflight() {
   const manifest = JSON.parse(await readFile("apps/web/public/contracts/senyap/manifest.json", "utf8"));
   // Public keys must belong to the current source, not a previous fixture.
   assert.equal(manifest.sourceSha256, sourceSha256, "Product artifact source mismatch");
-  assert.equal(manifest.circuits, 41, "Unexpected product circuit count");
+  assert.equal(manifest.circuits, 42, "Unexpected product circuit count");
   for (const file of manifest.files) {
     assert(typeof file.name === "string" && /^(keys|zkir)\/[a-zA-Z]+\.(prover|verifier|zkir)$/.test(file.name), "Invalid artifact name");
     const content = await readFile(`contracts/managed/senyap/${file.name}`);

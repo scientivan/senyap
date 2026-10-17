@@ -3,14 +3,14 @@ import {DEFAULT_DUST_OPTIONS, syncWallet, type MidnightWalletProvider} from "@mi
 
 /** A positive historical DUST balance is insufficient during wallet replay.
  * Wait for all three SDK progress markers before building a fee spend proof. */
-export function synchronizedLocalBalance(provider: Pick<MidnightWalletProvider, "wallet" | "balanceTx">): MidnightWalletProvider["balanceTx"] {
+export function synchronizedLocalBalance(provider: Pick<MidnightWalletProvider, "wallet" | "balanceTx">, settleMs = 12_000): MidnightWalletProvider["balanceTx"] {
   const balance = provider.balanceTx.bind(provider);
   return async (transaction, ttl) => {
     // Default 90s timeout trips when synchronous wallet/proof work blocks the
     // event loop on a long local chain (17 Oct, S12). Allow 15 minutes.
     // Two local blocks (6 s each) let the previous spend's DUST change reach the
     // wallet before it selects inputs; stale inputs are dropped by the node.
-    await new Promise(done => setTimeout(done, 12_000));
+    if (settleMs > 0) await new Promise(done => setTimeout(done, settleMs));
     await syncWallet(provider.wallet, 2_000, 900_000);
     return balance(transaction, ttl);
   };

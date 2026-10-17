@@ -70,7 +70,7 @@ export async function runScenario(driver: Driver) {
       outcomeUntil: start + 2700n, flatPrice: 10n, reservePrice: side === 0n ? 40n : 0n};
     schedules.push(config);
     await driver.patch({buyer: buyers[0]});
-    await driver.call("createMarket", market, config);
+    if (side === 0n) await driver.call("createMarket", market, config); else await driver.call("createSideBMarket", market, config);
     for (const [index, secret] of cohort.entries()) {
       const {state} = await driver.read(), salt = bytes(100 + Number(side) * 10 + index);
       const path = scoutGroupTree(state,group).findPathForLeaf(commitment(secret, epoch));
@@ -169,7 +169,8 @@ export async function runScenario(driver: Driver) {
     input: "1240", conserved: true, note: "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."};
 }
 
-export function simulatorDriver() {
+/** Optional hook receives each call's proof data (used to replay /check offline). */
+export function simulatorDriver(onProof?: (name: Circuit, proofData: RT.ProofData) => Promise<void>) {
   const contract = new Contract<LocalState>(witnesses), time = 1700000000n;
   const recipient = {bytes: bytes(250)};
   const initial = contract.initialState(RT.createConstructorContext(initialPrivateState(), "0".repeat(64)), ...constructorArgs(bytes(62), recipient));
@@ -183,7 +184,9 @@ export function simulatorDriver() {
     async call<K extends Circuit>(name: K, ...args: Args<K>) {
       context.currentPrivateState.now = context.currentQueryContext.block.secondsSinceEpoch;
       const circuit = contract.impureCircuits[name] as (...args: unknown[]) => RT.CircuitResults<LocalState, Result<K>>;
-      const result = circuit(context, ...args); context = result.context; calls.push(name); return result.result;
+      const result = circuit(context, ...args); context = result.context; calls.push(name);
+      if (onProof) await onProof(name, result.proofData);
+      return result.result;
     },
   };
   return {driver, calls};

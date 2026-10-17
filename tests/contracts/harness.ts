@@ -47,7 +47,9 @@ export function setupGroups(selectionSeconds=300n){
   const initial=contract.initialState(RT.createConstructorContext<PS>({operator,scout,committee:committee[0],builder:bytes(40),buyer:bytes(60),receivingKey:bytes(63),bid:100n,now:1000n,option:0n,salt:bytes(61)},"0".repeat(64)),hash(operator),committee.map(hash),RT.ecMulGenerator(37n),bytes(62),128n,300n,selectionSeconds,300n,300n,{bytes:bytes(250)});
   let context=RT.createCircuitContext(RT.sampleContractAddress(),"0".repeat(64),initial.currentContractState,initial.currentPrivateState,undefined,undefined,1000);
   const invokeResult=<K extends keyof typeof contract.impureCircuits>(name:K,...args:Parameters<(typeof contract.impureCircuits)[K]> extends [unknown,...infer A]?A:never)=>{
-    const circuit=contract.impureCircuits[name] as (...args:unknown[])=>RT.CircuitResults<PS,unknown>;
+    // Side B creation is its own circuit (proof server panic on a shared one, 17 Oct).
+    const routed=name==="createMarket"&&(args[1] as {side?:bigint})?.side===1n?"createSideBMarket":name;
+    const circuit=contract.impureCircuits[routed as K] as (...args:unknown[])=>RT.CircuitResults<PS,unknown>;
     const result=circuit(context,...args);context=result.context;return result;
   };
   const invoke=<K extends keyof typeof contract.impureCircuits>(name:K,...args:Parameters<(typeof contract.impureCircuits)[K]> extends [unknown,...infer A]?A:never)=>invokeResult(name,...args).result;
