@@ -361,6 +361,13 @@ async function executeLocal() {
     await journal.complete({...result, contractBalance: contractBalance.toString()});
     console.log(JSON.stringify({status: "completed", journalPath, contract, transactions: journal.sent, result: journal.data.publicResult}, null, 2));
   } catch (error) {
+    {
+      // Public classes only: contract assert strings, wallet error tags, node codes.
+      const {inspect}=await import("node:util");
+      const dump=inspect(error,{depth:8,breakLength:Infinity});
+      const hit=dump.match(/failed assert: [^\n'"]{1,160}|Wallet\.[A-Za-z]+: [^\n'"]{1,120}|1010: [^\n'"]{1,120}|Indexer did not catch up[^\n'"]{0,40}|Trusted finalized product snapshot unavailable/);
+      journal.data.publicResult.lastError=hit?hit[0]:"withheld (unclassified)";
+    }
     if(diagnose){
       // Local synthetic fixtures only. Long hex/base64 runs are redacted anyway.
       const safe=(e:unknown,d=0):unknown=>e instanceof Error?{name:e.name,message:e.message.replace(/[A-Za-z0-9+/=]{40,}/g,"<redacted>").slice(0,400),...(d<4&&e.cause?{cause:safe(e.cause,d+1)}:{})}:String(e).slice(0,200);
