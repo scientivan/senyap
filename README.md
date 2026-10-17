@@ -22,7 +22,7 @@ uses separate buyer pools; Side B has one shared duty and independent buyer mark
 ([local proofs](docs/evidence/shared-report-proving.json)). Permissionless cancellation, full principal/bid refunds and returned subsidies
 also pass simulator tests. Remaining lifecycle cases, live services and frontend
 transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
-network only. No Senyap product market contract is deployed.
+network only. The Senyap product contract is deployed on a local network, not on Preprod.
 
 Option-level subjective/contested outcome juries now pass simulator and local
 proof-server checks, including separate collateral, quorum/refunds and settlement
@@ -30,12 +30,19 @@ gates ([proof evidence](docs/evidence/outcome-jury-proving.json)). The separate
 `/app/preprod` workspace connects wallet/private storage to finalized ledger and
 verified public metadata reads when its deployment configuration is complete.
 Reviewed controls now connect private stake/reason delivery, per-option purchase,
-objective report and cancelled-market refund to the explicit SDK adapter. Complete
-public deployment configuration and product network verification remain pending.
-The [local cycle runner](docs/local-product-cycle.md) has finalized a synthetic
-token deployment and5000mint; the Senyap market deploy hit node resource limits.
-A resource-gated staged-deployment recovery is prepared, awaiting its specific
-replacement/additional-transaction approval. The full A/B network cycle is incomplete.
+objective report and cancelled-market refund to the explicit SDK adapter. Builder consent and Side A market
+creation are also connected. Complete public deployment configuration and product
+network verification remain pending.
+
+The [local cycle runner](docs/local-product-cycle.md) deployed a synthetic token,
+minted 5000 and deployed the full Senyap contract on a local network. Because one
+deployment exceeded the node's per-transaction weight limit, the 41 circuit
+verifiers were installed as an initial batch of 8 plus five signed maintenance
+updates, then checked against the compiled manifest. Two buyer admissions and two
+builder registrations finalized. The next call (scout group configuration) has not
+reached the chain; a minimal spike reproduced a wallet SDK failure before
+submission ([S12 evidence](docs/evidence/S12-node-map-tree-seed1.json)). The full A/B
+network cycle is incomplete.
 
 The full product mechanism described below is still under implementation; simulator
 coverage and the isolated Preprod counter do not establish an end-to-end market. See [SPEC.md](SPEC.md)

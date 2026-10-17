@@ -246,3 +246,34 @@ retry journal prevents a second run.
 # Only after this new replacement/two-extra-maintenance scope is approved
 node --import tsx scripts/local-product-cycle.ts --staged-after-confirmed-mint --retry-rejected-staged-deploy --execute-local --approved-plan-sha <current-plan-digest>
 ```
+
+## Batch8 execution and current blocker (16 to 17 Oct)
+
+The approved batch8 run deployed Senyap at
+`2493acc20de8a0ea6143f3f4c320e9113215e0a76f52ede6e8c6ab1b0ff723b1` (block15679).
+The first maintenance update was included as `PARTIAL_SUCCESS` with no effect
+because the runner signed against `counter+1`. The ledger expects the current
+counter, matching compact-js `createSignedMaintenanceUpdate`; this is fixed.
+
+`--resume-deployed-senyap` then installed the remaining five batches and the
+runner verified all41 keys against the manifest. Two `admitBuyer` and two
+`registerBuilder` calls finalized
+([resume2 journal](evidence/local-product-cycle-staged-resume2-journal.json)).
+
+Two attempts at the next call, `configureScoutGroup`, were recorded as submitted
+but never reached the indexer or mempool. While diagnosing, the SDK snapshot was
+found to require a contract action in the exact finalized block on indexer 4.3.3;
+`packages/sdk/src/snapshot.ts` now falls back to the latest action at or below the
+finalized anchor. The node's `TaggedTransactionQueue_validate_transaction` panics
+for every transaction through the read-only path used here, including a plain
+deploy that later succeeded, so it is not diagnostic evidence.
+
+Spike S12 deployed a minimal contract, but its simplest call failed inside the
+wallet SDK before submission with `Wallet.Other: unreachable`
+([seed1 evidence](evidence/S12-node-map-tree-seed1.json)). A seed2 rerun tests
+whether the genesis seed1 wallet state is the cause.
+
+Continuation flags: `--continue-after-scout-group` skips the four finalized calls;
+`--diagnose-next` builds the next call and blocks submission. The resume3 journal
+already exists, so another continuation needs a new journal path and fresh
+reconciliation of tx `0009d5fb…`.

@@ -1,0 +1,14 @@
+{
+  "network": "undeployed",
+  "spike": "S12",
+  "seedIndex": 1,
+  "results": [
+    {
+      "step": "deploy",
+      "submitted": false,
+      "error": "Wallet sync timeout after 90000ms"
+    }
+  ],
+  "date": "2026-10-17T08:48:23.254Z",
+  "note": "Synthetic local fixture. Each transaction submitted directly; rejection text from the node is recorded. A first attempt using read-only pool validation was discarded because the node panics on that call for every transaction, including a plain deploy."
+}

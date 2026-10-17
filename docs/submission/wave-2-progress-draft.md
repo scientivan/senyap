@@ -1,6 +1,6 @@
 # Wave 2 progress draft
 
-Draft for owner review. Not submitted or published. Updated 15 October 2026.
+Draft for owner review. Not submitted or published. Updated 17 October 2026.
 
 ## Senyap
 
@@ -38,10 +38,16 @@ upstream bboard toolchain fixture retains its Apache-2.0 attribution.
   reasons with SQLite ciphertext storage and a model boundary that fails closed.
 - Session-bound Reclaim verification with durable single-use receipts, tested
   against an injected SDK boundary. No real GitHub qualification proof yet.
+- Subjective/contested outcome juries per option, with immutable outcome mode,
+  separate escrow, fallback and a settlement gate.
+- A live Preprod workspace in the web app: Lace connection, finalized ledger reads,
+  public metadata, and integrated controls for staking, bidding, purchases, paid
+  signal opening, claims, juries, builder consent and Side A market creation.
+  These controls have not yet sent a product transaction.
 
 These are implemented local circuits/services and tests, not a completed deployed
-market. Latest integrated checks are in [shared-report tests](../evidence/shared-report-tests.json)
-(127-test full run including S11 privacy regressions). Earlier suite output is
+market. The latest full regression passed 176 tests in 56 files. Earlier integrated
+checks are in [shared-report tests](../evidence/shared-report-tests.json). Earlier suite output is
 retained in [P2-tests.json](../evidence/P2-tests.json).
 
 ## What ran on a network
@@ -51,12 +57,22 @@ called once. Both finalized SucceedEntirely and the counter reached 1. This prov
 the browser/wallet/proof path, not Senyap market execution. Public identifiers are
 in [S5 receipts](../evidence/S5-preprod-counter.json).
 
-The earlier local demo-token fixture also exercised mint, deposit and payout on a
-local network. No Senyap product market is deployed on either network yet.
+On a local Midnight network (node 1.0.0), the full Senyap contract is deployed.
+A single deployment exceeded the node's per-transaction weight limit, so the 41
+circuit verifiers were installed in an initial batch of 8 plus five signed
+maintenance updates. All 41 installed keys were checked against the compiled
+manifest. Two buyer admissions and two builder registrations then finalized
+([deploy](../evidence/local-product-cycle-staged-retry-journal.json),
+[verifiers and first calls](../evidence/local-product-cycle-staged-resume2-journal.json)).
+
+The local market lifecycle is not complete. The next call (scout group
+configuration) has not reached the chain, and a minimal spike reproduced a wallet
+SDK failure before submission ([S12 evidence](../evidence/S12-node-map-tree-seed1.json)).
+No Senyap product contract is deployed on Preprod yet.
 
 ## Local proof evidence
 
-The current main contract has 39 generated prover/verifier pairs. The approved
+The current main contract has 41 generated prover/verifier pairs. The approved
 S11 integration removes public group references from stakes and encrypts group
 IDs inside the membership cards. Integrated Side B stake and three-hit renewal
 passed local /check and /prove with no selected group/leaf/root in the public-only
@@ -73,13 +89,15 @@ These checks do not establish a security audit or network settlement.
 ## Still to complete before a final submission claim
 
 
-- An authorized product deployment and full network market lifecycle.
+- A complete local market lifecycle (blocked at scout group configuration),
+  then an authorized Preprod deployment and network market lifecycle.
 - Frontend transactions and indexed live state; current market pages remain
   labelled synthetic demo data. The workspace storage itself is real local code.
 - Configured live operator/committee processes, trusted-dealer keys and relays.
-- A real Gemini screening call, actual Reclaim GitHub qualification and buyer
-  verification policy/integration.
-- Subjective outcome juries and network lifecycle integration.
+- Reasons screening has passed live synthetic Gemini smoke checks only, not a
+  quality or privacy evaluation. Actual Reclaim GitHub qualification and buyer
+  verification policy/integration remain.
+- Jury network lifecycle integration.
 - Final judge instructions, deployed addresses, deck and recorded network demo.
 
 The owner must review final wording against actual receipts, make the repository

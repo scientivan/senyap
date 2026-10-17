@@ -22,7 +22,10 @@ const compiled=CompiledContract.make("SenyapS12",Contract<{}>).pipe(CompiledCont
 const short=(e:unknown)=>e instanceof Error?e.message.replace(/[A-Za-z0-9+/=]{40,}/g,"<redacted>").split("\n")[0].slice(0,240):String(e).slice(0,240);
 const results:{step:string;poolValidity?:string;submitted:boolean;txId?:string;error?:string}[]=[];
 let current:(typeof results)[number]|undefined;
-const seed=Buffer.alloc(32);seed[31]=1; // Public local genesis fixture only.
+const seedIndex=Number(process.argv[process.argv.indexOf("--seed")+1]??1);
+if(!process.argv.includes("--seed"))throw Error("Pass --seed <1-4> (public local genesis fixture index)");
+if(!Number.isInteger(seedIndex)||seedIndex<1||seedIndex>4)throw Error("Seed index must be 1-4");
+const seed=Buffer.alloc(32);seed[31]=seedIndex; // Public local genesis fixture only.
 const wallet=await MidnightWalletProvider.build(logger,environment,seed.toString("hex"));
 let contract:string|undefined;
 try{
@@ -37,6 +40,10 @@ try{
     try{return await send(tx);}catch(e){current!.poolValidity="submit rejected: "+short(e);throw e;}
   };
   const providers={...initializeMidnightProviders<Circuit,{}>(wallet,environment,{zkConfigPath:assets,privateStateStoreName:".states/s12-unused"}),privateStateProvider:inMemoryPrivateStateProvider<string,{}>()};
+  // Stage timing only: which step (prove, balance) consumes the time.
+  const timed=<T>(label:string,run:()=>Promise<T>)=>{const t0=Date.now();console.log(JSON.stringify({begin:label,step:current?.step,at:new Date().toISOString()}));return run().finally(()=>console.log(JSON.stringify({end:label,step:current?.step,ms:Date.now()-t0})));};
+  const prove=providers.proofProvider.proveTx.bind(providers.proofProvider);providers.proofProvider.proveTx=(...args)=>timed("prove",()=>prove(...args));
+  const balanceTimed=wallet.balanceTx;wallet.balanceTx=(...args)=>timed("balance",()=>balanceTimed(...args));
   current={step:"deploy",submitted:false};results.push(current);
   const deployed=await deployContract(providers,{compiledContract:compiled,privateStateId:"s12",initialPrivateState:{}});
   contract=deployed.deployTxData.public.contractAddress;
@@ -53,8 +60,8 @@ try{
   }
 }catch(e){if(current)current.error=short(e);}
 finally{
-  const evidence={network:"undeployed",spike:"S12",contract,results,date:new Date().toISOString(),note:"Synthetic local fixture. Each transaction submitted directly; rejection text from the node is recorded. A first attempt using read-only pool validation was discarded because the node panics on that call for every transaction, including a plain deploy."};
-  await writeFile("docs/evidence/S12-node-map-tree.json",JSON.stringify(evidence,null,2)+"\n");
+  const evidence={network:"undeployed",spike:"S12",seedIndex,contract,results,date:new Date().toISOString(),note:"Synthetic local fixture. Each transaction submitted directly; rejection text from the node is recorded. A first attempt using read-only pool validation was discarded because the node panics on that call for every transaction, including a plain deploy."};
+  await writeFile(`docs/evidence/S12-node-map-tree-seed${seedIndex}.json`,JSON.stringify(evidence,null,2)+"\n");
   console.log(JSON.stringify(evidence,null,2));
   await wallet.stop().catch(()=>{});
 }
