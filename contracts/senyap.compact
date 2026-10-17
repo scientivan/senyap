@@ -16,11 +16,24 @@ export ledger builderRegistry: Map<Bytes<32>, BuilderEntry>;
 export sealed ledger operator: Bytes<32>;
 export sealed ledger committeeAuth: Vector<5, Bytes<32>>;
 // Node 1.0.0 drops transactions that insert a default HistoricMerkleTree as a
-// Map value (spike S12). Groups use a fixed pool of top-level trees by slot.
+// Map value (spike S12). Groups use a fixed pool of 16 top-level trees by slot; the
+// cap applies for the deployment lifetime (renewals create new groups).
 export ledger scoutGroupTree0: HistoricMerkleTree<20, Bytes<32>>;
 export ledger scoutGroupTree1: HistoricMerkleTree<20, Bytes<32>>;
 export ledger scoutGroupTree2: HistoricMerkleTree<20, Bytes<32>>;
 export ledger scoutGroupTree3: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree4: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree5: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree6: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree7: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree8: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree9: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree10: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree11: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree12: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree13: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree14: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree15: HistoricMerkleTree<20, Bytes<32>>;
 export ledger groupConfig: Map<Bytes<32>, ScoutGroup>;
 export ledger groupSize: Map<Bytes<32>, Uint<32>>;
 export ledger groupNextIndex: Map<Bytes<32>, Uint<64>>;
@@ -188,22 +201,64 @@ circuit assertOperatorKey(secret: Bytes<32>): [] {
 circuit groupSlot(group: Bytes<32>): Uint<64> { return scoutGroupSlots.lookup(group); }
 circuit groupInsert(group: Bytes<32>, leaf: Bytes<32>): [] {
   const slot = groupSlot(group);
-  if (slot == 0) { scoutGroupTree0.insert(leaf); } else if (slot == 1) { scoutGroupTree1.insert(leaf); } else if (slot == 2) { scoutGroupTree2.insert(leaf); } else { scoutGroupTree3.insert(leaf); }
+  if (slot == 0) { scoutGroupTree0.insert(leaf); }
+  else if (slot == 1) { scoutGroupTree1.insert(leaf); }
+  else if (slot == 2) { scoutGroupTree2.insert(leaf); }
+  else if (slot == 3) { scoutGroupTree3.insert(leaf); }
+  else if (slot == 4) { scoutGroupTree4.insert(leaf); }
+  else if (slot == 5) { scoutGroupTree5.insert(leaf); }
+  else if (slot == 6) { scoutGroupTree6.insert(leaf); }
+  else if (slot == 7) { scoutGroupTree7.insert(leaf); }
+  else if (slot == 8) { scoutGroupTree8.insert(leaf); }
+  else if (slot == 9) { scoutGroupTree9.insert(leaf); }
+  else if (slot == 10) { scoutGroupTree10.insert(leaf); }
+  else if (slot == 11) { scoutGroupTree11.insert(leaf); }
+  else if (slot == 12) { scoutGroupTree12.insert(leaf); }
+  else if (slot == 13) { scoutGroupTree13.insert(leaf); }
+  else if (slot == 14) { scoutGroupTree14.insert(leaf); }
+  else { scoutGroupTree15.insert(leaf); }
 }
 circuit groupRemoveIndex(group: Bytes<32>, index: Uint<64>): [] {
   const slot = groupSlot(group);
   if (slot == 0) { scoutGroupTree0.insertIndexDefault(index); scoutGroupTree0.resetHistory(); }
   else if (slot == 1) { scoutGroupTree1.insertIndexDefault(index); scoutGroupTree1.resetHistory(); }
   else if (slot == 2) { scoutGroupTree2.insertIndexDefault(index); scoutGroupTree2.resetHistory(); }
-  else { scoutGroupTree3.insertIndexDefault(index); scoutGroupTree3.resetHistory(); }
+  else if (slot == 3) { scoutGroupTree3.insertIndexDefault(index); scoutGroupTree3.resetHistory(); }
+  else if (slot == 4) { scoutGroupTree4.insertIndexDefault(index); scoutGroupTree4.resetHistory(); }
+  else if (slot == 5) { scoutGroupTree5.insertIndexDefault(index); scoutGroupTree5.resetHistory(); }
+  else if (slot == 6) { scoutGroupTree6.insertIndexDefault(index); scoutGroupTree6.resetHistory(); }
+  else if (slot == 7) { scoutGroupTree7.insertIndexDefault(index); scoutGroupTree7.resetHistory(); }
+  else if (slot == 8) { scoutGroupTree8.insertIndexDefault(index); scoutGroupTree8.resetHistory(); }
+  else if (slot == 9) { scoutGroupTree9.insertIndexDefault(index); scoutGroupTree9.resetHistory(); }
+  else if (slot == 10) { scoutGroupTree10.insertIndexDefault(index); scoutGroupTree10.resetHistory(); }
+  else if (slot == 11) { scoutGroupTree11.insertIndexDefault(index); scoutGroupTree11.resetHistory(); }
+  else if (slot == 12) { scoutGroupTree12.insertIndexDefault(index); scoutGroupTree12.resetHistory(); }
+  else if (slot == 13) { scoutGroupTree13.insertIndexDefault(index); scoutGroupTree13.resetHistory(); }
+  else if (slot == 14) { scoutGroupTree14.insertIndexDefault(index); scoutGroupTree14.resetHistory(); }
+  else { scoutGroupTree15.insertIndexDefault(index); scoutGroupTree15.resetHistory(); }
 }
 circuit groupResetHistory(group: Bytes<32>): [] {
   const slot = groupSlot(group);
-  if (slot == 0) { scoutGroupTree0.resetHistory(); } else if (slot == 1) { scoutGroupTree1.resetHistory(); } else if (slot == 2) { scoutGroupTree2.resetHistory(); } else { scoutGroupTree3.resetHistory(); }
+  if (slot == 0) { scoutGroupTree0.resetHistory(); }
+  else if (slot == 1) { scoutGroupTree1.resetHistory(); }
+  else if (slot == 2) { scoutGroupTree2.resetHistory(); }
+  else if (slot == 3) { scoutGroupTree3.resetHistory(); }
+  else if (slot == 4) { scoutGroupTree4.resetHistory(); }
+  else if (slot == 5) { scoutGroupTree5.resetHistory(); }
+  else if (slot == 6) { scoutGroupTree6.resetHistory(); }
+  else if (slot == 7) { scoutGroupTree7.resetHistory(); }
+  else if (slot == 8) { scoutGroupTree8.resetHistory(); }
+  else if (slot == 9) { scoutGroupTree9.resetHistory(); }
+  else if (slot == 10) { scoutGroupTree10.resetHistory(); }
+  else if (slot == 11) { scoutGroupTree11.resetHistory(); }
+  else if (slot == 12) { scoutGroupTree12.resetHistory(); }
+  else if (slot == 13) { scoutGroupTree13.resetHistory(); }
+  else if (slot == 14) { scoutGroupTree14.resetHistory(); }
+  else { scoutGroupTree15.resetHistory(); }
 }
 circuit groupCheckRoot(group: Bytes<32>, root: MerkleTreeDigest): Boolean {
   const slot = groupSlot(group);
-  return slot == 0 ? scoutGroupTree0.checkRoot(root) : slot == 1 ? scoutGroupTree1.checkRoot(root) : slot == 2 ? scoutGroupTree2.checkRoot(root) : scoutGroupTree3.checkRoot(root);
+  return slot == 0 ? scoutGroupTree0.checkRoot(root) : slot == 1 ? scoutGroupTree1.checkRoot(root) : slot == 2 ? scoutGroupTree2.checkRoot(root) : slot == 3 ? scoutGroupTree3.checkRoot(root) : slot == 4 ? scoutGroupTree4.checkRoot(root) : slot == 5 ? scoutGroupTree5.checkRoot(root) : slot == 6 ? scoutGroupTree6.checkRoot(root) : slot == 7 ? scoutGroupTree7.checkRoot(root) : slot == 8 ? scoutGroupTree8.checkRoot(root) : slot == 9 ? scoutGroupTree9.checkRoot(root) : slot == 10 ? scoutGroupTree10.checkRoot(root) : slot == 11 ? scoutGroupTree11.checkRoot(root) : slot == 12 ? scoutGroupTree12.checkRoot(root) : slot == 13 ? scoutGroupTree13.checkRoot(root) : slot == 14 ? scoutGroupTree14.checkRoot(root) : scoutGroupTree15.checkRoot(root);
 }
 export circuit scoutAuthorizationDigest(value: ScoutAuthorization): Bytes<32> { return persistentHash<ScoutAuthorization>(value); }
 circuit syncScoutGroup(group: Bytes<32>): [] {
@@ -221,7 +276,7 @@ export circuit configureScoutGroup(group: Bytes<32>, config: ScoutGroup): [] {
   groupConfig.insert(disclose(group), disclose(config));
   groupSize.insert(disclose(group), 0);
   groupNextIndex.insert(disclose(group), 0);
-  assert(nextScoutGroupSlot < 4, "Scout group capacity (4) reached");
+  assert(nextScoutGroupSlot < 16, "Scout group capacity (16) reached");
   scoutGroupSlots.insert(disclose(group), nextScoutGroupSlot);nextScoutGroupSlot = (nextScoutGroupSlot + 1) as Uint<64>;
 }
 
