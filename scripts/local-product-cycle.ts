@@ -32,7 +32,8 @@ const simulation = await runScenario(simulated.driver);
 const stagedMode=process.argv.includes("--staged-after-confirmed-mint");
 // Fresh deployment of token, mint and Senyap with staged verifier packaging,
 // after the contract representation changed (S12). Uses its own journal.
-const freshStaged=process.argv.includes("--fresh-staged");
+const freshStaged=process.argv.includes("--fresh-staged")||process.argv.includes("--continue-fresh");
+const continueFresh=process.argv.includes("--continue-fresh");
 const packaged=stagedMode||freshStaged;
 const installationBatches=verifierBatches(Object.keys(new Contract(witnesses).provableCircuits) as Circuit[],8);
 const codeSha256 = {
@@ -133,10 +134,26 @@ async function executeLocal() {
   const retryStaged=process.argv.includes("--retry-rejected-staged-deploy");assert(!retryStaged||stagedMode,"Staged replacement requires its explicit reviewed plan");
   const continueAfter=process.argv.includes("--continue-after-scout-group"),diagnose=process.argv.includes("--diagnose-next");
   const resumeDeployed=process.argv.includes("--resume-deployed-senyap");assert(!resumeDeployed||stagedMode&&!retryStaged,"Deployed resume requires staged mode only");
-  assert(!freshStaged||!(stagedMode||resume||retry),"Fresh staged deployment is exclusive");
-  const journalPath = freshStaged?"docs/evidence/local-product-cycle-fresh-k16-journal.json":diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let confirmedToken:string|undefined;
   let confirmedColor:string|undefined;
+  let deployedSenyap:string|undefined;
+  assert(!freshStaged||!(stagedMode||resume||retry),"Fresh staged deployment is exclusive");
+  // Continuation of the fresh run: every prior journal must end with exactly one
+  // submitted action that is absent from indexer and mempool. Nothing is resent
+  // automatically; each continuation uses a new exclusive journal.
+  let freshPrior:{path:string;finalized:{action:string}[]}|undefined;
+  if(continueFresh){
+    const base="docs/evidence/local-product-cycle-fresh-k16";let n=0,path=`${base}-journal.json`,all:{action:string;status:string;txId?:string}[]=[];let last:any;
+    for(;;){let j;try{j=JSON.parse(await readFile(path,"utf8"));}catch{break;}last=j;all=[...all.filter(t=>t.status==="finalized"),...j.transactions];n++;path=`${base}-continue${n}-journal.json`;}
+    const pending=all.filter(t=>t.status!=="finalized");assert(pending.length===1&&pending[0].status==="submitted"&&all.at(-1)===pending[0],"Exactly one trailing uncertain action required");
+    const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){__typename}}",variables:{offset:{identifier:pending[0].txId}}})});
+    const reply=await response.json();assert(response.ok&&!reply.errors&&reply.data?.transactions?.length===0&&(await rpc("author_pendingExtrinsics")).length===0,"Uncertain action included or pending; continuation blocked");
+    const first=JSON.parse(await readFile(`${base}-journal.json`,"utf8"));
+    assert(n>0&&last.network==="undeployed"&&last.sourceSha256===sourceSha256&&first.publicResult?.all41VerifiersInstalled===true,"Fresh deployment with all verifiers required");
+    confirmedToken=first.publicResult.tokenContract;confirmedColor=first.publicResult.token;deployedSenyap=first.publicResult.contract;
+    freshPrior={path,finalized:all.filter(t=>t.status==="finalized")};
+  }
+  const journalPath = freshPrior?freshPrior.path:freshStaged?"docs/evidence/local-product-cycle-fresh-k16-journal.json":diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let stagedRejectedId:string|undefined;
   if(retryStaged){
     const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-staged-journal.json","utf8")),rejection=JSON.parse(await readFile("docs/evidence/staged-deployment-node-rejection.json","utf8"));
@@ -145,7 +162,6 @@ async function executeLocal() {
       const reply=await response.json();assert(response.ok&&!reply.errors&&Array.isArray(reply.data?.transactions),"Staged replacement lookup unavailable");const pending=await rpc("author_pendingExtrinsics");assert(Array.isArray(pending),"Mempool unavailable");return {indexerMatches:reply.data.transactions.length,pendingExtrinsics:pending.length};
     }});
   }
-  let deployedSenyap:string|undefined;
   // Continue after resume2: 41 verifiers and four calls finalized, then the
   // fifth call (configureScoutGroup) never reached chain or mempool.
   assert(!continueAfter||stagedMode&&!resumeDeployed&&!retryStaged,"Continuation requires staged mode only");assert(!diagnose||continueAfter,"Diagnosis requires continuation");
@@ -158,6 +174,7 @@ async function executeLocal() {
     const reply=await response.json();assert(response.ok&&!reply.errors&&reply.data?.transactions?.length===0&&(await rpc("author_pendingExtrinsics")).length===0,"Uncertain call included or pending; continuation blocked");
     deployedSenyap=prior.publicResult.contract;skipCalls=4;
   }
+  if(freshPrior)skipCalls=freshPrior.finalized.filter(t=>!/^(deploy:|mint:|install-verifiers:)/.test(t.action)).length;
   if(resumeDeployed){
     const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-staged-retry-journal.json","utf8"));
     const head=await rpc("chain_getFinalizedHead"),header=await rpc("chain_getHeader",[head]);
@@ -207,7 +224,7 @@ async function executeLocal() {
   }
   // Exclusive create prevents repeating an interrupted/uncertain run, even when
   // no receipt was returned. Reconciliation is read-only and manual.
-  const submissionLimit=plan.transactionCount-(continueAfter?12:resumeDeployed?3:stagedMode?2:resume?1:0);
+  const submissionLimit=plan.transactionCount-(freshPrior?8+skipCalls:continueAfter?12:resumeDeployed?3:stagedMode?2:resume?1:0);
   const journal = await createLocalJournal(journalPath, {sourceSha256, planSha256}, submissionLimit);
   if(deployedSenyap){journal.data.publicResult.resumesDeployedSenyap=deployedSenyap;journal.data.publicResult.previousStagedJournal="local-product-cycle-staged-retry-journal.json";await journal.persist();}
   if(stagedRejectedId){journal.data.publicResult.replacesRejectedStagedId=stagedRejectedId;await journal.persist();}
@@ -232,7 +249,16 @@ async function executeLocal() {
       journal.data.publicResult.lastResourceBudget={action:journal.data.transactions.at(-1)?.action,...budget};await journal.persist();
       assert(budget.passed,"Transaction exceeds current node runtime resource limits; nothing submitted");
       if(diagnose){console.log(JSON.stringify({poolValidity:await resourceGate!.validate(tx)}));throw Object.assign(Error("DIAGNOSE_SUBMIT_BLOCKED"),{diagnosticBlocked:true});}
-      const returnedId = await journal.submit(id, () => originalSubmit(tx));
+      const returnedId = await journal.submit(id, async () => {
+        try { return await originalSubmit(tx); }
+        catch (error) {
+          // Node RPC rejection text is public; anything else stays withheld.
+          const text = error instanceof Error ? `${error.message} ${error.cause instanceof Error ? error.cause.message : ""}` : "";
+          const node = text.match(/(\b1\d{3}\b[^\n]{0,160}|Invalid Transaction[^\n]{0,160}|Malformed\([^\n]{0,120})/);
+          journal.data.publicResult.lastSubmitError = node ? node[0].replace(/[A-Za-z0-9+/=]{40,}/g, "<redacted>") : "withheld (not a node rejection)";
+          await journal.persist(); throw error;
+        }
+      });
       return canonicalSubmittedId(tx.identifiers(),returnedId);
     };
     async function action<T>(name: string, perform: () => Promise<T>) {
@@ -269,7 +295,7 @@ async function executeLocal() {
       const signingKey=await providers.privateStateProvider.getSigningKey(contract);assert(signingKey,"Deployment maintenance signing key unavailable");
       for(let i=1;i<installationBatches.length;i++){
         const current=await providers.publicDataProvider.queryContractState(contract);assert(current,"Product state unavailable during installation");
-        if(continueAfter&&installationBatches[i].every(id=>current.operation(id)))continue;
+        if((continueAfter||continueFresh)&&installationBatches[i].every(id=>current.operation(id)))continue;
         const keys=await Promise.all(installationBatches[i].map(async id=>({id,key:await providers.zkConfigProvider.getVerifierKey(id)})));
         const unprovenTx=verifierInstallation({contract,keys,counter:current.maintenanceAuthority.counter,signingKey});
         await action(`install-verifiers:${i}`,async()=>{const receipt=await submitTx(providers,{unprovenTx});assert(receipt.status==="SucceedEntirely","Verifier installation failed");return receipt;});
@@ -300,7 +326,7 @@ async function executeLocal() {
       async call<K extends Circuit>(name: K, ...args: Args<K>): Promise<Result<K>> {
         assert.equal(name, simulated.calls[sequence], "Local call differs from reviewed plan");
         // Finalized in resume2; their results are unused by the scenario.
-        if(sequence<skipCalls){assert(name==="admitBuyer"||name==="registerBuilder","Only finalized admissions may be skipped");sequence++;return [] as unknown as Result<K>;}
+        if(sequence<skipCalls){assert(["admitBuyer","registerBuilder","configureScoutGroup","admitScout"].includes(name),"Only finalized void admin calls may be skipped");sequence++;return [] as unknown as Result<K>;}
         const anchor = await snapshot(); await driver.patch({now: anchor.blockTime});
         // The generated interface is a mapped type; narrow this dynamic dispatch
         // only after matching the simulator-validated circuit sequence.
