@@ -366,7 +366,8 @@ async function executeLocal() {
       const {inspect}=await import("node:util");
       const dump=inspect(error,{depth:8,breakLength:Infinity});
       const hit=dump.match(/failed assert: [^\n'"]{1,160}|Wallet\.[A-Za-z]+: [^\n'"]{1,120}|1010: [^\n'"]{1,120}|Indexer did not catch up[^\n'"]{0,40}|Trusted finalized product snapshot unavailable/);
-      journal.data.publicResult.lastError=hit?hit[0]:"withheld (unclassified)";
+      const top=(e:unknown):string=>e instanceof Error?`${e.name}: ${e.message.split("\n")[0].slice(0,160)} @ ${(e.stack??"").split("\n").find(l=>l.includes(" at "))?.trim().slice(0,160)??""}${e.cause?" <- "+top(e.cause):""}`:"";
+      journal.data.publicResult.lastError=(hit?hit[0]:`unclassified: ${top(error)}`).replace(/[A-Za-z0-9+/=]{40,}/g,"<redacted>").slice(0,700);
     }
     if(diagnose){
       // Local synthetic fixtures only. Long hex/base64 runs are redacted anyway.
