@@ -67,7 +67,7 @@ export async function runScenario(driver: Driver) {
       questionUri: "demo://local-network-fixture", nOptions: 2n,
       optionRefs: [bytes(side === 0n ? 80 : 90), bytes(side === 0n ? 81 : 91), ...Array.from({length: 6}, () => bytes(0))],
       openAt: start, openUntil: start + 1800n, auctionUntil: start + (side === 0n ? 2100n : 1800n),
-      outcomeUntil: start + 2700n, flatPrice: 10n, reservePrice: side === 0n ? 40n : 0n};
+      outcomeUntil: start + 4500n, flatPrice: 10n, reservePrice: side === 0n ? 40n : 0n};
     schedules.push(config);
     await driver.patch({buyer: buyers[0]});
     if (side === 0n) await driver.call("createMarket", market, config); else await driver.call("createSideBMarket", market, config);
