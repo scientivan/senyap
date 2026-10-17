@@ -63,9 +63,9 @@ export async function validateRejectedFirstDeploy(input: {
 }
 /** Public receipt journal only. Exclusive creation and a retained active entry
  * prevent retries after a crash, failure or ambiguous submission. */
-export async function createLocalJournal(path: string, binding: {sourceSha256: string; planSha256: string}, limit: number) {
+export async function createLocalJournal(path: string, binding: {sourceSha256: string; planSha256: string}, limit: number, network = "undeployed") {
   assert(Number.isSafeInteger(limit) && limit > 0, "Invalid transaction limit");
-  const data = {network: "undeployed", ...binding, status: "started", transactions: [] as PublicEntry[], publicResult: {} as Record<string, unknown>};
+  const data = {network, ...binding, status: "started", transactions: [] as PublicEntry[], publicResult: {} as Record<string, unknown>};
   await writeFile(path, JSON.stringify(data, null, 2) + "\n", {flag: "wx"});
   const persist = () => writeFile(path, JSON.stringify(data, null, 2) + "\n");
   let active: PublicEntry | undefined, sent = 0;

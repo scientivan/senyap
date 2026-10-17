@@ -48,20 +48,21 @@ type SDK={init:()=>Promise<Request>;verify:typeof verifyProof};
  * approved provider-specific credential policy, and persist an admission receipt
  * before an authorized relay can submit. Tests inject SDK responses, never proofs
  * presented as real GitHub verification. */
-export function reclaimCredentials(config:{appId:string;appSecret:string;providerId:string;callbackUrl:string;ttlSeconds:number},
+export function reclaimCredentials(config:{appId:string;appSecret:string;providerId:string;callbackUrl?:string;ttlSeconds:number},
   sessions:CredentialSessions,qualifies:(data:ReadonlyArray<TrustedData>,binding:CredentialBinding)=>Promise<boolean>,
   now:()=>number=()=>Math.floor(Date.now()/1000),sdk:SDK={
     init:()=>ReclaimProofRequest.init(config.appId,config.appSecret,config.providerId,{log:false}),verify:verifyProof
   }) {
-  const callback=new URL(config.callbackUrl);
-  if(callback.protocol!=="https:"||callback.username||callback.password||!config.appId||!config.appSecret||!config.providerId||!Number.isSafeInteger(config.ttlSeconds)||config.ttlSeconds<1||config.ttlSeconds>86400)throw Error("Invalid credential configuration");
+  const callback=config.callbackUrl===undefined?undefined:new URL(config.callbackUrl);
+  // Without a callback, the host collects proofs through the SDK session poll.
+  if((callback&&(callback.protocol!=="https:"||callback.username||callback.password))||!config.appId||!config.appSecret||!config.providerId||!Number.isSafeInteger(config.ttlSeconds)||config.ttlSeconds<1||config.ttlSeconds>86400)throw Error("Invalid credential configuration");
   return {
     async start(binding:CredentialBinding){
       validateBinding(binding);
       try {
         const request=await sdk.init(),id=request.getSessionId(),provider=request.getProviderVersion(),nonce=randomBytes(32).toString("hex");
         if(!/^[a-zA-Z0-9_-]{1,128}$/.test(id)||provider.providerId!==config.providerId||!/^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(provider.providerVersion))throw Error();
-        request.setContext(nonce,bindingMessage(binding,nonce));request.setAppCallbackUrl(config.callbackUrl,true);
+        request.setContext(nonce,bindingMessage(binding,nonce));if(config.callbackUrl)request.setAppCallbackUrl(config.callbackUrl,true);
         sessions.add({id,nonce,binding:{...binding},provider:structuredClone(provider),expires:now()+config.ttlSeconds});
         // SDK export is the launch configuration, not the app secret. Never log it.
         return {sessionId:id,requestJson:request.toJsonString()};

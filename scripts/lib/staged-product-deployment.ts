@@ -13,11 +13,11 @@ export function verifierBatches(circuits:readonly Circuit[],size=12){
  * ContractExecutable.createSignedMaintenanceUpdate. The ledger increments it after
  * a successful update. Passing current+1 made the first local update fail
  * (PARTIAL_SUCCESS, block15682, no verifier installed). */
-export function verifierInstallation(input:{contract:string;keys:readonly {id:Circuit;key:Uint8Array}[];counter:bigint;signingKey:string}){
+export function verifierInstallation(input:{contract:string;keys:readonly {id:Circuit;key:Uint8Array}[];counter:bigint;signingKey:string;network?:string}){
   assert(/^[a-f0-9]{64}$/.test(input.contract)&&input.keys.length>0&&input.keys.length<=12&&new Set(input.keys.map(k=>k.id)).size===input.keys.length&&input.counter>=0n&&input.counter<2n**32n,"Invalid verifier installation batch");
   const updates=input.keys.map(({id,key})=>new VerifierKeyInsert(id,new ContractOperationVersionedVerifierKey("v3",key)));
   let update=new MaintenanceUpdate(input.contract,updates,input.counter);update=update.addSignature(0n,signData(input.signingKey,update.dataToSign));
-  return Transaction.fromParts("undeployed",undefined,undefined,Intent.new(new Date(Date.now()+3600000)).addMaintenanceUpdate(update));
+  return Transaction.fromParts(input.network??"undeployed",undefined,undefined,Intent.new(new Date(Date.now()+3600000)).addMaintenanceUpdate(update));
 }
 /** Use only for initial packaging. No user circuit may run before the complete
  * manifest has been installed and verified against finalized chain state. */
