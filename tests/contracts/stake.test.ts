@@ -5,6 +5,7 @@ import { setupGroups,bytes,group,scout,other,hash,commitment,committee } from ".
 import { createDecryptionShare,splitSecret,subtract,discreteLog } from "../../packages/crypto/src/index";
 import { decryptGroupCard,groupCardBinding } from "../../packages/crypto/src/group-card";
 import { pureCircuits } from "../../contracts/managed/senyap/contract/index.js";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 const refs=[bytes(80),bytes(81),bytes(82),...Array.from({length:5},()=>bytes(0))];
 function setupStake(epoch=7n,tier=1n,count=5){
   const s=setupGroups(),buyer=hash(s.context.currentPrivateState.buyer);
@@ -13,7 +14,7 @@ function setupStake(epoch=7n,tier=1n,count=5){
   s.invoke("createMarket",1n,{subjective:false,side:0n,category:bytes(70),questionHash:bytes(71),questionUri:"demo://stake",nOptions:3n,optionRefs:refs,openAt:1000n,openUntil:1600n,auctionUntil:1800n,outcomeUntil:2400n,flatPrice:10n,reservePrice:20n});
   s.invoke("configureScoutGroup",group,{side:0n,tier,epoch,ecosystem:bytes(0)});
   for(const secret of [bytes(21),bytes(22),scout,bytes(23),bytes(24)].slice(0,count))s.invoke("admitScout",group,commitment(secret,epoch));
-  s.context.currentPrivateState.path=s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(scout,epoch));
+  s.context.currentPrivateState.path=scoutGroupTree(s.state,group).findPathForLeaf(commitment(scout,epoch));
   return s;
 }
 const stake=(s:ReturnType<typeof setupStake>,slot=1n,amount=100n)=>s.invoke("stake",1n,group,slot,amount,bytes(88)) as Uint8Array;

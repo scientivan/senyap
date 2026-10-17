@@ -6,6 +6,7 @@ import { generateBuyerKey } from "../../crypto/src/buyer-channel";
 import { generateRevealKey } from "../../crypto/src/identity-reveal";
 import { packPrivateKey } from "./private-state";
 import type {PublicMetadataDraft} from "./creation";
+import {scoutGroupTree} from "./group-trees";
 type Secrets=Record<"scout"|"buyer"|"builder"|"verifier",Uint8Array>;
 type PrivatePosition={group:Uint8Array;option:bigint;salt:Uint8Array;signing:Uint8Array;signingPublic:Uint8Array;revealKeyCommit:Uint8Array};
 type Receiving={privateKey:Uint8Array;publicKey:Uint8Array};
@@ -63,13 +64,13 @@ const high=(n:bigint)=>n>>128n,low=(n:bigint)=>n&((1n<<128n)-1n);
 /** User witnesses only. Operator/committee authorization is unavailable in this
  * factory; those secrets never belong in a browser private-state record. */
 export const clientWitnesses:Witnesses<ClientPrivateState>={
-  updatedScoutRoot:(c,id)=>[checked(c),c.ledger.scoutGroups.lookup(id).root()],
-  scoutAuthorization:(c,id)=>[checked(c),{id,...c.ledger.groupConfig.lookup(id),size:c.ledger.groupSize.lookup(id),root:c.ledger.scoutGroups.lookup(id).root()}],
-  scoutRegistryPath(c,id){const value={id,...c.ledger.groupConfig.lookup(id),size:c.ledger.groupSize.lookup(id),root:c.ledger.scoutGroups.lookup(id).root()};return [checked(c),path(c.ledger.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(value)))];},
+  updatedScoutRoot:(c,id)=>[checked(c),scoutGroupTree(c.ledger,id).root()],
+  scoutAuthorization:(c,id)=>[checked(c),{id,...c.ledger.groupConfig.lookup(id),size:c.ledger.groupSize.lookup(id),root:scoutGroupTree(c.ledger,id).root()}],
+  scoutRegistryPath(c,id){const value={id,...c.ledger.groupConfig.lookup(id),size:c.ledger.groupSize.lookup(id),root:scoutGroupTree(c.ledger,id).root()};return [checked(c),path(c.ledger.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(value)))];},
   operatorSecret(){throw Error("Operator authorization is server-only");},committeeSecret(){throw Error("Committee authorization is server-only");},
   scoutSecret:c=>[checked(c),checked(c).secrets.scout],buyerSecret:c=>[checked(c),checked(c).secrets.buyer],builderSecret:c=>[checked(c),checked(c).secrets.builder],verifierSecret:c=>[checked(c),checked(c).secrets.verifier],
   memberPath(c){const group=required(action(c).group,"Group action required"),epoch=c.ledger.groupConfig.lookup(group).epoch;
-    const leaf=persistentHash(new CompactTypeVector(2,Bytes32Descriptor),[checked(c).secrets.scout,convertFieldToBytes(32,epoch,"epoch")]);return [checked(c),path(c.ledger.scoutGroups.lookup(group).findPathForLeaf(leaf))];},
+    const leaf=persistentHash(new CompactTypeVector(2,Bytes32Descriptor),[checked(c).secrets.scout,convertFieldToBytes(32,epoch,"epoch")]);return [checked(c),path(scoutGroupTree(c.ledger,group).findPathForLeaf(leaf))];},
   buyerPath:c=>[checked(c),path(c.ledger.buyerTree.findPathForLeaf(hash(checked(c).secrets.buyer)))],
   standingPath:c=>[checked(c),path(c.ledger.goodStanding.findPathForLeaf(hash(checked(c).secrets.buyer)))],
   verifierPath:c=>[checked(c),path(c.ledger.verifierTree.findPathForLeaf(hash(checked(c).secrets.verifier)))],

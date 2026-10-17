@@ -6,6 +6,7 @@ import { Contract, ledger, type Market } from "../../contracts/managed/senyap/co
 import { setupGroups, bytes, hash, committee, commitment, operator } from "../../tests/contracts/harness";
 import { summarizeTotals } from "../../apps/committee/src/decisions";
 import { planTransitions } from "../../services/keeper/src/transitions";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 
 const fixture = setupGroups();
 export type LocalState = typeof fixture.context.currentPrivateState;
@@ -72,7 +73,7 @@ export async function runScenario(driver: Driver) {
     await driver.call("createMarket", market, config);
     for (const [index, secret] of cohort.entries()) {
       const {state} = await driver.read(), salt = bytes(100 + Number(side) * 10 + index);
-      const path = state.scoutGroups.lookup(group).findPathForLeaf(commitment(secret, epoch));
+      const path = scoutGroupTree(state,group).findPathForLeaf(commitment(secret, epoch));
       assert(path, "Local scout path unavailable");
       await driver.patch({scout: secret, option: 0n, salt, path});
       const id = await driver.call("stake", market, group, 1n, 100n, bytes(88));

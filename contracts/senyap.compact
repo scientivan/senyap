@@ -15,7 +15,12 @@ export struct BuilderEntry { profileHash: Bytes<32>; ownerCommit: Bytes<32>; con
 export ledger builderRegistry: Map<Bytes<32>, BuilderEntry>;
 export sealed ledger operator: Bytes<32>;
 export sealed ledger committeeAuth: Vector<5, Bytes<32>>;
-export ledger scoutGroups: Map<Bytes<32>, HistoricMerkleTree<20, Bytes<32>>>;
+// Node 1.0.0 drops transactions that insert a default HistoricMerkleTree as a
+// Map value (spike S12). Groups use a fixed pool of top-level trees by slot.
+export ledger scoutGroupTree0: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree1: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree2: HistoricMerkleTree<20, Bytes<32>>;
+export ledger scoutGroupTree3: HistoricMerkleTree<20, Bytes<32>>;
 export ledger groupConfig: Map<Bytes<32>, ScoutGroup>;
 export ledger groupSize: Map<Bytes<32>, Uint<32>>;
 export ledger groupNextIndex: Map<Bytes<32>, Uint<64>>;
@@ -76,7 +81,8 @@ export ledger hitUntil: Map<Uint<32>, Uint<64>>;
 export ledger hitFlags: Map<Bytes<32>, Vector<4, Boolean>>;
 export ledger issuedHits: Set<Bytes<32>>;
 export ledger hitTree: HistoricMerkleTree<20, Bytes<32>>;
-export ledger hitsByEpoch: Map<Uint<64>, HistoricMerkleTree<20, Bytes<32>>>;
+// Leaves bind the epoch: H(credential, epoch). Replaces a Map of per-epoch trees (S12).
+export ledger hitEpochTree: HistoricMerkleTree<20, Bytes<32>>;
 export struct HitCredential { position: Bytes<32>; epoch: Uint<64>; path: MerkleTreePath<20, Bytes<32>>; }
 export ledger marketCreatorCards: Map<Uint<32>, LockedCard>;
 export struct Bid {
@@ -179,11 +185,31 @@ circuit assertOperatorKey(secret: Bytes<32>): [] {
   assert(persistentHash<Bytes<32>>(secret) == operator, "Operator authorization failed");
 }
 
+circuit groupSlot(group: Bytes<32>): Uint<64> { return scoutGroupSlots.lookup(group); }
+circuit groupInsert(group: Bytes<32>, leaf: Bytes<32>): [] {
+  const slot = groupSlot(group);
+  if (slot == 0) { scoutGroupTree0.insert(leaf); } else if (slot == 1) { scoutGroupTree1.insert(leaf); } else if (slot == 2) { scoutGroupTree2.insert(leaf); } else { scoutGroupTree3.insert(leaf); }
+}
+circuit groupRemoveIndex(group: Bytes<32>, index: Uint<64>): [] {
+  const slot = groupSlot(group);
+  if (slot == 0) { scoutGroupTree0.insertIndexDefault(index); scoutGroupTree0.resetHistory(); }
+  else if (slot == 1) { scoutGroupTree1.insertIndexDefault(index); scoutGroupTree1.resetHistory(); }
+  else if (slot == 2) { scoutGroupTree2.insertIndexDefault(index); scoutGroupTree2.resetHistory(); }
+  else { scoutGroupTree3.insertIndexDefault(index); scoutGroupTree3.resetHistory(); }
+}
+circuit groupResetHistory(group: Bytes<32>): [] {
+  const slot = groupSlot(group);
+  if (slot == 0) { scoutGroupTree0.resetHistory(); } else if (slot == 1) { scoutGroupTree1.resetHistory(); } else if (slot == 2) { scoutGroupTree2.resetHistory(); } else { scoutGroupTree3.resetHistory(); }
+}
+circuit groupCheckRoot(group: Bytes<32>, root: MerkleTreeDigest): Boolean {
+  const slot = groupSlot(group);
+  return slot == 0 ? scoutGroupTree0.checkRoot(root) : slot == 1 ? scoutGroupTree1.checkRoot(root) : slot == 2 ? scoutGroupTree2.checkRoot(root) : scoutGroupTree3.checkRoot(root);
+}
 export circuit scoutAuthorizationDigest(value: ScoutAuthorization): Bytes<32> { return persistentHash<ScoutAuthorization>(value); }
 circuit syncScoutGroup(group: Bytes<32>): [] {
-  const config = groupConfig.lookup(group);scoutGroups.lookup(group).resetHistory();
+  const config = groupConfig.lookup(group);groupResetHistory(group);
   const root = disclose(updatedScoutRoot(group));
-  assert(scoutGroups.lookup(group).checkRoot(root), "Updated scout root not current");
+  assert(groupCheckRoot(group, root), "Updated scout root not current");
   const value = ScoutAuthorization { id: group, side: config.side, tier: config.tier, epoch: config.epoch, ecosystem: config.ecosystem, size: groupSize.lookup(group), root: root };
   scoutRegistry.insertIndex(persistentHash<ScoutAuthorization>(value), scoutGroupSlots.lookup(group));
 }
@@ -193,10 +219,9 @@ export circuit configureScoutGroup(group: Bytes<32>, config: ScoutGroup): [] {
   assert(!groupConfig.member(disclose(group)), "Group already configured");
   assert(config.side <= 1 && config.tier >= 1 && config.tier <= 3, "Invalid scout group");
   groupConfig.insert(disclose(group), disclose(config));
-  scoutGroups.insert(disclose(group), default<HistoricMerkleTree<20, Bytes<32>>>);
   groupSize.insert(disclose(group), 0);
   groupNextIndex.insert(disclose(group), 0);
-  assert(nextScoutGroupSlot < 4294967296, "Scout registry full");
+  assert(nextScoutGroupSlot < 4, "Scout group capacity (4) reached");
   scoutGroupSlots.insert(disclose(group), nextScoutGroupSlot);nextScoutGroupSlot = (nextScoutGroupSlot + 1) as Uint<64>;
 }
 
@@ -210,7 +235,7 @@ export circuit admitScout(group: Bytes<32>, commitment: Bytes<32>): [] {
   assert(index < 1048576, "Scout group tree full");
   const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: group, index: index });
   groupLeaves.insert(disclose(leafKey), disclose(commitment));
-  scoutGroups.lookup(disclose(group)).insert(disclose(commitment));
+  groupInsert(disclose(group), disclose(commitment));
   groupNextIndex.insert(disclose(group), (index + 1) as Uint<64>);
   groupSize.insert(disclose(group), (groupSize.lookup(disclose(group)) + 1) as Uint<32>);
   admittedCommitments.insert(disclose(unique));syncScoutGroup(disclose(group));
@@ -262,8 +287,7 @@ export circuit revokeMember(group: Bytes<32>, index: Uint<64>): [] {
   const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: group, index: index });
   assert(groupLeaves.member(disclose(leafKey)), "Unknown membership leaf");
   groupLeaves.remove(disclose(leafKey));
-  scoutGroups.lookup(disclose(group)).insertIndexDefault(disclose(index));
-  scoutGroups.lookup(disclose(group)).resetHistory();
+  groupRemoveIndex(disclose(group), disclose(index));
   groupSize.insert(disclose(group), (groupSize.lookup(disclose(group)) - 1) as Uint<32>);
   syncScoutGroup(disclose(group));scoutRegistry.resetHistory();
   consumedRevocations.insert(disclose(command));
@@ -776,8 +800,7 @@ export circuit proveHit(id: Uint<32>, slotNumber: Uint<8>, poolNumber: Uint<8>):
     const epoch = disclose(currentEpoch());
     assert(blockTimeGte((epoch * epochLength) as Uint<64>) && blockTimeLt(((epoch + 1) * epochLength) as Uint<64>), "Hit credential epoch is not current");
     const credential = disclose(persistentHash<Vector<2, Bytes<32>>>([secret, nullifier]));
-    if (!hitsByEpoch.member(epoch)) { hitsByEpoch.insert(epoch, default<HistoricMerkleTree<20, Bytes<32>>>); }
-    hitsByEpoch.lookup(epoch).insert(credential);hitTree.insert(credential);issuedHits.insert(disclose(nullifier));
+    hitEpochTree.insert(disclose(persistentHash<Vector<2, Bytes<32>>>([credential, epoch as Bytes<32>])));hitTree.insert(credential);issuedHits.insert(disclose(nullifier));
   }
 }
 
@@ -883,10 +906,9 @@ export circuit renewTier(fromGroup: Bytes<32>, toGroup: Bytes<32>): [] {
     if (i < required) {
       const credential = credentials[i];
       assert(credential.epoch <= source.epoch && credential.epoch + 1 >= source.epoch && (target.tier == source.tier || credential.epoch == source.epoch), "Hit credential is too old for requested tier");
-      const leaf = persistentHash<Vector<2, Bytes<32>>>([secret, credential.position]);
+      const leaf = persistentHash<Vector<2, Bytes<32>>>([persistentHash<Vector<2, Bytes<32>>>([secret, credential.position]), credential.epoch as Bytes<32>]);
       assert(credential.path.leaf == leaf, "Hit credential does not belong to scout");
-      assert(hitsByEpoch.member(disclose(credential.epoch)), "Unknown hit credential epoch");
-      assert(hitsByEpoch.lookup(disclose(credential.epoch)).checkRoot(disclose(merkleTreePathRoot<20, Bytes<32>>(credential.path))), "Hit credential root not accepted");
+      assert(hitEpochTree.checkRoot(disclose(merkleTreePathRoot<20, Bytes<32>>(credential.path))), "Hit credential root not accepted");
       const used = persistentHash<Vector<5, Bytes<32>>>([pad(32, "senyap:renew-hit"),kernel.self().bytes,secret,credential.position,target.epoch as Bytes<32>]);
       assert(!usedNullifiers.member(disclose(used)), "Hit credential already used in target epoch");usedNullifiers.insert(disclose(used));
     }
@@ -898,7 +920,7 @@ export circuit renewTier(fromGroup: Bytes<32>, toGroup: Bytes<32>): [] {
   assert(!admittedCommitments.member(disclose(unique)), "Scout already admitted to renewal group");
   const index = groupNextIndex.lookup(targetId);assert(index < 1048576, "Scout group tree full");
   const leafKey = persistentHash<GroupLeaf>(GroupLeaf { group: targetId, index: index });
-  groupLeaves.insert(disclose(leafKey), disclose(commitment));scoutGroups.lookup(targetId).insert(disclose(commitment));
+  groupLeaves.insert(disclose(leafKey), disclose(commitment));groupInsert(targetId, disclose(commitment));
   groupNextIndex.insert(targetId, (index + 1) as Uint<64>);groupSize.insert(targetId, (groupSize.lookup(targetId) + 1) as Uint<32>);
   admittedCommitments.insert(disclose(unique));usedNullifiers.insert(disclose(renewal));syncScoutGroup(targetId);
 }
@@ -1024,7 +1046,7 @@ export circuit revokeHoaxMember(dispute: Bytes<32>): [] {
   assertOperator();const id = disclose(dispute);assert(disputes.lookup(id).kind == 0 && disputes.lookup(id).result == 1 && hoaxMembers.member(id), "Hoax member not revealed");
   const member = hoaxMembers.lookup(id);const leafKey = persistentHash<GroupLeaf>(member);
   assert(groupLeaves.member(leafKey), "Hoax member already revoked");
-  groupLeaves.remove(leafKey);scoutGroups.lookup(member.group).insertIndexDefault(member.index);scoutGroups.lookup(member.group).resetHistory();
+  groupLeaves.remove(leafKey);groupRemoveIndex(member.group, member.index);
   groupSize.insert(member.group, (groupSize.lookup(member.group) - 1) as Uint<32>);
   syncScoutGroup(member.group);scoutRegistry.resetHistory();
 }

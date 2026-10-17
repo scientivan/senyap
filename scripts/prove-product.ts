@@ -9,9 +9,10 @@ import { httpClientProvingProvider } from "@midnight-ntwrk/midnight-js-http-clie
 import { setupAuction } from "../tests/helpers/auction";
 import { bytes,group,hash,committee,commitment as scoutCommitment } from "../tests/contracts/harness";
 import { verifierVoteCommitment } from "../packages/sdk/src/verifier-vote";
+import {scoutGroupTree} from "../packages/sdk/src/group-trees";
 const directory=resolve("contracts/managed/senyap"),provider=httpClientProvingProvider("http://127.0.0.1:6300",new NodeZkConfigProvider(directory),{timeout:300000});
 const {s,records}=setupAuction(300n,bytes(88),true),first=records[0];
-Object.assign(s.context.currentPrivateState,{scout:first.secret,path:s.state.scoutGroups.lookup(group).findPathForLeaf(scoutCommitment(first.secret,7n)),option:1n,salt:bytes(210),previousPath:s.state.positionTree.findPathForLeaf(first.id)});
+Object.assign(s.context.currentPrivateState,{scout:first.secret,path:scoutGroupTree(s.state,group).findPathForLeaf(scoutCommitment(first.secret,7n)),option:1n,salt:bytes(210),previousPath:s.state.positionTree.findPathForLeaf(first.id)});
 const stake=s.contract.impureCircuits.stake(s.context,1n,group,2n,100n,bytes(88));
 s.setTime(1600);s.invoke("close",1n);
 for(let i=0;i<3;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("postPreview",1n,{strong:5n,medium:0n,weak:3n},BigInt(i));}

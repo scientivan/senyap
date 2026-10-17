@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import * as RT from "@midnight-ntwrk/compact-runtime";
 import { Contract, ledger, pureCircuits, type ScoutAuthorization } from "../../contracts/managed/senyap/contract/index.js";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 
 // Synthetic simulator identities, never deployment credentials.
 export const bytes=(n:number)=>new Uint8Array(32).fill(n);
@@ -15,9 +16,9 @@ type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8
 export const config={side:0n,tier:1n,epoch:7n,ecosystem:bytes(0)};
 export function setupGroups(selectionSeconds=300n){
   const contract=new Contract<PS>({
-    updatedScoutRoot:({privateState,ledger},id)=>[privateState,ledger.scoutGroups.lookup(id).root()],
-    scoutAuthorization:({privateState,ledger},id)=>[privateState,privateState.authorization??{id,...ledger.groupConfig.lookup(id),size:ledger.groupSize.lookup(id),root:ledger.scoutGroups.lookup(id).root()}],
-    scoutRegistryPath:({privateState,ledger},id)=>{const value=privateState.authorization??{id,...ledger.groupConfig.lookup(id),size:ledger.groupSize.lookup(id),root:ledger.scoutGroups.lookup(id).root()};return [privateState,privateState.registryPath??ledger.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(value))!];},
+    updatedScoutRoot:({privateState,ledger},id)=>[privateState,scoutGroupTree(ledger,id).root()],
+    scoutAuthorization:({privateState,ledger},id)=>[privateState,privateState.authorization??{id,...ledger.groupConfig.lookup(id),size:ledger.groupSize.lookup(id),root:scoutGroupTree(ledger,id).root()}],
+    scoutRegistryPath:({privateState,ledger},id)=>{const value=privateState.authorization??{id,...ledger.groupConfig.lookup(id),size:ledger.groupSize.lookup(id),root:scoutGroupTree(ledger,id).root()};return [privateState,privateState.registryPath??ledger.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(value))!];},
     operatorSecret:({privateState})=>[privateState,privateState.operator],
     committeeSecret:({privateState})=>[privateState,privateState.committee],
     scoutSecret:({privateState})=>[privateState,privateState.scout],

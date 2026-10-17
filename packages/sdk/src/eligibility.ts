@@ -3,6 +3,7 @@ import {Bytes32Descriptor,CompactTypeVector,persistentHash,convertFieldToBytes} 
 import type {Ledger} from "../../../contracts/managed/senyap/contract/index.js";
 import type {ClientPrivateState} from "./client-state";
 import {scoutPositionId,buyerPseudonym} from "./read-model";
+import {scoutGroupTree} from "./group-trees";
 const hex=(b:Uint8Array)=>Array.from(b,v=>v.toString(16).padStart(2,"0")).join("");
 /** Local projection only. Membership choices must never be sent to metadata or
  * operator HTTP endpoints. Circuits still enforce every rule at submission. */
@@ -16,7 +17,7 @@ export function marketEligibility(state:Ledger,privateState:ClientPrivateState|u
     for(const [id,group] of state.groupConfig){
       if(group.side!==config.side||group.epoch!==blockTime/state.epochLength||state.groupSize.lookup(id)<5n)continue;
       const leaf=persistentHash(new CompactTypeVector(2,Bytes32Descriptor),[privateState.secrets.scout,convertFieldToBytes(32,group.epoch,"epoch")]);
-      if(!state.scoutGroups.lookup(id).findPathForLeaf(leaf))continue;
+      if(!scoutGroupTree(state,id).findPathForLeaf(leaf))continue;
       result.stakeStatus="options-used";
       for(let option=0;option<Number(config.nOptions);option++){
         if(config.side===1n&&hex(config.optionRefs[option])!==hex(group.ecosystem))continue;

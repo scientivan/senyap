@@ -4,6 +4,7 @@ import { verifierVoteCommitment } from "../../packages/sdk/src/verifier-vote";
 import { bytes, hash, committee, commitment } from "./harness";
 import { planTransitions } from "../../services/keeper/src/transitions";
 import { setupSideB, preview } from "../helpers/side-b";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 const choices = [true, true, true, true, false, false, true];
 function court() {
   const {s,records}=setupSideB();preview(s);s.invoke("buyFlat",1n,0n);
@@ -40,7 +41,7 @@ describe("P5.2 anonymous verifier dispute escrow",()=>{
     for(let i=0;i<2;i++){s.context.currentPrivateState.committee=committee[i];s.invoke("approveHoaxMember",id,bytes(4),0n,BigInt(i));}
     expect(()=>s.invoke("revokeHoaxMember",id)).toThrow(/not revealed/);
     s.context.currentPrivateState.committee=committee[2];s.invoke("approveHoaxMember",id,bytes(4),0n,2n);s.invoke("revokeHoaxMember",id);
-    expect(s.state.scoutGroups.lookup(bytes(4)).findPathForLeaf(commitment(records[0].secret,7n))).toBeUndefined();
+    expect(scoutGroupTree(s.state,bytes(4)).findPathForLeaf(commitment(records[0].secret,7n))).toBeUndefined();
     expect(()=>s.invoke("revokeHoaxMember",id)).toThrow(/already revoked/);
     for(const r of records.slice(1,4)){Object.assign(s.context.currentPrivateState,{scout:r.secret,option:r.option,salt:r.salt});s.invoke("proveHit",1n,1n,0n);}
     s.context.currentPrivateState.scout=records[0].secret;expect(()=>s.invoke("proveHit",1n,1n,0n)).toThrow(/not active/);
