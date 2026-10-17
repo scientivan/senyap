@@ -17,7 +17,7 @@ import {Contract as TokenContract} from "../contracts/managed/dusd/contract/inde
 import {createSnapshotReader} from "../packages/sdk/src/snapshot";
 import {hash, operator} from "../tests/contracts/harness";
 import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment,validateRejectedStagedDeploy,validatePartialInstallation} from "./lib/local-submission-journal";
-import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
+import {synchronizedLocalBalance,applyDustFeeWorkaround} from "./lib/local-wallet-balance";
 import {stagedProductContract,verifierBatches,verifierInstallation} from "./lib/staged-product-deployment";
 import {createLocalResourceGate} from "./lib/local-resource-budget";
 import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
@@ -25,6 +25,7 @@ import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructo
 
 // testkit's wallet builder logs seeds at info level. Silence before any build.
 logger.level = "silent";
+applyDustFeeWorkaround();
 const digest = (value: string | Uint8Array) => createHash("sha256").update(value).digest("hex");
 const sourceSha256 = digest(await readFile("contracts/senyap.compact"));
 const simulated = simulatorDriver();
@@ -253,9 +254,11 @@ async function executeLocal() {
         try { return await originalSubmit(tx); }
         catch (error) {
           // Node RPC rejection text is public; anything else stays withheld.
-          const text = error instanceof Error ? `${error.message} ${error.cause instanceof Error ? error.cause.message : ""}` : "";
+          const chain:string[]=[];for(let e:unknown=error,d=0;e&&d<6;d++){chain.push(e instanceof Error?`${e.name}: ${e.message}`:typeof e==="object"?JSON.stringify(e).slice(0,300):String(e));e=e instanceof Error?e.cause:(e as {cause?:unknown})?.cause;}
+          const {inspect}=await import("node:util");
+          const text = chain.join(" <- ")+" | "+inspect(error,{depth:8,breakLength:Infinity}).split("\n").filter(l=>/1\d{3}|Invalid|Custom|rror|reason|code/.test(l)&&!/at /.test(l)).slice(0,8).join(" ");
           const node = text.match(/(\b1\d{3}\b[^\n]{0,160}|Invalid Transaction[^\n]{0,160}|Malformed\([^\n]{0,120})/);
-          journal.data.publicResult.lastSubmitError = node ? node[0].replace(/[A-Za-z0-9+/=]{40,}/g, "<redacted>") : "withheld (not a node rejection)";
+          journal.data.publicResult.lastSubmitError = (node ? node[0] : `unclassified: ${text.replace(/\s+/g," ").slice(0, 600)}`).replace(/[A-Za-z0-9+/=]{40,}/g, "<redacted>");
           await journal.persist(); throw error;
         }
       });

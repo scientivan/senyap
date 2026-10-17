@@ -9,9 +9,10 @@ import {deployContract} from "@midnight-ntwrk/midnight-js-contracts";
 import {setNetworkId} from "@midnight-ntwrk/midnight-js-network-id";
 import {MidnightWalletProvider,initializeMidnightProviders,inMemoryPrivateStateProvider,logger,syncWallet,type EnvironmentConfiguration} from "@midnight-ntwrk/testkit-js";
 import {Contract} from "../contracts/managed/spikes/s12-node-map-tree/contract/index.js";
-import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
+import {synchronizedLocalBalance,applyDustFeeWorkaround} from "./lib/local-wallet-balance";
 
 logger.level="silent";
+applyDustFeeWorkaround();
 if(!process.argv.includes("--execute-local")){console.log("Prepared S12: deploy + mapAndCell, directTree, mapDefaultTree, mapTreeInsert on undeployed. No wallet started.");process.exit(0);}
 setNetworkId("undeployed");
 type Circuit="mapAndCell"|"directTree"|"mapDefaultTree"|"mapTreeInsert";
