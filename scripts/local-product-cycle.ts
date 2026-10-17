@@ -49,7 +49,7 @@ const codeSha256 = {
 const plan = {version: 1, network: "undeployed", sourceSha256, codeSha256, deploys: ["dusd", "senyap"], mint: "5000",
   circuits: simulated.calls, transactionCount: simulated.calls.length + 3+(packaged?installationBatches.length-1:0),
   ...(packaged?{deploymentPackaging:{batches:installationBatches,requireAllVerifiersBeforeCalls:true}}:{}),
-  genesisRegistration: false, parameters: {epochSeconds: 86400, hitSeconds: 300, selectionSeconds: 300, commitSeconds: 300, revealSeconds: 300},
+  genesisRegistration: false, parameters: {epochSeconds: 86400, hitSeconds: 1800, selectionSeconds: 900, commitSeconds: 300, revealSeconds: 300},
   endpoints: {node: "http://127.0.0.1:9944", indexer: "http://127.0.0.1:8088/api/v4/graphql", proofServer: "http://127.0.0.1:6300"}};
 const planSha256 = digest(JSON.stringify(plan));
 const evidencePath = "docs/evidence/local-product-cycle-plan.json";

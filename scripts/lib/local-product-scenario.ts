@@ -22,7 +22,9 @@ export const mask = (...options: number[]) => Array.from({length: 8}, (_, i) => 
 export const hex = (value: Uint8Array) => Buffer.from(value).toString("hex");
 export const initialPrivateState = (): LocalState => ({...fixture.context.currentPrivateState});
 export const constructorArgs = (color: Uint8Array, recipient: {bytes: Uint8Array}) =>
-  [hash(operator), committee.map(hash), RT.ecMulGenerator(37n), color, epochSeconds, 300n, 300n, 300n, 300n, recipient] as const;
+  [hash(operator), committee.map(hash), RT.ecMulGenerator(37n), color, epochSeconds, 1800n, 900n, 300n, 300n, recipient] as const;
+// Local network fixture: hit 1800 s and selection 900 s leave room for ~50 s per
+// proven transaction (15 proveHit calls; settle+select for two buyers).
 
 // Resolve paths against each circuit's actual input ledger, rather than reusing
 // simulator paths for a deployed contract. No production witness factory uses this.
