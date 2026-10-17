@@ -6,7 +6,9 @@ import {syncWallet, type MidnightWalletProvider} from "@midnight-ntwrk/testkit-j
 export function synchronizedLocalBalance(provider: Pick<MidnightWalletProvider, "wallet" | "balanceTx">): MidnightWalletProvider["balanceTx"] {
   const balance = provider.balanceTx.bind(provider);
   return async (transaction, ttl) => {
-    await syncWallet(provider.wallet);
+    // Default 90s timeout trips when synchronous wallet/proof work blocks the
+    // event loop on a long local chain (17 Oct, S12). Allow 15 minutes.
+    await syncWallet(provider.wallet, 2_000, 900_000);
     return balance(transaction, ttl);
   };
 }

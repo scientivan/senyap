@@ -7,7 +7,7 @@ import {firstValueFrom,filter,timeout} from "rxjs";
 import {CompiledContract} from "@midnight-ntwrk/midnight-js-protocol/compact-js";
 import {deployContract} from "@midnight-ntwrk/midnight-js-contracts";
 import {setNetworkId} from "@midnight-ntwrk/midnight-js-network-id";
-import {MidnightWalletProvider,initializeMidnightProviders,inMemoryPrivateStateProvider,logger,type EnvironmentConfiguration} from "@midnight-ntwrk/testkit-js";
+import {MidnightWalletProvider,initializeMidnightProviders,inMemoryPrivateStateProvider,logger,syncWallet,type EnvironmentConfiguration} from "@midnight-ntwrk/testkit-js";
 import {Contract} from "../contracts/managed/spikes/s12-node-map-tree/contract/index.js";
 import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
 
@@ -32,6 +32,7 @@ try{
   wallet.balanceTx=synchronizedLocalBalance(wallet);
   await wallet.start(false);
   await firstValueFrom(wallet.wallet.state().pipe(filter(s=>s.dust.balance(new Date())>0n),timeout(120000)));
+  {const t0=Date.now();await syncWallet(wallet.wallet,2_000,900_000);console.log(JSON.stringify({end:"initial-sync",ms:Date.now()-t0}));}
   const send=wallet.submitTx.bind(wallet);
   // Direct submission; the node's own error (not a pre-validation) is recorded.
   wallet.submitTx=async tx=>{

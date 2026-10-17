@@ -1,0 +1,33 @@
+{
+  "network": "undeployed",
+  "spike": "S12",
+  "run": "2026-10-17 long-sync, single process",
+  "contract": "c8c76fc62d1ec07f769abc8c7c6baf96f91849198aaec6a621d96e21c406cf55",
+  "onChain": [
+    {
+      "step": "deploy",
+      "block": 22770,
+      "status": "SUCCESS"
+    },
+    {
+      "step": "mapAndCell",
+      "block": 22774,
+      "status": "SUCCESS"
+    },
+    {
+      "step": "directTree",
+      "block": 22779,
+      "status": "SUCCESS"
+    },
+    {
+      "step": "mapDefaultTree",
+      "status": "submitted 09:02:07Z, never indexed; no block between 22770 and head+ contains it"
+    },
+    {
+      "step": "mapTreeInsert",
+      "status": "not submitted (process stopped; depends on mapDefaultTree)"
+    }
+  ],
+  "conclusion": "Inserting default<HistoricMerkleTree<20,Bytes<32>>> as a new Map value is dropped by local node 1.0.0 after submission, matching configureScoutGroup (senyap.compact:196). Plain Map insert + Cell update and a top-level HistoricMerkleTree insert succeed.",
+  "caveats": "Earlier runs also suffered from concurrent stale spike processes sharing seed1 and a 90s wallet sync timeout; this run used one process, a 15-minute sync timeout and a full initial sync. The node gives no rejection text; drop reason inside the node is unproven."
+}
