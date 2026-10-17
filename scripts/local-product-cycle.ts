@@ -147,14 +147,19 @@ async function executeLocal() {
     const base="docs/evidence/local-product-cycle-fresh-k16";let n=0,path=`${base}-journal.json`,all:{action:string;status:string;txId?:string}[]=[];let last:any;
     for(;;){let j;try{j=JSON.parse(await readFile(path,"utf8"));}catch{break;}last=j;all=[...all.filter(t=>t.status==="finalized"),...j.transactions];n++;path=`${base}-continue${n}-journal.json`;}
     const pending=all.filter(t=>t.status!=="finalized");assert(pending.length===1&&pending[0].status==="submitted"&&all.at(-1)===pending[0],"Exactly one trailing uncertain action required");
-    const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){__typename}}",variables:{offset:{identifier:pending[0].txId}}})});
-    const reply=await response.json();assert(response.ok&&!reply.errors&&reply.data?.transactions?.length===0&&(await rpc("author_pendingExtrinsics")).length===0,"Uncertain action included or pending; continuation blocked");
+    const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){...on RegularTransaction{transactionResult{status segments{id success}}}}}",variables:{offset:{identifier:pending[0].txId}}})});
+    const reply=await response.json(),found=reply.data?.transactions;
+    // Absent, or included with every contract (fallible) segment failed: no contract effect.
+    const noEffect=Array.isArray(found)&&(found.length===0||found.length===1&&found[0].transactionResult?.status==="PARTIAL_SUCCESS"&&found[0].transactionResult.segments.some((x:{id:number;success:boolean})=>x.id!==0&&!x.success));
+    assert(response.ok&&!reply.errors&&noEffect&&(await rpc("author_pendingExtrinsics")).length===0,"Uncertain action included with effect or pending; continuation blocked");
     const first=JSON.parse(await readFile(`${base}-journal.json`,"utf8"));
     assert(n>0&&last.network==="undeployed"&&last.sourceSha256===sourceSha256&&first.publicResult?.all41VerifiersInstalled===true,"Fresh deployment with all verifiers required");
     confirmedToken=first.publicResult.tokenContract;confirmedColor=first.publicResult.token;deployedSenyap=first.publicResult.contract;
     freshPrior={path,finalized:all.filter(t=>t.status==="finalized")};
   }
-  const journalPath = freshPrior?freshPrior.path:freshStaged?"docs/evidence/local-product-cycle-fresh-k16-journal.json":diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
+  const runTag=process.argv.includes("--run-tag")?process.argv[process.argv.indexOf("--run-tag")+1]:undefined;
+  assert(runTag===undefined||/^r[0-9]{1,2}$/.test(runTag)&&freshStaged&&!continueFresh,"--run-tag rN applies to a new fresh run only");
+  const journalPath = runTag?`docs/evidence/local-product-cycle-fresh-k16-${runTag}-journal.json`:freshPrior?freshPrior.path:freshStaged?"docs/evidence/local-product-cycle-fresh-k16-journal.json":diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let stagedRejectedId:string|undefined;
   if(retryStaged){
     const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-staged-journal.json","utf8")),rejection=JSON.parse(await readFile("docs/evidence/staged-deployment-node-rejection.json","utf8"));
@@ -330,6 +335,17 @@ async function executeLocal() {
         assert.equal(name, simulated.calls[sequence], "Local call differs from reviewed plan");
         // Finalized in resume2; their results are unused by the scenario.
         if(sequence<skipCalls){assert(["admitBuyer","registerBuilder","configureScoutGroup","admitScout"].includes(name),"Only finalized void admin calls may be skipped");sequence++;return [] as unknown as Result<K>;}
+        // midnight-js proves against the indexer's latest contract state. Wait until
+        // the indexer has caught up with the node's finalized head, otherwise a
+        // read-modify-write call (stake tallies) proves a stale transcript and
+        // lands as PARTIAL_SUCCESS with no contract effect (17 Oct).
+        for(let i=0;;i++){
+          const head=parseInt((await rpc("chain_getHeader",[await rpc("chain_getFinalizedHead")])).number,16);
+          const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"{ block { height } }"})});
+          const indexed=(await response.json()).data?.block?.height;
+          if(typeof indexed==="number"&&indexed>=head)break;
+          assert(i<40,"Indexer did not catch up with finalized head");await pause(3000);
+        }
         const anchor = await snapshot(); await driver.patch({now: anchor.blockTime});
         // The generated interface is a mapped type; narrow this dynamic dispatch
         // only after matching the simulator-validated circuit sequence.
