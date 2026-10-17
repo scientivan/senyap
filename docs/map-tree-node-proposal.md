@@ -1,6 +1,6 @@
 # Map-of-HistoricMerkleTree on the node: finding and fix options
 
-Status: proposal for Dien's decision. No contract change has been made.
+Status: option A implemented (K=16, no slot reuse); local cycle completed 18 Oct 2026.
 
 ## Finding (17 Oct 2026)
 

@@ -22,7 +22,7 @@ uses separate buyer pools; Side B has one shared duty and independent buyer mark
 ([local proofs](docs/evidence/shared-report-proving.json)). Permissionless cancellation, full principal/bid refunds and returned subsidies
 also pass simulator tests. Remaining lifecycle cases, live services and frontend
 transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
-network only. The Senyap product contract is deployed on a local network, not on Preprod.
+network only. The Senyap product contract has completed a local network cycle, but is not deployed on Preprod.
 
 Option-level subjective/contested outcome juries now pass simulator and local
 proof-server checks, including separate collateral, quorum/refunds and settlement
@@ -34,15 +34,17 @@ objective report and cancelled-market refund to the explicit SDK adapter. Builde
 creation are also connected. Complete public deployment configuration and product
 network verification remain pending.
 
-The [local cycle runner](docs/local-product-cycle.md) deployed a synthetic token,
-minted 5000 and deployed the full Senyap contract on a local network. Because one
-deployment exceeded the node's per-transaction weight limit, the 41 circuit
-verifiers were installed as an initial batch of 8 plus five signed maintenance
-updates, then checked against the compiled manifest. Two buyer admissions and two
-builder registrations finalized. The next call (scout group configuration) has not
-reached the chain; a minimal spike reproduced a wallet SDK failure before
-submission ([S12 evidence](docs/evidence/S12-node-map-tree-seed1.json)). The full A/B
-network cycle is incomplete.
+The [local cycle runner](docs/local-product-cycle.md) completed a full Side A and
+Side B market cycle on a local Midnight network (node 1.0.0) on 18 Oct 2026. It
+deployed a synthetic token and the Senyap contract, installed all 42 circuit
+verifiers in staged batches (one deployment exceeds the node's per-transaction
+weight limit), and finalized all 84 actions through stake, hits, renewal, auction,
+outcome, settlement and claims. Both markets reached Settled; 1120 claimed, 100
+bid refunds and 20 remainder conserve the 1240 input
+([r10 journal](docs/evidence/local-product-cycle-fresh-k16-r10-journal.json)).
+All actors are controlled by one synthetic funding wallet, so this is not evidence
+of independent participants or network anonymity. Earlier failed attempts are kept
+as journals in `docs/evidence/`.
 
 The full product mechanism described below is still under implementation; simulator
 coverage and the isolated Preprod counter do not establish an end-to-end market. See [SPEC.md](SPEC.md)

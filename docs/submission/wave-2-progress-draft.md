@@ -57,22 +57,24 @@ called once. Both finalized SucceedEntirely and the counter reached 1. This prov
 the browser/wallet/proof path, not Senyap market execution. Public identifiers are
 in [S5 receipts](../evidence/S5-preprod-counter.json).
 
-On a local Midnight network (node 1.0.0), the full Senyap contract is deployed.
-A single deployment exceeded the node's per-transaction weight limit, so the 41
-circuit verifiers were installed in an initial batch of 8 plus five signed
-maintenance updates. All 41 installed keys were checked against the compiled
-manifest. Two buyer admissions and two builder registrations then finalized
-([deploy](../evidence/local-product-cycle-staged-retry-journal.json),
-[verifiers and first calls](../evidence/local-product-cycle-staged-resume2-journal.json)).
+On a local Midnight network (node 1.0.0), the full Senyap contract completed a
+Side A and Side B market cycle (18 Oct 2026). A single deployment exceeds the
+node's per-transaction weight limit, so the 42 circuit verifiers were installed
+in staged signed maintenance updates and checked against the compiled manifest.
+All 84 actions finalized and both markets reached Settled; claims, bid refunds
+and remainder conserve the 1240 input
+([r10 journal](../evidence/local-product-cycle-fresh-k16-r10-journal.json)).
+One synthetic wallet controls all actors.
 
-The local market lifecycle is not complete. The next call (scout group
-configuration) has not reached the chain, and a minimal spike reproduced a wallet
-SDK failure before submission ([S12 evidence](../evidence/S12-node-map-tree-seed1.json)).
+Reaching this required a contract change. The node never indexed a write that
+inserts a default `HistoricMerkleTree` into a `Map` (spike S12), so scout group
+trees moved to 16 fixed top-level trees and hit credentials to one epoch-bound
+tree ([proposal](../map-tree-node-proposal.md)).
 No Senyap product contract is deployed on Preprod yet.
 
 ## Local proof evidence
 
-The current main contract has 41 generated prover/verifier pairs. The approved
+The current main contract has 42 generated prover/verifier pairs. The approved
 S11 integration removes public group references from stakes and encrypts group
 IDs inside the membership cards. Integrated Side B stake and three-hit renewal
 passed local /check and /prove with no selected group/leaf/root in the public-only
@@ -89,8 +91,8 @@ These checks do not establish a security audit or network settlement.
 ## Still to complete before a final submission claim
 
 
-- A complete local market lifecycle (blocked at scout group configuration),
-  then an authorized Preprod deployment and network market lifecycle.
+- An authorized Preprod deployment and network market lifecycle (the local
+  lifecycle is complete).
 - Frontend transactions and indexed live state; current market pages remain
   labelled synthetic demo data. The workspace storage itself is real local code.
 - Configured live operator/committee processes, trusted-dealer keys and relays.

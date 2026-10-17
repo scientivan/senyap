@@ -277,3 +277,13 @@ Continuation flags: `--continue-after-scout-group` skips the four finalized call
 `--diagnose-next` builds the next call and blocks submission. The resume3 journal
 already exists, so another continuation needs a new journal path and fresh
 reconciliation of tx `0009d5fb…`.
+
+## Complete local cycle (18 Oct)
+
+Run r10 (`--fresh-staged --run-tag r10`) deployed a fresh K=16 contract, installed
+all 42 verifiers and finalized all 84 actions. Both markets reached Settled:
+claimed 1120, bid refunds 100, remainder 20, input 1240, conserved
+([journal](evidence/local-product-cycle-fresh-k16-r10-journal.json)). The journal
+field `all41VerifiersInstalled` is a legacy name; the check covers all 42 circuits.
+Runs r2 to r9 failed on timing windows, a Side B proof-server crash (fixed by
+splitting `createSideBMarket`) and one Docker outage; their journals are kept.
