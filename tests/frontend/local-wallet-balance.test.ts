@@ -19,7 +19,7 @@ it("does not build a DUST proof from a positive balance until every wallet repla
   const provider = {wallet: {state: () => updates}, balanceTx: originalBalance} as unknown as Pick<MidnightWalletProvider, "wallet" | "balanceTx">;
   const transaction = {} as Parameters<MidnightWalletProvider["balanceTx"]>[0];
   const ttl = new Date("2026-10-16T12:00:00Z");
-  const balanced = synchronizedLocalBalance(provider)(transaction, ttl);
+  const balanced = synchronizedLocalBalance(provider, 0)(transaction, ttl);
   await vi.advanceTimersByTimeAsync(2001);
   expect(originalBalance).not.toHaveBeenCalled();
   updates.next(state(false, true));

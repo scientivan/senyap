@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import * as RT from "@midnight-ntwrk/compact-runtime";
 import { Contract, ledger, pureCircuits, type ScoutAuthorization } from "../../contracts/managed/senyap/contract/index.js";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 
 // Synthetic simulator identities, never deployment credentials.
 export const bytes=(n:number)=>new Uint8Array(32).fill(n);
@@ -15,9 +16,9 @@ type PS={operator:Uint8Array;scout:Uint8Array;committee:Uint8Array;builder:Uint8
 export const config={side:0n,tier:1n,epoch:7n,ecosystem:bytes(0)};
 export function setupGroups(selectionSeconds=300n){
   const contract=new Contract<PS>({
-    updatedScoutRoot:({privateState,ledger},id)=>[privateState,ledger.scoutGroups.lookup(id).root()],
-    scoutAuthorization:({privateState,ledger},id)=>[privateState,privateState.authorization??{id,...ledger.groupConfig.lookup(id),size:ledger.groupSize.lookup(id),root:ledger.scoutGroups.lookup(id).root()}],
-    scoutRegistryPath:({privateState,ledger},id)=>{const value=privateState.authorization??{id,...ledger.groupConfig.lookup(id),size:ledger.groupSize.lookup(id),root:ledger.scoutGroups.lookup(id).root()};return [privateState,privateState.registryPath??ledger.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(value))!];},
+    updatedScoutRoot:({privateState,ledger},id)=>[privateState,scoutGroupTree(ledger,id).root()],
+    scoutAuthorization:({privateState,ledger},id)=>[privateState,privateState.authorization??{id,...ledger.groupConfig.lookup(id),size:ledger.groupSize.lookup(id),root:scoutGroupTree(ledger,id).root()}],
+    scoutRegistryPath:({privateState,ledger},id)=>{const value=privateState.authorization??{id,...ledger.groupConfig.lookup(id),size:ledger.groupSize.lookup(id),root:scoutGroupTree(ledger,id).root()};return [privateState,privateState.registryPath??ledger.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(value))!];},
     operatorSecret:({privateState})=>[privateState,privateState.operator],
     committeeSecret:({privateState})=>[privateState,privateState.committee],
     scoutSecret:({privateState})=>[privateState,privateState.scout],
@@ -46,7 +47,9 @@ export function setupGroups(selectionSeconds=300n){
   const initial=contract.initialState(RT.createConstructorContext<PS>({operator,scout,committee:committee[0],builder:bytes(40),buyer:bytes(60),receivingKey:bytes(63),bid:100n,now:1000n,option:0n,salt:bytes(61)},"0".repeat(64)),hash(operator),committee.map(hash),RT.ecMulGenerator(37n),bytes(62),128n,300n,selectionSeconds,300n,300n,{bytes:bytes(250)});
   let context=RT.createCircuitContext(RT.sampleContractAddress(),"0".repeat(64),initial.currentContractState,initial.currentPrivateState,undefined,undefined,1000);
   const invokeResult=<K extends keyof typeof contract.impureCircuits>(name:K,...args:Parameters<(typeof contract.impureCircuits)[K]> extends [unknown,...infer A]?A:never)=>{
-    const circuit=contract.impureCircuits[name] as (...args:unknown[])=>RT.CircuitResults<PS,unknown>;
+    // Side B creation is its own circuit (proof server panic on a shared one, 17 Oct).
+    const routed=name==="createMarket"&&(args[1] as {side?:bigint})?.side===1n?"createSideBMarket":name;
+    const circuit=contract.impureCircuits[routed as K] as (...args:unknown[])=>RT.CircuitResults<PS,unknown>;
     const result=circuit(context,...args);context=result.context;return result;
   };
   const invoke=<K extends keyof typeof contract.impureCircuits>(name:K,...args:Parameters<(typeof contract.impureCircuits)[K]> extends [unknown,...infer A]?A:never)=>invokeResult(name,...args).result;

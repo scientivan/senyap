@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { pureCircuits } from "../../contracts/managed/senyap/contract/index.js";
 import { setupGroups,bytes,operator,scout,other,group,committee,commitment,config } from "./harness";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 
 describe("P2.1 scout groups",()=>{
   it("authenticates admission, rejects duplicates and freezes group metadata",()=>{
@@ -18,7 +19,7 @@ describe("P2.1 scout groups",()=>{
   it("binds the Merkle leaf to the private scout and epoch",()=>{
     const s=setupGroups();s.invoke("configureScoutGroup",group,config);
     s.invoke("admitScout",group,commitment(scout,7n));
-    s.context.currentPrivateState.path=s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(scout,7n));
+    s.context.currentPrivateState.path=scoutGroupTree(s.state,group).findPathForLeaf(commitment(scout,7n));
     const pseudonym=s.invoke("scoutPseudonym",group,bytes(20));expect(pseudonym).toHaveLength(32);
     s.context.currentPrivateState.scout=other;
     expect(()=>s.invoke("scoutPseudonym",group,bytes(20))).toThrow(/does not belong/);
@@ -29,8 +30,8 @@ describe("P2.1 scout groups",()=>{
   it("requires three distinct authenticated approvals, revokes historic paths and preserves survivors",()=>{
     const s=setupGroups();s.invoke("configureScoutGroup",group,config);
     s.invoke("admitScout",group,commitment(scout,7n));
-    const old=s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(scout,7n))!;
-    const authorization={id:group,...s.state.groupConfig.lookup(group),size:s.state.groupSize.lookup(group),root:s.state.scoutGroups.lookup(group).root()};
+    const old=scoutGroupTree(s.state,group).findPathForLeaf(commitment(scout,7n))!;
+    const authorization={id:group,...s.state.groupConfig.lookup(group),size:s.state.groupSize.lookup(group),root:scoutGroupTree(s.state,group).root()};
     const registryPath=s.state.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(authorization))!;
     s.invoke("admitScout",group,commitment(other,7n));
     s.context.currentPrivateState.authorization=authorization;s.context.currentPrivateState.registryPath=registryPath;
@@ -48,10 +49,10 @@ describe("P2.1 scout groups",()=>{
     expect(()=>s.invoke("scoutPseudonym",group,bytes(20))).toThrow(/root not accepted/);
     expect(()=>s.invoke("revokeMember",group,0n)).toThrow(/already consumed/);
     expect(s.state.groupSize.lookup(group)).toBe(1n);
-    expect(s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(scout,7n))).toBeUndefined();
+    expect(scoutGroupTree(s.state,group).findPathForLeaf(commitment(scout,7n))).toBeUndefined();
     delete s.context.currentPrivateState.authorization;delete s.context.currentPrivateState.registryPath;
     s.context.currentPrivateState.scout=other;
-    s.context.currentPrivateState.path=s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(other,7n));
+    s.context.currentPrivateState.path=scoutGroupTree(s.state,group).findPathForLeaf(commitment(other,7n));
     expect(()=>s.invoke("scoutPseudonym",group,bytes(20))).not.toThrow();
     s.invoke("admitScout",group,commitment(bytes(30),7n));
     expect(s.state.groupNextIndex.lookup(group)).toBe(3n);

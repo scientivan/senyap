@@ -1,0 +1,182 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "ca70b76dbbaf2aab01aad1dd9b7e800dbc9c41bba729200becfc4e2816b66adc",
+  "planSha256": "7254e8a96274b97bebba6a6774c732a429269a4a53bfa21f059d34f9b86d3341",
+  "status": "stopped; no automatic restart",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "finalized",
+      "txId": "007e66f9f1e53fed56f5a545fd5113558ea7350fc959d3d465cc35aaf2f50fd36a"
+    },
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "00c366a07584f8fb4694d08836e64d1577fdfb6f3ada7f5ad6d75154add8d631a9"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "finalized",
+      "txId": "00cbc8b3a34d84fd4f8a715a55fa10df624c53915a33b3f6685925a2d980285143"
+    },
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "00f3a7f335dbddb26026be9e45b534238005ec824adddbbf40e5e1368f4aadc8df"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "00ae7843b9c324d8a4971fdce54e75b02cdab2bea1447cc5395115345a9aa7ef13"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "0036b879e512d5bfd86f99c22bf3dbadb8d640c4a9997b74f833580e47760f409a"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "000f3c4fa72d985cd0a07fdc7d846bdbaab7cc7ad76b908ff9850efcadcfcab887"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "00dc62d036f0b9fcbc66676c17665a8827e11c450237e76cebcdbec10b39ec7c64"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00820290d092e9aeac079b577b4fb43e499f3025408462b3e82d2c8ccdaf2e0890"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "0033ea9f216147454440d4cc26e8cffa0e8291965e921654efad04886ce813e819"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "003c2383bd56a4477c58b75dcf94c175043370f9150df020aef26f350fd3096e10"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "00e6f2259efdc9781030d809d0ed3b24893496d8636cf54c08c3449f10352bf541"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "008eba01c88aa5df68ec8f760981b1cef4fd8106d74dd87c9261034c5188eddca5"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0075406bacbec08eb6e21ccb1e1545175674090096f89c689b1eeb1d829473072f"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00a411e7705163219c2141953167ff137d889c151d8be5bd41ec59c11a942962d0"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00f94346f5f5cce5c386aaa5dc8e8c580d124c2b7ddb2e47d72f92aeb17c52795c"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "009ab4af190b3fb69ac8b4b021ef456256ac98dc6670b92224dcf7f1a44f4a3c95"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00812ab0837f369aa0bd24b4203c296260c386c158dea304b7387a8b83ed55b081"
+    },
+    {
+      "action": "createMarket",
+      "status": "finalized",
+      "txId": "00034abef1915745480d109871352c78e658c9fee762331fa7bf79f6024f6cf090"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00803cb16b363b877e89abf05a697679a32095f78eab28f84c0694a2fa43472607"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00cabe4183ea031e53330cbb03934af2f3cdd41355636e23ff7efc11405bcec0d5"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "002977ab74b79b75dc7038752a56f72f82f3c8b8a69e69bbd6b2ad8038b92e3752"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "0087b81fb573408dba2944129fac3b264492bd291ec888ef889b36887376a6d69a"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00e32eb7bda3f938ade4c828419dcf0e52f3f92989195785936032683de977db50"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "0088ef78819fb2b2ad2487d8e9650515e3bcdff04b09707e77ae84adf39cb0f7e3"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00e69736d4ecbfba36dc8579dd3b3729fd8e5145ff59e5890a3ea7d12155fdbfd5"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00ef9e1b23b63e9f7e330dbd774c6af3f06a0b6458f6e83a312aba4b1cc388566f"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "002ab6e633932bb514d2253d3b46293819a3234ac94052cb56fa1f50f7efa84e4e"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0053e2af4afe3ef0128c078a14ac721be069416d2e7f5686c15d52c9d98142aa98"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00e83699943fd288ced2acf5821c313e1c79b8abe121c54c8a14ca30ea017a9bbb"
+    },
+    {
+      "action": "createMarket",
+      "status": "prepared"
+    }
+  ],
+  "publicResult": {
+    "lastResourceBudget": {
+      "action": "admitScout",
+      "passed": true,
+      "gasCost": "40998313722",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "61106470722",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 9721,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "tokenContract": "7d58bca37d7188f5d11aab5450f8666d3481b2b79b6159b5e5a6c77d7615aace",
+    "token": "8dbe589fbe61471e14442a704c11bebeab4adfd381dca6fc2c2cd3c2b3e63cc2",
+    "contract": "f00fdaee52c268850975854e49f80f05116301a54563da3b1b700a16177c41e2",
+    "all41VerifiersInstalled": true
+  }
+}

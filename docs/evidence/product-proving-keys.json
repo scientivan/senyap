@@ -1,141 +1,146 @@
 {
   "compiler": "0.31.1",
-  "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
-  "circuits": 41,
+  "sourceSha256": "4f1b33904be6e52c1587729cde56b8220ff6bea2563cb3013b22353ed14dc083",
+  "circuits": 42,
   "provingKeys": [
     {
       "circuit": "admitBuyer",
-      "proverBytes": 2827519,
+      "proverBytes": 2827515,
       "verifierBytes": 2119
     },
     {
       "circuit": "admitScout",
-      "proverBytes": 9967563,
+      "proverBytes": 19514141,
       "verifierBytes": 2119
     },
     {
       "circuit": "admitVerifier",
-      "proverBytes": 2821344,
+      "proverBytes": 2821357,
       "verifierBytes": 2119
     },
     {
       "circuit": "allocateSubsidy",
-      "proverBytes": 5220333,
+      "proverBytes": 5220338,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveHoaxMember",
-      "proverBytes": 10009146,
+      "proverBytes": 10009211,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveMissedBuyer",
-      "proverBytes": 9996943,
+      "proverBytes": 9996940,
       "verifierBytes": 2119
     },
     {
       "circuit": "approveRevocation",
-      "proverBytes": 5252096,
+      "proverBytes": 5252105,
       "verifierBytes": 2119
     },
     {
       "circuit": "buyFlat",
-      "proverBytes": 42803584,
+      "proverBytes": 42803578,
       "verifierBytes": 2311
     },
     {
       "circuit": "cancelMarket",
-      "proverBytes": 148807,
+      "proverBytes": 148832,
       "verifierBytes": 1351
     },
     {
       "circuit": "challengeOutcome",
-      "proverBytes": 9985734,
+      "proverBytes": 9985722,
       "verifierBytes": 2119
     },
     {
       "circuit": "claim",
-      "proverBytes": 5222667,
+      "proverBytes": 5222668,
       "verifierBytes": 2119
     },
     {
       "circuit": "claimVerifier",
-      "proverBytes": 288359,
+      "proverBytes": 288329,
       "verifierBytes": 1351
     },
     {
       "circuit": "close",
-      "proverBytes": 74318,
+      "proverBytes": 74351,
       "verifierBytes": 1351
     },
     {
       "circuit": "commitVote",
-      "proverBytes": 5213004,
+      "proverBytes": 5213007,
       "verifierBytes": 2119
     },
     {
       "circuit": "configureScoutGroup",
-      "proverBytes": 2819412,
+      "proverBytes": 2819330,
       "verifierBytes": 2119
     },
     {
       "circuit": "createMarket",
-      "proverBytes": 42810262,
+      "proverBytes": 42800007,
+      "verifierBytes": 2311
+    },
+    {
+      "circuit": "createSideBMarket",
+      "proverBytes": 5754574,
       "verifierBytes": 2311
     },
     {
       "circuit": "finalizeMarket",
-      "proverBytes": 284485,
+      "proverBytes": 284478,
       "verifierBytes": 1351
     },
     {
       "circuit": "markMissedReport",
-      "proverBytes": 2834817,
+      "proverBytes": 2834841,
       "verifierBytes": 2119
     },
     {
       "circuit": "markMissedSharedBuyer",
-      "proverBytes": 147947,
+      "proverBytes": 148000,
       "verifierBytes": 1351
     },
     {
       "circuit": "openDispute",
-      "proverBytes": 553982,
+      "proverBytes": 553986,
       "verifierBytes": 1351
     },
     {
       "circuit": "placeBid",
-      "proverBytes": 85074495,
+      "proverBytes": 85074507,
       "verifierBytes": 2311
     },
     {
       "circuit": "postAuctionResult",
-      "proverBytes": 9995405,
+      "proverBytes": 9995432,
       "verifierBytes": 2119
     },
     {
       "circuit": "postDefaultStrongest",
-      "proverBytes": 5250534,
+      "proverBytes": 5250532,
       "verifierBytes": 2119
     },
     {
       "circuit": "postPreview",
-      "proverBytes": 5245898,
+      "proverBytes": 5245911,
       "verifierBytes": 2119
     },
     {
       "circuit": "proveHit",
-      "proverBytes": 9998565,
+      "proverBytes": 10020155,
       "verifierBytes": 2119
     },
     {
       "circuit": "recordOutcome",
-      "proverBytes": 10017051,
+      "proverBytes": 10017039,
       "verifierBytes": 2119
     },
     {
       "circuit": "recordSubjectiveOutcome",
-      "proverBytes": 38690549,
+      "proverBytes": 38690484,
       "verifierBytes": 2119
     },
     {
@@ -145,37 +150,37 @@
     },
     {
       "circuit": "renewTier",
-      "proverBytes": 38612930,
+      "proverBytes": 38749678,
       "verifierBytes": 2119
     },
     {
       "circuit": "resolveDispute",
-      "proverBytes": 2148221,
+      "proverBytes": 2148204,
       "verifierBytes": 1351
     },
     {
       "circuit": "returnCancelledSubsidy",
-      "proverBytes": 2831457,
+      "proverBytes": 2831444,
       "verifierBytes": 2119
     },
     {
       "circuit": "revealVote",
-      "proverBytes": 5217987,
+      "proverBytes": 5217979,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeHoaxMember",
-      "proverBytes": 5219950,
+      "proverBytes": 19509533,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeMember",
-      "proverBytes": 9982586,
+      "proverBytes": 19530520,
       "verifierBytes": 2119
     },
     {
       "circuit": "revokeMissedBuyer",
-      "proverBytes": 2821614,
+      "proverBytes": 2821616,
       "verifierBytes": 2119
     },
     {
@@ -185,22 +190,22 @@
     },
     {
       "circuit": "selectHidden",
-      "proverBytes": 5245559,
+      "proverBytes": 5245563,
       "verifierBytes": 2119
     },
     {
       "circuit": "settleBid",
-      "proverBytes": 556316,
+      "proverBytes": 556285,
       "verifierBytes": 1351
     },
     {
       "circuit": "skipSelection",
-      "proverBytes": 149573,
+      "proverBytes": 149575,
       "verifierBytes": 1351
     },
     {
       "circuit": "stake",
-      "proverBytes": 85063848,
+      "proverBytes": 85063868,
       "verifierBytes": 2311
     },
     {
@@ -209,6 +214,5 @@
       "verifierBytes": 2119
     }
   ],
-  "scope": "Local public proving artifacts only; no product deployment or transaction",
-  "recovery": "Original compiler session exit status unavailable after user interruption. Compiler no longer running; all 41 nonempty prover/verifier pairs were modified after implementation commit401da08. Critical current-source /check and /prove validation follows separately."
+  "note": "Regenerated 17 Oct 2026: 16 top-level scout group trees, epoch-bound hit tree, and Side B creation split into createSideBMarket (shared circuit made the proof server panic)."
 }

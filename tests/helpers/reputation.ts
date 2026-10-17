@@ -2,6 +2,7 @@
 // Synthetic local fixture shared by simulator tests and offline proof checks.
 import * as RT from "@midnight-ntwrk/compact-runtime";
 import {setupGroups,bytes,hash,commitment,committee} from "../contracts/harness";
+import {scoutGroupTree,hitEpochLeaf} from "../../packages/sdk/src/group-trees";
 export const cohort=[21,22,23,24,25].map(bytes),source=bytes(4),target=bytes(9);
 export function earnedHits(beforeHits?:(s:ReturnType<typeof setupGroups>)=>void){
   const s=setupGroups(),buyer=hash(s.context.currentPrivateState.buyer),ids:Uint8Array[]=[];
@@ -12,12 +13,12 @@ export function earnedHits(beforeHits?:(s:ReturnType<typeof setupGroups>)=>void)
     for(const secret of cohort)s.invoke("admitScout",bytes(4+i),commitment(secret,7n));
   }
   for(let i=0;i<3;i++){
-    Object.assign(s.context.currentPrivateState,{scout:cohort[0],option:BigInt(i),salt:bytes(100+i),path:s.state.scoutGroups.lookup(bytes(4+i)).findPathForLeaf(commitment(cohort[0],7n))});
+    Object.assign(s.context.currentPrivateState,{scout:cohort[0],option:BigInt(i),salt:bytes(100+i),path:scoutGroupTree(s.state,bytes(4+i)).findPathForLeaf(commitment(cohort[0],7n))});
     if(i>0)s.context.currentPrivateState.previousPath=s.state.positionTree.findPathForLeaf(ids[i-1]);
     ids.push(s.invoke("stake",1n,bytes(4+i),BigInt(i+1),100n,bytes(88)) as Uint8Array);
   }
   for(const secret of cohort.slice(1)){
-    Object.assign(s.context.currentPrivateState,{scout:secret,option:0n,salt:bytes(110),path:s.state.scoutGroups.lookup(source).findPathForLeaf(commitment(secret,7n))});
+    Object.assign(s.context.currentPrivateState,{scout:secret,option:0n,salt:bytes(110),path:scoutGroupTree(s.state,source).findPathForLeaf(commitment(secret,7n))});
     s.invoke("stake",1n,source,1n,100n,bytes(88));
   }
   s.setTime(1010);s.invoke("close",1n);
@@ -29,10 +30,9 @@ export function earnedHits(beforeHits?:(s:ReturnType<typeof setupGroups>)=>void)
     Object.assign(s.context.currentPrivateState,{scout:cohort[0],option:BigInt(i),salt:bytes(100+i)});s.invoke("proveHit",1n,BigInt(i+1),0n);
   }
   const credentials=ids.map(position=>{
-    const leaf=RT.persistentHash(new RT.CompactTypeVector(2,RT.Bytes32Descriptor),[cohort[0],position]);
-    return {position,epoch:7n,path:s.state.hitsByEpoch.lookup(7n).findPathForLeaf(leaf)!};
+    return {position,epoch:7n,path:s.state.hitEpochTree.findPathForLeaf(hitEpochLeaf(cohort[0],position,7n))!};
   });
-  Object.assign(s.context.currentPrivateState,{scout:cohort[0],path:s.state.scoutGroups.lookup(source).findPathForLeaf(commitment(cohort[0],7n)),credentials});
+  Object.assign(s.context.currentPrivateState,{scout:cohort[0],path:scoutGroupTree(s.state,source).findPathForLeaf(commitment(cohort[0],7n)),credentials});
   const configure=(tier:bigint,epoch=8n,group=target)=>s.invoke("configureScoutGroup",group,{side:1n,tier,epoch,ecosystem:bytes(80)});
   return {s,credentials,configure};
 }

@@ -6,6 +6,7 @@ import { Contract, ledger, type Market } from "../../contracts/managed/senyap/co
 import { setupGroups, bytes, hash, committee, commitment, operator } from "../../tests/contracts/harness";
 import { summarizeTotals } from "../../apps/committee/src/decisions";
 import { planTransitions } from "../../services/keeper/src/transitions";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 
 const fixture = setupGroups();
 export type LocalState = typeof fixture.context.currentPrivateState;
@@ -21,7 +22,9 @@ export const mask = (...options: number[]) => Array.from({length: 8}, (_, i) => 
 export const hex = (value: Uint8Array) => Buffer.from(value).toString("hex");
 export const initialPrivateState = (): LocalState => ({...fixture.context.currentPrivateState});
 export const constructorArgs = (color: Uint8Array, recipient: {bytes: Uint8Array}) =>
-  [hash(operator), committee.map(hash), RT.ecMulGenerator(37n), color, epochSeconds, 300n, 300n, 300n, 300n, recipient] as const;
+  [hash(operator), committee.map(hash), RT.ecMulGenerator(37n), color, epochSeconds, 1800n, 900n, 300n, 300n, recipient] as const;
+// Local network fixture: hit 1800 s and selection 900 s leave room for ~50 s per
+// proven transaction (15 proveHit calls; settle+select for two buyers).
 
 // Resolve paths against each circuit's actual input ledger, rather than reusing
 // simulator paths for a deployed contract. No production witness factory uses this.
@@ -58,23 +61,27 @@ export async function runScenario(driver: Driver) {
   for (const side of [0n, 1n]) {
     const {time} = await driver.read(), epoch = time / epochSeconds, group = bytes(4 + Number(side));
     // A full run must fit inside this fixture membership epoch.
-    assert(time + 1800n < (epoch + 1n) * epochSeconds, "Local fixture epoch expires during run; wait for next epoch");
+    assert(time + 5400n < (epoch + 1n) * epochSeconds, "Local fixture epoch expires during run; wait for next epoch");
     await driver.call("configureScoutGroup", group, {side, tier: 1n, epoch, ecosystem: side === 0n ? bytes(0) : bytes(90)});
     for (const secret of cohort) await driver.call("admitScout", group, commitment(secret, epoch));
     const start = (await driver.read()).time, market = side + 1n;
     const config: Market = {subjective: false, side, category: bytes(70), questionHash: bytes(71 + Number(side)),
       questionUri: "demo://local-network-fixture", nOptions: 2n,
       optionRefs: [bytes(side === 0n ? 80 : 90), bytes(side === 0n ? 81 : 91), ...Array.from({length: 6}, () => bytes(0))],
-      openAt: start, openUntil: start + 600n, auctionUntil: start + (side === 0n ? 900n : 600n),
-      outcomeUntil: start + 1500n, flatPrice: 10n, reservePrice: side === 0n ? 40n : 0n};
+      openAt: start, openUntil: start + 1800n, auctionUntil: start + (side === 0n ? 3000n : 1800n),
+      outcomeUntil: start + 5400n, flatPrice: 10n, reservePrice: side === 0n ? 40n : 0n};
     schedules.push(config);
     await driver.patch({buyer: buyers[0]});
-    await driver.call("createMarket", market, config);
+    if (side === 0n) await driver.call("createMarket", market, config); else await driver.call("createSideBMarket", market, config);
     for (const [index, secret] of cohort.entries()) {
       const {state} = await driver.read(), salt = bytes(100 + Number(side) * 10 + index);
-      const path = state.scoutGroups.lookup(group).findPathForLeaf(commitment(secret, epoch));
+      const path = scoutGroupTree(state,group).findPathForLeaf(commitment(secret, epoch));
       assert(path, "Local scout path unavailable");
       await driver.patch({scout: secret, option: 0n, salt, path});
+      // Network proofs fix the early-bonus comparison; inclusion after the boundary
+      // fails the contract segment. Never stake within 240 s before the boundary.
+      const boundary = config.openAt + (config.openUntil - config.openAt) / 4n, now = (await driver.read()).time;
+      if (now < boundary && boundary - now < 240n) await driver.waitUntil(boundary + 6n);
       const id = await driver.call("stake", market, group, 1n, 100n, bytes(88));
       records.push({secret, salt, id, market});
     }
@@ -164,7 +171,8 @@ export async function runScenario(driver: Driver) {
     input: "1240", conserved: true, note: "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."};
 }
 
-export function simulatorDriver() {
+/** Optional hook receives each call's proof data (used to replay /check offline). */
+export function simulatorDriver(onProof?: (name: Circuit, proofData: RT.ProofData) => Promise<void>) {
   const contract = new Contract<LocalState>(witnesses), time = 1700000000n;
   const recipient = {bytes: bytes(250)};
   const initial = contract.initialState(RT.createConstructorContext(initialPrivateState(), "0".repeat(64)), ...constructorArgs(bytes(62), recipient));
@@ -178,7 +186,9 @@ export function simulatorDriver() {
     async call<K extends Circuit>(name: K, ...args: Args<K>) {
       context.currentPrivateState.now = context.currentQueryContext.block.secondsSinceEpoch;
       const circuit = contract.impureCircuits[name] as (...args: unknown[]) => RT.CircuitResults<LocalState, Result<K>>;
-      const result = circuit(context, ...args); context = result.context; calls.push(name); return result.result;
+      const result = circuit(context, ...args); context = result.context; calls.push(name);
+      if (onProof) await onProof(name, result.proofData);
+      return result.result;
     },
   };
   return {driver, calls};

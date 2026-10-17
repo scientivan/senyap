@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { setupGroups,bytes,hash,commitment,committee } from "../contracts/harness";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 const cohort=[21,22,23,24,25].map(bytes),groups=[bytes(4),bytes(5)];
 export function setupSideB(count=5,closeAtEnd=true,subjective=false,optionCount=2){
   const s=setupGroups(),buyer=hash(s.context.currentPrivateState.buyer);
@@ -11,7 +12,7 @@ export function setupSideB(count=5,closeAtEnd=true,subjective=false,optionCount=
   }
   const records=cohort.slice(0,count).map((secret,i)=>{
     const option=i===4?1n:0n,group=groups[Number(option)],salt=bytes(100+i);
-    Object.assign(s.context.currentPrivateState,{scout:secret,option,salt,path:s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(secret,7n))});
+    Object.assign(s.context.currentPrivateState,{scout:secret,option,salt,path:scoutGroupTree(s.state,group).findPathForLeaf(commitment(secret,7n))});
     const call=s.invokeResult("stake",1n,group,1n,100n,bytes(88)),id=call.result as Uint8Array;
     return {secret,option,salt,id,proofData:call.proofData,group};
   });

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copies only public proving artifacts. No wallet/configuration/private state.
-import {readFile,readdir,stat,mkdir,copyFile,writeFile} from "node:fs/promises";
+import {readFile,readdir,stat,mkdir,copyFile,writeFile,link,rm} from "node:fs/promises";
 import {createHash} from "node:crypto";
 const source="contracts/managed/senyap",destination="apps/web/public/contracts/senyap";
 const digest=buffer=>createHash("sha256").update(buffer).digest("hex");
@@ -16,6 +16,7 @@ for(const circuit of circuits)for(const name of [`keys/${circuit}.prover`,`keys/
 }
 // All preflight checks finish before writing any public assets.
 for(const directory of ["keys","zkir"])await mkdir(`${destination}/${directory}`,{recursive:true});
-for(const file of files){await copyFile(`${source}/${file.name}`,`${destination}/${file.name}`);if((await stat(`${destination}/${file.name}`)).size!==file.bytes)throw Error("Public artifact copy failed");}
+// Hard links share disk blocks with the compiled keys (same volume); copy otherwise.
+for(const file of files){await rm(`${destination}/${file.name}`,{force:true});await link(`${source}/${file.name}`,`${destination}/${file.name}`).catch(()=>copyFile(`${source}/${file.name}`,`${destination}/${file.name}`));if((await stat(`${destination}/${file.name}`)).size!==file.bytes)throw Error("Public artifact copy failed");}
 await writeFile(`${destination}/manifest.json`,JSON.stringify({sourceSha256,circuits:circuits.length,files},null,2)+"\n");
 console.log(`Prepared ${circuits.length} public circuit artifact sets. No deployment or transaction.`);

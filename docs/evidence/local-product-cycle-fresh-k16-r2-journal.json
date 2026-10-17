@@ -1,0 +1,128 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "ca70b76dbbaf2aab01aad1dd9b7e800dbc9c41bba729200becfc4e2816b66adc",
+  "planSha256": "943cf62378395949d0c7cc7e0f7b5dac06b81c5bd0cf8646d9844ed22f56e1ae",
+  "status": "uncertain; reconcile before any further submission",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "finalized",
+      "txId": "0009fd29873ca849356ac4b7ffd51f962782f8b384fa96e2a891da1a501f4fcb55"
+    },
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "00c2d62c543f820351901a77b1abf76fc5a5a35ed2939a67818de57965e2e2cf30"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "finalized",
+      "txId": "00dc6b90c0fca0f5cb1ab3b7216dd9228b54057293b9f984ebe7b105b4f6f8a54c"
+    },
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "009f99c23f8517ce9d84ca6b0dbc1f1a200c12b43188138c5dcaf2f7d392571327"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "00b3525a355d6eac6e6a07136465aca4221974660187b1039da235e8b62bd179e4"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "0075788e4dcbd5715528f1af2fee00b8ee771070ffc2e4ec8615c3e141f35528bc"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "00a8b0c02d3068b8da62f40a5a68545b61b7239f74c6e269dc54011ea67513adf1"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "008ce1d86637f7ce730743afcf194f2a2bc0e887b896561004376b7567e2e36ac8"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00f22dc715e8c4272214757c7546d5fb511b882ceae7ac9f9208892436074db4cc"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00cc02c53e8fbdb68969dca7eda0c164049dc6d9cd5aa6b4fa2dcc29b614e896c9"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "00c600b078ecf79c185f6e005462a813263a7d4a82e94f468ad50b0646fb2601b5"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "005cda4347136ef150e8433cb5d24e2acf514094b8228306137d52e0f1e48efd02"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "0035c3c2d2c855cbea9a6fa61b7ccf2d1940cd64d54a76ebca7f2abaae0c6bd2dd"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "003d73fe7d3d97306063461273eff9f18ea134558ca642c5e4ba23b0a8e3c3819a"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00ef58b5501579ccae64a033f12ad744fa0752fb91fac49cef4287a3a0fa26fbeb"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00072216db795e8614688b6764a9ea825f9e9080eccac3b5bcd9d8b60dfa31a7e6"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00c53d27038fe8e13129a663503c03ae385b3b03cd0c700aeeeb696a9c831665d3"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00a07b781337476d3e96366d46ed2855b464d0470673dd556115bc1c93c0df7f70"
+    },
+    {
+      "action": "createMarket",
+      "status": "finalized",
+      "txId": "00224ea36fa2fc9241e8d5841a04ef5da94baa7464f0ba021d1ee163bcb348df73"
+    },
+    {
+      "action": "stake",
+      "status": "submitted",
+      "txId": "00c2e9b76f4850966e6ae26762609028d50cf67b339a98496824975cb6f7b3b4e8"
+    }
+  ],
+  "publicResult": {
+    "lastResourceBudget": {
+      "action": "stake",
+      "passed": true,
+      "gasCost": "98120000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "118228157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 12678,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "tokenContract": "168bb4b1211c7e3c7fa7535f73e965cc42231ab582a6059d0fbbe4a0257dfca9",
+    "token": "228e4fbc958b9380e99eba31eea53c48bbef0995a60720385a46de293edf8c9a",
+    "contract": "99e97801c03aac7f9727fd4ff621398ea3058cbb1c6fe758f46c1a0e33842319",
+    "all41VerifiersInstalled": true
+  }
+}

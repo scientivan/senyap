@@ -9,14 +9,15 @@ import {httpClientProvingProvider} from "@midnight-ntwrk/midnight-js-http-client
 import {setupSideB} from "../tests/helpers/side-b";
 import {earnedHits} from "../tests/helpers/reputation";
 import {bytes,commitment} from "../tests/contracts/harness";
+import {scoutGroupTree} from "../packages/sdk/src/group-trees";
 
 const directory=resolve("contracts/managed/senyap"),provider=httpClientProvingProvider("http://127.0.0.1:6300",new NodeZkConfigProvider(directory),{timeout:300000});
 const {s,records}=setupSideB(),record=records[4],reputation=earnedHits();
 reputation.configure(3n);
 const source=bytes(4),renew=reputation.s.contract.impureCircuits.renewTier(reputation.s.context,source,bytes(9));
-const sourceRoot=reputation.s.state.scoutGroups.lookup(source).root();
+const sourceRoot=scoutGroupTree(reputation.s.state,source).root();
 const fixtures=[
-  {circuit:"stake",data:record.proofData,group:record.group,leaf:commitment(record.secret,7n),root:s.state.scoutGroups.lookup(record.group).root()},
+  {circuit:"stake",data:record.proofData,group:record.group,leaf:commitment(record.secret,7n),root:scoutGroupTree(s.state,record.group).root()},
   {circuit:"renewTier",data:renew.proofData,group:source,leaf:commitment(bytes(21),7n),root:sourceRoot},
 ] as const;
 const results=[];

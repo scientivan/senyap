@@ -17,7 +17,7 @@ import {Contract as TokenContract} from "../contracts/managed/dusd/contract/inde
 import {createSnapshotReader} from "../packages/sdk/src/snapshot";
 import {hash, operator} from "../tests/contracts/harness";
 import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment,validateRejectedStagedDeploy,validatePartialInstallation} from "./lib/local-submission-journal";
-import {synchronizedLocalBalance} from "./lib/local-wallet-balance";
+import {synchronizedLocalBalance,applyDustFeeWorkaround} from "./lib/local-wallet-balance";
 import {stagedProductContract,verifierBatches,verifierInstallation} from "./lib/staged-product-deployment";
 import {createLocalResourceGate} from "./lib/local-resource-budget";
 import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
@@ -25,11 +25,17 @@ import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructo
 
 // testkit's wallet builder logs seeds at info level. Silence before any build.
 logger.level = "silent";
+applyDustFeeWorkaround();
 const digest = (value: string | Uint8Array) => createHash("sha256").update(value).digest("hex");
 const sourceSha256 = digest(await readFile("contracts/senyap.compact"));
 const simulated = simulatorDriver();
 const simulation = await runScenario(simulated.driver);
 const stagedMode=process.argv.includes("--staged-after-confirmed-mint");
+// Fresh deployment of token, mint and Senyap with staged verifier packaging,
+// after the contract representation changed (S12). Uses its own journal.
+const freshStaged=process.argv.includes("--fresh-staged")||process.argv.includes("--continue-fresh");
+const continueFresh=process.argv.includes("--continue-fresh");
+const packaged=stagedMode||freshStaged;
 const installationBatches=verifierBatches(Object.keys(new Contract(witnesses).provableCircuits) as Circuit[],8);
 const codeSha256 = {
   runner: digest(await readFile("scripts/local-product-cycle.ts")),
@@ -41,9 +47,9 @@ const codeSha256 = {
   token: digest(await readFile("contracts/dusd.compact")),
 };
 const plan = {version: 1, network: "undeployed", sourceSha256, codeSha256, deploys: ["dusd", "senyap"], mint: "5000",
-  circuits: simulated.calls, transactionCount: simulated.calls.length + 3+(stagedMode?installationBatches.length-1:0),
-  ...(stagedMode?{deploymentPackaging:{batches:installationBatches,requireAllVerifiersBeforeCalls:true}}:{}),
-  genesisRegistration: false, parameters: {epochSeconds: 86400, hitSeconds: 300, selectionSeconds: 300, commitSeconds: 300, revealSeconds: 300},
+  circuits: simulated.calls, transactionCount: simulated.calls.length + 3+(packaged?installationBatches.length-1:0),
+  ...(packaged?{deploymentPackaging:{batches:installationBatches,requireAllVerifiersBeforeCalls:true}}:{}),
+  genesisRegistration: false, parameters: {epochSeconds: 86400, hitSeconds: 1800, selectionSeconds: 900, commitSeconds: 300, revealSeconds: 300},
   endpoints: {node: "http://127.0.0.1:9944", indexer: "http://127.0.0.1:8088/api/v4/graphql", proofServer: "http://127.0.0.1:6300"}};
 const planSha256 = digest(JSON.stringify(plan));
 const evidencePath = "docs/evidence/local-product-cycle-plan.json";
@@ -64,7 +70,7 @@ async function preflight() {
   const manifest = JSON.parse(await readFile("apps/web/public/contracts/senyap/manifest.json", "utf8"));
   // Public keys must belong to the current source, not a previous fixture.
   assert.equal(manifest.sourceSha256, sourceSha256, "Product artifact source mismatch");
-  assert.equal(manifest.circuits, 41, "Unexpected product circuit count");
+  assert.equal(manifest.circuits, 42, "Unexpected product circuit count");
   for (const file of manifest.files) {
     assert(typeof file.name === "string" && /^(keys|zkir)\/[a-zA-Z]+\.(prover|verifier|zkir)$/.test(file.name), "Invalid artifact name");
     const content = await readFile(`contracts/managed/senyap/${file.name}`);
@@ -129,9 +135,31 @@ async function executeLocal() {
   const retryStaged=process.argv.includes("--retry-rejected-staged-deploy");assert(!retryStaged||stagedMode,"Staged replacement requires its explicit reviewed plan");
   const continueAfter=process.argv.includes("--continue-after-scout-group"),diagnose=process.argv.includes("--diagnose-next");
   const resumeDeployed=process.argv.includes("--resume-deployed-senyap");assert(!resumeDeployed||stagedMode&&!retryStaged,"Deployed resume requires staged mode only");
-  const journalPath = diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let confirmedToken:string|undefined;
   let confirmedColor:string|undefined;
+  let deployedSenyap:string|undefined;
+  assert(!freshStaged||!(stagedMode||resume||retry),"Fresh staged deployment is exclusive");
+  // Continuation of the fresh run: every prior journal must end with exactly one
+  // submitted action that is absent from indexer and mempool. Nothing is resent
+  // automatically; each continuation uses a new exclusive journal.
+  let freshPrior:{path:string;finalized:{action:string}[]}|undefined;
+  if(continueFresh){
+    const base="docs/evidence/local-product-cycle-fresh-k16";let n=0,path=`${base}-journal.json`,all:{action:string;status:string;txId?:string}[]=[];let last:any;
+    for(;;){let j;try{j=JSON.parse(await readFile(path,"utf8"));}catch{break;}last=j;all=[...all.filter(t=>t.status==="finalized"),...j.transactions];n++;path=`${base}-continue${n}-journal.json`;}
+    const pending=all.filter(t=>t.status!=="finalized");assert(pending.length===1&&pending[0].status==="submitted"&&all.at(-1)===pending[0],"Exactly one trailing uncertain action required");
+    const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"query($offset:TransactionOffset!){transactions(offset:$offset){...on RegularTransaction{transactionResult{status segments{id success}}}}}",variables:{offset:{identifier:pending[0].txId}}})});
+    const reply=await response.json(),found=reply.data?.transactions;
+    // Absent, or included with every contract (fallible) segment failed: no contract effect.
+    const noEffect=Array.isArray(found)&&(found.length===0||found.length===1&&found[0].transactionResult?.status==="PARTIAL_SUCCESS"&&found[0].transactionResult.segments.some((x:{id:number;success:boolean})=>x.id!==0&&!x.success));
+    assert(response.ok&&!reply.errors&&noEffect&&(await rpc("author_pendingExtrinsics")).length===0,"Uncertain action included with effect or pending; continuation blocked");
+    const first=JSON.parse(await readFile(`${base}-journal.json`,"utf8"));
+    assert(n>0&&last.network==="undeployed"&&last.sourceSha256===sourceSha256&&first.publicResult?.all41VerifiersInstalled===true,"Fresh deployment with all verifiers required");
+    confirmedToken=first.publicResult.tokenContract;confirmedColor=first.publicResult.token;deployedSenyap=first.publicResult.contract;
+    freshPrior={path,finalized:all.filter(t=>t.status==="finalized")};
+  }
+  const runTag=process.argv.includes("--run-tag")?process.argv[process.argv.indexOf("--run-tag")+1]:undefined;
+  assert(runTag===undefined||/^r[0-9]{1,2}$/.test(runTag)&&freshStaged&&!continueFresh,"--run-tag rN applies to a new fresh run only");
+  const journalPath = runTag?`docs/evidence/local-product-cycle-fresh-k16-${runTag}-journal.json`:freshPrior?freshPrior.path:freshStaged?"docs/evidence/local-product-cycle-fresh-k16-journal.json":diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let stagedRejectedId:string|undefined;
   if(retryStaged){
     const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-staged-journal.json","utf8")),rejection=JSON.parse(await readFile("docs/evidence/staged-deployment-node-rejection.json","utf8"));
@@ -140,7 +168,6 @@ async function executeLocal() {
       const reply=await response.json();assert(response.ok&&!reply.errors&&Array.isArray(reply.data?.transactions),"Staged replacement lookup unavailable");const pending=await rpc("author_pendingExtrinsics");assert(Array.isArray(pending),"Mempool unavailable");return {indexerMatches:reply.data.transactions.length,pendingExtrinsics:pending.length};
     }});
   }
-  let deployedSenyap:string|undefined;
   // Continue after resume2: 41 verifiers and four calls finalized, then the
   // fifth call (configureScoutGroup) never reached chain or mempool.
   assert(!continueAfter||stagedMode&&!resumeDeployed&&!retryStaged,"Continuation requires staged mode only");assert(!diagnose||continueAfter,"Diagnosis requires continuation");
@@ -153,6 +180,7 @@ async function executeLocal() {
     const reply=await response.json();assert(response.ok&&!reply.errors&&reply.data?.transactions?.length===0&&(await rpc("author_pendingExtrinsics")).length===0,"Uncertain call included or pending; continuation blocked");
     deployedSenyap=prior.publicResult.contract;skipCalls=4;
   }
+  if(freshPrior)skipCalls=freshPrior.finalized.filter(t=>!/^(deploy:|mint:|install-verifiers:)/.test(t.action)).length;
   if(resumeDeployed){
     const prior=JSON.parse(await readFile("docs/evidence/local-product-cycle-staged-retry-journal.json","utf8"));
     const head=await rpc("chain_getFinalizedHead"),header=await rpc("chain_getHeader",[head]);
@@ -202,7 +230,7 @@ async function executeLocal() {
   }
   // Exclusive create prevents repeating an interrupted/uncertain run, even when
   // no receipt was returned. Reconciliation is read-only and manual.
-  const submissionLimit=plan.transactionCount-(continueAfter?12:resumeDeployed?3:stagedMode?2:resume?1:0);
+  const submissionLimit=plan.transactionCount-(freshPrior?8+skipCalls:continueAfter?12:resumeDeployed?3:stagedMode?2:resume?1:0);
   const journal = await createLocalJournal(journalPath, {sourceSha256, planSha256}, submissionLimit);
   if(deployedSenyap){journal.data.publicResult.resumesDeployedSenyap=deployedSenyap;journal.data.publicResult.previousStagedJournal="local-product-cycle-staged-retry-journal.json";await journal.persist();}
   if(stagedRejectedId){journal.data.publicResult.replacesRejectedStagedId=stagedRejectedId;await journal.persist();}
@@ -227,7 +255,18 @@ async function executeLocal() {
       journal.data.publicResult.lastResourceBudget={action:journal.data.transactions.at(-1)?.action,...budget};await journal.persist();
       assert(budget.passed,"Transaction exceeds current node runtime resource limits; nothing submitted");
       if(diagnose){console.log(JSON.stringify({poolValidity:await resourceGate!.validate(tx)}));throw Object.assign(Error("DIAGNOSE_SUBMIT_BLOCKED"),{diagnosticBlocked:true});}
-      const returnedId = await journal.submit(id, () => originalSubmit(tx));
+      const returnedId = await journal.submit(id, async () => {
+        try { return await originalSubmit(tx); }
+        catch (error) {
+          // Node RPC rejection text is public; anything else stays withheld.
+          const chain:string[]=[];for(let e:unknown=error,d=0;e&&d<6;d++){chain.push(e instanceof Error?`${e.name}: ${e.message}`:typeof e==="object"?JSON.stringify(e).slice(0,300):String(e));e=e instanceof Error?e.cause:(e as {cause?:unknown})?.cause;}
+          const {inspect}=await import("node:util");
+          const text = chain.join(" <- ")+" | "+inspect(error,{depth:8,breakLength:Infinity}).split("\n").filter(l=>/1\d{3}|Invalid|Custom|rror|reason|code/.test(l)&&!/at /.test(l)).slice(0,8).join(" ");
+          const node = text.match(/(\b1\d{3}\b[^\n]{0,160}|Invalid Transaction[^\n]{0,160}|Malformed\([^\n]{0,120})/);
+          journal.data.publicResult.lastSubmitError = (node ? node[0] : `unclassified: ${text.replace(/\s+/g," ").slice(0, 600)}`).replace(/[A-Za-z0-9+/=]{40,}/g, "<redacted>");
+          await journal.persist(); throw error;
+        }
+      });
       return canonicalSubmittedId(tx.identifiers(),returnedId);
     };
     async function action<T>(name: string, perform: () => Promise<T>) {
@@ -249,22 +288,22 @@ async function executeLocal() {
     const providers = {...initializeMidnightProviders<Circuit, LocalState>(wallet, environment,
       {zkConfigPath: resolve("contracts/managed/senyap"), privateStateStoreName: ".states/local-cycle-unused"}),
       privateStateProvider: inMemoryPrivateStateProvider<string, LocalState>()};
-    const deploymentCompiled=stagedMode?CompiledContract.make("SenyapLocalStaged",stagedProductContract(installationBatches[0])).pipe(CompiledContract.withWitnesses(witnesses),CompiledContract.withCompiledFileAssets(resolve("contracts/managed/senyap"))):compiled;
+    const deploymentCompiled=packaged?CompiledContract.make("SenyapLocalStaged",stagedProductContract(installationBatches[0])).pipe(CompiledContract.withWitnesses(witnesses),CompiledContract.withCompiledFileAssets(resolve("contracts/managed/senyap"))):compiled;
     // Public local fixture authority, like the local operator/committee fixtures.
     // Never use this known key for Preprod or real assets. It permits manual
     // recovery without persisting a maintenance secret in public evidence.
-    const fixtureAuthority=stagedMode?signingKeyFromBip340(new Uint8Array(32).fill(201)):undefined;
+    const fixtureAuthority=packaged?signingKeyFromBip340(new Uint8Array(32).fill(201)):undefined;
     let deployed:FoundContract<Contract<LocalState>>|undefined;
     // testkit's in-memory provider scopes state by address and throws before this is set.
     if(deployedSenyap){providers.privateStateProvider.setContractAddress(deployedSenyap);await providers.privateStateProvider.setSigningKey(deployedSenyap,fixtureAuthority!);await providers.privateStateProvider.set("local-product",initialPrivateState());}
     else deployed = await action("deploy:senyap", () => deployContract(providers, {compiledContract: deploymentCompiled, privateStateId: "local-product",...(fixtureAuthority?{signingKey:fixtureAuthority}:{}),
       initialPrivateState: initialPrivateState(), args: [...constructorArgs(color, recipient)]}));
     const contract = deployedSenyap??deployed!.deployTxData.public.contractAddress; journal.data.publicResult.contract = contract; await journal.persist();
-    if(stagedMode){
+    if(packaged){
       const signingKey=await providers.privateStateProvider.getSigningKey(contract);assert(signingKey,"Deployment maintenance signing key unavailable");
       for(let i=1;i<installationBatches.length;i++){
         const current=await providers.publicDataProvider.queryContractState(contract);assert(current,"Product state unavailable during installation");
-        if(continueAfter&&installationBatches[i].every(id=>current.operation(id)))continue;
+        if((continueAfter||continueFresh)&&installationBatches[i].every(id=>current.operation(id)))continue;
         const keys=await Promise.all(installationBatches[i].map(async id=>({id,key:await providers.zkConfigProvider.getVerifierKey(id)})));
         const unprovenTx=verifierInstallation({contract,keys,counter:current.maintenanceAuthority.counter,signingKey});
         await action(`install-verifiers:${i}`,async()=>{const receipt=await submitTx(providers,{unprovenTx});assert(receipt.status==="SucceedEntirely","Verifier installation failed");return receipt;});
@@ -295,7 +334,18 @@ async function executeLocal() {
       async call<K extends Circuit>(name: K, ...args: Args<K>): Promise<Result<K>> {
         assert.equal(name, simulated.calls[sequence], "Local call differs from reviewed plan");
         // Finalized in resume2; their results are unused by the scenario.
-        if(sequence<skipCalls){assert(name==="admitBuyer"||name==="registerBuilder","Only finalized admissions may be skipped");sequence++;return [] as unknown as Result<K>;}
+        if(sequence<skipCalls){assert(["admitBuyer","registerBuilder","configureScoutGroup","admitScout"].includes(name),"Only finalized void admin calls may be skipped");sequence++;return [] as unknown as Result<K>;}
+        // midnight-js proves against the indexer's latest contract state. Wait until
+        // the indexer has caught up with the node's finalized head, otherwise a
+        // read-modify-write call (stake tallies) proves a stale transcript and
+        // lands as PARTIAL_SUCCESS with no contract effect (17 Oct).
+        for(let i=0;;i++){
+          const head=parseInt((await rpc("chain_getHeader",[await rpc("chain_getFinalizedHead")])).number,16);
+          const response=await fetch(environment.indexer,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(10000),body:JSON.stringify({query:"{ block { height } }"})});
+          const indexed=(await response.json()).data?.block?.height;
+          if(typeof indexed==="number"&&indexed>=head)break;
+          assert(i<40,"Indexer did not catch up with finalized head");await pause(3000);
+        }
         const anchor = await snapshot(); await driver.patch({now: anchor.blockTime});
         // The generated interface is a mapped type; narrow this dynamic dispatch
         // only after matching the simulator-validated circuit sequence.
@@ -311,6 +361,14 @@ async function executeLocal() {
     await journal.complete({...result, contractBalance: contractBalance.toString()});
     console.log(JSON.stringify({status: "completed", journalPath, contract, transactions: journal.sent, result: journal.data.publicResult}, null, 2));
   } catch (error) {
+    {
+      // Public classes only: contract assert strings, wallet error tags, node codes.
+      const {inspect}=await import("node:util");
+      const dump=inspect(error,{depth:8,breakLength:Infinity});
+      const hit=dump.match(/failed assert: [^\n'"]{1,160}|Wallet\.[A-Za-z]+: [^\n'"]{1,120}|1010: [^\n'"]{1,120}|Indexer did not catch up[^\n'"]{0,40}|Trusted finalized product snapshot unavailable/);
+      const top=(e:unknown):string=>e instanceof Error?`${e.name}: ${e.message.split("\n")[0].slice(0,160)} @ ${(e.stack??"").split("\n").find(l=>l.includes(" at "))?.trim().slice(0,160)??""}${e.cause?" <- "+top(e.cause):""}`:"";
+      journal.data.publicResult.lastError=(hit?hit[0]:`unclassified: ${top(error)}`).replace(/[A-Za-z0-9+/=]{40,}/g,"<redacted>").slice(0,700);
+    }
     if(diagnose){
       // Local synthetic fixtures only. Long hex/base64 runs are redacted anyway.
       const safe=(e:unknown,d=0):unknown=>e instanceof Error?{name:e.name,message:e.message.replace(/[A-Za-z0-9+/=]{40,}/g,"<redacted>").slice(0,400),...(d<4&&e.cause?{cause:safe(e.cause,d+1)}:{})}:String(e).slice(0,200);

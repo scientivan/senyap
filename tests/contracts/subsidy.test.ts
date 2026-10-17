@@ -3,6 +3,7 @@ import { describe,expect,it } from "vitest";
 import { planTransitions } from "../../services/keeper/src/transitions";
 import { setupAuction,buyers } from "../helpers/auction";
 import { bytes,commitment,committee,other,operator } from "./harness";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 const mask=(...options:number[])=>Array.from({length:8},(_,i)=>options.includes(i));
 function fundingMarkets(buyTarget=true){
   const {s,useBuyer,records}=setupAuction(),cohort=[31,32,33,34,35].map(bytes),bidIds:Uint8Array[]=[];
@@ -13,7 +14,7 @@ function fundingMarkets(buyTarget=true){
   }
   const sideB=cohort.map((secret,i)=>{
     const option=i===4?1n:0n,group=bytes(30+Number(option)),salt=bytes(120+i);
-    Object.assign(s.context.currentPrivateState,{scout:secret,option,salt,path:s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(secret,12n))});
+    Object.assign(s.context.currentPrivateState,{scout:secret,option,salt,path:scoutGroupTree(s.state,group).findPathForLeaf(commitment(secret,12n))});
     s.invoke("stake",2n,group,1n,100n,bytes(88));return {secret,option,salt};
   });
   for(let i=0;i<2;i++){useBuyer(buyers[i]);s.context.currentPrivateState.bid=[100n,80n][i];bidIds.push(s.invoke("placeBid",1n,[120n,100n][i],{bytes:bytes(200+i)}) as Uint8Array);}
@@ -49,7 +50,7 @@ describe("P4.3 side A funded side B subsidy",()=>{
     s.invoke("configureScoutGroup",group,{side:1n,tier:1n,epoch:23n,ecosystem:bytes(90)});
     for(const secret of cohort)s.invoke("admitScout",group,commitment(secret,23n));
     for(const [i,secret] of cohort.entries()){
-      Object.assign(s.context.currentPrivateState,{scout:secret,option:0n,salt:bytes(160+i),path:s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(secret,23n))});
+      Object.assign(s.context.currentPrivateState,{scout:secret,option:0n,salt:bytes(160+i),path:scoutGroupTree(s.state,group).findPathForLeaf(commitment(secret,23n))});
       s.invoke("stake",3n,group,1n,100n,bytes(88));
     }
     s.invoke("allocateSubsidy",1n,2n,3n);s.invoke("allocateSubsidy",1n,2n,5n);

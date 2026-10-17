@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { setupGroups,bytes,hash,commitment,committee,group } from "../contracts/harness";
+import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
 const cohort=[21,22,23,24,25].map(bytes);
 export const buyers=[60,64,65,66,67,68].map(bytes);
 export function setupAuction(selectionSeconds=300n,revealCommit=bytes(88),keepOpen=false,subjective=false){
@@ -12,7 +13,7 @@ export function setupAuction(selectionSeconds=300n,revealCommit=bytes(88),keepOp
   s.invoke("configureScoutGroup",group,{side:0n,tier:1n,epoch:7n,ecosystem:bytes(0)});
   for(const secret of cohort)s.invoke("admitScout",group,commitment(secret,7n));
   const records=cohort.map((secret,i)=>{
-    Object.assign(s.context.currentPrivateState,{scout:secret,option:BigInt(i),salt:bytes(100+i),path:s.state.scoutGroups.lookup(group).findPathForLeaf(commitment(secret,7n))});
+    Object.assign(s.context.currentPrivateState,{scout:secret,option:BigInt(i),salt:bytes(100+i),path:scoutGroupTree(s.state,group).findPathForLeaf(commitment(secret,7n))});
     const id=s.invoke("stake",1n,group,1n,100n,i===0?revealCommit:bytes(88)) as Uint8Array;return {secret,option:BigInt(i),salt:bytes(100+i),id};
   });
   if(!keepOpen){
