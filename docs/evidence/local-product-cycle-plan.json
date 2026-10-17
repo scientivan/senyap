@@ -2,13 +2,13 @@
   "plan": {
     "version": 1,
     "network": "undeployed",
-    "sourceSha256": "4f039fa6da8fbd1bde17ca2c6a004a587044d3b8b717bc8aa84f5900be1ec52a",
+    "sourceSha256": "4f1b33904be6e52c1587729cde56b8220ff6bea2563cb3013b22353ed14dc083",
     "codeSha256": {
-      "runner": "b3a2652b95b0e55d998ad513efbc467eb163a27becf8e5dcfbfb6b8cb3c8f2b6",
-      "scenario": "d802f413f9d5f27743c80506364222911f0d1cd29590a440d3b489d2c53734a2",
+      "runner": "dbc99270f1462b50e94381ed31158b16ff8966b3c3123b3d9c679da088d23865",
+      "scenario": "76fcdec7ac3a49760ad3224899542a12e6392230cbd8d30c3c87e3176d8980ab",
       "journal": "bd76a6a3d33475d40997c29b14813006af12eaedd75bcc821bc7090b5275da37",
-      "walletBalance": "7d4b97e1212e00ac100c66259a2c9e86a142bb746cc1b4de6a7343206c0991e0",
-      "stagedDeployment": "ffa4d5ce2f066d61ca6d26a614a0539f39c1354067d3984857700f7812050ad7",
+      "walletBalance": "870a19ae1f77d725d23c50e35a5300f6733aa507ae624519b5c889f12dc0f3ee",
+      "stagedDeployment": "37378b070037f0554895a6b9296eea95b6e8dfa73f372a5a8eded3ba76055a5f",
       "resourceGate": "fc97fcbc94c41aec763b086a316bb7e510e4f83c1b844ca70a4f9a129c6cdd9b",
       "token": "26793ddd8db8b22f8fec5dfe7e1641950e516530cf68eb5eada0f4a9c2c8d7e4"
     },
@@ -40,7 +40,7 @@
       "admitScout",
       "admitScout",
       "admitScout",
-      "createMarket",
+      "createSideBMarket",
       "stake",
       "stake",
       "stake",
@@ -110,45 +110,46 @@
         ],
         [
           "createMarket",
+          "createSideBMarket",
           "close",
           "stake",
           "postPreview",
           "placeBid",
           "postAuctionResult",
-          "settleBid",
-          "selectHidden"
+          "settleBid"
         ],
         [
+          "selectHidden",
           "skipSelection",
           "buyFlat",
           "recordOutcome",
           "recordSubjectiveOutcome",
           "challengeOutcome",
           "postDefaultStrongest",
-          "proveHit",
-          "allocateSubsidy"
+          "proveHit"
         ],
         [
+          "allocateSubsidy",
           "cancelMarket",
           "returnCancelledSubsidy",
           "claim",
           "renewTier",
           "admitVerifier",
           "openDispute",
-          "commitVote",
-          "revealVote"
+          "commitVote"
         ],
         [
+          "revealVote",
           "resolveDispute",
           "claimVerifier",
           "approveHoaxMember",
           "revokeHoaxMember",
           "finalizeMarket",
           "markMissedReport",
-          "markMissedSharedBuyer",
-          "approveMissedBuyer"
+          "markMissedSharedBuyer"
         ],
         [
+          "approveMissedBuyer",
           "revokeMissedBuyer"
         ]
       ],
@@ -157,8 +158,8 @@
     "genesisRegistration": false,
     "parameters": {
       "epochSeconds": 86400,
-      "hitSeconds": 300,
-      "selectionSeconds": 300,
+      "hitSeconds": 1800,
+      "selectionSeconds": 900,
       "commitSeconds": 300,
       "revealSeconds": 300
     },
@@ -168,7 +169,7 @@
       "proofServer": "http://127.0.0.1:6300"
     }
   },
-  "planSha256": "70f9c31963b15d3ac7e06abf96a5e40cf2c26796131a082562c9f7d541388ed8",
+  "planSha256": "3149cd3dd30eb9818fb2786c8b7a3014fa0db050bd6b585c9ee9d7bc519b395e",
   "simulation": {
     "phases": [
       "settled",
@@ -224,5 +225,5 @@
     "note": "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."
   },
   "status": "simulator evidence; network execution, if approved, is recorded in a separate journal",
-  "generatedAt": "2026-10-16T12:31:48.488Z"
+  "generatedAt": "2026-10-17T16:26:38.038Z"
 }

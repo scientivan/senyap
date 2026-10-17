@@ -1,0 +1,183 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "ca70b76dbbaf2aab01aad1dd9b7e800dbc9c41bba729200becfc4e2816b66adc",
+  "planSha256": "ebf1580eed67d722b2f40ec182cca7fe635cb0d64f69894655d4dfe0e65f7a44",
+  "status": "stopped; no automatic restart",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "finalized",
+      "txId": "00fd01579c9aa3f1d081a809f70916ef4ffa286d87b1546172fe9e750130d5c03a"
+    },
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "0081c425575b26e2b6d78619100f5853be6c291e672ab6cdbd5df044ea719dc982"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "finalized",
+      "txId": "00fd85b05353e0a301eaa4760056ce80076ad886022755fa7e6094f1df530ddaea"
+    },
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "00fd700eb492f3549fb7d9d9178bcd86a78f9537407f167884b24a9a7515a84319"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "00f70ab57f204242b3c678f94fb6356476493404dc1f69b81686e3506a93545f3c"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "00c60deba9bca61287e3fffe1ad591e473b4885f5c9e1f83fa755da0bb35a058ea"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "00da8df69984d9985b9ed1854657a94e97eb2c1126f218a4bd6e98477d77b4cc82"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "00ec44dcd7de0e90b7748d3e12846ed6749047a56ec9f431f91ff8a9eed09d71bd"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "006a8e53bd7f5e036639d6c24e34939a4c410675aac48f21f74dcd663ae906908e"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00dce75fb69249b74780ab647de6c19057f5d7a83650100ec525a75aef0d4a0f81"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "00884d05619ba825e01c44347f6e92829ae96f2170c22308fcd5bfaf787c4407b9"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "00548e7316cd1b1a2633ec753baf47dc0f99519d3da3beb98563d0073d6de0c997"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "00825adf6d1caf257aac893b013864aadd27a9c0d94b93f6b4fd5e0cda27c4f9bc"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "005244fd8afc61b5861ecf7e934f4dcbfdd10d4385a0390c0c234e224ccf34fd4a"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00b031c2a074fb1d6ff0f5d458875faf9d46e18964be4242f86db003d2cfcdc3d7"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "009c16d434ded068b6de76498bc37bd07f8f2bd5a221948597b119f6a70c40d945"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00f5c9f63cc84db67931430df826c9f0c15851aa2a48e863ae7f5d538301aed360"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00b76b192b8f61f7b6ef3520696e22c30dbbcf9736edd2a7b94bc83bd50189630d"
+    },
+    {
+      "action": "createMarket",
+      "status": "finalized",
+      "txId": "005d5f41c3441e1954b57bb567ac64b9ffeee76019a44b6ad7dcafa4e02d05859d"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "005c5bbe458e8a77c1fabb9fbbd4383bf34bd4808094c5b95b1a44ea8e0f331859"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00d8c9543e5de25ca72f564fe08e18cdfad2666c3e3de2126c93b0d8742b6d78aa"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00b1f591f7eb31fd6631af58dc44d86e91e8e38a619094c713cc7690693c9f8be6"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00dfae5e54ee93763374630c99339262f4f40ca7dd6eeb8732b680f79f64d0613f"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "007dcb3613678c4ebe0d36ed6a258d642e8f4bdb635fe7d2f70b028e50bcc0ff5c"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "007b073bdfcae5191c8695d40b04170be4b6f3374400c28e3b9a731061ac8e87b0"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0084b9f454247e5abb51ce9813ed717c4bb81c7473feb5ec0dd6fb63dbb642329a"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "008c5129656e12649cf33f37f56c33259adfb6cce042248e39b2eb88dfa258eb89"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "008ea553d4d10dd5d46a7d2d55185bbf7258afa276e89ebbb6d38e37fd4b9ed011"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "004a79611ff73af174e41313884b347caf80ddce000a994a629a54f3d0efded043"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00200ec6e1083086a7c7b486f6e82051f52a80cb68b3f4d5f2dacb4af985395230"
+    },
+    {
+      "action": "createMarket",
+      "status": "prepared"
+    }
+  ],
+  "publicResult": {
+    "lastResourceBudget": {
+      "action": "admitScout",
+      "passed": true,
+      "gasCost": "40998313722",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "61106470722",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 9696,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "tokenContract": "833178b07934f71d2ac92ba45050eefe8b1c5791ff46b31c08066f84992a15ea",
+    "token": "370b3c2884a2f29e61cadd786380fa120273c7d354e9af238194d54978eb8d2a",
+    "contract": "4d48588ae05893dde4a67b676eafb5d44898333c166792f24922b69d69b156f7",
+    "all41VerifiersInstalled": true,
+    "lastError": "unclassified: Error: Unexpected error submitting scoped transaction '<unnamed>': Error: 'check' returned an error: Error: Failed Proof Server response: url=\"http://127.0.0.1:6300/ch @ at scoped (/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/node_modules/.pnpm/@midnight-ntwrk+midnight-js-contracts@4.1.1/node_modules/@ <- Error: 'check' returned an error: Error: Failed Proof Server response: url=\"http://127.0.0.1:6300/check\", code=\"500\", status=\"Internal Server Error\" @ at __wbg_Error_e17e777aac105295 (file:<redacted>%20Important%20Signal%20Product/Akindo/node_modules/.pnpm/@midnight-ntwrk+ledger-"
+  }
+}

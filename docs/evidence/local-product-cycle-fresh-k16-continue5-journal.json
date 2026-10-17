@@ -1,0 +1,87 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "ca70b76dbbaf2aab01aad1dd9b7e800dbc9c41bba729200becfc4e2816b66adc",
+  "planSha256": "ca33ede5b8573695dff55e4755e72f2c7582f2d33c636e8952de5cde6fc1bb33",
+  "status": "uncertain; reconcile before any further submission",
+  "transactions": [
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "008bb6907552114c7dedb8d0efa1f81b10cd975ef1e73da45ef32c7f62721defdd"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "002dc45e5d2e7e73557eb57275991e24c0c934f56a81c99248b7a37052983280da"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "006d7cf87eeef60f2146709f35963f85e890e0c8588b483ad21c8beee270c7d9cd"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00dedcc27d8bf8917e02860488c31165200feab69c8af2e851017c9e5351ca96ab"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0098cef2b128e9c5fb3ef9aba53a39d41a8dd62aff8a4a5ca4e14a90057f96f5d5"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00640bdf529fee4748bf48009c0a7350c90a1603c1a3cc41ddaecc6c2858fbb2a1"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00b8cbb5cc39189f46448406f74e66a8acd9a708b21416f6928e9bb5dcdec52ab1"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "003f538271d9a63030f428eecde2069840f5d4e6102a8b9da06da934c038aeabb5"
+    },
+    {
+      "action": "createMarket",
+      "status": "finalized",
+      "txId": "008bb38ac8bb93af72e35948be8d9b5d134612f7508a0bb0026cc6e38753d2a854"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "008f9fed89f25a3e40a7f13b4ef1e855bd87d7df98209f19842adda5a614d4acc1"
+    },
+    {
+      "action": "stake",
+      "status": "submitted",
+      "txId": "003219440fc11a27438440e341bcfd3b751aae70d6b97ed315b5ca8bd908d30e2b"
+    }
+  ],
+  "publicResult": {
+    "resumesDeployedSenyap": "5fb27ec12475d40e21a586a58942ca97e3dbb99efd9b720a990e222f57fc97e2",
+    "previousStagedJournal": "local-product-cycle-staged-retry-journal.json",
+    "resumesConfirmedToken": "812748e02b0f2361a1033924da23633fc14325d28efeb592dfec3603cba8bb5b",
+    "previousJournal": "local-product-cycle-retry-journal.json",
+    "tokenContract": "812748e02b0f2361a1033924da23633fc14325d28efeb592dfec3603cba8bb5b",
+    "token": "5f6d74be48b8074cb4ddd25d89d82fb2178663b216fdbe05eb694374cafac0f6",
+    "contract": "5fb27ec12475d40e21a586a58942ca97e3dbb99efd9b720a990e222f57fc97e2",
+    "all41VerifiersInstalled": true,
+    "lastResourceBudget": {
+      "action": "stake",
+      "passed": true,
+      "gasCost": "38347122466",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "58455279466",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 13738,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    }
+  }
+}

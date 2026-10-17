@@ -1,0 +1,83 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "ca70b76dbbaf2aab01aad1dd9b7e800dbc9c41bba729200becfc4e2816b66adc",
+  "planSha256": "9efcd1b300ad30c3f2ef1493bd659d691bf3bfd836dc9a642c6fe6d38d00c445",
+  "status": "uncertain; reconcile before any further submission",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "finalized",
+      "txId": "003f132e875e93e848e84d2027c7d99dcdf40ef37eac09b31256f7d81081eee5d5"
+    },
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "00767d85f201067dda347a6d4ee734d62fa723fdbe4ba1d13062852faec725fba6"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "finalized",
+      "txId": "00d3ea95edb6ec116b2cd97e76e82a4897ab7219ea83b4777a965f818e0b22f48e"
+    },
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "002b127d84eb262d4ba8804d3c12f087754ee4bf38acb20e7ee36fcb7555ad5f10"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "0093dcea2046a68f0bf1644c091a4562270a187315389eaa8225aa4785bdebcb8f"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "00598bc88da40d66a20b9d9f43327c7a8bcf0f38585e26465158a5411e89d09b5b"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "0049047ac9b799a0bc5011c531569bb84155cb99e0ec06e990ec603464eeb9a3c2"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "00a494093ad5d358d88a700318c825a3f4cc8ad796a4cbd96f24a6a8281be04529"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00a7ffbc9b389792cb62b46c4e509c3e498c764a9c0e38e37ee5041e4c282c41c3"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "002809ed5cee119ef05fa7961cdb996652b847141d766d30f01e662c204615b93d"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "submitted",
+      "txId": "00a625694dae9d81136eeb49f25aa1f67ebae00bb8182f66a003d8f84a0636b2c0"
+    }
+  ],
+  "publicResult": {
+    "lastResourceBudget": {
+      "action": "registerBuilder",
+      "passed": true,
+      "gasCost": "10796000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "30904157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 5472,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "tokenContract": "812748e02b0f2361a1033924da23633fc14325d28efeb592dfec3603cba8bb5b",
+    "token": "5f6d74be48b8074cb4ddd25d89d82fb2178663b216fdbe05eb694374cafac0f6",
+    "contract": "5fb27ec12475d40e21a586a58942ca97e3dbb99efd9b720a990e222f57fc97e2",
+    "all41VerifiersInstalled": true
+  }
+}

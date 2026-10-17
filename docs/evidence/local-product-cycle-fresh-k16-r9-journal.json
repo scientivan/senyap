@@ -1,0 +1,233 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "4f1b33904be6e52c1587729cde56b8220ff6bea2563cb3013b22353ed14dc083",
+  "planSha256": "3149cd3dd30eb9818fb2786c8b7a3014fa0db050bd6b585c9ee9d7bc519b395e",
+  "status": "stopped; no automatic restart",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "finalized",
+      "txId": "0013eb269ff28f62511ea9bf3d6b8534bccf8539b0597d1ce3fe552b1a041827c1"
+    },
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "00339af8e41f80fd65562c44e40cc8fe7424263eca7295e082ab687a5178498447"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "finalized",
+      "txId": "00a5effc3875370a91d23f55983ce09698ce245233e9dd464cfec9e6c14cde2b9a"
+    },
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "0025b937e3f2f63e64397ace9c4af04358d4be9a41986cb31d58244f39b5e38892"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "00a1adb3f7b15057a4d6d23efec3ee38449b694d9ae4aee15a3657bd22c5b6251a"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "001865bece85642e94ff05e4b721391eac4736a6e052b21c46d77c34b2d02f520f"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "00404344a7ea2dbb3eaa8e261f18eb8f46e80a19bf3e09355fa1b1283a404b3fc2"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "0080bf7c796b9dabb59c9ad722007bf85834c4332116c5a23f479ed3fb9fa89c18"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00b23c89457869ee5b9b0e1a46e6ed543200384612513f14c04d1423e7313ca792"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00240fb597b88b7d5e27ca173cd721c869683a60e23ceb46fd79f8ec4b38f389c4"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "0025dcad2b90d2d1640d11de4c1eda24c488e66ea17bb0911bb8a5b3fc8890c86a"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "00b3b471ec4ee779502fb6373191e38178de4f2496408e6d710b3ebfa69a258417"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "0043edcefa67eed71b19b653d9b8b9de59b293a8f97138ecbe5e65c31e6d5602e9"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0060c262a59a4521757c4da3d265c41f05e1b90e457dcc3432c841bd17a9dd629f"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "004dc8b1a84080a2d5db60ecce977e5ed464666a9afc068947599369bb88d979de"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0038a300c5f8e439633e87c9688e342f916cd7c95ee0c3dd0add022b7f7277a1a2"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0054b92ec6d8af2e84e4fb31fab5140a4b874409427203513965d974887d74ade7"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "000b4e996d2e4b36b13bb17d15357dc92746a6d2ac5ae821516add237615a31f1b"
+    },
+    {
+      "action": "createMarket",
+      "status": "finalized",
+      "txId": "006591a8627ef90b2666d7f84b7915695594c193a42fcf34925ab572a3cf3420ef"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "0017b40b353fd28df3f9546bf01d3776bba9bfeea816c2c3e78f28161ad84267d0"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00be485249adf46c23b21d21a91182a9d1aa2106d6fa34a70866037819dc21a027"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "008c0dc52849dd893afc175f04d37e4bd9e5aaaf3515dff3b45e8c6b7308b547e8"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "0028452a37fd069ace434ffbab763308daed473bc506c0f2a55ec3dc7ce728c754"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "0028a94892b4c114d64f9fc1826f62d6db6bafecbc1cbe7b45fcf8b8b98b7a8a85"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "005b234497c0f400ea38b9048b4e41f2dc2b5b492d0dc951f1ee95931553d08118"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00f13f4ab6b7493c8aa43fc44bb8d30827c0cfd6062aac50f42189cacbf3f9435f"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "000f11be12454228f16f81c9582b089a99291cddf853078c82c21d45f98de9ff93"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0043c7c37af6af4461766c81c223dbdb1973391374d6114c55a32bf5ac1382121d"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "009ff2a321babf7c4d0ba8f1fc98ed14278bc3f37781fa10f018309e295cb1cd09"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "0065fa596264448135c7b94f30e73b1403be63a5e2f562c1dc3c535e4d3445c910"
+    },
+    {
+      "action": "createSideBMarket",
+      "status": "finalized",
+      "txId": "007c866449a07cc4f22637748faa1c52f484fccd94edb378947c3c7e30c5c0a74a"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "009e297bf070e89c89524e11172147a4c2ed490647cc8d98994e37d10501d47328"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00f5095a969de36334c08f8f5c68ee2163ef6a80d95ec168baccb8586ea2000cc1"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00c53e460e00fe6542ceb1ef439d9a115e53e76fefff0e913e48320abc439c1e17"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "009cfbd3bf0dc4161c3a4de2bb901286f9cf5a06254fa9c4944dc685f5b8d634ec"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00a0aa96e2047ac120d4b61c52efe722c1d97c0c3bdf49594e41c956f7d8f3700e"
+    },
+    {
+      "action": "close",
+      "status": "finalized",
+      "txId": "00cfaf53de0c28d04705e5870f15954375495d659114f6b47d03320c2cb6576b3a"
+    },
+    {
+      "action": "postPreview",
+      "status": "finalized",
+      "txId": "004bc38311c5c280cc6098b17c452656f24ed23918b5a94f3e865a87a46e510551"
+    },
+    {
+      "action": "postPreview",
+      "status": "finalized",
+      "txId": "008b827612e5d807cc336958d38ac73f32751a853d540ef3c340302a0e6c3b38c7"
+    },
+    {
+      "action": "postPreview",
+      "status": "finalized",
+      "txId": "00eff02737fcc5ff0457bea0d9f03cd8a6e7620447fa861c0cddc6e1028f1f21c4"
+    },
+    {
+      "action": "placeBid",
+      "status": "prepared"
+    }
+  ],
+  "publicResult": {
+    "lastResourceBudget": {
+      "action": "postPreview",
+      "passed": true,
+      "gasCost": "18458000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "38566157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 9303,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "tokenContract": "2eab0c11b6b7192626ad0dd7a2feffb696952c8a21bbef44647a781871aee648",
+    "token": "892054108e1726e02a8e33a7ae70306534cda6a9907d9a99bd948cbf0187f605",
+    "contract": "d72fe65f0571c7418935f6f0df56361b8de1dc2bdd6e547100157e4b9ff7fbcc",
+    "all41VerifiersInstalled": true,
+    "lastError": "unclassified: Error: Unexpected error submitting scoped transaction '<unnamed>': Error: 'prove' returned an error: FetchError: request to http://127.0.0.1:6300/prove failed, reason: @ at scoped (/Users/scientivan/Programming/Exclusive Important Signal Product/Akindo/node_modules/.pnpm/@midnight-ntwrk+midnight-js-contracts@4.1.1/node_modules/@ <- Error: 'prove' returned an error: FetchError: request to http://127.0.0.1:6300/prove failed, reason: read ECONNRESET @ at __wbg_Error_e17e777aac105295 (file:<redacted>%20Important%20Signal%20Product/Akindo/node_modules/.pnpm/@midnight-ntwrk+ledger-"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "ca70b76dbbaf2aab01aad1dd9b7e800dbc9c41bba729200becfc4e2816b66adc",
+  "planSha256": "dca6adf4862d5c6a69f4942d4b63da074d75021ee2cc4d2a49ca6b54bddb7b94",
+  "status": "uncertain; reconcile before any further submission",
+  "transactions": [
+    {
+      "action": "registerBuilder",
+      "status": "submitted",
+      "txId": "00244a8d43bc5b7ccfd56964c1a3d671fd4c7cea402efad7fd8564ffe006848130"
+    }
+  ],
+  "publicResult": {
+    "resumesDeployedSenyap": "5fb27ec12475d40e21a586a58942ca97e3dbb99efd9b720a990e222f57fc97e2",
+    "previousStagedJournal": "local-product-cycle-staged-retry-journal.json",
+    "resumesConfirmedToken": "812748e02b0f2361a1033924da23633fc14325d28efeb592dfec3603cba8bb5b",
+    "previousJournal": "local-product-cycle-retry-journal.json",
+    "tokenContract": "812748e02b0f2361a1033924da23633fc14325d28efeb592dfec3603cba8bb5b",
+    "token": "5f6d74be48b8074cb4ddd25d89d82fb2178663b216fdbe05eb694374cafac0f6",
+    "contract": "5fb27ec12475d40e21a586a58942ca97e3dbb99efd9b720a990e222f57fc97e2",
+    "all41VerifiersInstalled": true,
+    "lastResourceBudget": {
+      "action": "registerBuilder",
+      "passed": true,
+      "gasCost": "10798000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "30906157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 5473,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "lastSubmitError": "withheld (not a node rejection)"
+  }
+}

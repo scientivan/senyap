@@ -1,0 +1,13 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "4f1b33904be6e52c1587729cde56b8220ff6bea2563cb3013b22353ed14dc083",
+  "planSha256": "41a7ea1c4e9e2cd9b525cb5f8070e41e0d708ba29e3bc8a9565cd17165f1f06a",
+  "status": "started",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "prepared"
+    }
+  ],
+  "publicResult": {}
+}
