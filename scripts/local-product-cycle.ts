@@ -30,6 +30,10 @@ const sourceSha256 = digest(await readFile("contracts/senyap.compact"));
 const simulated = simulatorDriver();
 const simulation = await runScenario(simulated.driver);
 const stagedMode=process.argv.includes("--staged-after-confirmed-mint");
+// Fresh deployment of token, mint and Senyap with staged verifier packaging,
+// after the contract representation changed (S12). Uses its own journal.
+const freshStaged=process.argv.includes("--fresh-staged");
+const packaged=stagedMode||freshStaged;
 const installationBatches=verifierBatches(Object.keys(new Contract(witnesses).provableCircuits) as Circuit[],8);
 const codeSha256 = {
   runner: digest(await readFile("scripts/local-product-cycle.ts")),
@@ -41,8 +45,8 @@ const codeSha256 = {
   token: digest(await readFile("contracts/dusd.compact")),
 };
 const plan = {version: 1, network: "undeployed", sourceSha256, codeSha256, deploys: ["dusd", "senyap"], mint: "5000",
-  circuits: simulated.calls, transactionCount: simulated.calls.length + 3+(stagedMode?installationBatches.length-1:0),
-  ...(stagedMode?{deploymentPackaging:{batches:installationBatches,requireAllVerifiersBeforeCalls:true}}:{}),
+  circuits: simulated.calls, transactionCount: simulated.calls.length + 3+(packaged?installationBatches.length-1:0),
+  ...(packaged?{deploymentPackaging:{batches:installationBatches,requireAllVerifiersBeforeCalls:true}}:{}),
   genesisRegistration: false, parameters: {epochSeconds: 86400, hitSeconds: 300, selectionSeconds: 300, commitSeconds: 300, revealSeconds: 300},
   endpoints: {node: "http://127.0.0.1:9944", indexer: "http://127.0.0.1:8088/api/v4/graphql", proofServer: "http://127.0.0.1:6300"}};
 const planSha256 = digest(JSON.stringify(plan));
@@ -129,7 +133,8 @@ async function executeLocal() {
   const retryStaged=process.argv.includes("--retry-rejected-staged-deploy");assert(!retryStaged||stagedMode,"Staged replacement requires its explicit reviewed plan");
   const continueAfter=process.argv.includes("--continue-after-scout-group"),diagnose=process.argv.includes("--diagnose-next");
   const resumeDeployed=process.argv.includes("--resume-deployed-senyap");assert(!resumeDeployed||stagedMode&&!retryStaged,"Deployed resume requires staged mode only");
-  const journalPath = diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
+  assert(!freshStaged||!(stagedMode||resume||retry),"Fresh staged deployment is exclusive");
+  const journalPath = freshStaged?"docs/evidence/local-product-cycle-fresh-k16-journal.json":diagnose?`${process.env.TMPDIR??"/tmp"}/senyap-diagnose-${Date.now()}.json`:continueAfter?"docs/evidence/local-product-cycle-staged-resume3-journal.json":resumeDeployed?await resumeJournalPath():retryStaged?"docs/evidence/local-product-cycle-staged-retry-journal.json":stagedMode?"docs/evidence/local-product-cycle-staged-journal.json":resume?"docs/evidence/local-product-cycle-continuation-journal.json":retry ? "docs/evidence/local-product-cycle-retry-journal.json" : "docs/evidence/local-product-cycle-journal.json";
   let confirmedToken:string|undefined;
   let confirmedColor:string|undefined;
   let stagedRejectedId:string|undefined;
@@ -249,18 +254,18 @@ async function executeLocal() {
     const providers = {...initializeMidnightProviders<Circuit, LocalState>(wallet, environment,
       {zkConfigPath: resolve("contracts/managed/senyap"), privateStateStoreName: ".states/local-cycle-unused"}),
       privateStateProvider: inMemoryPrivateStateProvider<string, LocalState>()};
-    const deploymentCompiled=stagedMode?CompiledContract.make("SenyapLocalStaged",stagedProductContract(installationBatches[0])).pipe(CompiledContract.withWitnesses(witnesses),CompiledContract.withCompiledFileAssets(resolve("contracts/managed/senyap"))):compiled;
+    const deploymentCompiled=packaged?CompiledContract.make("SenyapLocalStaged",stagedProductContract(installationBatches[0])).pipe(CompiledContract.withWitnesses(witnesses),CompiledContract.withCompiledFileAssets(resolve("contracts/managed/senyap"))):compiled;
     // Public local fixture authority, like the local operator/committee fixtures.
     // Never use this known key for Preprod or real assets. It permits manual
     // recovery without persisting a maintenance secret in public evidence.
-    const fixtureAuthority=stagedMode?signingKeyFromBip340(new Uint8Array(32).fill(201)):undefined;
+    const fixtureAuthority=packaged?signingKeyFromBip340(new Uint8Array(32).fill(201)):undefined;
     let deployed:FoundContract<Contract<LocalState>>|undefined;
     // testkit's in-memory provider scopes state by address and throws before this is set.
     if(deployedSenyap){providers.privateStateProvider.setContractAddress(deployedSenyap);await providers.privateStateProvider.setSigningKey(deployedSenyap,fixtureAuthority!);await providers.privateStateProvider.set("local-product",initialPrivateState());}
     else deployed = await action("deploy:senyap", () => deployContract(providers, {compiledContract: deploymentCompiled, privateStateId: "local-product",...(fixtureAuthority?{signingKey:fixtureAuthority}:{}),
       initialPrivateState: initialPrivateState(), args: [...constructorArgs(color, recipient)]}));
     const contract = deployedSenyap??deployed!.deployTxData.public.contractAddress; journal.data.publicResult.contract = contract; await journal.persist();
-    if(stagedMode){
+    if(packaged){
       const signingKey=await providers.privateStateProvider.getSigningKey(contract);assert(signingKey,"Deployment maintenance signing key unavailable");
       for(let i=1;i<installationBatches.length;i++){
         const current=await providers.publicDataProvider.queryContractState(contract);assert(current,"Product state unavailable during installation");
