@@ -59,15 +59,15 @@ export async function runScenario(driver: Driver) {
   for (const side of [0n, 1n]) {
     const {time} = await driver.read(), epoch = time / epochSeconds, group = bytes(4 + Number(side));
     // A full run must fit inside this fixture membership epoch.
-    assert(time + 1800n < (epoch + 1n) * epochSeconds, "Local fixture epoch expires during run; wait for next epoch");
+    assert(time + 5400n < (epoch + 1n) * epochSeconds, "Local fixture epoch expires during run; wait for next epoch");
     await driver.call("configureScoutGroup", group, {side, tier: 1n, epoch, ecosystem: side === 0n ? bytes(0) : bytes(90)});
     for (const secret of cohort) await driver.call("admitScout", group, commitment(secret, epoch));
     const start = (await driver.read()).time, market = side + 1n;
     const config: Market = {subjective: false, side, category: bytes(70), questionHash: bytes(71 + Number(side)),
       questionUri: "demo://local-network-fixture", nOptions: 2n,
       optionRefs: [bytes(side === 0n ? 80 : 90), bytes(side === 0n ? 81 : 91), ...Array.from({length: 6}, () => bytes(0))],
-      openAt: start, openUntil: start + 600n, auctionUntil: start + (side === 0n ? 900n : 600n),
-      outcomeUntil: start + 1500n, flatPrice: 10n, reservePrice: side === 0n ? 40n : 0n};
+      openAt: start, openUntil: start + 1800n, auctionUntil: start + (side === 0n ? 2100n : 1800n),
+      outcomeUntil: start + 2700n, flatPrice: 10n, reservePrice: side === 0n ? 40n : 0n};
     schedules.push(config);
     await driver.patch({buyer: buyers[0]});
     await driver.call("createMarket", market, config);
@@ -76,6 +76,10 @@ export async function runScenario(driver: Driver) {
       const path = scoutGroupTree(state,group).findPathForLeaf(commitment(secret, epoch));
       assert(path, "Local scout path unavailable");
       await driver.patch({scout: secret, option: 0n, salt, path});
+      // Network proofs fix the early-bonus comparison; inclusion after the boundary
+      // fails the contract segment. Never stake within 240 s before the boundary.
+      const boundary = config.openAt + (config.openUntil - config.openAt) / 4n, now = (await driver.read()).time;
+      if (now < boundary && boundary - now < 240n) await driver.waitUntil(boundary + 6n);
       const id = await driver.call("stake", market, group, 1n, 100n, bytes(88));
       records.push({secret, salt, id, market});
     }
