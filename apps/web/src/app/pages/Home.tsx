@@ -51,55 +51,23 @@ export function Home() {
 
 function Standing({ role }: { role: Role }) {
   const s = useStore();
-  if (role === "scout") {
-    const sealed = s.positions.filter((p) => p.status === "sealed").length;
-    const ready = s.positions.filter((p) => p.status === "hit").length;
-    return (
-      <Card title={`Tier ${s.tier.level} scout`} sub={`Epoch ${s.tier.epoch}, renews ${timeLeft(Date.now() + s.tier.expiresIn)}`} className="dark">
-        <div className="stats">
-          <div className="stat"><span>Sealed picks</span><b>{sealed}</b></div>
-          <div className="stat"><span>Ready to claim</span><b>{ready}</b></div>
-          <div className="stat"><span>Hit credentials on this device</span><b>{s.tier.credentials}</b></div>
-        </div>
-      </Card>
-    );
-  }
-  if (role === "operator") {
-    return (
-      <Card title="Network health" sub="Demo figures" className="dark">
-        <div className="stats">
-          <div className="stat"><span>Committee members online</span><b>5 of 5</b></div>
-          <div className="stat"><span>Tier groups this epoch</span><b>3</b></div>
-          <div className="stat"><span>Open disputes</span><b>1</b></div>
-        </div>
-      </Card>
-    );
-  }
+  const open = s.markets.filter((m) => m.phase === "open");
   const r = ([...roles, operatorRole].find((x) => x.id === role) ?? roles[0]);
   return (
-    <Card title={role === "ecosystem" ? "Good standing" : "Your builder profile"} sub={r.does} className="dark">
+    <Card title="Live on Preprod" sub={s.status === "error" ? `Could not read the contract. ${s.error ?? ""}` : r.does} className="dark">
       <div className="stats">
-        {role === "ecosystem" ? (
-          <>
-            <div className="stat"><span>Standing</span><b>{s.standing.goodStanding ? "Good" : "Removed"}</b></div>
-            <div className="stat"><span>Outcomes reported</span><b>{s.standing.reports}</b></div>
-            <div className="stat"><span>Reports missed</span><b>{s.standing.missed}</b></div>
-          </>
-        ) : (
-          <>
-            <div className="stat"><span>Registered teams</span><b>{s.teams.length}</b></div>
-            <div className="stat"><span>Ecosystem questions open</span><b>{s.markets.filter((m) => m.side === "B" && m.phase === "open").length}</b></div>
-            <div className="stat"><span>Price for builders</span><b>20 dUSD</b></div>
-          </>
-        )}
+        <div className="stat"><span>Markets on chain</span><b>{s.status === "loading" ? "Loading" : s.markets.length}</b></div>
+        <div className="stat"><span>Open now</span><b>{open.length}</b></div>
+        <div className="stat"><span>Scouts in open markets</span><b>{open.reduce((n, m) => n + m.scouts, 0)}</b></div>
       </div>
+      <Link to="/app/preprod" className="abtn abtn-soft mt16">{role === "scout" ? "Your picks are in your workspace" : "Open your workspace"}</Link>
     </Card>
   );
 }
 
 export function MarketTable({ markets, onOpen }: { markets: Market[]; onOpen: (id: number) => void }) {
   const s = useStore();
-  if (!markets.length) return <p className="acard-sub">No markets match these filters.</p>;
+  if (!markets.length) return <p className="acard-sub">{s.status === "loading" ? "Reading markets from the Preprod contract." : "No markets match these filters."}</p>;
   return (
     <div className="tbl-wrap">
       <table className="tbl">
@@ -123,7 +91,7 @@ export function MarketTable({ markets, onOpen }: { markets: Market[]; onOpen: (i
                 <td className="q">{m.question}</td>
                 <td><SideChip side={m.side} /></td>
                 <td><PhaseChip phase={m.phase} /></td>
-                <td style={{ minWidth: 140 }}><Histogram h={h} /></td>
+                <td style={{ minWidth: 140 }}>{h ? <Histogram h={h} /> : <span className="muted2">After close</span>}</td>
                 <td className="num">{m.sealedPicks}</td>
                 <td className="num">{timeLeft(m.closesAt)}</td>
               </tr>

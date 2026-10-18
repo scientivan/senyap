@@ -22,4 +22,8 @@ await writeFile(`${destination}/manifest.json`,JSON.stringify({sourceSha256,circ
 console.log(`Prepared ${circuits.length} public circuit artifact sets. No deployment or transaction.`);
 // P9.8: public Preprod deployment identifiers for the operator console registry view.
 const deploy=JSON.parse(await readFile("docs/evidence/P9.7-preprod-deploy-journal.json","utf8").catch(()=>"null"));
-if(deploy?.status==="completed")await writeFile("apps/web/public/contracts/preprod-deployment.json",JSON.stringify({network:deploy.network,contract:deploy.contract,token:deploy.token,journal:"docs/evidence/P9.7-preprod-deploy-journal.json"},null,2)+"\n");
+if(deploy?.status==="completed")await writeFile("apps/web/public/contracts/preprod-deployment.json",JSON.stringify({network:deploy.network,contract:deploy.contract,token:deploy.token,tokenContract:deploy.tokenContract,journal:"docs/evidence/P9.7-preprod-deploy-journal.json"},null,2)+"\n");
+// Public question text for live markets; the app checks each against its on-chain commitment.
+const marketPlans=["docs/evidence/P9.9-market-plan.json","docs/evidence/F5-market-2-plan.json"];
+const published=[];for(const f of marketPlans){const p=JSON.parse(await readFile(f,"utf8").catch(()=>"null"));if(p)published.push({id:p.id,question:p.question,options:p.options,...(p.metadata?{metadata:p.metadata}:{})});}
+await writeFile("apps/web/public/contracts/preprod-markets.json",JSON.stringify(published,null,2)+"\n");

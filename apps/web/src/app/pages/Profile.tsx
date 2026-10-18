@@ -23,9 +23,9 @@ function Identity() {
           <div className="stat"><span>Network</span><b>{connected ? NETWORK_ID : "Demo data"}</b></div>
         </div>
       </Card>
-      <Card title="Balance" sub="Synthetic demo dUSD. No real asset.">
+      <Card title="Balance" sub="Demo dUSD on Preprod. No real asset.">
         <div className="stats">
-          <div className="stat"><span>dUSD</span><b>{s.balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</b></div>
+          <div className="stat"><span>dUSD</span><b>{s.balance === null ? "Connect wallet" : s.balance.toLocaleString()}</b></div>
         </div>
         <Link to="/app/faucet" className="abtn abtn-soft mt16">Get demo dUSD</Link>
       </Card>

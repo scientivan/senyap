@@ -79,10 +79,10 @@ const router = createBrowserRouter([
 
 export function App() {
   return (
-    <StoreProvider>
-      <WalletProvider>
+    <WalletProvider>
+      <StoreProvider>
         <RouterProvider router={router} />
-      </WalletProvider>
-    </StoreProvider>
+      </StoreProvider>
+    </WalletProvider>
   );
 }

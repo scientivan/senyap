@@ -33,6 +33,11 @@ export type Market = {
   heldByWinner: number[];
   myBid?: { amount: number; sealed: boolean };
   outcome?: { successIds: number[]; recordedBy: "buyer" | "operator" | "verifiers"; evidence: string };
+  /** Committee histogram once posted on chain. */
+  histogram?: { strong: number; medium: number; weak: number };
+  outcomeUntil?: number;
+  /** Read from the Preprod contract. */
+  live?: boolean;
 };
 
 export type Position = {

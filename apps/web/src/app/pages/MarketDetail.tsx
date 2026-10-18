@@ -1,19 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { matchOption } from "../smart-match";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { LockIcon } from "../../components/Icons";
 import { timeLeft, useStore } from "../data/store";
 import type { Market, Phase } from "../data/types";
-import { Card, Empty, Histogram, Note, PageHead, PhaseChip, Revealed, Sealed, SideChip, useToast } from "../ui";
+import { Card, Empty, Histogram, Note, PageHead, PhaseChip, Sealed, SideChip, useToast } from "../ui";
+import { history, type HistoryItem } from "../data/live";
 
-const flow: Phase[] = ["open", "closed", "auction", "allocated", "outcome", "settling", "settled"];
+const flow: Phase[] = ["open", "closed", "preview", "auction", "allocated", "outcome", "settling", "settled"];
+// Every action is signed in the private workspace with the connected wallet.
+const WORKSPACE = "/app/preprod";
 
 export function MarketDetail() {
   const { id } = useParams();
   const s = useStore();
   const m = s.market(Number(id));
   const [toast, show] = useToast();
-  if (!m) return <Empty title="Market not found." action={<Link to="/app/markets" className="abtn abtn-soft">Back to markets</Link>}>It may have been removed when the demo was reset.</Empty>;
+  if (!m) return <Empty title={s.status === "loading" ? "Reading the market from Preprod." : "Market not found."} action={<Link to="/app/markets" className="abtn abtn-soft">Back to markets</Link>}>{s.status === "loading" ? "This takes a few seconds." : "No market with this number exists on the Preprod contract."}</Empty>;
 
   const steps = m.auction ? flow : flow.filter((p) => p !== "auction" && p !== "allocated");
   const idx = steps.indexOf(m.phase);
@@ -48,14 +51,14 @@ export function MarketDetail() {
           </Card>
 
           {s.role === "scout" && m.phase === "open" && <StakePanel m={m} onDone={show} />}
-          {s.role === "ecosystem" && m.side === "A" && m.phase === "auction" && <BidPanel m={m} onDone={show} />}
-          <OptionsPanel m={m} onDone={show} kBlocked={kBlocked} />
-          {s.role === "ecosystem" && m.phase === "outcome" && m.bought.length > 0 && <OutcomePanel m={m} onDone={show} />}
+          {s.role === "ecosystem" && m.side === "A" && m.phase === "auction" && <WorkspaceCard title="Bid for exclusive signals" sub="Your sealed bid and ceiling deposit are signed in your workspace." />}
+          <OptionsPanel m={m} kBlocked={kBlocked} />
+          {m.phase === "outcome" && <WorkspaceCard title="Report the outcome" sub="Buyers report which options came true, with evidence. The report is signed in your workspace." />}
         </div>
 
         <div className="stack">
           <Card title="Strength preview" sub="Public. Counts teams per bucket without naming them." className="dark">
-            {kBlocked ? <p>Opens once at least 5 scouts have answered. {m.scouts} so far.</p> : <Histogram h={h} />}
+            {h ? <Histogram h={h} /> : <p>{kBlocked ? `Needs at least 5 scouts. ${m.scouts} so far.` : "Posted by the committee after picks close."}</p>}
           </Card>
           <Card title="Public on chain">
             <div className="stats">
@@ -77,9 +80,7 @@ export function MarketDetail() {
               ? "Every option is a team that registered, or that publicly seeks funding and can opt out at any time. Scouts recommend with money at stake: honest picks are paid, proven hoaxes are slashed, and individual picks are never revealed."
               : "Questions about unannounced token, treasury or listing decisions are not allowed on this side."}
           </Note>
-          <button type="button" className="abtn abtn-soft" onClick={() => { s.advance(m.id); show("Demo moved this market to its next phase."); }} disabled={m.phase === "settled"}>
-            Move to next phase in demo
-          </button>
+          <HistoryCard marketLabel={`#${m.id}`} />
         </div>
       </div>
       {toast}
@@ -87,28 +88,23 @@ export function MarketDetail() {
   );
 }
 
-function StakePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void }) {
+function StakePanel({ m }: { m: Market; onDone: (msg: string) => void }) {
   const s = useStore();
-  const used = s.positions.filter((p) => p.marketId === m.id).length;
+  const used = 0;
   const [pick, setPick] = useState<number | null>(null);
   const [amount, setAmount] = useState(100);
   const [reason, setReason] = useState("");
   const [err, setErr] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const busy = false;
 
+  const nav = useNavigate();
   const submit = () => {
     if (pick === null) return setErr("Choose the option you want to back.");
     if (reason.trim().length < 20) return setErr("Write a reason of at least 20 characters. Buyers pay for the reasoning.");
-    setBusy(true);
-    setErr(null);
-    window.setTimeout(() => {
-      const r = s.stake(m.id, pick, amount);
-      setBusy(false);
-      if (!r.ok) return setErr(r.reason);
-      setPick(null);
-      setReason("");
-      onDone("Pick sealed. Your stake is public, your choice is not.");
-    }, 900);
+    if (amount < 10 || amount > 500) return setErr("Stake between 10 and 500 dUSD.");
+    // The choice is handed to the workspace in this tab only; it is never sent anywhere.
+    try { sessionStorage.setItem("senyap-stake-intent", JSON.stringify({ market: m.id, option: pick, amount, reason: reason.trim() })); } catch { /* the workspace asks again */ }
+    nav(`${WORKSPACE}?market=${m.id}`);
   };
 
   return (
@@ -148,9 +144,9 @@ function StakePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void })
           </div>
           {err && <span className="err" role="alert">{err}</span>}
           <div className="row between">
-            <span className="muted2">Balance {s.balance.toLocaleString()} dUSD</span>
+            <span className="muted2">{s.balance === null ? "Connect your wallet to see your dUSD." : `Balance ${s.balance.toLocaleString()} dUSD`}</span>
             <button type="button" className="abtn abtn-red" onClick={submit} disabled={busy}>
-              {busy ? "Building proof" : "Seal my pick"}
+              Continue to seal in workspace
             </button>
           </div>
         </div>
@@ -159,131 +155,49 @@ function StakePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void })
   );
 }
 
-function BidPanel({ m, onDone }: { m: Market; onDone: (msg: string) => void }) {
+function OptionsPanel({ m, kBlocked }: { m: Market; kBlocked: boolean }) {
   const s = useStore();
-  const [amount, setAmount] = useState(Math.max(m.reservePrice, 800));
-  const [err, setErr] = useState<string | null>(null);
-  if (m.myBid)
-    return (
-      <Card title="Your sealed bid" sub="Encrypted to the 3 of 5 committee. Losing bids are never published.">
-        <div className="row">
-          <Sealed why="Only the committee, acting together, can read bids to compute the second price.">Bid sealed</Sealed>
-          <span className="muted2">Ceiling deposited {m.myBid.amount.toLocaleString()} dUSD, refunded above the clearing price.</span>
-        </div>
-      </Card>
-    );
+  const canBuy = (s.role === "ecosystem" && m.side === "A" && ["allocated", "outcome", "settling", "settled"].includes(m.phase)) || (s.role === "builder" && m.side === "B" && ["preview", "outcome", "settling", "settled"].includes(m.phase));
   return (
-    <Card title="Bid for exclusive signals" sub="The top two bidders each hide up to 3 teams from everyone else. Price follows the second highest bid.">
-      <div className="form">
-        <div className="field">
-          <label htmlFor="bid">Your bid, at least the reserve of {m.reservePrice} dUSD</label>
-          <input id="bid" className="inp" type="number" min={m.reservePrice} step={50} value={amount} onChange={(e) => setAmount(+e.target.value)} aria-invalid={amount < m.reservePrice} />
-        </div>
-        {err && <span className="err" role="alert">{err}</span>}
-        <div className="row between">
-          <span className="muted2">Your bid amount is also your public ceiling deposit.</span>
-          <button
-            type="button"
-            className="abtn abtn-red"
-            onClick={() => {
-              if (amount < m.reservePrice) return setErr(`Bid at least the reserve of ${m.reservePrice} dUSD.`);
-              if (amount > s.balance) return setErr("Not enough dUSD for the ceiling deposit. Get demo dUSD from the faucet.");
-              s.bid(m.id, amount);
-              onDone("Sealed bid sent to the committee.");
-            }}
-          >
-            Send sealed bid
-          </button>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-function OptionsPanel({ m, onDone, kBlocked }: { m: Market; onDone: (msg: string) => void; kBlocked: boolean }) {
-  const s = useStore();
-  const canBuy = (s.role === "ecosystem" && m.side === "A" && ["allocated", "outcome", "settling", "settled"].includes(m.phase)) || (s.role === "builder" && m.side === "B" && m.phase !== "open");
-  const max = Math.max(...m.options.map((o) => s.revealed(m,o.id) ?? 0), 1);
-  return (
-    <Card
-      title={m.side === "A" ? "Teams in this market" : "Answers in this market"}
-      sub={m.bought.length ? "Totals you bought are opened on your device from 3 committee shares." : "Totals stay sealed until you buy them."}
-    >
+    <Card title={m.side === "A" ? "Teams in this market" : "Answers in this market"} sub="Totals stay sealed. Buyers open the ones they pay for, on their own device, from 3 of 5 committee shares.">
       <div className="opts2">
-        {m.options.map((o) => {
-          const w = s.revealed(m, o.id);
-          const held = m.heldByWinner.includes(o.id) && w === null;
-          return (
-            <div key={o.id} className="orow">
-              <b>{o.label}</b>
-              {w !== null ? (
-                <span className="wbar"><i style={{ width: `${(w / max) * 100}%` }} /></span>
-              ) : (
-                <span className="locked-bar"><LockIcon />{held ? "Held by an auction winner" : kBlocked ? "Fewer than 5 answers" : "Sealed total"}</span>
-              )}
-              <span>
-                {w !== null ? (
-                  <Revealed>{(w / 1000).toFixed(1)}k weight</Revealed>
-                ) : canBuy && !held && !kBlocked ? (
-                  <button
-                    type="button"
-                    className="abtn abtn-sm abtn-red"
-                    onClick={() => {
-                      const r = s.buy(m.id, o.id);
-                      onDone(r.ok ? `Opened ${o.label}. 3 of 5 committee shares combined on your device.` : r.reason);
-                    }}
-                  >
-                    Buy {m.flatPrice} dUSD
-                  </button>
-                ) : (
-                  <Sealed why={held ? "The auction winner chose to keep this signal exclusive." : m.phase === "open" ? "Totals can be bought after picks close." : "Only buyers can open totals."} />
-                )}
-              </span>
-            </div>
-          );
-        })}
+        {m.options.map((o) => (
+          <div key={o.id} className="orow">
+            <b>{o.label}</b>
+            <span className="locked-bar"><LockIcon />{kBlocked ? "Fewer than 5 scouts" : "Sealed total"}</span>
+            <span>
+              {canBuy && !kBlocked ? <Link className="abtn abtn-sm abtn-red" to={`${WORKSPACE}?market=${m.id}`}>Buy {m.flatPrice} dUSD</Link>
+                : <Sealed why={m.phase === "open" ? "Totals can be bought after picks close." : "Only buyers can open totals."} />}
+            </span>
+          </div>
+        ))}
       </div>
     </Card>
   );
 }
 
-function OutcomePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void }) {
+function WorkspaceCard({ title, sub }: { title: string; sub: string }) {
+  return <Card title={title} sub={sub}><Link className="abtn abtn-red" to={WORKSPACE}>Open workspace</Link></Card>;
+}
+
+/** Contract call history from the indexer, newest first. */
+export function HistoryCard({ marketLabel }: { marketLabel?: string }) {
   const s = useStore();
-  const [sel, setSel] = useState<number[]>([]);
-  const [ev, setEv] = useState("");
+  const [items, setItems] = useState<HistoryItem[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  useEffect(() => { if (s.contract) history(s.contract, 15).then(setItems, (e) => setErr(e instanceof Error ? e.message : String(e))); }, [s.contract]);
   return (
-    <Card title="Report the outcome" sub="Mark the teams that deployed on your chain, took your grant or accepted your offer. Missing this report removes your good standing.">
-      <div className="form">
-        <div className="opts2">
-          {m.options.map((o) => (
-            <label key={o.id} className="check">
-              <input type="checkbox" checked={sel.includes(o.id)} onChange={(e) => setSel((x) => (e.target.checked ? [...x, o.id] : x.filter((y) => y !== o.id)))} />
-              {o.label}
-            </label>
-          ))}
+    <Card title="Contract activity" sub={marketLabel ? `Latest calls on the Senyap contract. Calls are public; picks and identities are not.` : "Latest calls on the Senyap contract."}>
+      {err ? <p className="muted2">{err}</p> : !items ? <p className="muted2">Reading the indexer.</p> : (
+        <div className="tbl-wrap">
+          <table className="tbl">
+            <thead><tr><th>Call</th><th>Transaction</th><th className="num">Block</th><th className="num">When</th></tr></thead>
+            <tbody>{items.map((i) => (
+              <tr key={i.tx} style={{ cursor: "default" }}><td>{i.circuit}</td><td>{i.tx.slice(0, 10)}…</td><td className="num">{i.height}</td><td className="num">{timeLeft(i.time)}</td></tr>
+            ))}</tbody>
+          </table>
         </div>
-        <div className="field">
-          <label htmlFor="ev">Evidence link or transaction</label>
-          <input id="ev" className="inp" value={ev} onChange={(e) => setEv(e.target.value)} placeholder="Deployment transaction, grant announcement or signed offer" />
-          <span className="hint">Only its hash goes on chain. If you mark no team, the strongest signal you bought receives the pool.</span>
-        </div>
-        {err && <span className="err" role="alert">{err}</span>}
-        <div className="row between">
-          <span className="muted2">Disputes go to anonymous staked verifiers.</span>
-          <button
-            type="button"
-            className="abtn abtn-red"
-            onClick={() => {
-              if (ev.trim().length < 8) return setErr("Add the evidence so verifiers can check it.");
-              s.recordOutcome(m.id, sel, ev.trim());
-              onDone("Outcome recorded. Scouts can now prove their winning picks.");
-            }}
-          >
-            Record outcome
-          </button>
-        </div>
-      </div>
+      )}
     </Card>
   );
 }

@@ -1,8 +1,9 @@
+import { mintDemoDusd } from "../dusd-faucet";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { timeLeft, useStore } from "../data/store";
 import { Card, Done, Empty, Note, PageHead, Sealed, useToast } from "../ui";
-import { NETWORK_ID } from "../wallet";
+import { useWallet, NETWORK_ID } from "../wallet";
 
 /* ---------------- Create market ---------------- */
 export function NewMarket() {
@@ -24,8 +25,9 @@ export function NewMarket() {
     if (options.length < 2) return setErr(side === "A" ? "Choose at least 2 registered teams." : "Write at least 2 possible answers.");
     if (options.length > 8) return setErr("A market holds at most 8 options.");
     if (side === "B" && /token|price|treasury|listing|unlock/i.test(question)) return setErr("Questions about token, treasury or listing decisions are not allowed on this side.");
-    const id = s.createMarket({ side, question: question.trim(), category: side === "A" ? "Builder sourcing" : "Ecosystem truth", flatPrice: price, reservePrice: side === "A" ? reserve : 0, options, hours });
-    nav(`/app/markets/${id}`);
+    // Side A markets are created and signed in the workspace; Side B questions go to operators.
+    try { sessionStorage.setItem("senyap-market-draft", JSON.stringify({ side, question: question.trim(), options, flatPrice: price, reservePrice: side === "A" ? reserve : 0, hours })); } catch { /* the workspace asks again */ }
+    nav("/app/preprod");
   };
 
   return (
@@ -109,6 +111,7 @@ export function NewMarket() {
 /* ---------------- Builder registry ---------------- */
 export function Registry() {
   const s = useStore();
+  const nav = useNavigate();
   const [toast, show] = useToast();
   const [f, setF] = useState({ name: "", focus: "", stage: "Prototype", chains: "Not committed", consent: false });
   const [err, setErr] = useState<string | null>(null);
@@ -179,10 +182,9 @@ export function Registry() {
                 onClick={() => {
                   if (f.name.trim().length < 3 || f.focus.trim().length < 5) return setErr("Add your team name and what you are building.");
                   if (!f.consent) return setErr("Consent is required. Teams are only assessed when they opt in.");
-                  s.registerTeam({ ...f, name: f.name.trim(), focus: f.focus.trim() });
-                  setF({ name: "", focus: "", stage: "Prototype", chains: "Not committed", consent: false });
                   setErr(null);
-                  show("Team registered. Ecosystems can now include you in markets.");
+                  show("Registration is signed in your workspace. Opening it now.");
+                  window.setTimeout(() => nav("/app/preprod"), 600);
                 }}
               >
                 Register team
@@ -198,29 +200,14 @@ export function Registry() {
 
 /* ---------------- Buyer standing ---------------- */
 export function Standing({ embedded = false }: { embedded?: boolean } = {}) {
-  const s = useStore();
   return (
     <>
       {embedded ? <h2 className="pf-h">Buyer standing</h2> : <PageHead title="Good standing" sub="Rivals never see which ecosystem you are. Scouts see only that a buyer is in good standing." />}
       <div className="grid3">
-        <Card title="Your standing" className="dark">
-          <div className="stats">
-            <div className="stat"><span>Status</span><b>{s.standing.goodStanding ? "Good standing" : "Removed"}</b></div>
-            <div className="stat"><span>Outcomes reported on time</span><b>{s.standing.reports}</b></div>
-            <div className="stat"><span>Reports missed</span><b>{s.standing.missed}</b></div>
-            <div className="stat"><span>Disputes lost</span><b>{s.standing.disputesLost}</b></div>
-          </div>
+        <Card title="Your standing" sub="Read from your private workspace. Standing is a private membership proof, so only you can see it." className="dark">
+          <Link className="abtn abtn-soft" to="/app/preprod">Open workspace</Link>
         </Card>
-        <Card title="Pseudonyms" sub="A new one for every market, derived from your private key.">
-          <div className="stack">
-            {s.markets.filter((m) => m.side === "A").slice(0, 4).map((m) => (
-              <div key={m.id} className="row between">
-                <span className="muted2">Market #{m.id}</span>
-                <span className="mono">{(m.id * 2654435761 % 0xffffff).toString(16).padStart(6, "0")}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <Card title="Pseudonyms" sub="A new one for every market, derived in your workspace from your private key. Two markets cannot be linked to the same buyer.">{null}</Card>
         <Card title="What can remove standing">
           <div className="stack">
             <p className="muted2">Missing an outcome report, or losing a dispute about one. Then the committee opens only that market's locked membership card and removes it from the good standing group.</p>
@@ -386,25 +373,31 @@ export function Verify() {
 /* ---------------- Faucet ---------------- */
 export function Faucet() {
   const s = useStore();
+  const { state, api } = useWallet();
   const [toast, show] = useToast();
+  const [busy, setBusy] = useState(false);
+  const mint = async (amount: number) => {
+    if (state.status !== "connected" || !api) return show("Connect your wallet on Preprod first.");
+    setBusy(true);
+    try { const tx = await mintDemoDusd(api, state.address, BigInt(amount)); show(`Minted ${amount} demo dUSD. Transaction ${tx.slice(0, 10)}…`); s.refresh(); }
+    catch (e) { show(e instanceof Error ? e.message : String(e)); }
+    finally { setBusy(false); }
+  };
   return (
     <>
-      <PageHead title="Demo dUSD" sub={`dUSD is an unshielded demo token with no value, standing in for a stablecoin on Midnight ${NETWORK_ID}.`} />
+      <PageHead title="Demo dUSD" sub={`dUSD is an unshielded test token with no value, standing in for a stablecoin on Midnight ${NETWORK_ID}. Anyone can mint up to 5000 per transaction.`} />
       <div className="grid3">
         <Card title="Balance" className="dark">
           <div className="stats">
-            <div className="stat"><span>dUSD</span><b>{s.balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</b></div>
+            <div className="stat"><span>dUSD in your wallet</span><b>{s.balance === null ? "Not connected" : s.balance.toLocaleString()}</b></div>
           </div>
         </Card>
-        <Card title="Get demo dUSD">
+        <Card title="Mint demo dUSD" sub="Your wallet proves, pays the fee and signs. It takes about a minute.">
           <div className="row">
             {[100, 500, 1000].map((a) => (
-              <button key={a} type="button" className="abtn abtn-red" onClick={() => { s.mint(a); show(`Added ${a} demo dUSD.`); }}>+{a}</button>
+              <button key={a} type="button" className="abtn abtn-red" disabled={busy} onClick={() => mint(a)}>+{a}</button>
             ))}
           </div>
-        </Card>
-        <Card title="Start over" sub="Resets markets, picks and teams to the original demo.">
-          <button type="button" className="abtn abtn-soft" onClick={() => { s.reset(); show("Demo reset."); }}>Reset demo</button>
         </Card>
       </div>
       <div className="mt16">

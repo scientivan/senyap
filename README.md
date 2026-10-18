@@ -60,9 +60,13 @@ pnpm dev
 ```
 
 Open <http://127.0.0.1:5174/> for the landing page or
-<http://127.0.0.1:5174/app> for the application. The terminal reports the actual
-port if 5174 is already occupied. Every team, scout, market and displayed amount
-is demo data. No wallet or credentials are needed to explore the demo.
+<http://127.0.0.1:5174/app> for the application. The app shows live data from the
+Senyap contract on Midnight Preprod, read from the public Preprod RPC
+(`midnight_contractState`, no token). Question text is checked in the browser
+against each market's on-chain commitment. Browsing needs no wallet; staking,
+buying and claiming are signed in the private workspace (`/app/preprod`) with a
+Preprod wallet. Contract activity comes from the indexer, which needs the dev
+proxy described below.
 
 ```sh
 pnpm --filter @senyap/web typecheck
@@ -234,8 +238,7 @@ held by the operator relay, and one person runs every operator and committee sea
 (see the trust model above). Market #2's close, preview, purchase, outcome, hits
 and claims follow the contract clock and are recorded in its journal as they
 happen; the complete settle-and-claim cycle is otherwise proven on a local network.
-The main `/app` market pages show labelled demo data; live Preprod data is in
-`/app/preprod` and `/operator/registry`. The verified GitHub provider only extracts
+The app has no demo data; it shows only what is on the Preprod contract. The verified GitHub provider only extracts
 a profile language field, so the proof shows a logged-in GitHub account, not a
 username or contribution count. A stricter policy (proven username plus a public
 yearly contribution threshold) is implemented and tested but awaits a provider

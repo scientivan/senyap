@@ -16,7 +16,7 @@ export function OperatorRegistry() {
   if (err) return (
     <>
       <PageHead title="Operator registry" sub="Operator seats, stakes and pending approvals read from the Preprod contract." />
-      <Note title="The live registry could not load.">{err} The registry reads Preprod through the local dev indexer proxy, so it only works on the dev server started with the Preprod proxy.</Note>
+      <Note title="The live registry could not load.">{err} The registry reads the public Midnight Preprod RPC.</Note>
       <button type="button" className="abtn abtn-soft mt16" onClick={load}>Try again</button>
     </>
   );

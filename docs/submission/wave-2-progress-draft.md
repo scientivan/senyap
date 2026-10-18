@@ -115,8 +115,8 @@ These checks do not establish a security audit or network settlement.
   balance (seen when the 1AM fee sponsor was offline). A longer window needs a
   redeploy.
 - A wrong decryption share is rejected (DLEQ proof) but not slashed on chain.
-- Main market pages in `/app` still show labelled demo data; live data is in
-  `/app/preprod` and `/operator/registry`.
+- Contract activity history needs the Blockfrost indexer, so it appears only where
+  an indexer proxy runs; market and registry data come from the public RPC.
 - Reasons screening passed synthetic Gemini smoke checks only, not a quality or
   privacy evaluation. No security audit.
 

@@ -4,8 +4,7 @@
 // seat. A seat holder proves it locally: hashing the seat key must give the
 // on-chain commitment. The key is hashed in this tab and never sent anywhere.
 import { CompactTypeBytes, persistentHash } from "@midnight-ntwrk/compact-runtime";
-import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
-import { ledger } from "../../../../contracts/managed/senyap/contract/index.js";
+import { readLedger } from "./data/live";
 
 export type Deployment = { network: string; contract: string; token: string; journal: string };
 export type Registry = {
@@ -25,13 +24,10 @@ export async function deployment(): Promise<Deployment> {
   return r.json();
 }
 
-/** Reads the live contract through the dev indexer proxy (/__bf). */
+/** Reads the live contract from the public Preprod RPC (no token needed). */
 export async function readRegistry(): Promise<Registry> {
   const d = await deployment();
-  const provider = indexerPublicDataProvider(`${location.origin}/__bf/indexer`, `${location.origin.replace(/^http/, "ws")}/__bf/ws`);
-  const state = await provider.queryContractState(d.contract);
-  if (!state) throw Error("The Preprod indexer did not return this contract.");
-  const l = ledger(state.data);
+  const l = await readLedger(d.contract);
   const opStake = (s: number) => (l.operatorStake.member(BigInt(s)) ? l.operatorStake.lookup(BigInt(s)) : 0n);
   const cmStake = (s: number) => (l.committeeStake.member(BigInt(s)) ? l.committeeStake.lookup(BigInt(s)) : 0n);
   return {
