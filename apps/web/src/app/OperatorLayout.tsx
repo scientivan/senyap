@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { Logo } from "../components/Icons";
 import { useStore } from "./data/store";
+import { OperatorGate } from "./OperatorGate";
 import "./app.css";
 
 const menu = [
@@ -39,7 +40,7 @@ export function OperatorLayout() {
         </div>
       </header>
       <main className="am">
-        {role === "operator" ? <Outlet /> : null}
+        {role === "operator" ? <OperatorGate><Outlet /></OperatorGate> : null}
       </main>
       <footer className="af">
         <span>Operator console demo with synthetic data. In production it is a separate deployment for vetted operators holding operator keys, never linked from the user app.</span>
