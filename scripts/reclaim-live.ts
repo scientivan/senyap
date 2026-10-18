@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import {writeFile,mkdir} from "node:fs/promises";
 import {ReclaimProofRequest,type Proof} from "@reclaimprotocol/js-sdk";
 import {CredentialSessions,reclaimCredentials,type CredentialBinding} from "../apps/operator/src/reclaim";
+import {githubBuilderPolicy,type GithubPolicyResult} from "../apps/operator/src/github-policy";
 
 const arg=(n:string)=>{const i=process.argv.indexOf(n);return i<0?undefined:process.argv[i+1];};
 const binding:CredentialBinding={network:arg("--network")??"",contract:arg("--contract")??"",group:arg("--group")??"",commitment:arg("--commitment")??""};
@@ -14,10 +15,13 @@ const {RECLAIM_APP_ID:appId,RECLAIM_APP_SECRET:appSecret,RECLAIM_PROVIDER_ID:pro
 assert(appId&&appSecret&&providerId,"Reclaim credentials missing from environment");
 await mkdir(".states",{recursive:true});
 const sessions=new CredentialSessions(".states/reclaim-live.sqlite");
-let fields:string[]=[];
+let fields:string[]=[],policy:GithubPolicyResult|undefined;
+const minContributions=Number(process.env.SENYAP_MIN_GITHUB_CONTRIBUTIONS??"50");
+const builderPolicy=githubBuilderPolicy({minContributions});
 const credentials=reclaimCredentials({appId,appSecret,providerId,ttlSeconds:1800},sessions,async data=>{
   fields=[...new Set(data.flatMap(d=>Object.keys(d.extractedParameters??{})))].sort();
-  return fields.length>0; // Approved policy: a verified GitHub account proof. No identity value is read.
+  // Proven username, then public yearly contributions >= threshold. Values are not stored.
+  policy=await builderPolicy(data);return policy.qualified;
 });
 const {sessionId,requestJson}=await credentials.start(binding);
 const request=await ReclaimProofRequest.fromJsonString(requestJson);
@@ -29,6 +33,6 @@ const proofs=await new Promise<Proof|Proof[]>((resolve,reject)=>{
 const result:Record<string,unknown>={task:"P6.1",binding,date:new Date().toISOString(),provider:request.getProviderVersion()};
 try{await credentials.verify(sessionId,proofs);result.verified=true;result.receipt=sessions.receipt(sessionId);}
 catch{result.verified=false;result.rejectedAt=credentials.lastRejection();}
-result.extractedFieldNames=fields;
+result.extractedFieldNames=fields;result.policy={minContributions,stage:policy?.stage??"not-reached"};
 await writeFile(`docs/evidence/P6.1-reclaim-live-${binding.network}.json`,JSON.stringify(result,null,2)+"\n");
 console.log(JSON.stringify({verified:result.verified,fields}));sessions.close();process.exit(0);
