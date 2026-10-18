@@ -135,3 +135,5 @@
 .team-card form > fieldset > fieldset { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .team-card .act-next { width: auto; justify-self: start; min-width: 200px; }
 @media (max-width: 760px) { .team-card form > fieldset { grid-template-columns: 1fr; } }
+.act-blocked-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.act-blocked-top .abtn { flex: none; }

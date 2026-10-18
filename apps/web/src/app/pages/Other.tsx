@@ -366,6 +366,15 @@ export function Guide() {
           ))}
         </ol>
       </Card>
+      <section id="buyer-access" className="acard mt16 guide-access">
+        <h2>Getting buyer access as an ecosystem</h2>
+        <ol>
+          <li><b>Create your vault</b><span>Connect your wallet and unlock your vault. It makes a private buyer key for you.</span></li>
+          <li><b>Apply to the operators</b><span>Send your organisation details to the operators. Your name never goes on chain.</span></li>
+          <li><b>Three of five approve</b><span>Operators admit your buyer key on chain. The chain records only a commitment, never who you are.</span></li>
+          <li><b>Open a market</b><span>Refresh and the form unlocks. Each market gives you a fresh pseudonym.</span></li>
+        </ol>
+      </section>
       <div className="mt16">
         <Empty title="Phases follow the contract clock.">Markets move to the next phase when their on-chain deadlines pass. Anyone can trigger the move; the keeper does it automatically.</Empty>
       </div>
