@@ -156,5 +156,15 @@ export async function prepare(walletId?:string){
       throwaway=undefined;progress.stage=progress.authorityHandedOff?"complete":"authority-check-failed";remember();
       return structuredClone(progress);
     },
+    /** D18-5/7: stake three operators and five committee members (500 dUSD each, demo token). */
+    async stakes(){
+      const contract=progress.contract;if(!contract||progress.stage!=="complete")throw Error("Install and hand off authority first.");
+      const p=providers<string>("/contracts/senyap");
+      const compiled=CompiledContract.make("SenyapPreprod",Contract<unknown>).pipe(CompiledContract.withWitnesses(noWitnesses),CompiledContract.withCompiledFileAssets("/contracts/senyap"));
+      const found=await findDeployedContract(p as never,{compiledContract:compiled as never,contractAddress:contract,privateStateId:"p81-product",initialPrivateState:{}} as never) as {callTx:Record<string,(...a:unknown[])=>Promise<unknown>>};
+      for(let m=0;m<3;m++)if(!done(`stake-operator:${m}`))await step(`stake-operator:${m}`,()=>found.callTx.stakeOperator(BigInt(m),500n));
+      for(let m=0;m<5;m++)if(!done(`stake-committee:${m}`))await step(`stake-committee:${m}`,()=>found.callTx.stakeCommittee(BigInt(m),500n));
+      progress.stage="staked";remember();return structuredClone(progress);
+    },
   };
 }
