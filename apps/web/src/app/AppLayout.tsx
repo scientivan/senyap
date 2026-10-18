@@ -19,7 +19,6 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
     { to: "/app", label: "Home" },
     { to: "/app/markets", label: "Markets" },
     { to: "/app/registry", label: "Teams" },
-    { to: "/app/profile", label: "Standing" },
   ],
   builder: [
     { to: "/app", label: "Home" },
@@ -31,7 +30,6 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
     { to: "/app", label: "Home" },
     { to: "/app/markets?phase=open", label: "Open markets" },
     { to: "/app/positions", label: "My picks" },
-    { to: "/app/tier", label: "Tier" },
   ],
   operator: [
     { to: "/app", label: "Home" },
@@ -121,6 +119,7 @@ export function AppLayout() {
                 </ul>
               )}
             </div>}
+            {!live&&<NavLink to="/app/profile" className={({isActive})=>`ah-bal ah-profile${isActive?" on":""}`}>Profile</NavLink>}
             <div className="ah-wallet">
               {state.status === "connected" ? (
                 <button type="button" className="abtn abtn-soft" onClick={() => setWalletOpen((o) => !o)}>

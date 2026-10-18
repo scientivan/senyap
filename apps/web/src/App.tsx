@@ -10,9 +10,10 @@ import { WalletProvider } from "./app/wallet";
 import { Home } from "./app/pages/Home";
 import { Markets } from "./app/pages/Markets";
 import { MarketDetail } from "./app/pages/MarketDetail";
-import { Positions, Tier } from "./app/pages/Scout";
+import { Positions } from "./app/pages/Scout";
+import { Profile } from "./app/pages/Profile";
 import { Workspace } from "./app/pages/Workspace";
-import { Committee, Faucet, Guide, NewMarket, Operator, Profile, Registry, Verify } from "./app/pages/Other";
+import { Committee, Faucet, Guide, NewMarket, Operator, Registry, Verify } from "./app/pages/Other";
 
 const LiveWorkspace=lazy(()=>import("./app/pages/LiveWorkspace").then(module=>({default:module.LiveWorkspace})));
 
@@ -45,7 +46,7 @@ const router = createBrowserRouter([
       { path: "markets/:id", element: <MarketDetail /> },
       { path: "new", element: <NewMarket /> },
       { path: "positions", element: <Positions /> },
-      { path: "tier", element: <Tier /> },
+      { path: "tier", element: <Navigate to="/app/profile" replace /> },
       { path: "registry", element: <Registry /> },
       { path: "profile", element: <Profile /> },
       { path: "operator", element: <Operator /> },

@@ -197,11 +197,11 @@ export function Registry() {
 }
 
 /* ---------------- Buyer standing ---------------- */
-export function Profile() {
+export function Standing({ embedded = false }: { embedded?: boolean } = {}) {
   const s = useStore();
   return (
     <>
-      <PageHead title="Good standing" sub="Rivals never see which ecosystem you are. Scouts see only that a buyer is in good standing." />
+      {embedded ? <h2 className="pf-h">Buyer standing</h2> : <PageHead title="Good standing" sub="Rivals never see which ecosystem you are. Scouts see only that a buyer is in good standing." />}
       <div className="grid3">
         <Card title="Your standing" className="dark">
           <div className="stats">

@@ -90,7 +90,7 @@ export function Positions() {
   );
 }
 
-export function Tier() {
+export function Tier({ embedded = false }: { embedded?: boolean } = {}) {
   const s = useStore();
   const [toast, show] = useToast();
   const [state, setState] = useState<"idle" | "proving" | "done">("idle");
@@ -98,7 +98,7 @@ export function Tier() {
   const up = s.tier.credentials >= 2;
   return (
     <>
-      <PageHead title={`Tier ${s.tier.level}`} sub={`Tiers expire every epoch. Renew by proving recent wins from the credentials on this device. Epoch ${s.tier.epoch} ends ${timeLeft(Date.now() + s.tier.expiresIn)}.`} />
+      {embedded ? <h2 className="pf-h">Tier {s.tier.level} scout</h2> : <PageHead title={`Tier ${s.tier.level}`} sub={`Tiers expire every epoch. Renew by proving recent wins from the credentials on this device. Epoch ${s.tier.epoch} ends ${timeLeft(Date.now() + s.tier.expiresIn)}.`} />}
       <div className="grid3">
         <Card title="Hit credentials" sub="Issued privately each time a pick wins." className="dark">
           <div className="stats">
