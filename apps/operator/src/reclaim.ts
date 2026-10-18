@@ -56,7 +56,10 @@ export function reclaimCredentials(config:{appId:string;appSecret:string;provide
   const callback=config.callbackUrl===undefined?undefined:new URL(config.callbackUrl);
   // Without a callback, the host collects proofs through the SDK session poll.
   if((callback&&(callback.protocol!=="https:"||callback.username||callback.password))||!config.appId||!config.appSecret||!config.providerId||!Number.isSafeInteger(config.ttlSeconds)||config.ttlSeconds<1||config.ttlSeconds>86400)throw Error("Invalid credential configuration");
+  // Stage label of the last rejection only (no proof or identity data), for diagnosis.
+  let rejection="";
   return {
+    lastRejection:()=>rejection,
     async start(binding:CredentialBinding){
       validateBinding(binding);
       try {
@@ -71,15 +74,19 @@ export function reclaimCredentials(config:{appId:string;appSecret:string;provide
     async verify(sessionId:string,proofs:Proof|Proof[]):Promise<CredentialBinding> {
       if(typeof sessionId!=="string"||sessionId.length>128)throw Error("Credential verification rejected");
       try {
-        const session=sessions.get(sessionId,now());if(!session)throw Error();
-        const result=await sdk.verify(proofs,{...session.provider,teeAttestation:{appSecret:config.appSecret}});
-        if(!result.isVerified||result.isTeeAttestationVerified!==true||result.data.length<1||result.data.length>8)throw Error();
+        rejection="session";const session=sessions.get(sessionId,now());if(!session)throw Error();
+        rejection="sdk-verify";const result=await sdk.verify(proofs,{...session.provider,teeAttestation:{appSecret:config.appSecret}});
+        rejection=!result.isVerified?"proof-not-verified":result.isTeeAttestationVerified!==true?"tee-attestation-not-verified":result.data.length<1||result.data.length>8?"data-count":"";
+        if(rejection)throw Error();
+        rejection="context";
         for(const datum of result.data){
           const context=datum.context;
           // Exact SDK 5.8.3 Context names; reject missing fields instead of guessing aliases.
           if(context.reclaimSessionId!==session.id||context.contextAddress!==session.nonce||context.contextMessage!==bindingMessage(session.binding,session.nonce))throw Error();
         }
-        if(!await qualifies(result.data,session.binding)||!sessions.consume(sessionId,session.nonce,now()))throw Error();
+        rejection="policy";if(!await qualifies(result.data,session.binding))throw Error();
+        rejection="consume";if(!sessions.consume(sessionId,session.nonce,now()))throw Error();
+        rejection="";
         return {...session.binding};
       }catch{throw Error("Credential verification rejected");}
     }

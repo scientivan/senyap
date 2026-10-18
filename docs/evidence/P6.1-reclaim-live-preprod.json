@@ -1,0 +1,25 @@
+{
+  "task": "P6.1",
+  "binding": {
+    "network": "preprod",
+    "contract": "c8ab22d9a80f56bf533ab9bb9256b8fac93fcb2798c3b42d4511fee1a462231b",
+    "group": "232254e4519a7f97790f36dc1d45e7f6eefa1c795005362740361021ecd2038f",
+    "commitment": "8508c3ec90bb7bc90ed8da672fe270d1eed84a7450011a12e9081bec81028430"
+  },
+  "date": "2026-10-18T03:28:44.430Z",
+  "provider": {
+    "providerId": "76afcf07-4c8f-4a63-b545-0d4c4f955164",
+    "providerVersion": "2.0.0",
+    "allowedTags": []
+  },
+  "verified": true,
+  "receipt": {
+    "network": "preprod",
+    "contract": "c8ab22d9a80f56bf533ab9bb9256b8fac93fcb2798c3b42d4511fee1a462231b",
+    "group": "232254e4519a7f97790f36dc1d45e7f6eefa1c795005362740361021ecd2038f",
+    "commitment": "8508c3ec90bb7bc90ed8da672fe270d1eed84a7450011a12e9081bec81028430"
+  },
+  "extractedFieldNames": [
+    "lang"
+  ]
+}

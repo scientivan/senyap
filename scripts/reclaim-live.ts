@@ -28,7 +28,7 @@ const proofs=await new Promise<Proof|Proof[]>((resolve,reject)=>{
 });
 const result:Record<string,unknown>={task:"P6.1",binding,date:new Date().toISOString(),provider:request.getProviderVersion()};
 try{await credentials.verify(sessionId,proofs);result.verified=true;result.receipt=sessions.receipt(sessionId);}
-catch{result.verified=false;}
+catch{result.verified=false;result.rejectedAt=credentials.lastRejection();}
 result.extractedFieldNames=fields;
 await writeFile(`docs/evidence/P6.1-reclaim-live-${binding.network}.json`,JSON.stringify(result,null,2)+"\n");
 console.log(JSON.stringify({verified:result.verified,fields}));sessions.close();process.exit(0);
