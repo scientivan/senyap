@@ -1,0 +1,371 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "edb4251f5687f9d721d167ef36bf69f9b123302c88f1501708a96d7916ec2844",
+  "planSha256": "4c4fcaeee5bf33a54f687f0dd5262065254d1523cad3ab13aa884191f5b73ef3",
+  "status": "completed",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "finalized",
+      "txId": "00ae6e203ebac4a70cea98ce419838a536408fbc5bf4eb7ed0b6011c0786d45d3e"
+    },
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "006bebcea137be47d4500af9c7ba9a1348a94ce1ab1e6e80d53afbf2342b4e5903"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "finalized",
+      "txId": "00e63e3e52aeb0f74706260b5fdb003decace914514601a28628c219d2c7e4fcec"
+    },
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "00bd14958407be05cd07e973194c9eb5b9c6a57b09ade86bd42fd485ee20ee3705"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "00eb10049ba2e48895e021b2dbdf24d0a8fe041d0102d0ce026f4a9fcf6801b52c"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "00355ef69c26e5e67cc2f062c3b3d98ba18726365c3e5cf0355282b092a5cfb4d8"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "00c20cacc6c30c8502ddd4dc6f482966611966897577c9f7f085c5faf2be8ad538"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "0013af56d675d02084c8d223eecb1fcf67020b930f5f5a67f5ad554a14025a45e9"
+    },
+    {
+      "action": "install-verifiers:6",
+      "status": "finalized",
+      "txId": "006921fafe509a1d424d564b0a7b39093991da057d675952414db1b31b5bc5ccb3"
+    },
+    {
+      "action": "stakeOperator",
+      "status": "finalized",
+      "txId": "0071351c7abc4719608779bfc62a14816bbc32bf14c90d21c1e5887e08c8c7c984"
+    },
+    {
+      "action": "stakeOperator",
+      "status": "finalized",
+      "txId": "0058e81b5b271c5454b4a4076eb7386d080b42fd00cf383afad68a47ae73a3b396"
+    },
+    {
+      "action": "stakeOperator",
+      "status": "finalized",
+      "txId": "003acd774accb91a0ef0000b31f5cb63e2b7e1a527244fbef3fa9e3edbf72e9963"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00764a0b6ee86d0946fa2559dcaee4d84fdb0bc8fe897cabb0232f2859e4641af3"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "0037d39282175e6d30c3bc0128614fe65b7da57f6f4b6467391cd5bb09762f8c45"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "005300fca99109db9dc997782748a783adae52d4efe471287a1bcf52273dd550b6"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00a108225d2bd61633236b3eaa03d0ccea9674f4c58bbfe26023194671c5ab0f81"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "0047c771c7d03514a99de0938d347abdd410e1d9c6470513bf211ef6a01708febb"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "005c389f71ee22aaf2eb2c910a50acdbf81e94ac0e2934149473ae10379aff0d9a"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "009aef11a6a4f24cee183dfb3a86f02a024fc5f0fc70b7c938441524ea44c477db"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00faee67f15996402d2ca024e2f48ac8b36156af7136f10e62a5b7a51eefb24657"
+    },
+    {
+      "action": "registerPublicIntent",
+      "status": "finalized",
+      "txId": "0085f330e03046d1eb7d40d915895a9075045ec508dc76ee7f87bac801ccca4426"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00aca6cc1d980bb531b74c197bc8d11db6e1e9b1fc19df40793c382837a68a7a59"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "005cccf2c9638e1c71991a169cc0ab4faafd8059c20470e126452f501facea34c5"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "0048d3c07db28eb9546c36a30a59723a0f1e2ae300f7e1274b52e19d3eaac39d5e"
+    },
+    {
+      "action": "registerPublicIntent",
+      "status": "finalized",
+      "txId": "00cdbbafc5f773fc3e289703789ee6703e0aeb7f5dc8ec369d533a4fc280477cd5"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00ce0de4d684a109cd2d8b63a4d3e9bff88b783a63d08b0715bf6758209ed3e631"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "008a2b6444baa21d2099fd3560e6dec0377b2e95434eed0b107734da7e6ce799c7"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "009a64b2a0e3c105120e90349376df56dde0945a5b329c269abf8d684526a1bbdc"
+    },
+    {
+      "action": "optOutPublicIntent",
+      "status": "finalized",
+      "txId": "00f116e2cff927e3e82feca83b06be74271198eb638114bf22b0a7f8af89c9c302"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00c14487bc0c4338cd30e492d3c5d8168a9c4d015a9acc3d116187835ec43db619"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "002074138eb2065c1a113bd3a2026d95bc88822eed74ca552007d24b2233ca2843"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "005e352efcabb1537e02e2ddde98326d1d4289ab5571a22d8282e4540ac6ed03b3"
+    },
+    {
+      "action": "configureScoutGroup",
+      "status": "finalized",
+      "txId": "0075ddab9441d2b1ecb1f417377cff887f4f13109790a84e72d07098b074940373"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00a2d291ed4112bafc9f58108f5936e59b6eae6aa6555826e411f6bd39a24b4e15"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00f91ca4022fc58a447f15b9a107166ddbcafbc95bafbca66cc75991ab2638349e"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "003117489bf011d64fb469ec1d225f114a1f85d111e1ee782fcbb83fea3b952ae6"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00582c23f903118ed2da60385bf089a2e677d6fe827427593f7899cffd6333c22f"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "005ce97750fe6b65d30d52c554a7e43b4bf0ed3c07134806146315c04766bd5181"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "006beb7f377451480983fa1082cc83e52d06c56605d2fdb33c1f4efe65dfceea0e"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "000d6dc069f89a752c3b90c089742ff0e247b2719ae689577d8ad262489c3940da"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "007f812e04904f0a37d27b65e40bf297a3eef4e8a74336ec459c262ebc0dd40cc9"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00f8b17c52eabffad646b3099e15072ec70569c94f8839f5c9693c3768f2613db3"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "0097b6f6fb688714679830bf338a8a75b5c3895d4f7218a7fa6b2ca0f0075a6e5c"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00855a447d794f22038eadf5c32667650add9e832fb278602f868de2b93ba222bf"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00f4ab21fdc23ca2646a6620428654b38861e90672f210cdc3291d2d6208d4e389"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "001fb29bb3af6009e79cc0e1d3b6d028ad7a7623bbe0aa760568eeac99e32dff1a"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "009c5c43a4a37dcf70dddd280784889aa5eb4355a80e2aac795a9a3337a736ab47"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "0095b598970d3ebc962bfe7976e0be1490026a14357cdcf0523c458b22d082676e"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "00412a30d8515391bc9c828dabe5a3d50694823bfd5f6953777936b038ef049680"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00f17347accaa7ed96984140d8beabb78ed115c4117d803e2fda435187aa844c0f"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "006ca7b18800727b3bcd55d4f55cc9f473e09d9cb28531b28c65460d50a3dab904"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00c508dbdc72929492d9723fd604ff7cade87338c59c9ed38b38de00ab85ae7fca"
+    },
+    {
+      "action": "admitScout",
+      "status": "finalized",
+      "txId": "005bf4b4376f933778bd9b8d7196b643de4c32c369c21fa79ad3a6aff9cb771116"
+    },
+    {
+      "action": "createMarket",
+      "status": "finalized",
+      "txId": "00be11c745fea55f44059e0536121f680ab1876ea69ec1bb2de97490490f90d85e"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00287ff115ae83592d539bfb088aa9005b8c0ee0a7ce2e3c457e42da6933f56361"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "00f5e1fde37207df84a7b5587b879a6bf1b58074ea3d1610423ed5d8e57819de8e"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "007770a312cf70723b0d3446f931f082dcdcef957ce1596e8c87b8b0b73f1fa1ae"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "0007c4cc5941b743cb9925f61d567d5dac26291b94bb3f52f8e493ac608045a036"
+    },
+    {
+      "action": "stake",
+      "status": "finalized",
+      "txId": "0011864e542576b5655bbe65af0d43333cf6010e724036789d6a5a7a41953ee46c"
+    },
+    {
+      "action": "cancelMarket",
+      "status": "finalized",
+      "txId": "00a36efb319f8fe5575ee7da9d0f1be803b9fbb2a168fd32435d48376c793f2a6f"
+    },
+    {
+      "action": "claim",
+      "status": "finalized",
+      "txId": "0025745d654191755e38294c5976656947616848782124fa2de384548bc04ae12c"
+    },
+    {
+      "action": "claim",
+      "status": "finalized",
+      "txId": "00ce92838500853f580684c8f37cd3e194ef9ce06b17facc02ee27cc77047c664d"
+    },
+    {
+      "action": "claim",
+      "status": "finalized",
+      "txId": "0078c56790fa317b57f226ddd50afb0d8d85f96879d7a98a5e4c4d58afea32fa4f"
+    },
+    {
+      "action": "claim",
+      "status": "finalized",
+      "txId": "009656199cc7c8ed5eb026a0be8f0c3357c958c7588cb09643210cac2e2567ce12"
+    },
+    {
+      "action": "claim",
+      "status": "finalized",
+      "txId": "00e634928e26e1bd8de298bcaeb4450a5fc45716e4045c8276a6cea14bde5c636e"
+    },
+    {
+      "action": "stakeCommittee",
+      "status": "finalized",
+      "txId": "00f406894a7aa8b7131e41c0aa7842e63ab0fc48fe3d1bc483a5ff4e896ce71460"
+    },
+    {
+      "action": "exposeLeakedShare",
+      "status": "finalized",
+      "txId": "004d2fea6f9612cee86edf9bef82f4f31cbdb279f935716717de4d2ff3a7812c60"
+    }
+  ],
+  "publicResult": {
+    "lastResourceBudget": {
+      "action": "exposeLeakedShare",
+      "passed": true,
+      "gasCost": "18720000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "38828157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 8372,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "tokenContract": "85483943f3ec64fa850a83d79dcc070cf4dc197599a7574aa98265aa90f4fac5",
+    "token": "ec6f1ac496de1e028a005fdbcc998ce2461c324f28db7c4fd5c56d0ade6a08b2",
+    "contract": "5628f08b91a356b0401371c1c763bc06e6a92982d4797c7fbbd5cfb7728b96a0",
+    "all41VerifiersInstalled": true,
+    "phase": "cancelled",
+    "refunded": "500",
+    "retained": "1750",
+    "publicIntentListed": true,
+    "optedOut": true,
+    "leakedShareSeized": true,
+    "note": "Synthetic local fixture; one funding wallet controls all actors and all operator keys. Proves the mechanism, not independence.",
+    "contractBalance": "1750"
+  }
+}
