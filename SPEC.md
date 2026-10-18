@@ -1,6 +1,6 @@
 # Senyap (Bisik on Midnight): Spesifikasi Lengkap
 
-> Versi 0.14 · 15 Oktober 2026 · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
+> Versi 0.16 · 18 Oktober 2026 (lihat §16) · Status: **SPEC v0.2 disetujui Dien; kartu hibrida, batas total bobot, harga flat per opsi, durasi seleksi/toleransi waktu D-05 sisi B dan subsidi 100% ke basis hadiah scout B disetujui 15 Oktober.**
 > Frontend demo ada di `apps/web`; kontrak grup/registry/market dan dUSD sudah diuji simulator. S5 browser/Lace Preprod lulus; integrasi produk dan layanan belum.
 > Sumber keputusan: living doc Bisik bagian 26 (v0.59), `task-tracker.md`, `AGENTS.md`.
 > Penanda: **[Keputusan Dien]** terkunci; **[Usulan]** rancangan agent yang diterima Dien pada 14 Okt,
@@ -619,3 +619,85 @@ dan collateral verifier 100 dUSD per kasus, tujuh commit pertama dan kuorum lima
 reveal, penalti minoritas 50%/tidak reveal 100%, aturan quorum/tie dan D-05, serta
 settlement menunggu seluruh kasus. Dokumen tersebut menjadi acceptance rinci
 untuk implementasi SPEC v0.15. Belum mengklaim kontrak atau proof terbaru selesai.
+
+## 16. Keputusan 18 Oktober 2026 (Dien): opsi tim, pilihan berbantuan AI, model kepercayaan
+
+Semua butir di bawah disetujui Dien di chat 18 Okt 2026. Bagian ini menjadi sumber
+acuan; tracker, AGENTS, README dan living doc (26.20) hanya merujuk ke sini.
+Persetujuan ini mencakup implementasi kontrak, deploy ulang Preprod dan siklus
+lokal ringkas (D18-11). Transaksi Preprod tetap dilakukan lewat wallet Dien.
+
+**D18-1 Laporan outcome buyer (penjelasan, tanpa perubahan).** Buyer melaporkan
+opsi yang terbukti benar sebelum `outcomeUntil`. Laporan menentukan hit dan hadiah
+scout. Tanpa laporan berlaku D-05 dan standing buyer mencatat missed report.
+
+**D18-2 Tim "public intent".** Selain tim yang mendaftar sendiri, sebuah tim boleh
+menjadi opsi Side A bila ada bukti publik bahwa tim sedang mencari pendanaan
+(halaman accelerator, submisi hackathon, proposal grant publik).
+- Didaftarkan oleh operator (ambang D18-5) dengan hash bukti publik dan URL bukti
+  di metadata. Tidak ada rahasia pemilik.
+- Tim diberi tahu, dapat opt-out kapan saja (opt-out dieksekusi operator dengan
+  ambang yang sama, berlaku untuk market berikutnya), dan dapat mengklaim profil
+  menjadi registrasi biasa.
+- Framing UI: "Recommend a team" dan "most likely to ship", bukan "rate" atau
+  "judge". Pesan inti: rekomendasi dipertaruhkan dengan uang; benar dibayar, hoax
+  dihukum; pick individual tidak pernah dibuka, hanya agregat.
+
+**D18-3 Pilihan berbantuan AI (tanpa jawaban isian on-chain).** Scout boleh
+menulis jawaban bebas, tetapi stake tetap masuk ke opsi bernomor (maksimal 8)
+agar tally terenkripsi dan penentuan hit tetap bekerja.
+- Pencocokan teks ke opsi berjalan di browser scout. Teks scout tidak dikirim ke
+  server mana pun dan tidak dicatat on-chain.
+- Scout selalu mengonfirmasi opsi; AI bukan penentu uang.
+- Bila tidak ada opsi cocok, scout dapat mengusulkan opsi baru (metadata operator,
+  tanpa identitas scout) untuk market berikutnya; usulan tim mengikuti D18-2.
+- Tidak memerlukan perubahan kontrak.
+
+**D18-4 Konsol operator terpisah.** Route `/operator` (bukan bagian `/app`),
+diakses dari landing di kiri "Open app". Wajib connect wallet, lalu dicek apakah
+wallet terdaftar sebagai operator. Wallet belum terdaftar melalui verifikasi
+organisasi (offchain) dan stake. Ada tombol bypass khusus demo. Di produksi
+konsol ini deployment terpisah untuk operator terverifikasi.
+
+**D18-5 Operator multi-pihak 3-dari-5.** Satu operator diganti lima kunci operator
+terdaftar; setiap aksi operator (admisi, registrasi public intent, opt-out, Side B
+market, langkah akhir pencabutan, relay) butuh tiga persetujuan berbeda.
+- Stake operator 500 dUSD; persetujuan yang tidak diberikan sebelum tenggat
+  dipotong 50%.
+- Identitas operator diverifikasi platform tetapi tidak dibuka ke sesama operator.
+
+**D18-6 Committee dengan DKG.** Trusted dealer diganti Pedersen DKG 3-dari-5;
+tidak ada pihak yang pernah memegang kunci utuh. Kontrak tetap menyimpan satu
+kunci publik committee dan komitmen publik per potongan.
+
+**D18-7 Stake dan slash committee.** Stake 500 dUSD per anggota.
+- Absen (tidak memberi potongan/persetujuan sebelum tenggat): potong 50%.
+- Potongan dekripsi salah (gagal bukti DLEQ): potong 100%.
+- Anonim antar-anggota; identitas diverifikasi platform untuk mencegah satu pihak
+  memegang beberapa kursi.
+
+**D18-8 Hadiah pembocor.** Siapa pun yang mengirim potongan rahasia milik anggota
+lain yang cocok dengan komitmen publiknya membuat stake anggota itu disita 100%;
+50% ke pelapor, sisanya ke kas protokol. Ini membuat kolusi berisiko karena setiap
+calon rekan kolusi dapat berkhianat. Batas yang diakui: kebocoran hasil akhir
+tanpa menyerahkan potongan tidak dapat dibuktikan.
+
+**D18-9 Pemilihan committee acak per market (ditunda).** Dicatat untuk Wave 3.
+
+**D18-10 Verifikasi Reclaim tanpa satu pihak.** Langkah pertama: cek ketersediaan
+verifikasi ECDSA secp256k1 di Compact 0.31. Bila tidak tersedia: tiga dari lima
+operator memverifikasi bukti secara terpisah sebelum admisi (D18-5). Provider
+`76afcf07…` tetap dipakai dalam mode "akun saja" (hanya membuktikan akun GitHub
+login, tanpa username); risiko satu akun lolos berkali-kali diakui. Kebijakan
+ketat (username + kontribusi publik >= 50) tetap tersedia untuk provider dengan
+username.
+
+**D18-11 Re-verifikasi.** Kontrak baru diuji dengan siklus lokal ringkas
+(sekitar 25 sampai 30 aksi: deploy, verifier, admisi, registrasi biasa dan public
+intent, opt-out, satu market Side A dengan lima stake sampai settled atau batal,
+serta aksi operator ambang dan slash committee). Siklus 84 aksi r10 tetap bukti
+untuk kontrak sebelumnya. Lalu deploy ulang Preprod.
+
+**D18-12 Frontend.** Halaman Profile per peran; Standing dan Tier pindah ke
+Profile; tab Create market dihapus dari navbar; "Connect wallet" netral merek
+(Lace, 1AM). Penamaan tab navbar ditunda.

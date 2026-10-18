@@ -141,6 +141,19 @@ on the server and must never be placed in `apps/web` or any `VITE_*` variable.
 3. Try the available demo stake, purchase, outcome and claim flows. These change
    demo state only; they are not evidence of contract execution.
 
+## Trust model (current and decided)
+
+| Role | Today | Decided next (SPEC §16) |
+| --- | --- | --- |
+| Operator | one key: admissions, Side B markets, final revocation step | five registered operators, 3-of-5 approval, 500 dUSD stake, slash for missed deadlines |
+| Decryption committee | 3-of-5 threshold, trusted-dealer key, no stake | Pedersen DKG, 500 dUSD stake, slash for absence or invalid shares, reward for exposing a leaked share |
+| Dispute jury | anonymous commit-reveal, 100 dUSD bond, minority slashed | unchanged |
+
+Today the operator is a single trusted party. It cannot see scout picks or move
+funds, but it can refuse or wrongly admit participants. Committee members are not
+staked yet. Collusion that only leaks a final total, without handing over a key
+share, cannot be proven on chain.
+
 ## Preprod deployment (18 Oct 2026)
 
 | Item | Value |
