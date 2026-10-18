@@ -54,8 +54,8 @@ export function Header() {
         </nav>
         <div className="hdr-actions">
           <span className="hdr-team">
-            <Button href="/app/registry" variant="secondary" tone={light ? "light" : "dark"} size="sm">
-              Register a team
+            <Button href="/operator" variant="secondary" tone={light ? "light" : "dark"} size="sm">
+              Operator console
             </Button>
           </span>
           <Button href="/app" size="sm" arrow>

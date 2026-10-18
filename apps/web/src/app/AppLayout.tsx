@@ -11,9 +11,9 @@ export const roles: { id: Role; label: string; does: string }[] = [
   { id: "ecosystem", label: "Ecosystem", does: "Buy signals about teams" },
   { id: "builder", label: "Builder", does: "Find a fair ecosystem" },
   { id: "scout", label: "Scout", does: "Back teams privately" },
-  { id: "operator", label: "Operator", does: "Run Senyap" },
 ];
 
+export const operatorRole = { id: "operator" as Role, label: "Operator", does: "Run Senyap" };
 export const menus: Record<Role, { to: string; label: string }[]> = {
   ecosystem: [
     { to: "/app", label: "Home" },
@@ -33,8 +33,8 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
   ],
   operator: [
     { to: "/app", label: "Home" },
-    { to: "/app/operator", label: "Verifications" },
-    { to: "/app/committee", label: "Committee" },
+    { to: "/operator/verifications", label: "Verifications" },
+    { to: "/operator/committee", label: "Committee" },
     { to: "/app/verify", label: "Disputes" },
     { to: "/app/markets", label: "Markets" },
   ],
@@ -63,7 +63,9 @@ export function AppLayout() {
   }, []);
 
   const live=loc.pathname.startsWith("/app/preprod");
-  const current = roles.find((r) => r.id === role)!;
+  const current = roles.find((r) => r.id === role) ?? roles[0];
+  // Operator lives at /operator; the user app never runs in the operator role.
+  useEffect(() => { if (role === "operator") setRole("ecosystem"); }, [role, setRole]);
 
   return (
     <div className="app">

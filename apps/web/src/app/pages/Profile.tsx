@@ -5,14 +5,14 @@ import { Link } from "react-router-dom";
 import { useStore } from "../data/store";
 import { Card, Note, PageHead, RoleIcon } from "../ui";
 import { NETWORK_ID, short, useWallet } from "../wallet";
-import { roles } from "../AppLayout";
+import { operatorRole, roles } from "../AppLayout";
 import { Tier } from "./Scout";
 import { Standing } from "./Other";
 
 function Identity() {
   const s = useStore();
   const { state } = useWallet();
-  const role = roles.find((r) => r.id === s.role)!;
+  const role = ([...roles, operatorRole].find((r) => r.id === s.role) ?? roles[0]);
   const connected = state.status === "connected";
   return (
     <div className="grid3">
@@ -86,10 +86,10 @@ function OperatorProfile() {
   return (
     <div className="grid2">
       <Card title="Operator duties" sub="Verify credentials, admit buyers, open Side B markets and relay approvals.">
-        <Link to="/app/operator" className="abtn abtn-soft">Open verification queue</Link>
+        <Link to="/operator/verifications" className="abtn abtn-soft">Open verification queue</Link>
       </Card>
       <Card title="Decryption committee" sub="Five members, three needed to reveal any total.">
-        <Link to="/app/committee" className="abtn abtn-soft">Committee status</Link>
+        <Link to="/operator/committee" className="abtn abtn-soft">Committee status</Link>
       </Card>
     </div>
   );

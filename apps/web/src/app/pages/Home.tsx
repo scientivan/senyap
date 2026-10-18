@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { timeLeft, useStore } from "../data/store";
 import type { Market, Role } from "../data/types";
 import { Card, Histogram, PageHead, PhaseChip, SideChip } from "../ui";
-import { roles } from "../AppLayout";
+import { operatorRole, roles } from "../AppLayout";
 
 const greet: Record<Role, { title: string; sub: string }> = {
   ecosystem: { title: "Your markets and bids", sub: "Signals about registered teams, bought as totals. Rival ecosystems never see who you are or what you bid." },
@@ -75,7 +75,7 @@ function Standing({ role }: { role: Role }) {
       </Card>
     );
   }
-  const r = roles.find((x) => x.id === role)!;
+  const r = ([...roles, operatorRole].find((x) => x.id === role) ?? roles[0]);
   return (
     <Card title={role === "ecosystem" ? "Good standing" : "Your builder profile"} sub={r.does} className="dark">
       <div className="stats">

@@ -234,10 +234,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         { id: "reg", role: r, title: "Register your team to be scouted", detail: "Ecosystems can only ask about teams that opted in.", href: "/app/registry", action: "Register", tone: "normal" },
       ];
     return [
-      { id: "v1", role: r, title: "3 scout credentials waiting for verification", detail: "Check the private GitHub proofs, then add commitments to tier groups.", href: "/app/operator", action: "Review", tone: "urgent" },
-      { id: "v2", role: r, title: "1 buyer application waiting", detail: "Verify the organisation offchain, then admit it to good standing.", href: "/app/operator", action: "Review", tone: "normal" },
-      { id: "c1", role: r, title: "Committee preview pending for market #11", detail: "2 of 3 approvals posted for the strength histogram.", href: "/app/committee", action: "Check", tone: "normal" },
-      { id: "d1", role: r, title: "Hoax dispute on market #9 needs verifiers", detail: "Commit phase ends in 5 hours.", href: "/app/verify", action: "Open", tone: "normal" },
+      { id: "v1", role: r, title: "3 scout credentials waiting for verification", detail: "Check the private GitHub proofs, then add commitments to tier groups.", href: "/operator/verifications", action: "Review", tone: "urgent" },
+      { id: "v2", role: r, title: "1 buyer application waiting", detail: "Verify the organisation offchain, then admit it to good standing.", href: "/operator/verifications", action: "Review", tone: "normal" },
+      { id: "c1", role: r, title: "Committee preview pending for market #11", detail: "2 of 3 approvals posted for the strength histogram.", href: "/operator/committee", action: "Check", tone: "normal" },
+      { id: "d1", role: r, title: "Hoax dispute on market #9 needs verifiers", detail: "Commit phase ends in 5 hours.", href: "/operator/disputes", action: "Open", tone: "normal" },
     ];
   };
 

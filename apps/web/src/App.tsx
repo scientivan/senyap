@@ -5,6 +5,7 @@ import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { Bento, Close, Midnight, Notes, Privacy, Sides } from "./components/Sections";
 import { AppLayout } from "./app/AppLayout";
+import { OperatorLayout } from "./app/OperatorLayout";
 import { StoreProvider } from "./app/data/store";
 import { WalletProvider } from "./app/wallet";
 import { Home } from "./app/pages/Home";
@@ -49,14 +50,26 @@ const router = createBrowserRouter([
       { path: "tier", element: <Navigate to="/app/profile" replace /> },
       { path: "registry", element: <Registry /> },
       { path: "profile", element: <Profile /> },
-      { path: "operator", element: <Operator /> },
-      { path: "committee", element: <Committee /> },
+      { path: "operator", element: <Navigate to="/operator/verifications" replace /> },
+      { path: "committee", element: <Navigate to="/operator/committee" replace /> },
       { path: "verify", element: <Verify /> },
       { path: "faucet", element: <Faucet /> },
       { path: "guide", element: <Guide /> },
       { path: "workspace", element: <Workspace /> },
       { path: "preprod", element: <Suspense fallback={<p role="status">Opening Preprod workspace</p>}><LiveWorkspace/></Suspense> },
       { path: "*", element: <Navigate to="/app" replace /> },
+    ],
+  },
+  {
+    path: "/operator",
+    element: <OperatorLayout />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: "verifications", element: <Operator /> },
+      { path: "committee", element: <Committee /> },
+      { path: "disputes", element: <Verify /> },
+      { path: "markets", element: <Markets /> },
+      { path: "*", element: <Navigate to="/operator" replace /> },
     ],
   },
   { path: "*", element: <Navigate to="/" replace /> },
