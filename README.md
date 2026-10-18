@@ -191,6 +191,16 @@ relay: three operator votes, then `createSideBMarket`, four finalized transactio
 server-side; the browser wallet only pays and submits. `/operator/registry` reads
 seats, stakes, approvals and markets live from Preprod.
 
+**Finding from the Preprod run: the 60-second vote window is too tight.**
+`voteOperatorAction` only accepts a vote whose timestamp is at most about 60 s older
+than the including block, and the prover rejects future timestamps. When the 1AM
+wallet took about a minute to balance a transaction (its DUST fee sponsor appeared
+to be offline), every vote failed (node error 1010 / custom error 104, or
+`FailFallible`) however quickly it was approved. A real operator on a slow wallet
+would miss votes and risk the missed-vote slash. Next version: a much longer vote
+window (minutes, not seconds) or a timestamp taken from the block itself. The
+window is sealed in the current deployment, so this needs a redeploy.
+
 A live Reclaim GitHub proof, bound to this contract, a session nonce and a one-time
 session, passed attestor and TEE verification
 ([evidence](docs/evidence/P6.1-reclaim-live-preprod.json)).
