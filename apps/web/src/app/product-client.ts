@@ -10,6 +10,7 @@ import { getNetworkId, setNetworkId } from "@midnight-ntwrk/midnight-js-network-
 import { submitCallTx, verifyContractState, type ContractProviders } from "@midnight-ntwrk/midnight-js-contracts";
 import { FetchZkConfigProvider } from "@midnight-ntwrk/midnight-js-fetch-zk-config-provider";
 import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
+import { httpClientProvingProvider } from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
 import { Contract, ledger } from "../../../../contracts/managed/senyap/contract/index.js";
 import { clientWitnesses, type ClientPrivateState } from "@senyap/sdk/client-state";
 import { executeClientOperation, reconcileClientOperation } from "@senyap/sdk/operation";
@@ -48,7 +49,11 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
   const compiledContract=CompiledContract.make("Senyap",Contract<ClientPrivateState>).pipe(CompiledContract.withWitnesses(clientWitnesses),CompiledContract.withCompiledFileAssets(assetsPath));
   type Circuit=keyof ProductContract["impureCircuits"];
   const zk=new FetchZkConfigProvider<Circuit>(`${location.origin}${assetsPath}`,fetch.bind(window));
-  const proving=await api.getProvingProvider(zk),addresses=await api.getShieldedAddresses();
+  // Heavy circuits (stake) fail in the wallet's in-browser prover. On the dev server
+  // a local Midnight proof server proves instead (VITE_SENYAP_PROOF_SERVER=1, proxied
+  // at /__proof); the wallet still balances, signs and pays.
+  const localProver=(import.meta as unknown as {env?:Record<string,string|undefined>}).env?.VITE_SENYAP_PROOF_SERVER==="1";
+  const proving=localProver?httpClientProvingProvider(`${location.origin}/__proof`,zk):await api.getProvingProvider(zk),addresses=await api.getShieldedAddresses();
   // Some wallets still report the decommissioned Preprod indexer. On the dev server
   // with the Preprod proxy (VITE_SENYAP_INDEXER_PROXY=1) use /__bf, which adds the
   // Blockfrost token server-side.

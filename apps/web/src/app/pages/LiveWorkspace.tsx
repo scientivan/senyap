@@ -45,6 +45,10 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
   // Read live markets as soon as wallet and vault are both ready.
   useEffect(()=>{if(canOpen&&!view&&!busy)refresh();// eslint-disable-line react-hooks/exhaustive-deps
   },[canOpen]);
+  // A market created after the vault view loaded: refresh once so it appears.
+  const refreshedFor=useRef<string|null>(null);
+  useEffect(()=>{if(section==="act"&&market&&view&&!busy&&!view.markets.some(m=>String(m.id)===market)&&refreshedFor.current!==market){refreshedFor.current=market;refresh();}// eslint-disable-line react-hooks/exhaustive-deps
+  },[section,market,view]);
   // Every refreshed view may follow a vault change (new pick, purchase); upload it encrypted.
   useEffect(()=>{if(view)syncNow().catch(()=>undefined);},[view]);
   const team=section==="team",act=section==="act",activity=section==="activity",purchases=section==="purchases",disputes=section==="disputes";
