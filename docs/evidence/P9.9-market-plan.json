@@ -1,0 +1,35 @@
+{
+  "network": "preprod",
+  "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
+  "id": "1",
+  "question": "Which ecosystem programme is most likely to fund a privacy-preserving hiring app in the next quarter?",
+  "options": [
+    "Midnight Foundation grants",
+    "Cardano Catalyst",
+    "Independent privacy fund"
+  ],
+  "config": {
+    "subjective": false,
+    "side": "1",
+    "category": "0d324b27cbde19f83d70908b7ad974c9a57ab5acc85afb46b569792f1c6381c0",
+    "questionHash": "f70e3da5fb55f357ac69f370193e7801da1fdec10a5740ea33e158417e5bd399",
+    "questionUri": "senyap://preprod/market/1",
+    "nOptions": "3",
+    "optionRefs": [
+      "af5eb3879db45a448cdb3b7b2fdb2063832f67f0f32a742070b87306953e4611",
+      "859f6d0f8b598931a2ce3adcbf91caccbd71128e41b3e853edd1ab465dc8f0b6",
+      "d5a3b6a726f3b0fd07de0780120229b8cb2c321393dc0ca08a85b5b0bb04508e",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "openAt": "1792315319",
+    "openUntil": "1792488239",
+    "auctionUntil": "1792488239",
+    "outcomeUntil": "1792747439",
+    "flatPrice": "10",
+    "reservePrice": "0"
+  }
+}

@@ -20,3 +20,6 @@ for(const directory of ["keys","zkir"])await mkdir(`${destination}/${directory}`
 for(const file of files){await rm(`${destination}/${file.name}`,{force:true});await link(`${source}/${file.name}`,`${destination}/${file.name}`).catch(()=>copyFile(`${source}/${file.name}`,`${destination}/${file.name}`));if((await stat(`${destination}/${file.name}`)).size!==file.bytes)throw Error("Public artifact copy failed");}
 await writeFile(`${destination}/manifest.json`,JSON.stringify({sourceSha256,circuits:circuits.length,files},null,2)+"\n");
 console.log(`Prepared ${circuits.length} public circuit artifact sets. No deployment or transaction.`);
+// P9.8: public Preprod deployment identifiers for the operator console registry view.
+const deploy=JSON.parse(await readFile("docs/evidence/P9.7-preprod-deploy-journal.json","utf8").catch(()=>"null"));
+if(deploy?.status==="completed")await writeFile("apps/web/public/contracts/preprod-deployment.json",JSON.stringify({network:deploy.network,contract:deploy.contract,token:deploy.token,journal:"docs/evidence/P9.7-preprod-deploy-journal.json"},null,2)+"\n");

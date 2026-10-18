@@ -176,5 +176,21 @@ export async function prepare(walletId?:string){
       for(let m=0;m<5;m++)await stake(`stake-committee:${m}`,()=>found.callTx.stakeCommittee(BigInt(m),500n));
       progress.stage="staked";remember();return structuredClone(progress);
     },
+    /** P9.9: the operator relay proves a vote or the market creation; this wallet only pays and submits. */
+    async relay(kind:"vote"|"create",member?:number){
+      const contract=progress.contract;if(!contract)throw Error("Deploy first.");
+      const action=kind==="vote"?`market-vote:${member}`:"market-create";if(done(action))return structuredClone(progress);
+      const p=providers<string>("/contracts/senyap");
+      await step(action,async()=>{
+        const r=await fetch("/__relay/prove",{method:"POST",headers:{"content-type":"application/json"},
+          body:JSON.stringify({step:kind,member,coinPublicKey:addresses.shieldedCoinPublicKey,encryptionPublicKey:addresses.shieldedEncryptionPublicKey})});
+        const out=await r.json() as {tx?:string;error?:string};if(!r.ok||!out.tx)throw Error(out.error??"Relay failed");
+        const balanced=await p.walletProvider.balanceTx(Transaction.deserialize("signature","proof","pre-binding",fromHex(out.tx)) as never);
+        const id=await p.midnightProvider.submitTx(balanced);
+        const data=await p.publicDataProvider.watchForTxData(id) as {status:string};if(data.status!=="SucceedEntirely")throw Error(data.status);
+        return data;
+      });
+      if(kind==="create")progress.stage="market-created";remember();return structuredClone(progress);
+    },
   };
 }

@@ -11,6 +11,7 @@ import "./app.css";
 
 const menu = [
   { to: "/operator", label: "Overview" },
+  { to: "/operator/registry", label: "Registry" },
   { to: "/operator/verifications", label: "Verifications" },
   { to: "/operator/committee", label: "Committee" },
   { to: "/operator/disputes", label: "Disputes" },

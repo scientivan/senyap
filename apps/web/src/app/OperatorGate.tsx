@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 // Operator access gate (demo). A wallet must be connected, then it must be a
 // registered operator. Unregistered wallets go through verification and stake.
-// The registry here is a local demo list; the planned contract keeps operator
-// commitments, stakes and the 3-of-5 approval threshold on chain.
+// A seat holder can also unlock the console by proving locally that its seat key
+// hashes to an on-chain operator commitment (P9.8). Applications stay a local demo list.
 import { useState, type ReactNode } from "react";
+import { readRegistry, seatFor } from "./onchain-registry";
 import { useWallet, short, NETWORK_ID } from "./wallet";
 import { Card, Note, PageHead } from "./ui";
 
 const KEY = "senyap-demo-operators";
 const STAKE = 500;
-type Entry = { address: string; status: "pending" | "active"; stake: number; via: "verified" | "demo-bypass" };
+type Entry = { address: string; status: "pending" | "active"; stake: number; via: "verified" | "demo-bypass" | "seat-key"; seat?: number };
 const load = (): Entry[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? "[]"); } catch { return []; } };
 const save = (list: Entry[]) => { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* demo only */ } };
 
@@ -18,6 +19,8 @@ export function OperatorGate({ children }: { children: ReactNode }) {
   const [list, setList] = useState<Entry[]>(load);
   const [form, setForm] = useState({ org: "", jurisdiction: "", contact: "", agree: false, stake: false });
   const [err, setErr] = useState<string | null>(null);
+  const [seatKey, setSeatKey] = useState("");
+  const [seatMsg, setSeatMsg] = useState<string | null>(null);
 
   if (state.status !== "connected") {
     return (
@@ -44,6 +47,24 @@ export function OperatorGate({ children }: { children: ReactNode }) {
     save(next); setList(next);
   };
   if (me?.status === "active") return <>{children}</>;
+  // The seat key is hashed in this tab, compared with the chain and then dropped.
+  const checkSeat = async () => {
+    setSeatMsg("Reading operator seats from Preprod.");
+    try {
+      const seat = seatFor(await readRegistry(), seatKey);
+      setSeatKey("");
+      if (seat === undefined) return setSeatMsg("This key does not match any operator seat on chain.");
+      const next = [...list.filter((e) => e.address !== state.address), { address: state.address, status: "active" as const, stake: STAKE, via: "seat-key" as const, seat }];
+      save(next); setList(next);
+    } catch (e) { setSeatMsg(e instanceof Error ? e.message : String(e)); }
+  };
+  const seatCard = (
+    <Card title="Already hold an operator seat?" sub="Paste your seat key. It is hashed in this tab and compared with the operator commitments on Preprod. It is never sent or stored.">
+      <div className="field"><label htmlFor="op-seat">Seat key</label><input id="op-seat" type="password" autoComplete="off" className="inp" value={seatKey} onChange={(e) => setSeatKey(e.target.value)} /></div>
+      <button type="button" className="abtn abtn-soft mt16" disabled={!seatKey.trim()} onClick={checkSeat}>Check seat on chain</button>
+      {seatMsg && <p className="muted2 mt16" role="status">{seatMsg}</p>}
+    </Card>
+  );
 
   if (me?.status === "pending") {
     return (
@@ -84,7 +105,10 @@ export function OperatorGate({ children }: { children: ReactNode }) {
             </div>
           </form>
         </Card>
-        <Note title="Demo registry.">This demo keeps applications in your browser and moves no dUSD. The planned contract records operator keys, stakes and the three-of-five approval threshold on chain.</Note>
+        <div className="stack">
+          {seatCard}
+          <Note title="Applications are a demo list.">New applications stay in your browser and move no dUSD. Seats, stakes and the three-of-five approval rule are live on the Preprod contract (see Registry).</Note>
+        </div>
       </div>
     </>
   );

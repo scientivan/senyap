@@ -12,5 +12,7 @@ export function preprodProxy():Record<string,ProxyOptions>{
   return {
     "/__bf/indexer":{target:"https://midnight-preprod.blockfrost.io",changeOrigin:true,rewrite:()=>`/api/v0?${q}`},
     "/__bf/ws":{target:"wss://midnight-preprod.blockfrost.io",changeOrigin:true,ws:true,rewrite:()=>`/api/v0/ws?${q}`},
+    // P9.9 operator relay (scripts/preprod-operator-relay.ts): proves operator calls server-side.
+    "/__relay":{target:"http://127.0.0.1:3110",rewrite:(path)=>path.replace(/^\/__relay/,"")},
   };
 }

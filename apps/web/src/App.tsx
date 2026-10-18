@@ -6,6 +6,7 @@ import { HowItWorks } from "./components/HowItWorks";
 import { Bento, Close, Midnight, Notes, Privacy, Sides } from "./components/Sections";
 import { AppLayout } from "./app/AppLayout";
 import { OperatorLayout } from "./app/OperatorLayout";
+const OperatorRegistry=lazy(()=>import("./app/pages/OperatorRegistry").then(module=>({default:module.OperatorRegistry})));
 import { StoreProvider } from "./app/data/store";
 import { WalletProvider } from "./app/wallet";
 import { Home } from "./app/pages/Home";
@@ -65,6 +66,7 @@ const router = createBrowserRouter([
     element: <OperatorLayout />,
     children: [
       { index: true, element: <Home /> },
+      { path: "registry", element: <Suspense fallback={null}><OperatorRegistry /></Suspense> },
       { path: "verifications", element: <Operator /> },
       { path: "committee", element: <Committee /> },
       { path: "disputes", element: <Verify /> },
