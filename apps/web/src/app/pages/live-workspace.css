@@ -28,3 +28,33 @@
 .live-gate-ic { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--night); color: var(--gold); }
 .live-gate-ic svg { width: 26px; height: 26px; }
 .live-gate-card p, .vault-card .vault-intro { text-align: center; }
+
+/* App art style for vault views (18 Oct): same page head, cards, stats and controls as the rest of /app. */
+.live-workspace:has(.ph) { max-width: none; padding: 0; }
+.live-workspace .ph h1 { font: var(--w-display) 26px/1.15 var(--font); letter-spacing: -0.025em; margin: 0; text-align: left; }
+.live-workspace .ph .chip { display: inline-flex; align-items: center; gap: 6px; }
+.live-workspace .ph .chip svg { width: 14px; height: 14px; }
+.live-markets { display: grid; gap: 16px; margin-top: 0; }
+.live-market.acard { padding: 18px; border-bottom: 1px solid var(--line); }
+.live-market .acard-head h2 { font-size: 17px; font-weight: 700; margin: 0; }
+.live-stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom: 14px; }
+.live-market > section, .live-market > div:not(.acard-head):not(.stats) { margin-top: 12px; padding: 16px; border-radius: 12px; background: var(--panel); }
+.live-market h3, .live-market > section h2 { font-size: 15px; font-weight: 700; margin: 0 0 8px; }
+.live-market p { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+.live-action-tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--r-pill); background: var(--white); margin-bottom: 12px; }
+.live-action-tabs button { height: 32px; padding: 0 14px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--ink-2); font: var(--w-ui) 13px/1 var(--font); cursor: pointer; }
+.live-action-tabs button[aria-pressed="true"], .live-action-tabs button[aria-selected="true"] { background: var(--night); color: var(--on-night); }
+.live-choice { display: grid; gap: 8px; margin: 8px 0 12px; }
+.live-choice label { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; background: var(--white); border: 1px solid var(--line); font-weight: 600; cursor: pointer; }
+.live-stake-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 10px 0; }
+.live-stake-summary > div { padding: 10px 12px; border-radius: 10px; background: var(--white); }
+.live-stake-summary dt { font-size: 12px; color: var(--ink-2); }
+.live-stake-summary dd { margin: 2px 0 0; font-weight: 700; }
+.live-market input:not([type="radio"]):not([type="checkbox"]), .live-market textarea, .live-market select { width: 100%; min-height: 38px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); font: inherit; }
+.live-market label { font-size: 13px; font-weight: 600; }
+.live-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.live-review { padding: 12px 14px; border-radius: 10px; background: var(--white); border: 1px solid var(--line); }
+.acard.live-note { background: var(--panel); margin: 0 0 16px; }
+.acard.live-note h2 { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+.acard.live-note p { font-size: 14px; color: var(--ink-2); margin: 0 0 10px; }
+.live-builder { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 18px; margin-bottom: 16px; } .live-builder h2 { font-size: 17px; font-weight: 700; }
