@@ -76,7 +76,7 @@ pnpm build
 ### Preprod transaction evidence
 
 <!-- preprod-evidence:start -->
-**77 finalized calls on the Preprod contract** (deploy 1, maintenance update 7, stakeOperator 3, stakeCommittee 5, voteOperatorAction 30, createSideBMarket 3, configureScoutGroup 1, admitScout 5, stake 10, admitBuyer 1, close 1, postPreview 3, buyFlat 1, recordOutcome 1, proveHit 5). Full list with hashes: [docs/evidence/PREPROD-EVIDENCE.md](docs/evidence/PREPROD-EVIDENCE.md).
+**82 finalized calls on the Preprod contract** (deploy 1, maintenance update 7, stakeOperator 3, stakeCommittee 5, voteOperatorAction 30, createSideBMarket 3, configureScoutGroup 1, admitScout 5, stake 10, admitBuyer 1, close 1, postPreview 3, buyFlat 1, recordOutcome 1, proveHit 5, claim 5). Full list with hashes: [docs/evidence/PREPROD-EVIDENCE.md](docs/evidence/PREPROD-EVIDENCE.md).
 
 | Step | First transaction hash | Block |
 | --- | --- | --- |
@@ -87,6 +87,7 @@ pnpm build
 | buyFlat | `af89b18c43a93a17f21e61662d2bc14aa012a675b21134478595e6554c2cc95e` | 3037495 |
 | recordOutcome | `e38d5b1a0719d883d51b79df6a199b936df5ed264a4ffda9aef42a55c339bcb4` | 3037504 |
 | proveHit | `10f50a79fd530e2b272ed13d92041ef0da029b516745fc57d3a0f1a19f7e485b` | 3037580 |
+| claim | `7a4bfbee6c27585dac8c162934a285aa5c618ea00225732cd3a972db801e09ce` | 3037876 |
 <!-- preprod-evidence:end -->
 
 ### The vault and encrypted sync

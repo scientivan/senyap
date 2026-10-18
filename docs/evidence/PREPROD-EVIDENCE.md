@@ -1,6 +1,6 @@
 # Senyap on Midnight Preprod: transaction evidence
 
-Contract `a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9` on Midnight Preprod. Every row is a finalized call read from the Blockfrost Midnight indexer (`contract(address).actions`), exported 2026-10-18T17:14:23.092Z. Total 77 contract calls.
+Contract `a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9` on Midnight Preprod. Every row is a finalized call read from the Blockfrost Midnight indexer (`contract(address).actions`), exported 2026-10-18T17:42:07.365Z. Total 82 contract calls.
 
 The demo dUSD token contract is `e5ac20e387eb75b7357f19a309e8826e2849f60e1d63208d4514a8f3d716681e` (deploy and mint transactions are in [the deploy journal](P9.7-preprod-deploy-journal.json)).
 
@@ -127,7 +127,7 @@ Buyer buys a signal and reports the outcome.
 | buyFlat | `af89b18c43a93a17f21e61662d2bc14aa012a675b21134478595e6554c2cc95e` | 3037495 | 2026-10-18 17:00:06 |
 | recordOutcome | `e38d5b1a0719d883d51b79df6a199b936df5ed264a4ffda9aef42a55c339bcb4` | 3037504 | 2026-10-18 17:01:00 |
 
-## Hits and claims (5)
+## Hits and claims (10)
 
 Winning scouts prove a hit without revealing their pick, then claim.
 
@@ -138,3 +138,8 @@ Winning scouts prove a hit without revealing their pick, then claim.
 | proveHit | `78bc1b8ce3f033c8a19c5ff2eaeb62b721fe13841e4629b2a1b79077f436df8b` | 3037596 | 2026-10-18 17:10:12 |
 | proveHit | `81ca431dd4bc028821e4a854fe06b3009a9bdcf68b063ae4ec03a389c082f8fb` | 3037604 | 2026-10-18 17:11:00 |
 | proveHit | `99140ff886db6a1346d42cfdf57697d60a5f704ce07cc0fed355be1e7bedef9a` | 3037612 | 2026-10-18 17:11:48 |
+| claim | `7a4bfbee6c27585dac8c162934a285aa5c618ea00225732cd3a972db801e09ce` | 3037876 | 2026-10-18 17:38:12 |
+| claim | `81f9ae8f34243ccb85f2e09f96f97c233b9c71c83ee45195025b7ef258c932ce` | 3037884 | 2026-10-18 17:39:00 |
+| claim | `c2d68ea60af1601984015469de77a40be9ffb9e133da21576bfd5b4544ba933e` | 3037892 | 2026-10-18 17:39:48 |
+| claim | `c19185149479f9e7a284454509f502e1ddd40a24032a33d7811fcc0fdae1365f` | 3037901 | 2026-10-18 17:40:42 |
+| claim | `1a92304c8f949b58f9ca8f0a7c687b60c998e3eebec11fa7424d7daf679e583f` | 3037909 | 2026-10-18 17:41:30 |

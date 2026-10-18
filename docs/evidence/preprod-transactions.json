@@ -2,8 +2,8 @@
   "network": "preprod",
   "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
   "source": "Blockfrost Midnight indexer, contract(address).actions",
-  "exportedAt": "2026-10-18T17:14:23.092Z",
-  "total": 77,
+  "exportedAt": "2026-10-18T17:42:07.365Z",
+  "total": 82,
   "byCall": {
     "deploy": 1,
     "maintenance update": 7,
@@ -19,7 +19,8 @@
     "postPreview": 3,
     "buyFlat": 1,
     "recordOutcome": 1,
-    "proveHit": 5
+    "proveHit": 5,
+    "claim": 5
   },
   "transactions": [
     {
@@ -483,6 +484,36 @@
       "transactionHash": "99140ff886db6a1346d42cfdf57697d60a5f704ce07cc0fed355be1e7bedef9a",
       "block": 3037612,
       "time": "2026-10-18T17:11:48.000Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "7a4bfbee6c27585dac8c162934a285aa5c618ea00225732cd3a972db801e09ce",
+      "block": 3037876,
+      "time": "2026-10-18T17:38:12.000Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "81f9ae8f34243ccb85f2e09f96f97c233b9c71c83ee45195025b7ef258c932ce",
+      "block": 3037884,
+      "time": "2026-10-18T17:39:00.001Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "c2d68ea60af1601984015469de77a40be9ffb9e133da21576bfd5b4544ba933e",
+      "block": 3037892,
+      "time": "2026-10-18T17:39:48.000Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "c19185149479f9e7a284454509f502e1ddd40a24032a33d7811fcc0fdae1365f",
+      "block": 3037901,
+      "time": "2026-10-18T17:40:42.000Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "1a92304c8f949b58f9ca8f0a7c687b60c998e3eebec11fa7424d7daf679e583f",
+      "block": 3037909,
+      "time": "2026-10-18T17:41:30.000Z"
     }
   ]
 }

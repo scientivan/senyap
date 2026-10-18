@@ -2,13 +2,13 @@
   "plan": {
     "version": 1,
     "network": "undeployed",
-    "sourceSha256": "4f1b33904be6e52c1587729cde56b8220ff6bea2563cb3013b22353ed14dc083",
+    "sourceSha256": "edb4251f5687f9d721d167ef36bf69f9b123302c88f1501708a96d7916ec2844",
     "codeSha256": {
-      "runner": "dbc99270f1462b50e94381ed31158b16ff8966b3c3123b3d9c679da088d23865",
-      "scenario": "76fcdec7ac3a49760ad3224899542a12e6392230cbd8d30c3c87e3176d8980ab",
-      "journal": "bd76a6a3d33475d40997c29b14813006af12eaedd75bcc821bc7090b5275da37",
+      "runner": "4c67c3876530b1bc842852febefe130adb306a8f30ad9cc8964b45bc6f7a4e9f",
+      "scenario": "a02eedad7611476c5e5bb081d57d00befbf22bd2007da8ab25dbf593e5a6f837",
+      "journal": "e171abe392aaea08e1a322baa53831adedf70f60139543478a9af5bcb6ebd718",
       "walletBalance": "870a19ae1f77d725d23c50e35a5300f6733aa507ae624519b5c889f12dc0f3ee",
-      "stagedDeployment": "37378b070037f0554895a6b9296eea95b6e8dfa73f372a5a8eded3ba76055a5f",
+      "stagedDeployment": "51986f7a5dcfff3a322ae1cde9c918688f5bfd0ac1a723903fbabe675248fbcd",
       "resourceGate": "fc97fcbc94c41aec763b086a316bb7e510e4f83c1b844ca70a4f9a129c6cdd9b",
       "token": "26793ddd8db8b22f8fec5dfe7e1641950e516530cf68eb5eada0f4a9c2c8d7e4"
     },
@@ -18,15 +18,49 @@
     ],
     "mint": "5000",
     "circuits": [
-      "admitBuyer",
+      "stakeOperator",
+      "stakeOperator",
+      "stakeOperator",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
       "admitBuyer",
       "registerBuilder",
-      "registerBuilder",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "registerPublicIntent",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "registerPublicIntent",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "optOutPublicIntent",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
       "configureScoutGroup",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
       "admitScout",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
       "admitScout",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
       "admitScout",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
       "admitScout",
+      "voteOperatorAction",
+      "voteOperatorAction",
+      "voteOperatorAction",
       "admitScout",
       "createMarket",
       "stake",
@@ -34,121 +68,81 @@
       "stake",
       "stake",
       "stake",
-      "configureScoutGroup",
-      "admitScout",
-      "admitScout",
-      "admitScout",
-      "admitScout",
-      "admitScout",
-      "createSideBMarket",
-      "stake",
-      "stake",
-      "stake",
-      "stake",
-      "stake",
-      "close",
-      "postPreview",
-      "postPreview",
-      "postPreview",
-      "placeBid",
-      "placeBid",
-      "close",
-      "postPreview",
-      "postPreview",
-      "postPreview",
-      "postAuctionResult",
-      "postAuctionResult",
-      "postAuctionResult",
-      "settleBid",
-      "selectHidden",
-      "settleBid",
-      "selectHidden",
-      "buyFlat",
-      "buyFlat",
-      "recordOutcome",
-      "recordOutcome",
-      "allocateSubsidy",
-      "recordOutcome",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
-      "proveHit",
+      "cancelMarket",
       "claim",
       "claim",
       "claim",
       "claim",
       "claim",
-      "claim",
-      "claim",
-      "claim",
-      "claim",
-      "claim"
+      "stakeCommittee",
+      "exposeLeakedShare"
     ],
-    "transactionCount": 84,
+    "transactionCount": 67,
     "deploymentPackaging": {
       "batches": [
         [
+          "voteOperatorAction",
+          "stakeOperator",
+          "slashMissedOperator",
           "configureScoutGroup",
           "admitScout",
           "scoutPseudonym",
           "approveRevocation",
-          "revokeMember",
+          "revokeMember"
+        ],
+        [
           "registerBuilder",
           "withdrawBuilder",
-          "admitBuyer"
+          "registerPublicIntent",
+          "optOutPublicIntent",
+          "claimPublicIntent",
+          "admitBuyer",
+          "createMarket",
+          "createSideBMarket"
         ],
         [
-          "createMarket",
-          "createSideBMarket",
           "close",
           "stake",
+          "stakeCommittee",
+          "openCommitteeDuty",
+          "slashAbsentCommittee",
+          "exposeLeakedShare",
           "postPreview",
-          "placeBid",
-          "postAuctionResult",
-          "settleBid"
+          "placeBid"
         ],
         [
+          "postAuctionResult",
+          "settleBid",
           "selectHidden",
           "skipSelection",
           "buyFlat",
           "recordOutcome",
           "recordSubjectiveOutcome",
-          "challengeOutcome",
-          "postDefaultStrongest",
-          "proveHit"
+          "challengeOutcome"
         ],
         [
+          "postDefaultStrongest",
+          "proveHit",
           "allocateSubsidy",
           "cancelMarket",
           "returnCancelledSubsidy",
           "claim",
           "renewTier",
-          "admitVerifier",
-          "openDispute",
-          "commitVote"
+          "admitVerifier"
         ],
         [
+          "openDispute",
+          "commitVote",
           "revealVote",
           "resolveDispute",
           "claimVerifier",
           "approveHoaxMember",
           "revokeHoaxMember",
-          "finalizeMarket",
-          "markMissedReport",
-          "markMissedSharedBuyer"
+          "finalizeMarket"
         ],
         [
+          "markMissedReport",
+          "markMissedSharedBuyer",
           "approveMissedBuyer",
           "revokeMissedBuyer"
         ]
@@ -169,61 +163,16 @@
       "proofServer": "http://127.0.0.1:6300"
     }
   },
-  "planSha256": "3149cd3dd30eb9818fb2786c8b7a3014fa0db050bd6b585c9ee9d7bc519b395e",
+  "planSha256": "4c4fcaeee5bf33a54f687f0dd5262065254d1523cad3ab13aa884191f5b73ef3",
   "simulation": {
-    "phases": [
-      "settled",
-      "settled"
-    ],
-    "claims": [
-      {
-        "market": "1",
-        "amount": "119"
-      },
-      {
-        "market": "1",
-        "amount": "119"
-      },
-      {
-        "market": "1",
-        "amount": "119"
-      },
-      {
-        "market": "1",
-        "amount": "119"
-      },
-      {
-        "market": "1",
-        "amount": "119"
-      },
-      {
-        "market": "2",
-        "amount": "104"
-      },
-      {
-        "market": "2",
-        "amount": "104"
-      },
-      {
-        "market": "2",
-        "amount": "104"
-      },
-      {
-        "market": "2",
-        "amount": "104"
-      },
-      {
-        "market": "2",
-        "amount": "104"
-      }
-    ],
-    "claimed": "1115",
-    "bidRefunds": "100",
-    "remainder": "25",
-    "input": "1240",
-    "conserved": true,
-    "note": "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."
+    "phase": "cancelled",
+    "refunded": "500",
+    "retained": "1750",
+    "publicIntentListed": true,
+    "optedOut": true,
+    "leakedShareSeized": true,
+    "note": "Synthetic local fixture; one funding wallet controls all actors and all operator keys. Proves the mechanism, not independence."
   },
   "status": "simulator evidence; network execution, if approved, is recorded in a separate journal",
-  "generatedAt": "2026-10-17T16:26:38.038Z"
+  "generatedAt": "2026-10-18T06:48:15.604Z"
 }

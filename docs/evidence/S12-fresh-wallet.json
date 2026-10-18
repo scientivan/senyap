@@ -1,0 +1,23 @@
+{
+  "network": "undeployed",
+  "contract": "84d965dc2cca2811f495fb2cfced49d9da8256f459ba42d0281d288203d511aa",
+  "steps": [
+    {
+      "action": "transferNight",
+      "phase": "finalized",
+      "txId": "001d975894387da322b89da01f6884a3960f2b41bb4135ce053de671ff9344d63e"
+    },
+    {
+      "action": "registerDust",
+      "phase": "failed",
+      "error": "Fresh wallet has no unregistered NIGHT"
+    },
+    {
+      "action": "mapAndCell",
+      "phase": "interrupted-unknown",
+      "observation": "No tx ID returned after more than seven minutes. Node process remained running after a six-minute JavaScript timeout and was stopped with SIGKILL. Mempool was empty before and after. No automatic retry."
+    }
+  ],
+  "startedAt": "2026-10-16T14:55:12.494Z",
+  "note": "Single-use synthetic wallet fixture. Wallet already held NIGHT and spendable DUST, so registration stopped before submission. One transfer finalized; mapAndCell outcome remains uncertain because no ID was returned. No secrets or private transaction data stored."
+}

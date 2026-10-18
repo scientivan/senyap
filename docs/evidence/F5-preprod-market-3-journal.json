@@ -1,0 +1,175 @@
+{
+  "network": "preprod",
+  "status": "settled",
+  "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
+  "marketId": "3",
+  "plan": "docs/evidence/F5-market-3-plan.json",
+  "question": "Which ecosystem answers a privacy app team's grant application fastest this month?",
+  "completedAt": "2026-10-18T17:42:07.526Z",
+  "cycle": [
+    "3 operator votes + createSideBMarket",
+    "5 synthetic scout stakes (reused daily group of market 2)",
+    "keeper close",
+    "3 committee postPreview (threshold decryption, DLEQ)",
+    "buyFlat by the admitted synthetic buyer",
+    "recordOutcome (option 0 succeeded)",
+    "5 proveHit",
+    "5 claim to the owner wallet"
+  ],
+  "transactions": [
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "e964c5a09c98899d508a3b8d1ecb4917acf81d68db3dc7a82289e92b5aed636c",
+      "block": 3037114,
+      "time": "2026-10-18T16:22:00.000Z"
+    },
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "ee91d6046676f617188e89e683cc4fdc29804b9814d4dd7143dd19a8e02c26e1",
+      "block": 3037121,
+      "time": "2026-10-18T16:22:42.000Z"
+    },
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "0af56340b738ee9167633b1e2851702089949a5a636f3f479a13a6e519c2b547",
+      "block": 3037129,
+      "time": "2026-10-18T16:23:30.000Z"
+    },
+    {
+      "call": "createSideBMarket",
+      "transactionHash": "ffaf69f44025696c7cf6843e11ea44b30ec3966f528cac2817907d914dca454d",
+      "block": 3037138,
+      "time": "2026-10-18T16:24:24.000Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "8e4159069664ef8099fcf0e3dc4039fe9c4c6df1bf820ada5c7ff1a6df63b858",
+      "block": 3037154,
+      "time": "2026-10-18T16:26:00.001Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "cf26a83989e0778b729196632cebff95f5094b65b50e12d63cb863164142ef00",
+      "block": 3037169,
+      "time": "2026-10-18T16:27:30.000Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "e234a331cb9e5e3cfceb4a5a6b2b17b2921dd12dbee367ac8004bec59a0f8c7c",
+      "block": 3037184,
+      "time": "2026-10-18T16:29:00.000Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "f5658d50e52ef633f7d4018a574dd3a068ba6de3060a40e7b25bef0f94185943",
+      "block": 3037198,
+      "time": "2026-10-18T16:30:24.000Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "996c5f118609d272d88c35f2967f53a5c94674551855bbdf0583c49a87dcf1c1",
+      "block": 3037213,
+      "time": "2026-10-18T16:31:54.000Z"
+    },
+    {
+      "call": "close",
+      "transactionHash": "83d20a649c827c8aea111098e5fc49aa41cf26cd669565153729b4e0ec5ce8c6",
+      "block": 3037457,
+      "time": "2026-10-18T16:56:18.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "d246ad2a3ccd541ba59e3f88be2b149e290a81d315ce905ab73e012fc0ce218f",
+      "block": 3037466,
+      "time": "2026-10-18T16:57:12.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "d101d420831a7ec367ecb4abc401be4a267075912147310e9a1cd70e7f16f4e6",
+      "block": 3037475,
+      "time": "2026-10-18T16:58:06.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "9307ec4e8bfee18536e1828965ca51e873d2bbc6c6eb23c464006be6a86ee4f1",
+      "block": 3037483,
+      "time": "2026-10-18T16:58:54.000Z"
+    },
+    {
+      "call": "buyFlat",
+      "transactionHash": "af89b18c43a93a17f21e61662d2bc14aa012a675b21134478595e6554c2cc95e",
+      "block": 3037495,
+      "time": "2026-10-18T17:00:06.001Z"
+    },
+    {
+      "call": "recordOutcome",
+      "transactionHash": "e38d5b1a0719d883d51b79df6a199b936df5ed264a4ffda9aef42a55c339bcb4",
+      "block": 3037504,
+      "time": "2026-10-18T17:01:00.000Z"
+    },
+    {
+      "call": "proveHit",
+      "transactionHash": "10f50a79fd530e2b272ed13d92041ef0da029b516745fc57d3a0f1a19f7e485b",
+      "block": 3037580,
+      "time": "2026-10-18T17:08:36.000Z"
+    },
+    {
+      "call": "proveHit",
+      "transactionHash": "a8b5a74d1e8fbc4c2659e500dbfb12359ceb3acf7c8042b122f1ba7ca2db8798",
+      "block": 3037588,
+      "time": "2026-10-18T17:09:24.000Z"
+    },
+    {
+      "call": "proveHit",
+      "transactionHash": "78bc1b8ce3f033c8a19c5ff2eaeb62b721fe13841e4629b2a1b79077f436df8b",
+      "block": 3037596,
+      "time": "2026-10-18T17:10:12.000Z"
+    },
+    {
+      "call": "proveHit",
+      "transactionHash": "81ca431dd4bc028821e4a854fe06b3009a9bdcf68b063ae4ec03a389c082f8fb",
+      "block": 3037604,
+      "time": "2026-10-18T17:11:00.000Z"
+    },
+    {
+      "call": "proveHit",
+      "transactionHash": "99140ff886db6a1346d42cfdf57697d60a5f704ce07cc0fed355be1e7bedef9a",
+      "block": 3037612,
+      "time": "2026-10-18T17:11:48.000Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "7a4bfbee6c27585dac8c162934a285aa5c618ea00225732cd3a972db801e09ce",
+      "block": 3037876,
+      "time": "2026-10-18T17:38:12.000Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "81f9ae8f34243ccb85f2e09f96f97c233b9c71c83ee45195025b7ef258c932ce",
+      "block": 3037884,
+      "time": "2026-10-18T17:39:00.001Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "c2d68ea60af1601984015469de77a40be9ffb9e133da21576bfd5b4544ba933e",
+      "block": 3037892,
+      "time": "2026-10-18T17:39:48.000Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "c19185149479f9e7a284454509f502e1ddd40a24032a33d7811fcc0fdae1365f",
+      "block": 3037901,
+      "time": "2026-10-18T17:40:42.000Z"
+    },
+    {
+      "call": "claim",
+      "transactionHash": "1a92304c8f949b58f9ca8f0a7c687b60c998e3eebec11fa7424d7daf679e583f",
+      "block": 3037909,
+      "time": "2026-10-18T17:41:30.000Z"
+    }
+  ],
+  "limits": [
+    "Scouts and buyer are synthetic identities held by the operator relay.",
+    "One person runs every operator and committee seat."
+  ]
+}
