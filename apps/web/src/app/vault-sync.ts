@@ -10,7 +10,7 @@ import { productDeployment } from "./deployment";
 
 const NETWORK = "preprod";
 const endpoint = () => productDeployment((import.meta as unknown as { env: Record<string, unknown> }).env)?.operatorApi ?? null;
-const addressHex = (address: string) =>
+export const addressHex = (address: string) =>
   Array.from(new Uint8Array(MidnightBech32m.parse(address).decode(UnshieldedAddress, NETWORK).data), (b) => b.toString(16).padStart(2, "0")).join("");
 
 export const syncAvailable = () => endpoint() !== null;

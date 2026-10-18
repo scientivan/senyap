@@ -137,3 +137,6 @@
 @media (max-width: 760px) { .team-card form > fieldset { grid-template-columns: 1fr; } }
 .act-blocked-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .act-blocked-top .abtn { flex: none; }
+.act-tipline { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 12px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.live-market .act-tabs .abtn { height: 34px; padding: 0 14px; background: transparent; color: var(--ink-2); font-weight: 600; }
+.live-market .act-tabs .abtn[aria-pressed="true"] { background: var(--night); color: var(--on-night); }

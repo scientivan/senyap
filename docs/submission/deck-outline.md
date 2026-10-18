@@ -37,21 +37,25 @@ not provide independent operators.
 
 ## 5. What exists today
 
-Local implementation and simulator tests cover groups, staking, auction/access,
-outcomes/claims, reputation, hoax juries, missed reports on A, cancellation and
-returned subsidies. Five local committee HTTP nodes and the encrypted reason
-relay have integration tests. The encrypted workspace has isolated browser tests.
-Selected main-contract circuits have local proof-server evidence.
+The full 52-circuit Senyap contract runs on Midnight Preprod
+(`a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9`). Market #3
+went through a complete Side B cycle on chain: create (3 operator approvals),
+five sealed scout stakes, close, three committee preview approvals, a buyer
+purchase, an outcome report, five private hit proofs and claims. Every step has a
+finalized transaction hash in [PREPROD-EVIDENCE.md](../evidence/PREPROD-EVIDENCE.md),
+read from the Blockfrost Midnight indexer. The app reads live state from the
+public Preprod RPC; there is no demo data.
 
-One separate counter fixture passed Preprod through Lace. No product market has
-been deployed. Replace this slide's network claim only after verified receipts.
+Slide visual: one row per stage (Deploy, Stakes, Approvals, Picks, Preview,
+Purchase, Outcome, Hits, Claims) with its count and one short hash.
 
-## 6. Demo sequence to record after integration
+Honest limit on the same slide: one person holds every operator and committee
+seat today, and scouts are synthetic identities.
 
-Use the sequence in [demo storyboard](demo-storyboard.md). Label synthetic
-identities and dUSD. Show pending proof, wallet approval, public transaction ID,
-indexed result, buyer decryption and principal/reward claim. Do not film a demo
-state change as an onchain transaction.
+## 6. Demo sequence
+
+Use [demo storyboard](demo-storyboard.md). Every on-chain moment in the video is
+a real Preprod transaction; show its hash and match it to PREPROD-EVIDENCE.md.
 
 ## 7. Business mechanism and validation
 

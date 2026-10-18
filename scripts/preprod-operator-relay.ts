@@ -46,16 +46,18 @@ async function plan():Promise<{id:bigint;config:Market;public:Plan}>{
   if(!existsSync(PLAN)){
     const first=(process.env.SENYAP_MARKET_ID??"1")==="1",now=BigInt(Math.floor(Date.now()/1000));
     const options=first?["Midnight Foundation grants","Cardano Catalyst","Independent privacy fund"]:["Midnight","Cardano","Independent privacy fund"];
-    const question=first?"Which ecosystem programme is most likely to fund a privacy-preserving hiring app in the next quarter?"
-      :"Which ecosystem will give a privacy-preserving payroll app the most hands-on builder support this quarter?";
+    const question=process.env.SENYAP_QUESTION??(first?"Which ecosystem programme is most likely to fund a privacy-preserving hiring app in the next quarter?"
+      :"Which ecosystem will give a privacy-preserving payroll app the most hands-on builder support this quarter?");
     // Later markets close within the same UTC day so one daily scout group can stake in them.
-    const open=first?now+2n*86400n:now+6n*3600n;
+    // Short demo markets: SENYAP_OPEN_MINUTES / SENYAP_OUTCOME_MINUTES (defaults 6 h / 6 h).
+    const openMin=BigInt(process.env.SENYAP_OPEN_MINUTES??"360"),outcomeMin=BigInt(process.env.SENYAP_OUTCOME_MINUTES??"360");
+    const open=first?now+2n*86400n:now+openMin*60n;
     const id=process.env.SENYAP_MARKET_ID??"1",category=hex(sha("senyap:category:ecosystem-fit")),refs=options.map(o=>hex(sha(`senyap:option:${o}`)));
     const metadata={version:1 as const,side:"B" as const,category,question,options:options.map((label,i)=>({reference:refs[i],label}))};
     const questionHash=id==="1"?hex(sha(question)):await marketMetadataHash(metadata);
     const config={subjective:false,side:"1",category,questionHash,questionUri:`senyap://preprod/market/${id}`,
       nOptions:String(options.length),optionRefs:[...refs,...Array.from({length:8-options.length},()=>"00".repeat(32))],
-      openAt:String(now-120n),openUntil:String(open),auctionUntil:String(open),outcomeUntil:String(open+(first?3n*86400n:21600n)),flatPrice:"10",reservePrice:"0"};
+      openAt:String(now-120n),openUntil:String(open),auctionUntil:String(open),outcomeUntil:String(open+(first?3n*86400n:outcomeMin*60n)),flatPrice:"10",reservePrice:"0"};
     await writeFile(PLAN,JSON.stringify({network:"preprod",contract:journal.contract,id,question,options,metadata,config},null,2)+"\n");
   }
   const p=JSON.parse(await readFile(PLAN,"utf8"));assert(p.contract===journal.contract,"Market plan belongs to another contract");
@@ -95,7 +97,9 @@ const nowSeconds=()=>BigInt(Math.floor(Date.now()/1000));
 const epochNow=()=>BigInt(Math.floor(Date.now()/1000))/86400n;
 async function scoutGroup(){
   const {id,config}=await plan(),epoch=epochNow();
-  return {group:Uint8Array.from(sha(`senyap:group:preprod:${journal.contract}:${id}:${epoch}`)),config:{side:1n,tier:1n,epoch,ecosystem:config.optionRefs[0]}};
+  // SENYAP_GROUP_MARKET reuses an existing daily group (its ecosystem must be option 0 here too).
+  const groupMarket=process.env.SENYAP_GROUP_MARKET??String(id);
+  return {group:Uint8Array.from(sha(`senyap:group:preprod:${journal.contract}:${groupMarket}:${epoch}`)),config:{side:1n,tier:1n,epoch,ecosystem:config.optionRefs[0]}};
 }
 const scoutCommitment=(s:ClientPrivateState,epoch:bigint)=>persistentHash(new CompactTypeVector(2,Bytes32Descriptor),[s.secrets.scout,convertFieldToBytes(32,epoch,"epoch")]);
 async function gated(target:string,commitment?:string):Promise<GatedCall>{
@@ -164,7 +168,7 @@ async function prove(body:Body){
   else if(body.step==="keeper"){
     // Permissionless keeper: plan from the live state and execute the first supported transition.
     const live=await publicData.queryContractState(journal.contract);assert(live,"Contract state unavailable");
-    const action=planTransitions(ledger(live.data) as never,nowSeconds()).find(a=>["close","finalizeMarket","cancelMarket"].includes(a.kind));
+    const action=planTransitions(ledger(live.data) as never,nowSeconds()).find(a=>["close","finalizeMarket","cancelMarket"].includes(a.kind)&&a.market===id);
     assert(action,"Keeper has nothing to do");circuitId=action.kind;args=[action.market];
   }
   else if(body.step==="preview"){

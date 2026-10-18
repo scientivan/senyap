@@ -67,13 +67,18 @@ five committee members staked 500 dUSD each
 ([deploy journal](../evidence/P9.7-preprod-deploy-journal.json)).
 
 On that deployment, an operator relay proves operator calls server-side while the
-wallet only pays. Side B market #1 was created through three operator approvals
-([journal](../evidence/P9.9-preprod-market-journal.json)). Market #2 then received a
-daily scout group, five admitted scouts (each admission approved by three
-operators), five 50 dUSD scout stakes and an admitted buyer
-([journal](../evidence/F5-preprod-market-2-journal.json)). Its close, committee
-preview, purchase, outcome, hits and claims follow the contract clock.
-<!-- Update this paragraph with the final state of market #2 before submitting. -->
+wallet only pays. Market #1 was created through three operator approvals. Market #2
+received a daily scout group, five admitted scouts (each admission approved by
+three operators), five 50 dUSD stakes and an admitted buyer. **Market #3 then ran a
+complete Side B cycle on Preprod:** creation, five sealed stakes, keeper close,
+three committee preview approvals (threshold decryption with DLEQ proofs), a buyer
+purchase, an outcome report, five private hit proofs and claims. Every call has a
+finalized transaction hash in [PREPROD-EVIDENCE.md](../evidence/PREPROD-EVIDENCE.md),
+exported from the Blockfrost Midnight indexer (the full machine-readable list is
+[preprod-transactions.json](../evidence/preprod-transactions.json)).
+
+The app reads live contract state from the public Preprod RPC with no demo data,
+and the vault (picks and keys) syncs end-to-end encrypted by wallet address.
 
 **Local network.** The full contract completed a Side A and Side B cycle on a local
 Midnight node, including claims and refunds that conserve the input

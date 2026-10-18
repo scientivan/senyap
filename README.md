@@ -73,6 +73,22 @@ pnpm --filter @senyap/web typecheck
 pnpm build
 ```
 
+### Preprod transaction evidence
+
+<!-- preprod-evidence:start -->
+**77 finalized calls on the Preprod contract** (deploy 1, maintenance update 7, stakeOperator 3, stakeCommittee 5, voteOperatorAction 30, createSideBMarket 3, configureScoutGroup 1, admitScout 5, stake 10, admitBuyer 1, close 1, postPreview 3, buyFlat 1, recordOutcome 1, proveHit 5). Full list with hashes: [docs/evidence/PREPROD-EVIDENCE.md](docs/evidence/PREPROD-EVIDENCE.md).
+
+| Step | First transaction hash | Block |
+| --- | --- | --- |
+| deploy | `661a3c641a84851498fa49540231da9f31b4e53c8e88be33c96e4fa4b3f625b2` | 3032137 |
+| createSideBMarket | `54451fd4089869b017c9d47df3fc0fdcab5c7afbe2976165564c692b83f3f032` | 3033035 |
+| stake | `b7cdea635701d2a0b7d90e7e68003e053b757d0e29a1e272f44ddeb611fa550f` | 3034325 |
+| postPreview | `d246ad2a3ccd541ba59e3f88be2b149e290a81d315ce905ab73e012fc0ce218f` | 3037466 |
+| buyFlat | `af89b18c43a93a17f21e61662d2bc14aa012a675b21134478595e6554c2cc95e` | 3037495 |
+| recordOutcome | `e38d5b1a0719d883d51b79df6a199b936df5ed264a4ffda9aef42a55c339bcb4` | 3037504 |
+| proveHit | `10f50a79fd530e2b272ed13d92041ef0da029b516745fc57d3a0f1a19f7e485b` | 3037580 |
+<!-- preprod-evidence:end -->
+
 ### The vault and encrypted sync
 
 Picks, keys and pseudonyms live in a vault encrypted in the browser with a key
