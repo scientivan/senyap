@@ -1,0 +1,133 @@
+{
+  "network": "undeployed",
+  "sourceSha256": "edb4251f5687f9d721d167ef36bf69f9b123302c88f1501708a96d7916ec2844",
+  "planSha256": "935078360a46ec0e6df78ade947c3e6be6b4335f70c7cf8d876fd5585fca06d0",
+  "status": "stopped; no automatic restart",
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "finalized",
+      "txId": "000a68e5907a2fa8a3de4e1107333953050d73bf17db53ae314c349194291f1d9d"
+    },
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "008d9dbca454f9fde05c1b63f019b6471e1fbc303392848bdc76011992fb145a69"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "finalized",
+      "txId": "00fbb34aa4f4895f74dd7f4910261f68309685cfb0820fb1d5d7fe83b45f11aa96"
+    },
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "0085ee3c3c11de40f55ccd474cadbb594d8ae3575751019204b3eafb9255c4cc72"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "0078d3cad4406a4aa56535f477ff30786339402013443248b3d5b80d0705b0030d"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "00f6fe1ef3c08f904de6346e06bdeff29d579fe2c652d6a0c19e282463f3c576b4"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "00125e7ec745ab1ec373a658aa23559c74b63b4af2d6cc9b688d84d8115ed59d3f"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "00cf6a51d36b6ec4a5b0482648f0a9bc09975a69749df8733d88382680764c2780"
+    },
+    {
+      "action": "install-verifiers:6",
+      "status": "finalized",
+      "txId": "00fd9b39cfe1e2d908a73653c4e1a3433814d5e81affbbbb08ceccf1822ef67fb3"
+    },
+    {
+      "action": "stakeOperator",
+      "status": "finalized",
+      "txId": "005f20448294d83c00bade2f5a6325f29b917d331e249443a290a4e7c3a3467d14"
+    },
+    {
+      "action": "stakeOperator",
+      "status": "finalized",
+      "txId": "000d2d2269c92d97426b3ee4ea8e52f971c01e2aefbf431ae6793ed27cb199941f"
+    },
+    {
+      "action": "stakeOperator",
+      "status": "finalized",
+      "txId": "00baa064bc629528ecf1faa2c9416dc5696982b72a776340e8324f8c912adc29b3"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "0090df2e2428209bd931f61ad6650963d4b5353491a3c9ead498d62d2053f40187"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "007f99e7712d593ab59e5e4d80b533028ba02906577bfd3076b5a77f2c4dc8fbd8"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00ff308f6d1613803741aced2588b7e51fbf7b6628a4a320c1729c0165e515053b"
+    },
+    {
+      "action": "admitBuyer",
+      "status": "finalized",
+      "txId": "00fd8dd24de5d294832fa70a696a7438b4956c346218b731b47943d067d44b0d71"
+    },
+    {
+      "action": "registerBuilder",
+      "status": "finalized",
+      "txId": "0092abf0db8987a9acca6814c7c00fa792cab30bad5162faf84757095158c3432f"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "00098a02f4daf62bde3f6c0516a215a1d7ae6066e9d2a230bb773cb9d46324f259"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "0098570fd35e99fb5d65221cd0e74b06976cda37eee4695dfed970b499d9350c30"
+    },
+    {
+      "action": "voteOperatorAction",
+      "status": "finalized",
+      "txId": "009193655231f9ced31758d5ff5c4d4b940e1d7d17a5359cd6c93cb87877b215e4"
+    },
+    {
+      "action": "registerPublicIntent",
+      "status": "prepared"
+    }
+  ],
+  "publicResult": {
+    "lastResourceBudget": {
+      "action": "voteOperatorAction",
+      "passed": true,
+      "gasCost": "17662000001",
+      "extraWeight": "20000000000",
+      "baseWeight": "108157000",
+      "requiredWeight": "37770157001",
+      "maxExtrinsic": "1299891843000",
+      "proofSize": "0",
+      "maxProofSize": "11990383647911208550",
+      "bytes": 8905,
+      "maxBytes": 786432,
+      "runtimeSpecVersion": "1000000"
+    },
+    "tokenContract": "54e3331cfc74b3f806d5b8cf6deec59cfe22bd076bfafe37cccbb9a072f87205",
+    "token": "ab01c400bf6c2f11a46bbd03be1569dbd513e7e6b29258e70233d4adc15ec239",
+    "contract": "a84325a662df43322c6c459e437c8055a35f8ef87d5c2b12dba235639e0c275f",
+    "all41VerifiersInstalled": true,
+    "lastError": "failed assert: Invalid listing timestamp"
+  }
+}

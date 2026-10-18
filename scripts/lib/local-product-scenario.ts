@@ -222,6 +222,9 @@ export async function runShortScenario(base: Driver) {
         await base.patch({operatorMember: operatorMembers[m]} as Partial<LocalState>);
         await base.call("voteOperatorAction" as never, ...([id, BigInt(m), true, (await base.read()).time] as never[]));
       }
+      // The listing timestamp must be within 60 s of inclusion; votes take minutes.
+      // The approved action id does not include it, so refresh it after voting.
+      if (name === ("registerPublicIntent" as never)) (args as unknown[])[3] = (await base.read()).time;
     }
     return base.call(name, ...args);
   }};
