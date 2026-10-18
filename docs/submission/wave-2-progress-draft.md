@@ -1,6 +1,6 @@
 # Wave 2 progress draft
 
-Draft for owner review. Not submitted or published. Updated 17 October 2026.
+Draft for owner review. Not submitted or published. Updated 18 October 2026.
 
 ## Senyap
 
@@ -40,10 +40,16 @@ upstream bboard toolchain fixture retains its Apache-2.0 attribution.
   against an injected SDK boundary. No real GitHub qualification proof yet.
 - Subjective/contested outcome juries per option, with immutable outcome mode,
   separate escrow, fallback and a settlement gate.
-- A live Preprod workspace in the web app: Lace connection, finalized ledger reads,
-  public metadata, and integrated controls for staking, bidding, purchases, paid
-  signal opening, claims, juries, builder consent and Side A market creation.
-  These controls have not yet sent a product transaction.
+- A live Preprod workspace in the web app (`/app/preprod`): wallet connection
+  (Lace or 1AM), finalized ledger reads, verified public metadata, and controls for
+  staking, bidding, purchases, paid signal opening, claims, juries, builder consent
+  and Side A market creation.
+- Operator 3-of-5 approvals bound to exact parameters, 500 dUSD operator and
+  committee stakes, missed-vote and absent-member slashing, a leaked-share
+  whistleblower reward, Pedersen DKG for the committee key, and public-intent team
+  listings with opt-out (design decisions of 18 October, SPEC §16).
+- A separate operator console (`/operator`) with a live on-chain registry of seats,
+  stakes, pending approvals and markets.
 
 These are implemented local circuits/services and tests, not a completed deployed
 market. The latest full regression passed 176 tests in 56 files. Earlier integrated
@@ -52,25 +58,34 @@ retained in [P2-tests.json](../evidence/P2-tests.json).
 
 ## What ran on a network
 
-One isolated counter fixture was deployed on Midnight Preprod through Lace and
-called once. Both finalized SucceedEntirely and the counter reached 1. This proves
-the browser/wallet/proof path, not Senyap market execution. Public identifiers are
-in [S5 receipts](../evidence/S5-preprod-counter.json).
+**Preprod (18 October 2026).** The full 52-circuit Senyap contract is deployed on
+Midnight Preprod (`a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9`),
+signed and paid with the 1AM browser wallet. The deployment is too heavy for one
+transaction, so all 52 verifiers were installed in six staged maintenance updates
+and the maintenance authority was handed to an operator key. Three operators and
+five committee members staked 500 dUSD each
+([deploy journal](../evidence/P9.7-preprod-deploy-journal.json)).
 
-On a local Midnight network (node 1.0.0), the full Senyap contract completed a
-Side A and Side B market cycle (18 Oct 2026). A single deployment exceeds the
-node's per-transaction weight limit, so the 42 circuit verifiers were installed
-in staged signed maintenance updates and checked against the compiled manifest.
-All 84 actions finalized and both markets reached Settled; claims, bid refunds
-and remainder conserve the 1240 input
-([r10 journal](../evidence/local-product-cycle-fresh-k16-r10-journal.json)).
-One synthetic wallet controls all actors.
+On that deployment, an operator relay proves operator calls server-side while the
+wallet only pays. Side B market #1 was created through three operator approvals
+([journal](../evidence/P9.9-preprod-market-journal.json)). Market #2 then received a
+daily scout group, five admitted scouts (each admission approved by three
+operators), five 50 dUSD scout stakes and an admitted buyer
+([journal](../evidence/F5-preprod-market-2-journal.json)). Its close, committee
+preview, purchase, outcome, hits and claims follow the contract clock.
+<!-- Update this paragraph with the final state of market #2 before submitting. -->
 
-Reaching this required a contract change. The node never indexed a write that
-inserts a default `HistoricMerkleTree` into a `Map` (spike S12), so scout group
-trees moved to 16 fixed top-level trees and hit credentials to one epoch-bound
-tree ([proposal](../map-tree-node-proposal.md)).
-No Senyap product contract is deployed on Preprod yet.
+**Local network.** The full contract completed a Side A and Side B cycle on a local
+Midnight node, including claims and refunds that conserve the input
+([r10 journal](../evidence/local-product-cycle-fresh-k16-r10-journal.json)), and a
+short cycle with the 52-circuit contract
+([s2 journal](../evidence/local-product-cycle-short-s2-journal.json)).
+
+**Reclaim.** A live Reclaim GitHub proof bound to the Preprod contract passed
+attestor and TEE verification
+([evidence](../evidence/P6.1-reclaim-live-preprod.json)). The verified provider only
+extracts a profile language field, so it proves a logged-in GitHub account, not a
+username or contribution count.
 
 ## Local proof evidence
 
@@ -88,19 +103,22 @@ historical source hash. Evidence:
 [shared report proofs](../evidence/shared-report-proving.json).
 These checks do not establish a security audit or network settlement.
 
-## Still to complete before a final submission claim
+## Honest limits
 
-
-- An authorized Preprod deployment and network market lifecycle (the local
-  lifecycle is complete).
-- Frontend transactions and indexed live state; current market pages remain
-  labelled synthetic demo data. The workspace storage itself is real local code.
-- Configured live operator/committee processes, trusted-dealer keys and relays.
-- Reasons screening has passed live synthetic Gemini smoke checks only, not a
-  quality or privacy evaluation. Actual Reclaim GitHub qualification and buyer
-  verification policy/integration remain.
-- Jury network lifecycle integration.
-- Final judge instructions, deployed addresses, deck and recorded network demo.
+- **Centralized today.** One person holds every operator seat key and committee
+  share, ran the committee key generation in one process, pays every stake and
+  runs the relay and all committee members. The 3-of-5 rules are enforced on chain
+  but do not yet protect anyone from that person.
+- Scouts and the buyer in the Preprod markets are synthetic identities held by
+  the relay.
+- The 60-second operator vote window is too tight when a wallet is slow to
+  balance (seen when the 1AM fee sponsor was offline). A longer window needs a
+  redeploy.
+- A wrong decryption share is rejected (DLEQ proof) but not slashed on chain.
+- Main market pages in `/app` still show labelled demo data; live data is in
+  `/app/preprod` and `/operator/registry`.
+- Reasons screening passed synthetic Gemini smoke checks only, not a quality or
+  privacy evaluation. No security audit.
 
 The owner must review final wording against actual receipts, make the repository
 public when ready, and submit on AKINDO. This draft does not authorize publication

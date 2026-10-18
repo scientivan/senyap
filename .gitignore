@@ -2,6 +2,7 @@ node_modules
 dist
 .env*
 !.env.example
+!.env.preprod.example
 .DS_Store
 
 # Internal planning notes stay out of git history until Dien decides O-6 (repo becomes public for submission)

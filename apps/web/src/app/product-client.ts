@@ -52,7 +52,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
   // Some wallets still report the decommissioned Preprod indexer. On the dev server
   // with the Preprod proxy (VITE_SENYAP_INDEXER_PROXY=1) use /__bf, which adds the
   // Blockfrost token server-side.
-  const proxied=import.meta.env.VITE_SENYAP_INDEXER_PROXY==="1";
+  const proxied=(import.meta as unknown as {env?:Record<string,string|undefined>}).env?.VITE_SENYAP_INDEXER_PROXY==="1";
   const indexerUri=proxied?`${location.origin}/__bf/indexer`:config.indexerUri,indexerWsUri=proxied?`${location.origin.replace(/^http/,"ws")}/__bf/ws`:config.indexerWsUri;
   const publicData=indexerPublicDataProvider(indexerUri,indexerWsUri);
   const snapshot=createSnapshotReader({...input.snapshot,network:"preprod",contract:input.contract,indexerUrl:indexerUri});

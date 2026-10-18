@@ -69,11 +69,28 @@ pnpm --filter @senyap/web typecheck
 pnpm build
 ```
 
+### Use the live Preprod deployment
+
+The live workspace and operator registry read the Preprod contract through a
+development proxy that adds a Blockfrost token server-side, so the token never
+reaches the browser.
+
+```sh
+node scripts/prepare-product-assets.mjs      # public keys, zkir and deployment ids
+cp apps/web/.env.preprod.example apps/web/.env.local
+BLOCKFROST_PROJECT_ID_PREPROD=<your project id> SENYAP_PREPROD_PROXY=1 pnpm dev
+```
+
+Then open <http://127.0.0.1:5174/app/preprod> with a Midnight wallet (Lace or 1AM)
+set to Preprod, and <http://127.0.0.1:5174/operator/registry> for operator seats,
+stakes, approvals and markets read live from the contract. Writing operator
+actions needs the operator relay and seat keys, which stay with the operator.
+
 Compact 0.31.1 compilation and Vitest are available. See
 [local development](docs/local-development.md) for setup, and
 [technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
 was proved by the local proof server; this does not establish end-to-end network
-execution of the Senyap market. The main contract also has 41 generated proving
+execution of the Senyap market. The main contract has 52 generated proving
 keys ([key evidence](docs/evidence/product-proving-keys.json)). Integrated Side B stake and three-hit renewal checks are recorded with their
 source hash in
 [S11 main proofs](docs/evidence/S11-main-proving.json). Earlier stake/verifier-commit
@@ -191,6 +208,13 @@ relay: three operator votes, then `createSideBMarket`, four finalized transactio
 server-side; the browser wallet only pays and submits. `/operator/registry` reads
 seats, stakes, approvals and markets live from Preprod.
 
+Market #2 followed with a daily scout group, five admitted scouts (three operator
+approvals each), five 50 dUSD scout stakes and an admitted buyer
+([journal](docs/evidence/F5-preprod-market-2-journal.json)). Its question commits to
+the SDK metadata hash, so `/app/preprod` can verify the question text served by
+the operator API. Market #1 committed a plain SHA-256 of the question, so its
+text cannot be verified in the app.
+
 **Finding from the Preprod run: the 60-second vote window is too tight.**
 `voteOperatorAction` only accepts a vote whose timestamp is at most about 60 s older
 than the including block, and the prover rejects future timestamps. When the 1AM
@@ -205,17 +229,21 @@ A live Reclaim GitHub proof, bound to this contract, a session nonce and a one-t
 session, passed attestor and TEE verification
 ([evidence](docs/evidence/P6.1-reclaim-live-preprod.json)).
 
-**Known limits.** No market, stake or purchase has run on Preprod yet; the full
-market lifecycle is proven on a local network only. The verified GitHub provider
-used for that proof only extracts a profile language field, so the proof shows a
-logged-in GitHub account, not a username or contribution count. A stricter policy
-(proven username plus a public yearly contribution threshold) is implemented and
-tested but awaits a provider that extracts the username. Builder admission from
-a verified proof to the on-chain group is not yet relayed. All tokens are synthetic. Draft [deck content](docs/submission/deck-outline.md),
+**Known limits.** The Preprod markets use synthetic scouts and a synthetic buyer
+held by the operator relay, and one person runs every operator and committee seat
+(see the trust model above). Market #2's close, preview, purchase, outcome, hits
+and claims follow the contract clock and are recorded in its journal as they
+happen; the complete settle-and-claim cycle is otherwise proven on a local network.
+The main `/app` market pages show labelled demo data; live Preprod data is in
+`/app/preprod` and `/operator/registry`. The verified GitHub provider only extracts
+a profile language field, so the proof shows a logged-in GitHub account, not a
+username or contribution count. A stricter policy (proven username plus a public
+yearly contribution threshold) is implemented and tested but awaits a provider
+that extracts the username. All tokens are synthetic. Draft
+[deck content](docs/submission/deck-outline.md),
 [demo storyboard](docs/submission/demo-storyboard.md) and
 [Wave 2 progress text](docs/submission/wave-2-progress-draft.md) are available for
-review. Final slides, a recorded network demo and a submitted progress statement
-remain unfinished.
+review.
 
 ## Privacy limits in the planned design
 
