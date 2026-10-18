@@ -125,3 +125,13 @@
 .team-card .check { display: flex; align-items: center; gap: 10px; font: var(--w-body) 14px/1.4 var(--font); margin: 4px 0 18px; }
 .team-card .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--night); }
 .team-card .act-next { width: 100%; height: 44px; }
+/* Landscape team / new-market form: fields flow in two columns so the page fits without scrolling. */
+.live-workspace:has(.team-card) .ph, .acard.team-card { max-width: 980px; }
+.team-card form > fieldset { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 24px; align-items: start; margin: 0; }
+.team-card form > fieldset > .act-head, .team-card form > fieldset > .check, .team-card form > fieldset > .act-next,
+.team-card form > fieldset > p, .team-card form > fieldset > fieldset, .team-card form > fieldset > .act-blocked,
+.team-card form > fieldset > label:has(textarea) { grid-column: 1 / -1; }
+.team-card form > fieldset > label { margin: 0; }
+.team-card form > fieldset > fieldset { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.team-card .act-next { width: auto; justify-self: start; min-width: 200px; }
+@media (max-width: 760px) { .team-card form > fieldset { grid-template-columns: 1fr; } }

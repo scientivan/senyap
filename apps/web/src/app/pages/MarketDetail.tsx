@@ -22,6 +22,8 @@ export function MarketDetail() {
   const idx = steps.indexOf(m.phase);
   const h = s.histogram(m);
   const kBlocked = m.side === "B" && m.scouts < 5;
+  // A long pick form on the left: put activity in the right column to balance it.
+  const stakeOpen = s.role === "scout" && m.phase === "open";
 
   return (
     <>
@@ -75,9 +77,10 @@ export function MarketDetail() {
             </Card>
           )}
 
+          {stakeOpen && <HistoryCard marketLabel={`#${m.id}`} />}
         </div>
       </div>
-      <div className="mt16"><HistoryCard marketLabel={`#${m.id}`} /></div>
+      {!stakeOpen && <div className="mt16"><HistoryCard marketLabel={`#${m.id}`} /></div>}
       {toast}
     </>
   );

@@ -139,8 +139,22 @@ export function createVaultScene({ canvas, reduce, onSeal }: Opts): VaultHandle 
     vault.position.set(phone ? -1.2 : narrow ? 1.2 : 4.6, phone ? -0.2 : narrow ? -0.6 : 1.0, 0);
     vault.scale.setScalar(phone ? 1.25 : narrow ? 1.05 : 0.95);
     if (phone) startX = 7;
+    // Desktop: fit the vault (and its incoming picks) into the free band between
+    // the header and the buyer preview card, so they never overlap at any zoom.
+    if (!narrow) {
+      const worldH = 2 * camera.position.z * Math.tan((camera.fov * Math.PI) / 360), perPx = worldH / Math.max(1, h);
+      const box = canvas.getBoundingClientRect(), card = document.querySelector(".hero .preview")?.getBoundingClientRect();
+      const top = 96, bottom = card && card.height > 0 ? card.top - box.top - 24 : h * 0.72;
+      const room = Math.max(80, bottom - top);
+      const scale = Math.min(0.95, Math.max(0.35, (room * 0.86 * perPx) / 4.9), (w * 0.2 * perPx) / 3.9);
+      const centerPx = top + room / 2;
+      vault.scale.setScalar(scale);
+      vault.position.set(Math.min(4.6, (w * 0.32) * perPx), worldH / 2 - centerPx * perPx, 0);
+    }
   };
   const ro = new ResizeObserver(layout);
+  const previewCard = document.querySelector(".hero .preview");
+  if (previewCard) ro.observe(previewCard);
   ro.observe(canvas);
   layout();
 
@@ -191,7 +205,8 @@ export function createVaultScene({ canvas, reduce, onSeal }: Opts): VaultHandle 
       onSeal();
     }
     const e = u.t * u.t * (3 - 2 * u.t);
-    m.position.set(startX + (vault.position.x + 1.4 - startX) * e, u.y + (vault.position.y + 0.4 - u.y) * e * e, u.z * (1 - e));
+    const uy = vault.position.y + u.y * vault.scale.x;
+    m.position.set(startX + (vault.position.x + 1.4 * vault.scale.x - startX) * e, uy + (vault.position.y + 0.4 * vault.scale.x - uy) * e * e, u.z * (1 - e));
     const s = u.t > 0.86 ? Math.max(0.01, (1 - u.t) / 0.14) : 1;
     m.scale.setScalar(s * vault.scale.x);
     m.rotation.set(0.25 + u.spin * (1 - e), -0.5 + u.spin * (1 - e) * 2 - e * 0.9, 0.15 * u.spin);

@@ -239,3 +239,12 @@
 .md-head h1 { font: var(--w-strong) 24px/1.25 var(--font); letter-spacing: -0.02em; max-width: 30ch; }
 .md-head .row { gap: 8px; flex-wrap: wrap; align-items: center; }
 .md-stats { grid-template-columns: 1fr 1fr; }
+.vault-menu { position: relative; }
+.vault-menu summary { list-style: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--panel); cursor: pointer; }
+.vault-menu summary::-webkit-details-marker { display: none; }
+.vault-menu summary svg { width: 16px; height: 16px; }
+.vault-menu[open] summary { background: var(--night); color: var(--gold); }
+.vault-menu > div { position: absolute; right: 0; top: calc(100% + 8px); min-width: 200px; padding: 6px; display: grid; background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(42, 27, 27, .12); z-index: 30; }
+.vault-menu > div button { height: 36px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; text-align: left; font: var(--w-ui) 14px/1 var(--font); cursor: pointer; }
+.vault-menu > div button:hover { background: var(--panel); }
+.ph p { text-align: left; }
