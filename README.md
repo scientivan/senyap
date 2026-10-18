@@ -150,9 +150,16 @@ on the server and must never be placed in `apps/web` or any `VITE_*` variable.
 | Dispute jury | anonymous commit-reveal, 100 dUSD bond, minority slashed | unchanged |
 
 Gated operator actions need three of five operator approvals bound to the exact
-parameters, and operators and committee members stake 500 dUSD. In the demo
-deployment one wallet holds every operator and committee key, so independence is
-not shown yet. A wrong decryption share is not slashable yet (it needs member-signed
+parameters, and operators and committee members stake 500 dUSD.
+
+**Today Senyap is centralized in one person.** There are no other operators or
+committee members yet. The project author generated every operator seat key, ran
+the committee key generation in one process (so one machine saw all five shares),
+pays every stake from one wallet and runs the operator relay and all five
+committee members. The 3-of-5 rules are enforced on chain, but every seat is held
+by the same person, so they do not yet protect anyone from that person. Moving to
+independent seat holders needs each member to create their own seat key and DKG
+dealing on their own machine, then a redeploy (the seat commitments are sealed). A wrong decryption share is not slashable yet (it needs member-signed
 shares). Collusion that only leaks a final total, without handing over a key share,
 cannot be proven on chain.
 
@@ -175,6 +182,13 @@ this deployment with their DKG shares and check the on-chain committee key at st
 
 The earlier 42-circuit deployment (`c8ab22d9…231b`, before the 18 Oct design
 decisions) stays on chain ([journal](docs/evidence/P8.1-preprod-deploy-journal.json)).
+
+The first Side B market (#1) was created on this deployment through the operator
+relay: three operator votes, then `createSideBMarket`, four finalized transactions
+([journal](docs/evidence/P9.9-preprod-market-journal.json)). The relay
+(`scripts/preprod-operator-relay.ts`) proves operator calls with the seat keys
+server-side; the browser wallet only pays and submits. `/operator/registry` reads
+seats, stakes, approvals and markets live from Preprod.
 
 A live Reclaim GitHub proof, bound to this contract, a session nonce and a one-time
 session, passed attestor and TEE verification
