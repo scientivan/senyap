@@ -16,7 +16,10 @@ import {indexerPublicDataProvider} from "@midnight-ntwrk/midnight-js-indexer-pub
 import {NodeZkConfigProvider} from "@midnight-ntwrk/midnight-js-node-zk-config-provider";
 import {httpClientProofProvider} from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
 import {Contract, type Market} from "../contracts/managed/senyap/contract/index.js";
-import {opActionId} from "../packages/sdk/src/operator-actions";
+import {opActionId, type GatedCall} from "../packages/sdk/src/operator-actions";
+import {clientWitnesses, createClientState, preparePrivateStake, type ClientPrivateState} from "../packages/sdk/src/client-state";
+import {ephemeralState} from "../packages/sdk/src/ephemeral-state";
+import {Bytes32Descriptor, CompactTypeVector, convertFieldToBytes, persistentHash} from "@midnight-ntwrk/compact-runtime";
 import {marketMetadataHash} from "../packages/sdk/src/market-metadata";
 import {preprodEnvironment, scrub} from "./lib/preprod-environment";
 
@@ -40,12 +43,14 @@ async function plan():Promise<{id:bigint;config:Market;public:Plan}>{
     const options=first?["Midnight Foundation grants","Cardano Catalyst","Independent privacy fund"]:["Midnight","Cardano","Independent privacy fund"];
     const question=first?"Which ecosystem programme is most likely to fund a privacy-preserving hiring app in the next quarter?"
       :"Which ecosystem will give a privacy-preserving payroll app the most hands-on builder support this quarter?";
+    // Later markets close within the same UTC day so one daily scout group can stake in them.
+    const open=first?now+2n*86400n:now+6n*3600n;
     const id=process.env.SENYAP_MARKET_ID??"1",category=hex(sha("senyap:category:ecosystem-fit")),refs=options.map(o=>hex(sha(`senyap:option:${o}`)));
     const metadata={version:1 as const,side:"B" as const,category,question,options:options.map((label,i)=>({reference:refs[i],label}))};
     const questionHash=id==="1"?hex(sha(question)):await marketMetadataHash(metadata);
     const config={subjective:false,side:"1",category,questionHash,questionUri:`senyap://preprod/market/${id}`,
       nOptions:String(options.length),optionRefs:[...refs,...Array.from({length:8-options.length},()=>"00".repeat(32))],
-      openAt:String(now-120n),openUntil:String(now+2n*86400n),auctionUntil:String(now+2n*86400n),outcomeUntil:String(now+5n*86400n),flatPrice:"10",reservePrice:"0"};
+      openAt:String(now-120n),openUntil:String(open),auctionUntil:String(open),outcomeUntil:String(open+(first?3n*86400n:21600n)),flatPrice:"10",reservePrice:"0"};
     await writeFile(PLAN,JSON.stringify({network:"preprod",contract:journal.contract,id,question,options,metadata,config},null,2)+"\n");
   }
   const p=JSON.parse(await readFile(PLAN,"utf8"));assert(p.contract===journal.contract,"Market plan belongs to another contract");
@@ -61,24 +66,64 @@ const proof=httpClientProofProvider<string>(env.proofServer,zk);
 const publicData=indexerPublicDataProvider(env.indexer,env.indexerWS);
 const fail=()=>{throw Error("Witness not available in the operator relay");};
 
-async function prove(step:string,member:number|undefined,coinPublicKey:string,encryptionPublicKey:string){
+// Four synthetic scouts plus room for real ones. Their private states are kept in
+// .states (mode 600) so later reveal/claim steps can reuse them; never printed.
+const SCOUTS=".states/preprod-synthetic-scouts.json";
+const pack=(v:unknown)=>JSON.stringify(v,(_,x)=>x instanceof Uint8Array?{$b:hex(x)}:typeof x==="bigint"?{$n:x.toString()}:x);
+const unpack=(t:string)=>JSON.parse(t,(_,x)=>x&&typeof x==="object"&&"$b" in x?bytes(x.$b):x&&typeof x==="object"&&"$n" in x?BigInt(x.$n):x);
+async function scouts():Promise<ClientPrivateState[]>{
+  if(existsSync(SCOUTS))return unpack(await readFile(SCOUTS,"utf8"));
+  const rand=()=>crypto.getRandomValues(new Uint8Array(32));
+  const list=await Promise.all(Array.from({length:5},()=>createClientState({scout:rand(),buyer:rand(),builder:rand(),verifier:rand()},{network:"preprod",contract:journal.contract})));
+  await writeFile(SCOUTS,pack(list),{mode:0o600});return list;
+}
+const epochNow=()=>BigInt(Math.floor(Date.now()/1000))/86400n;
+async function scoutGroup(){
+  const {id,config}=await plan(),epoch=epochNow();
+  return {group:Uint8Array.from(sha(`senyap:group:preprod:${journal.contract}:${id}:${epoch}`)),config:{side:1n,tier:1n,epoch,ecosystem:config.optionRefs[0]}};
+}
+const scoutCommitment=(s:ClientPrivateState,epoch:bigint)=>persistentHash(new CompactTypeVector(2,Bytes32Descriptor),[s.secrets.scout,convertFieldToBytes(32,epoch,"epoch")]);
+async function gated(target:string,commitment?:string):Promise<GatedCall>{
   const {id,config}=await plan();
-  const ps={};
-  const witnesses=new Proxy({
-    operatorSecret:()=>[ps,bytes(secrets.operator)],
-    operatorMemberSecret:()=>{assert(member!==undefined);return [ps,bytes(secrets.operatorMembers[member])];},
-  } as Record<string,unknown>,{get:(t,k)=>t[k as string]??fail});
-  const compiled=CompiledContract.make("SenyapRelay",Contract<object>).pipe(CompiledContract.withWitnesses(witnesses as never),CompiledContract.withCompiledFileAssets("contracts/managed/senyap"));
-  const walletProvider={getCoinPublicKey:()=>coinPublicKey,getEncryptionPublicKey:()=>encryptionPublicKey,balanceTx:fail} as never;
-  let circuitId:string,args:unknown[];
-  if(step==="vote"){
+  if(target==="market")return {circuit:"createSideBMarket",id,config};
+  const {group,config:groupConfig}=await scoutGroup();
+  if(target==="group")return {circuit:"configureScoutGroup",group,config:groupConfig};
+  if(target==="admit"){assert(commitment&&/^[a-f0-9]{64}$/.test(commitment),"Scout commitment required");return {circuit:"admitScout",group,commitment:bytes(commitment)};}
+  throw Error("Target not allowed");
+}
+
+type Body={step:string;target?:string;member?:number;scout?:number;commitment?:string;coinPublicKey:string;encryptionPublicKey:string};
+async function prove(body:Body){
+  const {id,config}=await plan();const {member}=body;
+  const operatorWitnesses={
+    operatorSecret:(c:{privateState:unknown})=>[c.privateState,bytes(secrets.operator)],
+    operatorMemberSecret:(c:{privateState:unknown})=>{assert(member!==undefined);return [c.privateState,bytes(secrets.operatorMembers[member])];},
+  };
+  const compiled=CompiledContract.make("SenyapRelay",Contract<ClientPrivateState>).pipe(CompiledContract.withWitnesses({...clientWitnesses,...operatorWitnesses} as never),CompiledContract.withCompiledFileAssets("contracts/managed/senyap"));
+  const walletProvider={getCoinPublicKey:()=>body.coinPublicKey,getEncryptionPublicKey:()=>body.encryptionPublicKey,balanceTx:fail} as never;
+  let circuitId:string,args:unknown[],state:ClientPrivateState|undefined,scoutIndex:number|undefined;
+  const list=await scouts();
+  // Synthetic scouts are addressed by index; a real scout sends its own commitment.
+  const commitmentFor=(b:Body)=>b.commitment??(b.scout!==undefined?hex(scoutCommitment(list[b.scout],epochNow())):undefined);
+  if(body.step==="vote"){
     assert(member!==undefined&&Number.isInteger(member)&&member>=0&&member<5,"Invalid operator member");
     // Vote time must be within 60 s before the including block; leave room for proving and approval.
-    circuitId="voteOperatorAction";args=[opActionId({circuit:"createSideBMarket",id,config}),BigInt(member),true,BigInt(Math.floor(Date.now()/1000)-10)];
-  }else if(step==="create"){circuitId="createSideBMarket";args=[id,config];}
+    circuitId="voteOperatorAction";args=[opActionId(await gated(body.target??"market",commitmentFor(body))),BigInt(member),true,BigInt(Math.floor(Date.now()/1000)-10)];
+  }else if(body.step==="create"){circuitId="createSideBMarket";args=[id,config];}
+  else if(body.step==="group"){const g=await scoutGroup();circuitId="configureScoutGroup";args=[g.group,g.config];}
+  else if(body.step==="admit"){const g=await scoutGroup();circuitId="admitScout";args=[g.group,bytes(commitmentFor(body)!)];}
+  else if(body.step==="scout-stake"){
+    scoutIndex=body.scout;assert(scoutIndex!==undefined&&scoutIndex>=0&&scoutIndex<list.length,"Invalid synthetic scout");
+    const g=await scoutGroup();
+    state=await preparePrivateStake(list[scoutIndex],{market:id,slot:1n,group:g.group,option:0n,blockTime:BigInt(Math.floor(Date.now()/1000))});
+    list[scoutIndex]={...state,action:undefined};await writeFile(SCOUTS,pack(list),{mode:0o600});
+    circuitId="stake";args=[id,g.group,1n,50n,state.positions[`${id}/1`].revealKeyCommit];
+  }
   else throw Error("Step not allowed");
-  const unproven=await createUnprovenCallTx({zkConfigProvider:zk,publicDataProvider:publicData,walletProvider} as never,
-    {compiledContract:compiled,contractAddress:journal.contract,circuitId,args} as never);
+  const privateStateProvider=ephemeralState<ClientPrivateState>();privateStateProvider.setContractAddress(journal.contract);
+  await privateStateProvider.set("relay",state??list[0]);
+  const unproven=await createUnprovenCallTx({zkConfigProvider:zk,publicDataProvider:publicData,walletProvider,privateStateProvider} as never,
+    {compiledContract:compiled,contractAddress:journal.contract,circuitId,args,privateStateId:"relay"} as never);
   const proven=await proof.proveTx(unproven.private.unprovenTx);
   return {tx:hex(proven.serialize()),circuit:circuitId};
 }
@@ -89,10 +134,10 @@ createServer(async(req,res)=>{
     if(req.method==="GET"&&req.url==="/plan")return send(200,(await plan()).public);
     if(req.method!=="POST"||req.url!=="/prove")return send(404,{error:"Not found"});
     let raw="";for await(const chunk of req)raw+=chunk;
-    const body=JSON.parse(raw) as {step:string;member?:number;coinPublicKey:string;encryptionPublicKey:string};
+    const body=JSON.parse(raw) as Body;
     assert(typeof body.coinPublicKey==="string"&&typeof body.encryptionPublicKey==="string","Wallet keys required");
-    const started=Date.now();const out=await prove(body.step,body.member,body.coinPublicKey,body.encryptionPublicKey);
-    console.log(JSON.stringify({step:body.step,member:body.member,provedMs:Date.now()-started}));
+    const started=Date.now();const out=await prove(body);
+    console.log(JSON.stringify({step:body.step,target:body.target,member:body.member,scout:body.scout,provedMs:Date.now()-started}));
     send(200,out);
   }catch(e){console.log(JSON.stringify({error:scrub(e)}));send(400,{error:scrub(e)});}
 }).listen(PORT,"127.0.0.1",()=>console.log(`Operator relay listening on localhost port ${PORT} for ${journal.contract.slice(0,8)}`));

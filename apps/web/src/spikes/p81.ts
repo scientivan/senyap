@@ -177,13 +177,14 @@ export async function prepare(walletId?:string){
       progress.stage="staked";remember();return structuredClone(progress);
     },
     /** P9.9: the operator relay proves a vote or the market creation; this wallet only pays and submits. */
-    async relay(kind:"vote"|"create",member?:number){
+    async relay(kind:"vote"|"create"|"group"|"admit"|"scout-stake",opts:{member?:number;target?:string;scout?:number;commitment?:string}|number={}){
+      const o=typeof opts==="number"?{member:opts}:opts;const member=o.member;
       const contract=progress.contract;if(!contract)throw Error("Deploy first.");
-      const action=kind==="vote"?`market-vote:${member}`:"market-create";if(done(action))return structuredClone(progress);
+      const action=[kind,o.target,member,o.scout,o.commitment?.slice(0,8)].filter(x=>x!==undefined).join(":");if(done(action))return structuredClone(progress);
       const p=providers<string>("/contracts/senyap");
       await step(action,async()=>{
         const r=await fetch("/__relay/prove",{method:"POST",headers:{"content-type":"application/json"},
-          body:JSON.stringify({step:kind,member,coinPublicKey:addresses.shieldedCoinPublicKey,encryptionPublicKey:addresses.shieldedEncryptionPublicKey})});
+          body:JSON.stringify({step:kind,...o,coinPublicKey:addresses.shieldedCoinPublicKey,encryptionPublicKey:addresses.shieldedEncryptionPublicKey})});
         const out=await r.json() as {tx?:string;error?:string};if(!r.ok||!out.tx)throw Error(out.error??"Relay failed");
         const balanced=await p.walletProvider.balanceTx(Transaction.deserialize("signature","proof","pre-binding",fromHex(out.tx)) as never);
         const id=await p.midnightProvider.submitTx(balanced);
