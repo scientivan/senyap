@@ -44,7 +44,7 @@ function BuilderProfile() {
       <h2 className="pf-h">Your team</h2>
       <div className="grid2">
         <Card title="Team listing and consent" sub="Teams appear as options when they register or publicly seek funding. You can opt out at any time. Your ownership key stays in your workspace.">
-          <Link to="/app/preprod" className="abtn abtn-soft">Manage listing in workspace</Link>
+          <Link to="/app/act" className="abtn abtn-soft">Manage listing in workspace</Link>
         </Card>
         <Card title="Ecosystem questions" sub="Questions builders asked scouts about ecosystems.">
           <div className="stats">
@@ -91,7 +91,7 @@ export function Profile() {
   const s = useStore();
   return (
     <>
-      <PageHead title="Profile" sub="Your account, balance and private workspace, plus what Senyap knows about your role." />
+      <PageHead title="Account" sub="Your account, balance and private workspace, plus what Senyap knows about your role." />
       <Identity />
       <div className="mt16">
         {s.role === "ecosystem" && <Standing embedded />}

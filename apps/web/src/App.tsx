@@ -12,12 +12,9 @@ import { WalletProvider } from "./app/wallet";
 import { Actions, Home } from "./app/pages/Home";
 import { Markets } from "./app/pages/Markets";
 import { MarketDetail } from "./app/pages/MarketDetail";
-import { Positions } from "./app/pages/Scout";
 import { Profile } from "./app/pages/Profile";
-import { Workspace } from "./app/pages/Workspace";
 import { Committee, Faucet, Guide, NewMarket, Operator, Registry, Verify } from "./app/pages/Other";
 
-const LiveWorkspace=lazy(()=>import("./app/pages/LiveWorkspace").then(module=>({default:module.LiveWorkspace})));
 
 function Landing() {
   return (
@@ -48,7 +45,6 @@ const router = createBrowserRouter([
       { path: "markets", element: <Markets /> },
       { path: "markets/:id", element: <MarketDetail /> },
       { path: "new", element: <NewMarket /> },
-      { path: "positions", element: <Positions /> },
       { path: "tier", element: <Navigate to="/app/profile" replace /> },
       { path: "registry", element: <Registry /> },
       { path: "profile", element: <Profile /> },
@@ -57,8 +53,13 @@ const router = createBrowserRouter([
       { path: "verify", element: <Verify /> },
       { path: "faucet", element: <Faucet /> },
       { path: "guide", element: <Guide /> },
-      { path: "workspace", element: <Workspace /> },
-      { path: "preprod", element: <Suspense fallback={<p role="status">Opening Preprod workspace</p>}><LiveWorkspace/></Suspense> },
+      { path: "workspace", element: <Navigate to="/app/vault" replace /> },
+      // The workspace is mounted once in AppLayout; these routes only pick its section.
+      { path: "act", element: null },
+      { path: "activity", element: null },
+      { path: "vault", element: null },
+      { path: "preprod", element: <Navigate to="/app/act" replace /> },
+      { path: "positions", element: <Navigate to="/app/activity" replace /> },
       { path: "*", element: <Navigate to="/app" replace /> },
     ],
   },

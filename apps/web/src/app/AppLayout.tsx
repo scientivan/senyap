@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "../components/Icons";
 import { useStore } from "./data/store";
@@ -24,7 +24,7 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
   ],
   scout: [
     { to: "/app", label: "Home" },
-    { to: "/app/positions", label: "My picks" },
+    { to: "/app/activity", label: "My activity" },
   ],
   operator: [
     { to: "/app", label: "Home" },
@@ -34,6 +34,10 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
     { to: "/app/markets", label: "Markets" },
   ],
 };
+
+const LiveWorkspace = lazy(() => import("./pages/LiveWorkspace").then((m) => ({ default: m.LiveWorkspace })));
+const sectionFor = (path: string): "act" | "activity" | "vault" | null =>
+  path.startsWith("/app/act") ? "act" : path.startsWith("/app/activity") ? "activity" : path.startsWith("/app/vault") ? "vault" : null;
 
 export function AppLayout() {
   const { role, setRole, balance } = useStore();
@@ -58,6 +62,7 @@ export function AppLayout() {
   }, []);
 
     const current = roles.find((r) => r.id === role) ?? roles[0];
+  const section = sectionFor(loc.pathname);
   // Operator lives at /operator; the user app never runs in the operator role.
   useEffect(() => { if (role === "operator") setRole("ecosystem"); }, [role, setRole]);
 
@@ -75,7 +80,7 @@ export function AppLayout() {
                 {m.label}
               </NavLink>
             ))}
-            <NavLink to="/app/preprod" className={({isActive})=>isActive?"on":""}>Private workspace</NavLink>
+            <NavLink to="/app/vault" className={({isActive})=>isActive?"on":""}>My vault</NavLink>
           </nav>
           <div className="ah-right">
             {balance!==null&&<span className="ah-bal" title="Test dUSD in your connected wallet on Preprod.">{balance.toLocaleString()} dUSD</span>}
@@ -112,7 +117,7 @@ export function AppLayout() {
                 </ul>
               )}
             </div>
-            <NavLink to="/app/profile" className={({isActive})=>`ah-bal ah-profile${isActive?" on":""}`}>Profile</NavLink>
+            <NavLink to="/app/profile" className={({isActive})=>`ah-bal ah-profile${isActive?" on":""}`}>Account</NavLink>
             <div className="ah-wallet">
               {state.status === "connected" ? (
                 <button type="button" className="abtn abtn-soft" onClick={() => setWalletOpen((o) => !o)}>
@@ -184,6 +189,7 @@ export function AppLayout() {
       </header>
       <main className="am">
         <Outlet />
+        <Suspense fallback={null}><LiveWorkspace section={section} market={new URLSearchParams(loc.search).get("market")} /></Suspense>
       </main>
       <footer className="af">
         <span>Live data from the Midnight Preprod test network. dUSD is a synthetic test token. Your picks and keys stay encrypted in your workspace on this device.</span>

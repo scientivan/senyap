@@ -22,7 +22,7 @@ export function Home() {
     <>
       <PageHead title={g.title} sub={g.sub} />
       <div className="grid2">
-        <Card title="Next actions" sub={`${q.filter((i) => i.tone === "urgent").length} need attention now`} action={q.length > HOME_LIMIT ? <Link to="/app/actions" className="abtn abtn-soft abtn-sm">See more</Link> : undefined}>
+        <Card title="To do" sub={`${q.filter((i) => i.tone === "urgent").length} need attention now`} action={q.length > HOME_LIMIT ? <Link to="/app/actions" className="abtn abtn-soft abtn-sm">See more</Link> : undefined}>
           <ActionList items={q.slice(0, HOME_LIMIT)} />
         </Card>
         <Standing role={s.role} />
@@ -71,7 +71,7 @@ export function Actions() {
   const q = s.queue(s.role);
   return (
     <>
-      <PageHead title="Next actions" sub="Everything that needs you, newest deadline first." />
+      <PageHead title="To do" sub="Everything that needs you, nearest deadline first." />
       <Card title={`${q.length} actions`} sub={`${q.filter((i) => i.tone === "urgent").length} need attention now`}>
         <ActionList items={[...q].sort((a, b) => (a.due ?? Infinity) - (b.due ?? Infinity))} />
       </Card>
@@ -90,7 +90,7 @@ function Standing({ role }: { role: Role }) {
         <div className="stat"><span>Open now</span><b>{open.length}</b></div>
         <div className="stat"><span>Scouts in open markets</span><b>{open.reduce((n, m) => n + m.scouts, 0)}</b></div>
       </div>
-      <Link to="/app/preprod" className="abtn abtn-soft mt16">{role === "scout" ? "Your picks are in your workspace" : "Open your workspace"}</Link>
+      <Link to="/app/act" className="abtn abtn-soft mt16">{role === "scout" ? "Your picks are in your workspace" : "Open your workspace"}</Link>
     </Card>
   );
 }

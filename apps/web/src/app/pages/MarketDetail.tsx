@@ -9,7 +9,7 @@ import { history, type HistoryItem } from "../data/live";
 
 const flow: Phase[] = ["open", "closed", "preview", "auction", "allocated", "outcome", "settling", "settled"];
 // Every action is signed in the private workspace with the connected wallet.
-const WORKSPACE = "/app/preprod";
+const WORKSPACE = "/app/act";
 
 export function MarketDetail() {
   const { id } = useParams();

@@ -6,7 +6,7 @@ import { useWallet } from "../wallet";
 /* ------------------------------------------------------------------ */
 /* Live Preprod data. Public market state is read from the contract;   */
 /* private positions, picks and keys live in the private workspace.    */
-/* Every action is signed in /app/preprod with the connected wallet.   */
+/* Every action is signed in the vault (/app/act, /app/activity) with the connected wallet.   */
 /* ------------------------------------------------------------------ */
 
 type Store = {
@@ -17,7 +17,7 @@ type Store = {
   contract?: string;
   refresh: () => void;
   markets: Market[];
-  /** Private positions are only known inside the unlocked workspace (/app/preprod). */
+  /** Private positions are only known inside the unlocked workspace (the vault (/app/act, /app/activity)). */
   positions: Position[];
   teams: Team[];
   /** dUSD in the connected wallet, or null when no wallet is connected. */
@@ -73,7 +73,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (r === "scout")
       return open.map((m) => ({ id: `s${m.id}`, role: r, title: `Stake in market #${m.id} before it closes`, detail: m.question, due: m.closesAt, href: `/app/markets/${m.id}`, action: "Open", tone: "urgent" as const }));
     if (r === "ecosystem")
-      return [{ id: "new", role: r, title: "Open a Side A market", detail: "Ask scouts which opt-in teams are most promising. You need buyer good standing.", href: "/app/preprod", action: "Open workspace", tone: "normal" }];
+      return [{ id: "new", role: r, title: "Open a Side A market", detail: "Ask scouts which opt-in teams are most promising. You need buyer good standing.", href: "/app/act", action: "Open workspace", tone: "normal" }];
     if (r === "builder")
       return open.filter((m) => m.side === "B").map((m) => ({ id: `q${m.id}`, role: r, title: `Signal forming on market #${m.id}`, detail: m.question, due: m.closesAt, href: `/app/markets/${m.id}`, action: "Open", tone: "normal" as const }));
     return [{ id: "reg", role: r, title: "Operator seats and approvals", detail: "Read live from the Preprod contract.", href: "/operator/registry", action: "Open", tone: "normal" }];
