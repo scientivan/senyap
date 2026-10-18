@@ -18,13 +18,11 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
   // Markets live on Home. Builder consent and opt-out live in Profile.
   ecosystem: [
     { to: "/app", label: "Home" },
-    { to: "/app/team", label: "New Market" },
     { to: "/app/purchases", label: "Purchases" },
     { to: "/app/disputes", label: "Disputes" },
   ],
   builder: [
     { to: "/app", label: "Home" },
-    { to: "/app/team", label: "My Team" },
     { to: "/app/purchases", label: "Purchases" },
     { to: "/app/disputes", label: "Disputes" },
   ],

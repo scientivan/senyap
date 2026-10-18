@@ -33,7 +33,7 @@ export function Home() {
         title={s.role === "builder" ? "Ecosystem signals" : "Markets"}
         sub={s.role === "builder" ? "Questions builders asked about how ecosystems treat their teams. Click a row to open it." : "Every market on the Preprod contract. Click a row to open it."}
         className="mt16"
-        action={s.role === "builder" ? <Link to="/app/new?side=B" className="abtn abtn-red abtn-sm">Ask a question</Link> : undefined}
+        action={s.role === "builder" ? <Link to="/app/new?side=B" className="abtn abtn-red abtn-sm">Ask a question</Link> : s.role === "ecosystem" ? <Link to="/app/team" className="abtn abtn-red abtn-sm">Open a market</Link> : undefined}
       >
         <MarketTable markets={markets.slice(0, HOME_LIMIT)} onOpen={(id) => nav(`/app/markets/${id}`)} />
         {markets.length > HOME_LIMIT && <Link to={s.role === "builder" ? "/app/markets?side=B" : "/app/markets"} className="abtn abtn-soft abtn-sm mt16">See more</Link>}
@@ -90,7 +90,7 @@ function Standing({ role }: { role: Role }) {
         <div className="stat"><span>Open now</span><b>{open.length}</b></div>
         <div className="stat"><span>Scouts in open markets</span><b>{open.reduce((n, m) => n + m.scouts, 0)}</b></div>
       </div>
-      <Link to={role === "scout" ? "/app/activity" : role === "builder" ? "/app/team" : "/app/purchases"} className="abtn abtn-soft mt16">{role === "scout" ? "See my activity" : role === "builder" ? "Manage my team" : "See my purchases"}</Link>
+      <Link to={role === "scout" ? "/app/activity" : "/app/purchases"} className="abtn abtn-soft mt16">{role === "scout" ? "See my activity" : role === "builder" ? "See my purchases" : "See my purchases"}</Link>
     </Card>
   );
 }

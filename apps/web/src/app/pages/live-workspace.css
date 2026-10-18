@@ -116,3 +116,12 @@
 .team-card label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .team-card input:not([type="checkbox"]), .team-card textarea, .team-card select { min-height: 38px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; }
 .team-card fieldset { border: 0; padding: 0; margin: 14px 0 0; }
+/* Team and new-market forms: one centred column, one type scale. */
+.live-workspace:has(.team-card) .ph { max-width: 640px; margin-left: auto; margin-right: auto; }
+.acard.team-card { max-width: 640px; margin: 0 auto; padding: 28px; }
+.team-card .act-head h2 { font: var(--w-strong) 18px/1.3 var(--font); display: flex; align-items: center; gap: 8px; margin: 0; }
+.team-card .act-head p { font-size: 14px; margin: 4px 0 18px; }
+.team-card label:not(.check) { font: var(--w-ui) 13px/1.3 var(--font); color: var(--ink); }
+.team-card .check { display: flex; align-items: center; gap: 10px; font: var(--w-body) 14px/1.4 var(--font); margin: 4px 0 18px; }
+.team-card .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--night); }
+.team-card .act-next { width: 100%; height: 44px; }
