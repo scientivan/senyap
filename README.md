@@ -159,8 +159,9 @@ pays every stake from one wallet and runs the operator relay and all five
 committee members. The 3-of-5 rules are enforced on chain, but every seat is held
 by the same person, so they do not yet protect anyone from that person. Moving to
 independent seat holders needs each member to create their own seat key and DKG
-dealing on their own machine, then a redeploy (the seat commitments are sealed). A wrong decryption share is not slashable yet (it needs member-signed
-shares). Collusion that only leaks a final total, without handing over a key share,
+dealing on their own machine, then a redeploy (the seat commitments are sealed). A wrong decryption share is rejected (each share carries a DLEQ proof checked
+off chain) but not slashed: the contract does not yet take member-signed shares,
+so the 100% wrong-share penalty in SPEC §16 is not enforced on chain. Collusion that only leaks a final total, without handing over a key share,
 cannot be proven on chain.
 
 ## Preprod deployment (18 Oct 2026)

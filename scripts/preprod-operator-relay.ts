@@ -17,8 +17,12 @@ import {NodeZkConfigProvider} from "@midnight-ntwrk/midnight-js-node-zk-config-p
 import {httpClientProofProvider} from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
 import {Contract, type Market} from "../contracts/managed/senyap/contract/index.js";
 import {opActionId, type GatedCall} from "../packages/sdk/src/operator-actions";
-import {clientWitnesses, createClientState, preparePrivateStake, type ClientPrivateState} from "../packages/sdk/src/client-state";
+import {actionState, clientWitnesses, createClientState, preparePrivateBuyer, preparePrivateStake, type ClientPrivateState} from "../packages/sdk/src/client-state";
+import {planTransitions} from "../services/keeper/src/transitions";
 import {ephemeralState} from "../packages/sdk/src/ephemeral-state";
+import {createDecryptionShare, decryptToPoint, discreteLog} from "../packages/crypto/src/index";
+import {summarizeTotals} from "../apps/committee/src/decisions";
+import {ledger} from "../contracts/managed/senyap/contract/index.js";
 import {Bytes32Descriptor, CompactTypeVector, convertFieldToBytes, persistentHash} from "@midnight-ntwrk/compact-runtime";
 import {marketMetadataHash} from "../packages/sdk/src/market-metadata";
 import {preprodEnvironment, scrub} from "./lib/preprod-environment";
@@ -29,7 +33,8 @@ const PORT=3110;
 const PLAN=process.env.SENYAP_MARKET_PLAN??"docs/evidence/P9.9-market-plan.json";
 const journal=JSON.parse(await readFile("docs/evidence/P9.7-preprod-deploy-journal.json","utf8"));
 assert(journal.status==="completed"&&/^[a-f0-9]{64}$/.test(journal.contract),"Completed P9.7 deployment required");
-const secrets=JSON.parse(await readFile(".states/preprod-secrets.json","utf8")) as {operator:string;operatorMembers:string[]};
+const secrets=JSON.parse(await readFile(".states/preprod-secrets.json","utf8")) as {operator:string;operatorMembers:string[];committee:string[];shares:{id:number;scalar:string}[]};
+const committeePlan=JSON.parse(await readFile("docs/evidence/P9.7-preprod-public-plan.json","utf8"));
 setNetworkId("preprod");
 const env=preprodEnvironment();
 const hex=(b:Uint8Array)=>Buffer.from(b).toString("hex"), bytes=(h:string)=>Uint8Array.from(Buffer.from(h,"hex"));
@@ -77,6 +82,16 @@ async function scouts():Promise<ClientPrivateState[]>{
   const list=await Promise.all(Array.from({length:5},()=>createClientState({scout:rand(),buyer:rand(),builder:rand(),verifier:rand()},{network:"preprod",contract:journal.contract})));
   await writeFile(SCOUTS,pack(list),{mode:0o600});return list;
 }
+// One synthetic buyer (the builder who asked the Side B question), same storage rules.
+const BUYER=".states/preprod-synthetic-buyer.json";
+async function buyer():Promise<ClientPrivateState>{
+  if(existsSync(BUYER))return unpack(await readFile(BUYER,"utf8"));
+  const rand=()=>crypto.getRandomValues(new Uint8Array(32));
+  const b=await createClientState({scout:rand(),buyer:rand(),builder:rand(),verifier:rand()},{network:"preprod",contract:journal.contract});
+  await writeFile(BUYER,pack(b),{mode:0o600});return b;
+}
+const saveBuyer=(b:ClientPrivateState)=>writeFile(BUYER,pack({...b,action:undefined}),{mode:0o600});
+const nowSeconds=()=>BigInt(Math.floor(Date.now()/1000));
 const epochNow=()=>BigInt(Math.floor(Date.now()/1000))/86400n;
 async function scoutGroup(){
   const {id,config}=await plan(),epoch=epochNow();
@@ -88,15 +103,33 @@ async function gated(target:string,commitment?:string):Promise<GatedCall>{
   if(target==="market")return {circuit:"createSideBMarket",id,config};
   const {group,config:groupConfig}=await scoutGroup();
   if(target==="group")return {circuit:"configureScoutGroup",group,config:groupConfig};
+  if(target==="admit-buyer")return {circuit:"admitBuyer",commitment:persistentHash(Bytes32Descriptor,(await buyer()).secrets.buyer)};
   if(target==="admit"){assert(commitment&&/^[a-f0-9]{64}$/.test(commitment),"Scout commitment required");return {circuit:"admitScout",group,commitment:bytes(commitment)};}
   throw Error("Target not allowed");
 }
 
-type Body={step:string;target?:string;member?:number;scout?:number;commitment?:string;coinPublicKey:string;encryptionPublicKey:string};
+// Committee preview. Members 1-3 each make a DLEQ-proven decryption share of every
+// option total; the combined totals become the public strong/medium/weak histogram.
+// In this deployment one person runs all members (see README trust model).
+async function previewHistogram(market:bigint){
+  const state=await publicData.queryContractState(journal.contract);assert(state,"Contract state unavailable");
+  const l=ledger(state.data),cfg=l.markets.lookup(market),sums=l.tally.lookup(market);
+  const keys=committeePlan.committeeShareKeys.map((k:{x:string;y:string})=>({x:BigInt(k.x),y:BigInt(k.y)}));
+  const bound=l.marketStake.lookup(market)*2n+1n,totals:bigint[]=[];
+  for(let i=0;i<Number(cfg.nOptions);i++){
+    const binding=`senyap:preview:${journal.contract}:${market}:${i}`;
+    const shares=await Promise.all(secrets.shares.slice(0,3).map(sh=>createDecryptionShare({id:sh.id,scalar:BigInt(sh.scalar)},sums[i].c1,binding)));
+    totals.push(discreteLog(await decryptToPoint(sums[i],shares,keys,binding),bound));
+  }
+  return summarizeTotals(totals);
+}
+
+type Body={step:string;target?:string;member?:number;scout?:number;commitment?:string;recipient?:string;coinPublicKey:string;encryptionPublicKey:string};
 async function prove(body:Body){
   const {id,config}=await plan();const {member}=body;
   const operatorWitnesses={
     operatorSecret:(c:{privateState:unknown})=>[c.privateState,bytes(secrets.operator)],
+    committeeSecret:(c:{privateState:unknown})=>{assert(member!==undefined);return [c.privateState,bytes(secrets.committee[member])];},
     operatorMemberSecret:(c:{privateState:unknown})=>{assert(member!==undefined);return [c.privateState,bytes(secrets.operatorMembers[member])];},
   };
   const compiled=CompiledContract.make("SenyapRelay",Contract<ClientPrivateState>).pipe(CompiledContract.withWitnesses({...clientWitnesses,...operatorWitnesses} as never),CompiledContract.withCompiledFileAssets("contracts/managed/senyap"));
@@ -108,10 +141,36 @@ async function prove(body:Body){
   if(body.step==="vote"){
     assert(member!==undefined&&Number.isInteger(member)&&member>=0&&member<5,"Invalid operator member");
     // Vote time must be within 60 s before the including block; leave room for proving and approval.
-    circuitId="voteOperatorAction";args=[opActionId(await gated(body.target??"market",commitmentFor(body))),BigInt(member),true,BigInt(Math.floor(Date.now()/1000)-10)];
+    circuitId="voteOperatorAction";args=[opActionId(await gated(body.target??"market",commitmentFor(body))),BigInt(member),true,BigInt(Math.floor(Date.now()/1000)+Number(process.env.SENYAP_VOTE_OFFSET??-10))];
   }else if(body.step==="create"){circuitId="createSideBMarket";args=[id,config];}
   else if(body.step==="group"){const g=await scoutGroup();circuitId="configureScoutGroup";args=[g.group,g.config];}
   else if(body.step==="admit"){const g=await scoutGroup();circuitId="admitScout";args=[g.group,bytes(commitmentFor(body)!)];}
+  else if(body.step==="admit-buyer"){circuitId="admitBuyer";args=[persistentHash(Bytes32Descriptor,(await buyer()).secrets.buyer)];}
+  else if(body.step==="buy"){
+    state=await preparePrivateBuyer(await buyer(),{market:id,blockTime:nowSeconds()});await saveBuyer(state);
+    circuitId="buyFlat";args=[id,0n];
+  }
+  else if(body.step==="outcome"){
+    // The asking builder reports that option 0 (the scouts' ecosystem) answered the question.
+    state=actionState(await buyer(),{blockTime:nowSeconds(),market:id});
+    circuitId="recordOutcome";args=[id,0n,[true,false,false,false,false,false,false,false],Uint8Array.from(sha(`senyap:outcome-evidence:preprod:${id}`)),false];
+  }
+  else if(body.step==="prove-hit"||body.step==="claim"){
+    scoutIndex=body.scout;assert(scoutIndex!==undefined&&scoutIndex>=0&&scoutIndex<list.length,"Invalid synthetic scout");
+    state=actionState(list[scoutIndex],{blockTime:nowSeconds(),market:id,slot:1n});
+    if(body.step==="prove-hit"){circuitId="proveHit";args=[id,1n,0n];}
+    else{assert(body.recipient&&/^[a-f0-9]{64}$/.test(body.recipient),"Recipient required");circuitId="claim";args=[id,1n,{bytes:bytes(body.recipient)}];}
+  }
+  else if(body.step==="keeper"){
+    // Permissionless keeper: plan from the live state and execute the first supported transition.
+    const live=await publicData.queryContractState(journal.contract);assert(live,"Contract state unavailable");
+    const action=planTransitions(ledger(live.data) as never,nowSeconds()).find(a=>["close","finalizeMarket","cancelMarket"].includes(a.kind));
+    assert(action,"Keeper has nothing to do");circuitId=action.kind;args=[action.market];
+  }
+  else if(body.step==="preview"){
+    assert(member!==undefined&&member>=0&&member<5,"Invalid committee member");
+    circuitId="postPreview";args=[id,await previewHistogram(id),BigInt(member)];
+  }
   else if(body.step==="scout-stake"){
     scoutIndex=body.scout;assert(scoutIndex!==undefined&&scoutIndex>=0&&scoutIndex<list.length,"Invalid synthetic scout");
     const g=await scoutGroup();
@@ -139,5 +198,8 @@ createServer(async(req,res)=>{
     const started=Date.now();const out=await prove(body);
     console.log(JSON.stringify({step:body.step,target:body.target,member:body.member,scout:body.scout,provedMs:Date.now()-started}));
     send(200,out);
-  }catch(e){console.log(JSON.stringify({error:scrub(e)}));send(400,{error:scrub(e)});}
+  }catch(e){
+    // Contract assertion text helps diagnosis and holds no secrets; scrub still applies.
+    let cause:unknown=e,detail=scrub(e);for(let i=0;i<4&&cause instanceof Error&&cause.cause;i++){cause=cause.cause;detail+=` <- ${scrub(cause)}`;}
+    console.log(JSON.stringify({error:detail}));send(400,{error:detail});}
 }).listen(PORT,"127.0.0.1",()=>console.log(`Operator relay listening on localhost port ${PORT} for ${journal.contract.slice(0,8)}`));

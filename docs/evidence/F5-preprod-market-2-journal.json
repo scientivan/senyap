@@ -1,0 +1,108 @@
+{
+  "network": "preprod",
+  "status": "in-progress",
+  "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
+  "marketId": "2",
+  "plan": "docs/evidence/F5-market-2-plan.json",
+  "updatedAt": "2026-10-18T11:59:15.367Z",
+  "finalizedSteps": [
+    "3 operator votes + createSideBMarket",
+    "3 votes + configureScoutGroup (daily epoch, ecosystem = option 0)",
+    "5 scouts admitted, each 3 votes + admitScout",
+    "5 scout stakes of 50 dUSD on option 0"
+  ],
+  "transactionIdsKept": [
+    {
+      "action": "vote:admit:2:2",
+      "status": "finalized",
+      "txId": "0085aa348a6257ab0f09346c01c4896f0a0fb0ef458d1d065dccc48627b0818fb9"
+    },
+    {
+      "action": "admit:2",
+      "status": "finalized",
+      "txId": "00c18e5dc3e00d6abe6c5df8c37a2f53db7ae946107364b9d9417d0f24bcdc3790"
+    },
+    {
+      "action": "vote:admit:0:3",
+      "status": "finalized",
+      "txId": "00060e0b66355e20fe2c1ab62f1f5b8b7bce5fcd68b72d93b80a842361fec8170b"
+    },
+    {
+      "action": "vote:admit:1:3",
+      "status": "finalized",
+      "txId": "009d0ed736c5d9152e6e6a14a07a8b238733ef705f8434fa34806e347c5d74e82c"
+    },
+    {
+      "action": "vote:admit:2:3",
+      "status": "finalized",
+      "txId": "00d50a6d91f7cc38d7d0063475c3002e3a4463b20b54cd979bd9b5b744edf75c19"
+    },
+    {
+      "action": "admit:3",
+      "status": "finalized",
+      "txId": "00bc63dc8d92d1ea3e3893f7daf06d5445f68ef11182598129f3dc7faff6ca2999"
+    },
+    {
+      "action": "vote:admit:0:4",
+      "status": "finalized",
+      "txId": "0001ce21bf9ec4434dc676b99d0055de4dd92389489d566be586d8ef3aaf51ec58"
+    },
+    {
+      "action": "vote:admit:1:4",
+      "status": "finalized",
+      "txId": "00c4ba031611214a678f6c5ba6d751cd8da7f194e07190d0bf82b2bfc850ec54e3"
+    },
+    {
+      "action": "vote:admit:2:4",
+      "status": "finalized",
+      "txId": "004340822d78bf9e06c9770baba42b55f8c79a8d974ab95547b0637aea87a76c4a"
+    },
+    {
+      "action": "admit:4",
+      "status": "finalized",
+      "txId": "0041651f12e01b5d92be3d01b04d933b916f6339a8a451818bb5339cae6fa38ab0"
+    },
+    {
+      "action": "scout-stake:0",
+      "status": "finalized",
+      "txId": "002e37125a37c8e086cc9b32f37efd9116fe3bd40caf7a09f23852c08749719f5f"
+    },
+    {
+      "action": "scout-stake:1",
+      "status": "finalized",
+      "txId": "0020785b1998b1f61c09817217eecc4785a88d1f462068970e220789d1096c359f"
+    },
+    {
+      "action": "scout-stake:2",
+      "status": "finalized",
+      "txId": "0010cfa6f880a4cf4c415d5ba63ef4dc879d97152e836ccd7c068eaa2742de2e30"
+    },
+    {
+      "action": "scout-stake:3",
+      "status": "finalized",
+      "txId": "007a53decfc443b29f89202f1e8a7257594ed23f583aa9b6e192cfa05884be43d9"
+    },
+    {
+      "action": "scout-stake:4",
+      "status": "finalized",
+      "txId": "0083f703203f85e11437d639efe78cce50d5ee72a382c973ed5393b7fe9b230ae3"
+    }
+  ],
+  "idsNote": "Transaction IDs for the market, group and first admissions were held in a browser tab that closed after a 1AM disconnect; those steps are verified from contract state below.",
+  "checkedOnChain": {
+    "markets": [
+      "1",
+      "2"
+    ],
+    "marketScouts": "5",
+    "marketStake": "250",
+    "phase": "open",
+    "groupSize": "5",
+    "at": "2026-10-18T11:53Z"
+  },
+  "failedAttempts": "Several votes were rejected (node 1010 custom error 104, or FailFallible) because wallet approval took longer than the contract 60 s vote window; none changed state. Two submissions failed on a 1AM WebSocket disconnect and never reached the chain.",
+  "limits": [
+    "Scouts are synthetic identities held by the operator relay; one wallet pays every stake.",
+    "Operators and committee are all run by one person."
+  ]
+}
