@@ -16,6 +16,8 @@ import {prepareSideAMarket,saveMetadataDraft,markMetadataPublished,type PublicMe
 import {prepareProductClient} from "../product-client";
 import {productDeployment} from "../deployment";
 import {useWallet} from "../wallet";
+import {GlobeIcon,LockIcon} from "../../components/Icons";
+import {syncNow} from "../vault-sync";
 import {Workspace} from "./Workspace";
 import "./live-workspace.css";
 type Product=Awaited<ReturnType<typeof prepareProductClient>>;
@@ -39,6 +41,8 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
   // Read live markets as soon as wallet and vault are both ready.
   useEffect(()=>{if(canOpen&&!view&&!busy)refresh();// eslint-disable-line react-hooks/exhaustive-deps
   },[canOpen]);
+  // Every refreshed view may follow a vault change (new pick, purchase); upload it encrypted.
+  useEffect(()=>{if(view)syncNow().catch(()=>undefined);},[view]);
   const act=section==="act",activity=section==="activity",purchases=section==="purchases",disputes=section==="disputes";
   const shown=view?.markets.filter(m=>(!market||String(m.id)===market)&&(!purchases||!!m.buyer)&&(!disputes||view.juryCases.some(c=>c.market===m.id)))??[];
   async function refresh(reconcile=false){
@@ -263,14 +267,23 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
     <div hidden={showWorkspace}>
       <h1>{act?(market?`Market #${market}`:"Take action"):activity?"My Activity":purchases?"Purchases":disputes?"Disputes":"Vault"}</h1>
       {!view&&<div className="live-gate">
-        {!(wallet.api&&wallet.state.status==="connected")?<>
-          <p className="live-intro"><b>Connect your Midnight wallet</b> on Preprod to see this.</p>
-          <button className="abtn abtn-red" disabled={wallet.state.status==="connecting"} onClick={()=>wallet.connect()}>{wallet.state.status==="connecting"?"Waiting for your wallet":"Connect wallet"}</button>
-          {wallet.state.status==="error"&&<p className="live-status">{wallet.state.message}</p>}
-        </>:!unlocked?<>
-          <p className="live-intro"><b>Unlock your vault</b> to see this. It keeps your picks and keys on this device and <b>stays unlocked until you close this tab</b>.</p>
-          <button className="abtn abtn-red" disabled={busy} onClick={()=>setShowWorkspace(true)}>Unlock vault</button>
-        </>:<p className="live-intro">{busy?"Reading Preprod.":"Loading your data."}</p>}
+        <ol className="live-steps" aria-label="Before you start">
+          <li className={wallet.api&&wallet.state.status==="connected"?"done":"now"}><span>1</span>Connect wallet</li>
+          <li className={unlocked?"done":wallet.api&&wallet.state.status==="connected"?"now":""}><span>2</span>Unlock vault</li>
+        </ol>
+        <div className="live-gate-card">
+          <span className="live-gate-ic" aria-hidden="true">{!(wallet.api&&wallet.state.status==="connected")?<GlobeIcon/>:<LockIcon/>}</span>
+          {!(wallet.api&&wallet.state.status==="connected")?<>
+            <h2>Connect your wallet</h2>
+            <p>Use a Midnight wallet such as Lace or 1AM, set to <b>Preprod</b>. It pays fees and holds your test dUSD.</p>
+            <button className="abtn abtn-red" disabled={wallet.state.status==="connecting"} onClick={()=>wallet.connect()}>{wallet.state.status==="connecting"?"Waiting for your wallet":"Connect wallet"}</button>
+            {wallet.state.status==="error"&&<p className="live-status">{wallet.state.message}</p>}
+          </>:!unlocked?<>
+            <h2>Unlock your vault</h2>
+            <p>Your picks and keys, encrypted with <b>your password</b>. It stays open until you close this tab.</p>
+            <button className="abtn abtn-red" disabled={busy} onClick={()=>setShowWorkspace(true)}>Unlock vault</button>
+          </>:<p>{busy?"Reading Preprod.":"Loading your data."}</p>}
+        </div>
         {!deployment&&<p className="live-status">This build has no Preprod deployment configured.</p>}
       </div>}
       {view&&<div className="live-vaultbar"><span>Vault unlocked</span><button className="vault-link" type="button" disabled={busy} onClick={()=>setShowWorkspace(true)}>Back up or lock</button><button className="vault-link" type="button" disabled={busy} onClick={()=>refresh()}>Refresh</button></div>}
@@ -281,7 +294,7 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
       {activity&&view&&<section className="live-positions"><h2>Your saved picks on this deployment</h2>{view.positions.length?view.positions.map(position=><p key={position.id}>Market #{String(position.market)} · pick {position.slot} · option {position.option+1} · {String(position.stake)} dUSD · {position.status}</p>):<p>No onchain picks match this workspace.</p>}</section>}
       <p className="live-status" role="status" aria-live="polite">{message}</p>
     </div>
-    <div hidden={!showWorkspace}><button className="vault-link" type="button" onClick={()=>setShowWorkspace(false)}>Back</button><Workspace embedded onSession={opened}/></div>
+    <div hidden={!showWorkspace}><Workspace embedded onSession={opened}/><button className="vault-link" type="button" onClick={()=>setShowWorkspace(false)}>Back</button></div>
   </div>;
 }
 function decode(value:string){return Uint8Array.from(value.match(/../g)!,pair=>parseInt(pair,16));}

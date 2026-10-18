@@ -1,96 +1,141 @@
 // SPDX-License-Identifier: Apache-2.0
+// The vault: Senyap keys and picks, encrypted in this browser with the user's
+// password and synced end to end. The mode is picked for the user: unlock on a
+// device that has it, restore from sync on a new device, or create a new one.
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
 import { openWorkspace, workspaceExists, workspacePasswordValid, type WorkspaceSession } from "@senyap/sdk/workspace";
+import { KeyIcon, LockIcon } from "../../components/Icons";
+import { useWallet } from "../wallet";
+import { fetchVault, startSync, stopSync, syncAvailable, syncNow } from "../vault-sync";
 import "./workspace.css";
 
-export function Workspace({onSession,embedded=false}:{onSession?:(session:WorkspaceSession|null)=>void;embedded?:boolean}={}) {
-  const [mode, setMode] = useState<"create" | "unlock" | "restore">(() => workspaceExists() ? "unlock" : "create");
+type Mode = "checking" | "unlock" | "cloud" | "create" | "file";
+
+export function Workspace({ onSession }: { onSession?: (session: WorkspaceSession | null) => void; embedded?: boolean } = {}) {
+  const { state, api } = useWallet();
+  const [mode, setMode] = useState<Mode>("checking");
+  const [cloud, setCloud] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [show, setShow] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [message, setMessage] = useState("");
   const session = useRef<WorkspaceSession | null>(null);
   const form = useRef<HTMLFormElement>(null);
   const alive = useRef(true);
   const generation = useRef(0);
-  const notify=useRef(onSession);notify.current=onSession;
+  const notify = useRef(onSession); notify.current = onSession;
+  const address = state.status === "connected" ? state.address : null;
+
+  // Pick the mode: local vault first, then a synced copy for this wallet.
+  useEffect(() => {
+    if (unlocked) return;
+    if (workspaceExists()) { setMode("unlock"); return; }
+    if (!address || !syncAvailable()) { setMode("create"); return; }
+    setMode("checking");
+    fetchVault(address).then((b) => { if (!alive.current) return; setCloud(b); setMode(b ? "cloud" : "create"); }, () => alive.current && setMode("create"));
+  }, [address, unlocked]);
+
   useEffect(() => {
     alive.current = true;
-    const lock = () => { generation.current++; session.current?.lock(); session.current = null; notify.current?.(null);setUnlocked(false); form.current?.reset(); };
-    // Another tab changing the profile cannot leave this session attached to the old one.
+    const lock = () => { generation.current++; session.current?.lock(); session.current = null; stopSync(); notify.current?.(null); setUnlocked(false); form.current?.reset(); };
     const changed = (event: StorageEvent) => { if (event.key === null || event.key === "senyap-workspace-v1") lock(); };
     window.addEventListener("pagehide", lock); window.addEventListener("storage", changed);
-    return () => { alive.current = false; generation.current++; session.current?.lock(); session.current = null;notify.current?.(null);
+    return () => { alive.current = false; generation.current++; session.current?.lock(); session.current = null; notify.current?.(null);
       window.removeEventListener("pagehide", lock); window.removeEventListener("storage", changed); };
   }, []);
-  function choose(next: typeof mode) { setMode(next); setMessage(""); setShow(false); form.current?.reset(); }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); if (busy) return;
     const fields = new FormData(event.currentTarget);
     const password = String(fields.get("password") ?? "");
-    if (mode === "create" && !workspacePasswordValid(password)) { setMessage("Use at least 16 characters and three character types shown below."); return; }
-    if (mode === "create" && password !== fields.get("confirmation")) { setMessage("The passwords do not match. Enter the same password in both fields."); return; }
+    if (mode === "create" && !workspacePasswordValid(password)) { setMessage("Use at least 16 characters with three of: uppercase, lowercase, numbers, symbols."); return; }
+    if (mode === "create" && password !== fields.get("confirmation")) { setMessage("The two passwords do not match."); return; }
+    if (mode === "create" && !saved) { setMessage("Confirm that you wrote your password down. It cannot be recovered."); return; }
     const file = fields.get("backup");
-    if (mode === "restore" && (!(file instanceof File) || !file.size || file.size > 1_000_000)) {
-      setMessage("Choose a Senyap encrypted backup smaller than 1 MB."); return;
-    }
+    if (mode === "file" && (!(file instanceof File) || !file.size || file.size > 1_000_000)) { setMessage("Choose a Senyap backup file smaller than 1 MB."); return; }
     setBusy(true); setMessage("");
     const operation = generation.current;
     try {
-      const opened = await openWorkspace(mode, password, mode === "restore" ? await (file as File).text() : undefined);
+      const backup = mode === "cloud" ? cloud! : mode === "file" ? await (file as File).text() : undefined;
+      const opened = await openWorkspace(mode === "create" ? "create" : mode === "unlock" ? "unlock" : "restore", password, backup);
       if (!alive.current || operation !== generation.current) { opened.lock(); return; }
-      session.current = opened; setUnlocked(true); form.current?.reset(); setShow(false);notify.current?.(opened);
-      setMessage(mode === "create" ? "Workspace created. Save an encrypted backup to keep a way back in."
-        : mode === "restore" ? "Your encrypted backup has been restored on this device." : "Your private workspace is unlocked.");
-    } catch (error) { if (alive.current && operation === generation.current) setMessage(error instanceof Error ? error.message : "Workspace could not be opened. Try again."); }
+      session.current = opened; setUnlocked(true); form.current?.reset(); setShow(false); notify.current?.(opened);
+      setMessage("");
+      // One wallet signature opens sync; picks then upload encrypted without prompts.
+      if (api && address && syncAvailable()) startSync(api, address, opened).catch(() => alive.current && setMessage("Vault unlocked. Sync is off until you sign in again from Back up or lock."));
+    } catch (error) { if (alive.current && operation === generation.current) setMessage(error instanceof Error ? error.message : "The vault could not be opened. Try again."); }
     finally { if (alive.current) { setBusy(false); form.current?.reset(); } }
   }
-  async function saveBackup() {
+  async function download() {
     if (!session.current || busy) return;
-    setBusy(true); setMessage("");
-    const operation = generation.current;
+    setBusy(true);
     try {
       const backup = await session.current.backup();
-      if (!alive.current || operation !== generation.current) return;
       const url = URL.createObjectURL(new Blob([backup], { type: "application/json" }));
-      const anchor = document.createElement("a"); anchor.href = url; anchor.download = "senyap-workspace-encrypted.json"; anchor.click();
+      const a = document.createElement("a"); a.href = url; a.download = "senyap-vault-encrypted.json"; a.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setMessage("Encrypted backup download requested. Keep it with your workspace password in a safe place.");
-    } catch { if (alive.current) setMessage("The backup could not be saved. Unlock your workspace and try again."); }
-    finally { if (alive.current) setBusy(false); }
+      setMessage("Encrypted backup downloaded. It opens only with your password.");
+    } catch { setMessage("The backup could not be saved."); }
+    finally { setBusy(false); }
   }
-  function lock() { generation.current++; session.current?.lock(); session.current = null;notify.current?.(null);setUnlocked(false); setMode("unlock"); setMessage("Your workspace is locked."); }
-  return <div className="vault">
-    <h1>{unlocked ? "Your private workspace" : mode === "create" ? "Create your private workspace" : mode === "restore" ? "Restore your private workspace" : "Unlock your private workspace"}</h1>
-    <p className="vault-intro">{unlocked ? "Your local keys are encrypted on this device. Save a backup before you leave."
-      : "Keep your Senyap keys encrypted on this device with a separate workspace password."}</p>
-    {!unlocked && <>
-      <div className="vault-switch" role="group" aria-label="Workspace state">
-        <button type="button" disabled={busy} aria-pressed={mode === "create"} onClick={() => choose("create")}>Set up on this device</button>
-        <button type="button" disabled={busy} aria-pressed={mode === "unlock"} onClick={() => choose("unlock")}>Unlock existing data</button>
+  async function sync() { setBusy(true); try { setMessage((await syncNow()) ? "Vault synced, encrypted." : api && address && session.current ? (await startSync(api, address, session.current), "Vault synced, encrypted.") : "Connect your wallet to sync."); } catch { setMessage("Sync failed. Try again."); } finally { setBusy(false); } }
+  function lock() { generation.current++; session.current?.lock(); session.current = null; stopSync(); notify.current?.(null); setUnlocked(false); setMessage("Your vault is locked."); }
+
+  const title = unlocked ? "Your vault is open" : mode === "create" ? "Create your vault" : mode === "cloud" ? "Welcome back" : mode === "file" ? "Restore from a file" : "Unlock your vault";
+  const sub = unlocked ? "Your picks and keys are ready. Changes sync encrypted to your wallet."
+    : mode === "create" ? "One password protects your picks and keys. It is never sent anywhere."
+    : mode === "cloud" ? "We found your encrypted vault for this wallet. Enter your password to open it on this device."
+    : mode === "file" ? "Open a backup file you downloaded earlier."
+    : mode === "checking" ? "Looking for your vault." : "Enter your vault password.";
+
+  return (
+    <div className="vault">
+      <div className="vault-card">
+        <span className="vault-ic" aria-hidden="true">{unlocked ? <KeyIcon /> : <LockIcon />}</span>
+        <h1>{title}</h1>
+        <p className="vault-intro">{sub}</p>
+
+        {!unlocked && mode !== "checking" && (
+          <form ref={form} onSubmit={submit} className="vault-form" aria-busy={busy}>
+            {mode === "file" && <div className="field"><label htmlFor="vault-backup">Backup file</label><input className="vault-file" id="vault-backup" name="backup" type="file" accept=".json,application/json" required disabled={busy} /></div>}
+            <div className="field"><label htmlFor="vault-password">{mode === "create" ? "Choose a password" : "Password"}</label>
+              <div className="vault-input"><input id="vault-password" name="password" type={show ? "text" : "password"} autoComplete={mode === "create" ? "new-password" : "current-password"} required disabled={busy} />
+                <button type="button" disabled={busy} onClick={() => setShow(!show)} aria-pressed={show}>{show ? "Hide" : "Show"}</button></div>
+              {mode === "create" && <span className="vault-hint">At least 16 characters, with three of: uppercase, lowercase, numbers, symbols.</span>}
+            </div>
+            {mode === "create" && <div className="field"><label htmlFor="vault-confirmation">Type it again</label><input className="inp" id="vault-confirmation" name="confirmation" type="password" autoComplete="new-password" required disabled={busy} /></div>}
+            {mode === "create" && (
+              <div className="vault-warn" role="note">
+                <b>Write this password down and keep it safe.</b>
+                <p>Senyap cannot see or reset it. If you lose it, your vault, your picks and any rewards you have not claimed are gone forever.</p>
+                <label className="check"><input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} /><span>I wrote my password down somewhere safe.</span></label>
+              </div>
+            )}
+            <button className="abtn abtn-red vault-action" type="submit" disabled={busy}>{busy ? "Opening" : mode === "create" ? "Create vault" : mode === "file" ? "Restore vault" : "Unlock vault"}</button>
+          </form>
+        )}
+
+        {unlocked && (
+          <div className="vault-actions">
+            <button type="button" className="abtn abtn-soft" disabled={busy} onClick={sync}>Sync now</button>
+            <button type="button" className="abtn abtn-soft" disabled={busy} onClick={download}>Download backup</button>
+            <button type="button" className="abtn abtn-night" disabled={busy} onClick={lock}>Lock</button>
+          </div>
+        )}
+        <div className="vault-status" role="status" aria-live="polite">{message}</div>
+        {!unlocked && mode !== "checking" && (
+          <button type="button" className="vault-link" disabled={busy} onClick={() => { setMessage(""); setMode(mode === "file" ? (workspaceExists() ? "unlock" : cloud ? "cloud" : "create") : "file"); }}>
+            {mode === "file" ? "Back" : "Use a backup file instead"}
+          </button>
+        )}
       </div>
-      <form ref={form} onSubmit={submit} className="vault-form" aria-busy={busy}>
-        {mode === "restore" && <div className="field"><label htmlFor="vault-backup">Encrypted backup</label><input className="vault-file" id="vault-backup" name="backup" type="file" accept=".json,application/json" required disabled={busy}/></div>}
-        <div className="field"><label htmlFor="vault-password">{mode === "restore" ? "Backup password" : "Workspace password"}</label>
-          <div className="vault-input"><input id="vault-password" name="password" type={show ? "text" : "password"} autoComplete={mode === "create" ? "new-password" : "current-password"} required disabled={busy} aria-describedby="vault-hint vault-status"/>
-            <button type="button" disabled={busy} onClick={() => setShow(!show)} aria-controls="vault-password" aria-pressed={show}>{show ? "Hide" : "Show"}</button></div>
-        </div>
-        <p className="vault-hint" id="vault-hint">{mode === "create" ? "Use at least 16 characters with three of uppercase letters, lowercase letters, numbers and symbols. Avoid repeated characters and sequences."
-          : "Use the password you created for this workspace. This is separate from your wallet password."}</p>
-        {mode === "create" && <div className="field"><label htmlFor="vault-confirmation">Confirm password</label><input className="inp" id="vault-confirmation" name="confirmation" type="password" autoComplete="new-password" required disabled={busy}/></div>}
-        <button className="abtn abtn-red vault-action" type="submit" disabled={busy}>{busy ? "Opening workspace" : mode === "create" ? "Create workspace" : mode === "restore" ? "Restore workspace" : "Unlock workspace"}<Arrow/></button>
-      </form>
-    </>}
-    {unlocked && <section className="vault-backup"><h2>Keep a way back in</h2><p>Save an encrypted backup. You will need this password to restore it on another device.</p>
-      <button type="button" className="abtn abtn-red vault-action" disabled={busy} onClick={saveBackup}>{busy ? "Preparing backup" : "Save encrypted backup"}<Arrow/></button>
-      <button type="button" className="vault-link" disabled={busy} onClick={lock}>Lock workspace</button>
-    </section>}
-    <div id="vault-status" className="vault-status" role="status" aria-live="polite">{message}</div>
-    <section className="vault-note"><h2>Your wallet and private workspace are separate</h2><p>Your Midnight wallet handles transactions. This password protects your local keys. Clearing browser data removes the local copy, so keep an encrypted backup. Leaving this page locks the workspace.</p>
-      {!unlocked && <button type="button" className="abtn abtn-soft" disabled={busy} onClick={() => choose(mode === "restore" ? "unlock" : "restore")}>{mode === "restore" ? "Back to unlock" : "Restore encrypted backup"}</button>}
-    </section>
-    {!embedded&&<Link className="vault-link" to="/app">Back to markets</Link>}
-  </div>;
+
+      <ul className="vault-facts">
+        <li><b>Your wallet pays.</b><span>It signs transactions and holds dUSD.</span></li>
+        <li><b>Your vault keeps secrets.</b><span>Picks and keys, encrypted with your password.</span></li>
+        <li><b>Synced, still private.</b><span>Only the encrypted copy leaves this device, tied to your wallet.</span></li>
+      </ul>
+    </div>
+  );
 }
-function Arrow() { return <span className="vault-disc" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></span>; }

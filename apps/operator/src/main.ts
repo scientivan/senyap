@@ -9,6 +9,7 @@ import {reasonRelay} from "./reasons";
 import {createOperatorServer} from "./server";
 import {marketMetadataService,SqliteMarketMetadataRepository} from "./market-metadata";
 import {builderMetadataService,SqliteBuilderMetadataRepository} from "./builder-metadata";
+import {vaultSyncService} from "./vault-sync";
 /** Reasons and public metadata. No admission/admin endpoint, wallet, deploy or onchain
  * submit function. Reclaim admission remains a separate authenticated boundary. */
 async function serve(){
@@ -26,7 +27,8 @@ async function serve(){
   const relay=reasonRelay({...config,publicKey:new Uint8Array(Buffer.from(publicHex,"hex")),privateKey},read,repository,model);
   const metadataRepository=new SqliteMarketMetadataRepository(resolve(directory,`metadata-${config.network}-${config.contract}.sqlite`),config);
   const builders=new SqliteBuilderMetadataRepository(resolve(directory,`builders-${config.network}-${config.contract}.sqlite`),config);
-  const server=createOperatorServer(config,relay,marketMetadataService(config,read,metadataRepository),builderMetadataService(read,builders));server.requestTimeout=30000;server.headersTimeout=10000;server.maxConnections=40;
+  const vaults=vaultSyncService(resolve(directory,`vaults-${config.network}.sqlite`),config.network);
+  const server=createOperatorServer(config,relay,marketMetadataService(config,read,metadataRepository),builderMetadataService(read,builders),vaults);server.requestTimeout=30000;server.headersTimeout=10000;server.maxConnections=40;
   const listeningPort=port(process.env.OPERATOR_PORT,3001);
   try{await new Promise<void>((done,reject)=>{server.once("error",reject);server.listen(listeningPort,"127.0.0.1",done);});}
   catch{repository.close();metadataRepository.close();builders.close();throw Error("Operator listener unavailable");}

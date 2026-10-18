@@ -3,19 +3,35 @@ import { createServer } from "node:http";
 import type { reasonRelay } from "./reasons";
 import type {marketMetadataService} from "./market-metadata";
 import type {builderMetadataService} from "./builder-metadata";
+import type {vaultSyncService} from "./vault-sync";
 import { envelopeFromWire,envelopeToWire } from "../../../packages/crypto/src/envelope-codec";
 const bytes=(value:unknown)=>{if(typeof value!=="string"||!/^[a-f0-9]{64}$/.test(value))throw Error();return new Uint8Array(Buffer.from(value,"hex"));};
 const number=(value:unknown)=>{if(typeof value!=="string"||!/^(0|[1-9][0-9]{0,9})$/.test(value))throw Error();return BigInt(value);};
 /** Reason and public metadata routes. Credential/session administration is not an
  * unauthenticated route. Relay verifies submissions against finalized positions;
  * reads are encrypted to the buyer key in that ledger, never a request key. */
-export function createOperatorServer(config:{network:string;contract:string;origin:string},relay:ReturnType<typeof reasonRelay>,metadata?:ReturnType<typeof marketMetadataService>,builders?:ReturnType<typeof builderMetadataService>){
+export function createOperatorServer(config:{network:string;contract:string;origin:string},relay:ReturnType<typeof reasonRelay>,metadata?:ReturnType<typeof marketMetadataService>,builders?:ReturnType<typeof builderMetadataService>,vaults?:ReturnType<typeof vaultSyncService>){
   return createServer(async(req,res)=>{
     res.setHeader("Content-Type","application/json");res.setHeader("Cache-Control","no-store");
     if(req.headers.origin&&req.headers.origin!==config.origin){res.writeHead(403);res.end('{"error":"Origin denied"}');return;}
     if(req.headers.origin){res.setHeader("Access-Control-Allow-Origin",config.origin);res.setHeader("Vary","Origin");}
     let url:URL;
     try{url=new URL(req.url??"/","http://operator.local");}catch{res.writeHead(400);res.end('{"error":"Reason request rejected"}');return;}
+    const vaultPath=url.pathname.match(/^\/vault\/([a-f0-9]{64})(\/session)?$/);
+    if(vaults&&vaultPath){
+      if(req.method==="OPTIONS"){res.setHeader("Access-Control-Allow-Methods","GET, PUT, POST");res.setHeader("Access-Control-Allow-Headers","Content-Type, Authorization");res.writeHead(204);res.end();return;}
+      try{
+        const body=async()=>{const chunks:Buffer[]=[];let length=0;for await(const chunk of req){length+=chunk.length;if(length>1_100_000)throw Error("Too large");chunks.push(Buffer.from(chunk));}return JSON.parse(new TextDecoder("utf-8",{fatal:true}).decode(Buffer.concat(chunks)));};
+        if(req.method==="POST"&&vaultPath[2]){res.writeHead(200);res.end(JSON.stringify(vaults.session(vaultPath[1],await body())));return;}
+        if(req.method==="GET"&&!vaultPath[2]){const value=vaults.read(vaultPath[1]);res.writeHead(value?200:404);res.end(JSON.stringify(value??{error:"No vault"}));return;}
+        if(req.method==="PUT"&&!vaultPath[2]){
+          const token=req.headers.authorization?.match(/^Bearer ([a-f0-9]{64})$/)?.[1];
+          const value=vaults.write(vaultPath[1],token,(await body()).backup);
+          res.writeHead(200);res.end(JSON.stringify(value));return;
+        }
+        res.writeHead(405);res.end('{"error":"Method not allowed"}');
+      }catch(e){if(!res.headersSent)res.writeHead(400);res.end(JSON.stringify({error:e instanceof Error?e.message:"Vault request rejected"}));}return;
+    }
     const builderRead=url.pathname.match(/^\/builders\/([a-f0-9]{64})\/meta$/),builderPost=url.pathname==="/builders/meta";
     if(builders&&(builderRead||builderPost)){
       if(req.method==="OPTIONS"){res.setHeader("Access-Control-Allow-Methods",builderPost?"POST":"GET");res.setHeader("Access-Control-Allow-Headers","Content-Type");res.writeHead(204);res.end();return;}

@@ -16,3 +16,15 @@
 .live-vaultbar span { font-weight: 600; color: var(--ink); }
 .live-workspace:has(.live-gate) h1 { text-align: center; font-size: 34px; font-weight: 700; margin-top: 40px; }
 .live-gate .live-intro { margin: 0; max-width: 46ch; }
+.live-steps { list-style: none; display: flex; gap: 10px; padding: 0; margin: 0; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.live-steps li { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--panel); }
+.live-steps span { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--white); font-size: 12px; }
+.live-steps li.now { color: var(--ink); } .live-steps li.now span { background: var(--red); color: var(--white); }
+.live-steps li.done span { background: var(--night); color: var(--gold); }
+.live-gate-card { display: grid; justify-items: center; gap: 12px; width: 100%; padding: 32px 28px; border: 1px solid var(--line); border-radius: 18px; background: var(--white); box-shadow: 0 1px 2px rgba(42, 27, 27, 0.06); }
+.live-gate-card h2 { font-size: 24px; font-weight: 700; margin: 4px 0 0; }
+.live-gate-card p { font-size: 16px; line-height: 1.55; color: var(--ink-2); margin: 0; max-width: 40ch; }
+.live-gate-card b { color: var(--ink); }
+.live-gate-ic { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--night); color: var(--gold); }
+.live-gate-ic svg { width: 26px; height: 26px; }
+.live-gate-card p, .vault-card .vault-intro { text-align: center; }

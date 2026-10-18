@@ -73,6 +73,17 @@ pnpm --filter @senyap/web typecheck
 pnpm build
 ```
 
+### The vault and encrypted sync
+
+Picks, keys and pseudonyms live in a vault encrypted in the browser with a key
+derived from the user's password. The encrypted copy syncs to the operator API
+(`/vault/<address>`), keyed by the wallet's unshielded address, so the same vault
+opens on another device after connecting the same wallet and entering the
+password. One wallet signature (`signData`, verified with `verifySignature` and
+`addressFromKey`) opens a 12-hour sync session. The server stores only
+ciphertext: it cannot read the vault and cannot recover a lost password. The
+server does learn which wallet addresses use a vault and when they change.
+
 ### Use the live Preprod deployment
 
 The live workspace and operator registry read the Preprod contract through a
