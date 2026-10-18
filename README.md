@@ -22,7 +22,7 @@ uses separate buyer pools; Side B has one shared duty and independent buyer mark
 ([local proofs](docs/evidence/shared-report-proving.json)). Permissionless cancellation, full principal/bid refunds and returned subsidies
 also pass simulator tests. Remaining lifecycle cases, live services and frontend
 transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
-network only. The Senyap product contract has completed a local network cycle, but is not deployed on Preprod.
+network only. The Senyap product contract has completed a local network cycle and is deployed on Preprod (see below); no market has run on Preprod yet.
 
 Option-level subjective/contested outcome juries now pass simulator and local
 proof-server checks, including separate collateral, quorum/refunds and settlement
@@ -141,8 +141,32 @@ on the server and must never be placed in `apps/web` or any `VITE_*` variable.
 3. Try the available demo stake, purchase, outcome and claim flows. These change
    demo state only; they are not evidence of contract execution.
 
-A verified end-to-end Preprod walkthrough, contract addresses and transaction
-IDs will be added when those integrations work. Draft [deck content](docs/submission/deck-outline.md),
+## Preprod deployment (18 Oct 2026)
+
+| Item | Value |
+| --- | --- |
+| Senyap contract | `c8ab22d9a80f56bf533ab9bb9256b8fac93fcb2798c3b42d4511fee1a462231b` |
+| Demo dUSD token contract | `9991dd6b2628a3633566f7e875785c2095990a404a8f1d3d184c46fae0abcca2` |
+| Verifiers | 42 of 42 installed in staged maintenance updates |
+| Maintenance authority | handed to an operator key held outside the browser |
+
+All nine transactions (token deploy, mint, Senyap deploy, five verifier batches,
+authority handoff) report `SUCCESS` on the Blockfrost Preprod indexer, blocks
+3028892 to 3029095 ([journal](docs/evidence/P8.1-preprod-deploy-journal.json)).
+They were signed and paid with the 1AM browser wallet. Five committee members run
+locally against this deployment and check the on-chain committee key at start.
+
+A live Reclaim GitHub proof, bound to this contract, a session nonce and a one-time
+session, passed attestor and TEE verification
+([evidence](docs/evidence/P6.1-reclaim-live-preprod.json)).
+
+**Known limits.** No market, stake or purchase has run on Preprod yet; the full
+market lifecycle is proven on a local network only. The verified GitHub provider
+used for that proof only extracts a profile language field, so the proof shows a
+logged-in GitHub account, not a username or contribution count. A stricter policy
+(proven username plus a public yearly contribution threshold) is implemented and
+tested but awaits a provider that extracts the username. Builder admission from
+a verified proof to the on-chain group is not yet relayed. All tokens are synthetic. Draft [deck content](docs/submission/deck-outline.md),
 [demo storyboard](docs/submission/demo-storyboard.md) and
 [Wave 2 progress text](docs/submission/wave-2-progress-draft.md) are available for
 review. Final slides, a recorded network demo and a submitted progress statement
