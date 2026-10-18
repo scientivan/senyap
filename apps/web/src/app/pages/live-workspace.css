@@ -8,6 +8,11 @@
 
 .live-builder h2{font-size:16px;font-weight:500}.live-builder{font-size:14px}.live-builder p{font-size:14px;line-height:1.65}.live-builder input[type=datetime-local]{min-width:0}.live-metadata-recovery{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
 /* Vault gate: one clear next step at a time. */
-.live-gate { display: grid; justify-items: start; gap: 14px; padding: 28px 0; }
+.live-gate { display: grid; justify-items: center; text-align: center; gap: 18px; padding: 72px 16px; max-width: 560px; margin: 0 auto; }
+.live-gate .live-intro { font-size: 18px; line-height: 1.5; text-align: center; }
+.live-gate .live-intro b { color: var(--ink); font-weight: 700; }
+.live-gate .abtn { height: 48px; padding: 0 28px; font-size: 16px; font-weight: 700; }
 .live-vaultbar { display: flex; align-items: center; gap: 16px; padding: 10px 0 18px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-2); }
 .live-vaultbar span { font-weight: 600; color: var(--ink); }
+.live-workspace:has(.live-gate) h1 { text-align: center; font-size: 34px; font-weight: 700; margin-top: 40px; }
+.live-gate .live-intro { margin: 0; max-width: 46ch; }

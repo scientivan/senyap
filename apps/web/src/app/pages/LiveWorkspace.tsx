@@ -264,11 +264,11 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
       <h1>{act?(market?`Market #${market}`:"Take action"):activity?"My Activity":purchases?"Purchases":disputes?"Disputes":"Vault"}</h1>
       {!view&&<div className="live-gate">
         {!(wallet.api&&wallet.state.status==="connected")?<>
-          <p className="live-intro">Connect your Midnight wallet on Preprod to see this.</p>
+          <p className="live-intro"><b>Connect your Midnight wallet</b> on Preprod to see this.</p>
           <button className="abtn abtn-red" disabled={wallet.state.status==="connecting"} onClick={()=>wallet.connect()}>{wallet.state.status==="connecting"?"Waiting for your wallet":"Connect wallet"}</button>
           {wallet.state.status==="error"&&<p className="live-status">{wallet.state.message}</p>}
         </>:!unlocked?<>
-          <p className="live-intro">Unlock your vault. It keeps your picks and keys on this device and stays unlocked until you close this tab.</p>
+          <p className="live-intro"><b>Unlock your vault</b> to see this. It keeps your picks and keys on this device and <b>stays unlocked until you close this tab</b>.</p>
           <button className="abtn abtn-red" disabled={busy} onClick={()=>setShowWorkspace(true)}>Unlock vault</button>
         </>:<p className="live-intro">{busy?"Reading Preprod.":"Loading your data."}</p>}
         {!deployment&&<p className="live-status">This build has no Preprod deployment configured.</p>}
