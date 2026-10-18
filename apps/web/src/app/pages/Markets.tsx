@@ -30,9 +30,9 @@ export function Markets() {
   return (
     <>
       <PageHead
-        title="Markets"
-        sub="Every market shows only a strength preview until you buy. Team names behind each bucket stay sealed."
-        action={s.role !== "scout" && <Link to={s.role === "builder" ? "/app/new?side=B" : "/app/new"} className="abtn abtn-red">{s.role === "builder" ? "Ask a question" : "Create market"}</Link>}
+        title={side === "B" ? "Ecosystem signals" : "Markets"}
+        sub={side === "B" ? "Questions builders asked about how ecosystems treat their teams." : "Every market shows only a strength preview until you buy. Team names behind each bucket stay sealed."}
+        action={s.role === "builder" ? <Link to="/app/new?side=B" className="abtn abtn-red">Ask a question</Link> : undefined}
       />
       <div className="filters">
         <div className="seg2" role="tablist" aria-label="Side">

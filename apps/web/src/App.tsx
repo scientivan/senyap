@@ -9,7 +9,7 @@ import { OperatorLayout } from "./app/OperatorLayout";
 const OperatorRegistry=lazy(()=>import("./app/pages/OperatorRegistry").then(module=>({default:module.OperatorRegistry})));
 import { StoreProvider } from "./app/data/store";
 import { WalletProvider } from "./app/wallet";
-import { Home } from "./app/pages/Home";
+import { Actions, Home } from "./app/pages/Home";
 import { Markets } from "./app/pages/Markets";
 import { MarketDetail } from "./app/pages/MarketDetail";
 import { Positions } from "./app/pages/Scout";
@@ -44,6 +44,7 @@ const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { index: true, element: <Home /> },
+      { path: "actions", element: <Actions /> },
       { path: "markets", element: <Markets /> },
       { path: "markets/:id", element: <MarketDetail /> },
       { path: "new", element: <NewMarket /> },
@@ -70,6 +71,7 @@ const router = createBrowserRouter([
       { path: "verifications", element: <Operator /> },
       { path: "committee", element: <Committee /> },
       { path: "disputes", element: <Verify /> },
+      { path: "actions", element: <Actions /> },
       { path: "markets", element: <Markets /> },
       { path: "*", element: <Navigate to="/operator" replace /> },
     ],

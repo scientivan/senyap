@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { timeLeft, useStore } from "../data/store";
-import type { Market, Role } from "../data/types";
+import type { Market, QueueItem, Role } from "../data/types";
 import { Card, Histogram, PageHead, PhaseChip, SideChip } from "../ui";
 import { operatorRole, roles } from "../AppLayout";
 
@@ -22,25 +22,12 @@ export function Home() {
     <>
       <PageHead title={g.title} sub={g.sub} />
       <div className="grid2">
-        <Card title="Next actions" sub={`${q.filter((i) => i.tone === "urgent").length} need attention now`}>
-          <div className="queue">
-            {q.map((i) => (
-              <Link key={i.id} to={i.href} className={`qi ${i.tone}`}>
-                <span className="qi-bar" />
-                <span style={{ minWidth: 0 }}>
-                  <b>{i.title}</b>
-                  <span className="qd">{i.detail}</span>
-                </span>
-                <span className="qi-right">
-                  {i.due && <span className="qi-due">{i.due > Date.now() ? `Due ${timeLeft(i.due)}` : `Closed ${timeLeft(i.due)}`}</span>}
-                  <span className={`abtn abtn-sm ${i.tone === "urgent" ? "abtn-red" : "abtn-soft"}`}>{i.action}</span>
-                </span>
-              </Link>
-            ))}
-          </div>
+        <Card title="Next actions" sub={`${q.filter((i) => i.tone === "urgent").length} need attention now`} action={q.length > HOME_LIMIT ? <Link to="/app/actions" className="abtn abtn-soft abtn-sm">See more</Link> : undefined}>
+          <ActionList items={q.slice(0, HOME_LIMIT)} />
         </Card>
         <Standing role={s.role} />
       </div>
+
 
       <Card
         title={s.role === "builder" ? "Ecosystem signals" : "Markets"}
@@ -48,7 +35,45 @@ export function Home() {
         className="mt16"
         action={s.role === "builder" ? <Link to="/app/new?side=B" className="abtn abtn-red abtn-sm">Ask a question</Link> : undefined}
       >
-        <MarketTable markets={markets} onOpen={(id) => nav(`/app/markets/${id}`)} />
+        <MarketTable markets={markets.slice(0, HOME_LIMIT)} onOpen={(id) => nav(`/app/markets/${id}`)} />
+        {markets.length > HOME_LIMIT && <Link to={s.role === "builder" ? "/app/markets?side=B" : "/app/markets"} className="abtn abtn-soft abtn-sm mt16">See more</Link>}
+      </Card>
+    </>
+  );
+}
+
+/** Lists on Home show the first few rows; "See more" opens the full page. */
+const HOME_LIMIT = 5;
+
+export function ActionList({ items }: { items: QueueItem[] }) {
+  if (!items.length) return <p className="acard-sub">Nothing needs you right now.</p>;
+  return (
+    <div className="queue">
+      {items.map((i) => (
+        <Link key={i.id} to={i.href} className={`qi ${i.tone}`}>
+          <span className="qi-bar" />
+          <span style={{ minWidth: 0 }}>
+            <b>{i.title}</b>
+            <span className="qd">{i.detail}</span>
+          </span>
+          <span className="qi-right">
+            {i.due && <span className="qi-due">{i.due > Date.now() ? `Due ${timeLeft(i.due)}` : `Closed ${timeLeft(i.due)}`}</span>}
+            <span className={`abtn abtn-sm ${i.tone === "urgent" ? "abtn-red" : "abtn-soft"}`}>{i.action}</span>
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+export function Actions() {
+  const s = useStore();
+  const q = s.queue(s.role);
+  return (
+    <>
+      <PageHead title="Next actions" sub="Everything that needs you, newest deadline first." />
+      <Card title={`${q.length} actions`} sub={`${q.filter((i) => i.tone === "urgent").length} need attention now`}>
+        <ActionList items={[...q].sort((a, b) => (a.due ?? Infinity) - (b.due ?? Infinity))} />
       </Card>
     </>
   );
