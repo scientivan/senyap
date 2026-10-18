@@ -15,7 +15,7 @@ import {publishMarketMetadata} from "@senyap/sdk/market-metadata";
 import {prepareSideAMarket,saveMetadataDraft,markMetadataPublished,type PublicMetadataDraft} from "@senyap/sdk/creation";
 import {prepareProductClient} from "../product-client";
 import {productDeployment} from "../deployment";
-import {short,useWallet} from "../wallet";
+import {useWallet} from "../wallet";
 import {Workspace} from "./Workspace";
 import "./live-workspace.css";
 type Product=Awaited<ReturnType<typeof prepareProductClient>>;
@@ -39,7 +39,7 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
   // Read live markets as soon as wallet and vault are both ready.
   useEffect(()=>{if(canOpen&&!view&&!busy)refresh();// eslint-disable-line react-hooks/exhaustive-deps
   },[canOpen]);
-  const act=section==="act",activity=section==="activity",purchases=section==="purchases",disputes=section==="disputes",vault=section==="vault";
+  const act=section==="act",activity=section==="activity",purchases=section==="purchases",disputes=section==="disputes";
   const shown=view?.markets.filter(m=>(!market||String(m.id)===market)&&(!purchases||!!m.buyer)&&(!disputes||view.juryCases.some(c=>c.market===m.id)))??[];
   async function refresh(reconcile=false){
     if(busy||!canOpen||!session.current||!wallet.api||!deployment)return;
@@ -262,20 +262,18 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
   return <div className="live-workspace" hidden={!section}>
     <div hidden={showWorkspace}>
       <h1>{act?(market?`Market #${market}`:"Take action"):activity?"My Activity":purchases?"Purchases":disputes?"Disputes":"Vault"}</h1>
-      <p className="live-intro">{view?"Market details come from the finalized test network. Your saved choices stay on this device.":unlocked?wallet.api?"Your wallet is connected and your vault is unlocked. Open live markets when a deployment is available.":"Your vault is unlocked. Connect your wallet to continue.":"Connect your wallet and unlock your vault to see this. Your saved choices stay on this device."}</p>
-      {(!view||vault)&&<><section className="live-connections" aria-label="Connection requirements">
-        <Connection title="Midnight wallet" status={wallet.api&&wallet.state.status==="connected"?short(wallet.state.address):"Not connected"}>
-          <p>Select Preprod in your wallet, then connect your account.</p><button className="abtn abtn-soft" disabled={busy||wallet.state.status==="connecting"} onClick={()=>wallet.connect()}>{wallet.state.status==="connecting"?"Waiting for your wallet":"Connect wallet"}</button>
-        </Connection>
-        <Connection title="Vault" status={unlocked?"Unlocked":"Locked"}>
-          <p>{unlocked?"Your local keys are ready. Save an encrypted backup or lock the vault.":"Unlock the choices and keys saved on this device, or create a vault. It stays unlocked in this browser tab until you lock it or close the tab."}</p><button className="abtn abtn-soft" disabled={busy} onClick={()=>setShowWorkspace(true)}>{unlocked?"Backup or lock":"Unlock vault"}</button>
-        </Connection>
-        <Connection title={deployment?"Product deployment configured":"Product deployment unavailable"} status={deployment?"Preprod":"Unavailable"}>
-          <p>{deployment?"The deployment and finalized chain binding will be checked when you open live markets.":"A complete product deployment has not been configured for this build."}</p>
-        </Connection>
-      </section>
-      </>}
-      <button className="abtn abtn-red live-open" disabled={!canOpen||busy} onClick={()=>refresh()}>{busy?"Reading Preprod":view?"Refresh":"Open"}<Arrow/></button>
+      {!view&&<div className="live-gate">
+        {!(wallet.api&&wallet.state.status==="connected")?<>
+          <p className="live-intro">Connect your Midnight wallet on Preprod to see this.</p>
+          <button className="abtn abtn-red" disabled={wallet.state.status==="connecting"} onClick={()=>wallet.connect()}>{wallet.state.status==="connecting"?"Waiting for your wallet":"Connect wallet"}</button>
+          {wallet.state.status==="error"&&<p className="live-status">{wallet.state.message}</p>}
+        </>:!unlocked?<>
+          <p className="live-intro">Unlock your vault. It keeps your picks and keys on this device and stays unlocked until you close this tab.</p>
+          <button className="abtn abtn-red" disabled={busy} onClick={()=>setShowWorkspace(true)}>Unlock vault</button>
+        </>:<p className="live-intro">{busy?"Reading Preprod.":"Loading your data."}</p>}
+        {!deployment&&<p className="live-status">This build has no Preprod deployment configured.</p>}
+      </div>}
+      {view&&<div className="live-vaultbar"><span>Vault unlocked</span><button className="vault-link" type="button" disabled={busy} onClick={()=>setShowWorkspace(true)}>Back up or lock</button><button className="vault-link" type="button" disabled={busy} onClick={()=>refresh()}>Refresh</button></div>}
       {pending&&<section className="live-transaction"><h2>{operation.phase==="prepared"?"Saved transaction needs review":"Check your transaction before continuing"}</h2><p>{operation.phase==="prepared"?"A prepared operation is saved in your workspace. Review it before preparing another transaction.":"The final transaction result is not confirmed here. Check its status before sending another transaction."}</p>{operation.txId&&<p className="live-tx">Transaction {operation.txId}</p>}<button className="abtn abtn-soft" disabled={busy||!operation.txId} onClick={()=>refresh(true)}>Check transaction status</button></section>}
       {act&&view&&!market&&<LiveBuilderMarkets key={`builder/${generation.current}`} builders={builderLabels} canCreateSideA={view.canCreateSideA} markets={view.markets} drafts={view.metadataDrafts} scope={view.scope} disabled={busy||!!pending} onExecute={executeBuilder} onUpload={retryMetadata}/>}
       {(act||purchases||disputes)&&view&&<section className="live-markets" aria-label="Finalized markets">{!shown.length&&<p>{purchases?"You have not bought any signal with this vault yet.":disputes?"No disputes involve markets on this deployment.":"No market matches."}</p>}{shown.map(market=><article className="live-market" key={String(market.id)}><h2>{metadata[String(market.id)]?.question??`Market #${market.id}`}</h2><p>{market.side} · {market.outcomeMode} outcomes · {market.phase} · {String(market.scouts)} scouts · {String(market.stakeTotal)} dUSD staked</p>{!metadata[String(market.id)]&&<p>Verified question and option labels unavailable.</p>}<p>{market.histogram?`${market.histogram.strong} strong, ${market.histogram.medium} medium, ${market.histogram.weak} weak options` :"Preview not published. Option totals remain sealed."}</p>{market.buyer&&<p>{market.buyer.bought.length} options purchased with this workspace.</p>}{act&&metadata[String(market.id)]&&<LiveMarketActions market={market} metadata={metadata[String(market.id)]} eligibility={view.eligibility[String(market.id)]} positions={view.positions} disabled={busy||!!pending} reasonConfigured={!!deployment?.reasonPublicKey} onExecute={execute}/>}{(act||purchases)&&metadata[String(market.id)]&&<LiveAuctionRewards key={`${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} eligibility={view.followUp[String(market.id)]} disabled={busy||!!pending} onExecute={executeFollowUp}/>}{(act||disputes)&&metadata[String(market.id)]&&<LiveJury key={`jury/${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} cases={view.juryCases.filter(c=>c.market===market.id)} eligibility={view.jury} reporting={view.reporting[String(market.id)]} reportOptions={view.eligibility[String(market.id)].report} reportPool={view.eligibility[String(market.id)].pool} disabled={busy||!!pending} onExecute={executeJury}/>}{(act||purchases)&&metadata[String(market.id)]&&market.buyer?.bought.map(option=><LivePurchasedSignal key={`${generation.current}/${market.id}/${option}`} label={metadata[String(market.id)].options[option].label} configured={!!deployment?.committee} disabled={busy||!!pending} onOpen={offset=>openSignal(market.id,option,offset)}/>)}</article>)}</section>}
@@ -286,6 +284,4 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
     <div hidden={!showWorkspace}><button className="vault-link" type="button" onClick={()=>setShowWorkspace(false)}>Back</button><Workspace embedded onSession={opened}/></div>
   </div>;
 }
-function Connection({title,status,children}:{title:string;status:string;children:React.ReactNode}){return <div className="live-connection"><div><h2>{title}</h2>{children}</div><span>{status}</span></div>;}
-function Arrow(){return <span className="live-disc" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></span>;}
 function decode(value:string){return Uint8Array.from(value.match(/../g)!,pair=>parseInt(pair,16));}

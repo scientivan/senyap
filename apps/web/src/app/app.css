@@ -198,3 +198,29 @@
 .mono { font-family: var(--code); font-size: 12px; }
 .pf-h { margin: 28px 0 12px; font: 500 17px/1.2 var(--font); letter-spacing: -0.01em; color: var(--ink); }
 .ah-profile.on { background: var(--red); color: #fff; }
+
+/* Profile */
+.pf-id { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--night); color: var(--on-night); }
+.pf-role .roleic { width: 44px; height: 44px; }
+.pf-who { display: grid; gap: 4px; min-width: 0; flex: 1; }
+.pf-who b { font-size: 20px; font-weight: 700; }
+.pf-who span { font-size: 14px; color: var(--on-night-2); }
+.pf-wallet { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.pf-addr { font-weight: 600; font-size: 14px; }
+.pf-id .abtn-soft { background: var(--night-3); color: var(--on-night); }
+.pf-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+.pf-journey, .pf-balance, .pf-knows { border: 1px solid var(--line); border-radius: 18px; padding: 20px; background: var(--white); }
+.pf-journey h2 { font-size: 17px; font-weight: 700; margin: 0 0 14px; }
+.pf-journey ol { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 10px; }
+.pf-journey li { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 14px; border-radius: 12px; background: var(--panel); }
+.pf-journey li b { font-size: 15px; font-weight: 700; }
+.pf-journey li p { margin: 4px 0 0; font-size: 14px; color: var(--ink-2); }
+.pf-n { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--night); color: var(--on-night); font-weight: 700; font-size: 14px; }
+.pf-side { display: grid; gap: 16px; align-content: start; }
+.pf-balance { display: grid; gap: 6px; justify-items: start; }
+.pf-balance span { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.pf-balance b { font-size: 34px; font-weight: 800; line-height: 1.1; }
+.pf-balance small { font-size: 13px; color: var(--ink-2); margin-bottom: 8px; }
+.pf-knows b { font-size: 15px; font-weight: 700; }
+.pf-knows ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+@media (max-width: 860px) { .pf-grid { grid-template-columns: 1fr; } .pf-id { flex-wrap: wrap; } .pf-wallet { justify-content: flex-start; } }

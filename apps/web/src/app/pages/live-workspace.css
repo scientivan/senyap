@@ -7,3 +7,7 @@
 .live-stake-summary dd{overflow-wrap:anywhere}
 
 .live-builder h2{font-size:16px;font-weight:500}.live-builder{font-size:14px}.live-builder p{font-size:14px;line-height:1.65}.live-builder input[type=datetime-local]{min-width:0}.live-metadata-recovery{margin-top:26px;padding-top:18px;border-top:1px solid var(--line)}
+/* Vault gate: one clear next step at a time. */
+.live-gate { display: grid; justify-items: start; gap: 14px; padding: 28px 0; }
+.live-vaultbar { display: flex; align-items: center; gap: 16px; padding: 10px 0 18px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-2); }
+.live-vaultbar span { font-weight: 600; color: var(--ink); }

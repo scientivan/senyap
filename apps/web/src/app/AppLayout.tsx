@@ -42,10 +42,10 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
 
 const LiveWorkspace = lazy(() => import("./pages/LiveWorkspace").then((m) => ({ default: m.LiveWorkspace })));
 // Vault-backed views. The vault itself has no tab: unlock appears where needed,
-// backup and lock sit under Account.
+// backup and lock sit in the bar above each vault view.
 const sectionFor = (path: string): "act" | "activity" | "purchases" | "disputes" | "vault" | null =>
   path.startsWith("/app/activity") ? "activity" : path.startsWith("/app/act") ? "act" : path.startsWith("/app/purchases") ? "purchases"
-    : path.startsWith("/app/disputes") ? "disputes" : path.startsWith("/app/profile") ? "vault" : null;
+    : path.startsWith("/app/disputes") ? "disputes" : null;
 
 export function AppLayout() {
   const { role, setRole, balance } = useStore();
@@ -124,13 +124,12 @@ export function AppLayout() {
                 </ul>
               )}
             </div>
-            <NavLink to="/app/profile" className={({isActive})=>`ah-bal ah-profile${isActive?" on":""}`}>Account</NavLink>
             <div className="ah-wallet">
               {state.status === "connected" ? (
-                <button type="button" className="abtn abtn-soft" onClick={() => setWalletOpen((o) => !o)}>
+                <NavLink to="/app/profile" className={({ isActive }) => `abtn abtn-soft${isActive ? " on" : ""}`} title={short(state.address)}>
                   <i className="dot ok" />
-                  {short(state.address)}
-                </button>
+                  Profile
+                </NavLink>
               ) : (
                 <button type="button" className="abtn abtn-red" onClick={() => (state.status === "connecting" ? null : connect())} disabled={state.status === "connecting"}>
                   {state.status === "connecting" ? "Waiting for wallet" : "Connect wallet"}
