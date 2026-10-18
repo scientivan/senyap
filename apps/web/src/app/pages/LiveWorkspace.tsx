@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 import {useCallback,useEffect,useRef,useState} from "react";
-import {Link} from "react-router-dom";
 import type {WorkspaceSession,WorkspaceClient} from "@senyap/sdk/workspace";
 import type {ClientOperation} from "@senyap/sdk/operation";
 import type {MarketMetadata} from "@senyap/sdk/market-metadata";
@@ -253,7 +252,6 @@ export function LiveWorkspace(){
     finally{sending.current=false;if(valid())setBusy(false);}
   }
   return <div className="live-workspace">
-    <div className="live-mode" role="group" aria-label="App data source"><Link to="/app">Demo</Link><span aria-current="page">Preprod</span></div>
     <div hidden={showWorkspace}>
       <h1>{view?"Your Preprod workspace":"Use Senyap on Preprod"}</h1>
       <p className="live-intro">{view?"Market details come from the finalized test network. Your saved choices stay on this device.":unlocked?wallet.api?"Your wallet is connected and your private workspace is unlocked. Open live markets when a deployment is available.":"Your private workspace is unlocked. Connect your wallet to continue on the test network.":"Connect your wallet and unlock your private workspace to use the test network. Your saved choices stay on this device."}</p>

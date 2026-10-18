@@ -66,7 +66,7 @@ export function OperatorRegistry() {
         </Card>
       </div>
       <div className="mt16">
-        <Note title="One wallet holds every seat in this demo.">The Preprod deployment proves the rules on chain. All seat keys and stakes come from one test wallet, so it does not yet show independent operators.</Note>
+        <Note title="One person holds every seat today.">The rules run on chain, but every seat key and stake belongs to the project author. Independent operators need their own seat keys and a redeploy.</Note>
       </div>
     </>
   );

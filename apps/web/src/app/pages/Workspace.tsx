@@ -90,8 +90,7 @@ export function Workspace({onSession,embedded=false}:{onSession?:(session:Worksp
     <section className="vault-note"><h2>Your wallet and private workspace are separate</h2><p>Your Midnight wallet handles transactions. This password protects your local keys. Clearing browser data removes the local copy, so keep an encrypted backup. Leaving this page locks the workspace.</p>
       {!unlocked && <button type="button" className="abtn abtn-soft" disabled={busy} onClick={() => choose(mode === "restore" ? "unlock" : "restore")}>{mode === "restore" ? "Back to unlock" : "Restore encrypted backup"}</button>}
     </section>
-    {!embedded&&<><Link className="vault-link" to="/app">Continue with labelled demo data</Link>
-    <p className="vault-hint">Local encrypted storage is available. Markets still use labelled demo data; product staking, purchases and claims are not connected yet.</p></>}
+    {!embedded&&<Link className="vault-link" to="/app">Back to markets</Link>}
   </div>;
 }
 function Arrow() { return <span className="vault-disc" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></span>; }

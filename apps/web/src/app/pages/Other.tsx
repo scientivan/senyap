@@ -1,8 +1,10 @@
 import { mintDemoDusd } from "../dusd-faucet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { deployment, readLedger } from "../data/live";
+import { readProductView, type JuryCaseView } from "@senyap/sdk/read-model";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { timeLeft, useStore } from "../data/store";
-import { Card, Done, Empty, Note, PageHead, Sealed, useToast } from "../ui";
+import { Card, Empty, Note, PageHead, Sealed, useToast } from "../ui";
 import { useWallet, NETWORK_ID } from "../wallet";
 
 /* ---------------- Create market ---------------- */
@@ -219,153 +221,77 @@ export function Standing({ embedded = false }: { embedded?: boolean } = {}) {
   );
 }
 
-/* ---------------- Operator ---------------- */
-const queueItems = [
-  { id: "s1", kind: "Scout credential", what: "GitHub record proof, 1,394 contributions", result: "Tier 2", status: "pending" },
-  { id: "s2", kind: "Scout credential", what: "GitHub record proof, 412 contributions", result: "Tier 1", status: "pending" },
-  { id: "s3", kind: "Scout credential", what: "Deployer signature on Chain Y", result: "Chain Y builders", status: "pending" },
-  { id: "b1", kind: "Buyer application", what: "Ecosystem foundation, offchain review", result: "Good standing", status: "pending" },
-];
+/* ---------------- Operator console (live) ---------------- */
+// Read from the Preprod contract through the public RPC. Writing needs the
+// operator relay and seat keys, which stay with the operators.
+function useLedger() {
+  const [l, setL] = useState<Awaited<ReturnType<typeof readLedger>> | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => { deployment().then((d) => readLedger(d.contract)).then(setL, (e) => setErr(e instanceof Error ? e.message : String(e))); }, []);
+  return { l, err };
+}
+const shortHex = (b: Uint8Array) => Array.from(b.slice(0, 5), (x) => x.toString(16).padStart(2, "0")).join("") + "…";
+const seats = (v: boolean[]) => v.map((x, i) => (x ? i + 1 : 0)).filter(Boolean).join(", ") || "None";
+
 export function Operator() {
-  const [items, setItems] = useState(queueItems);
-  const [toast, show] = useToast();
-  const decide = (id: string, ok: boolean) => {
-    setItems((x) => x.map((i) => (i.id === id ? { ...i, status: ok ? "admitted" : "rejected" } : i)));
-    show(ok ? "Admitted. Only a commitment was added to the group." : "Rejected. Nothing was written on chain.");
-  };
+  const { l, err } = useLedger();
+  const rows = l ? [...l.opApprovals] : [];
   return (
     <>
-      <PageHead title="Verifications" sub="The operator checks a credential once, adds only a commitment to the right group, and keeps no link between the two." />
-      <div className="grid2">
-        <Card title="Waiting for review">
-          <div className="tbl-wrap">
-            <table className="tbl">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Evidence</th>
-                  <th>Group</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((i) => (
-                  <tr key={i.id} style={{ cursor: "default" }}>
-                    <td><b>{i.kind}</b></td>
-                    <td>{i.what}</td>
-                    <td>{i.result}</td>
-                    <td className="num">
-                      {i.status === "pending" ? (
-                        <span className="row" style={{ justifyContent: "flex-end" }}>
-                          <button type="button" className="abtn abtn-sm abtn-soft" onClick={() => decide(i.id, false)}>Reject</button>
-                          <button type="button" className="abtn abtn-sm abtn-red" onClick={() => decide(i.id, true)}>Admit</button>
-                        </span>
-                      ) : i.status === "admitted" ? (
-                        <Done>Admitted</Done>
-                      ) : (
-                        <span className="chip">Rejected</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-        <div className="stack">
-          <Card title="Reasons waiting for Veritas" sub="Scored for duplication and AI likelihood, then rewritten to remove identifying details.">
-            <div className="stats">
-              <div className="stat"><span>Queued</span><b>3</b></div>
-              <div className="stat"><span>Flagged as near duplicate</span><b>1</b></div>
-            </div>
-          </Card>
-          <Note title="Scores are flags, never grounds for slashing.">Only a hoax proven by verifiers can slash a stake.</Note>
-        </div>
-      </div>
-      {toast}
+      <PageHead title="Approvals" sub="Operator actions waiting for votes. Three of five operators must approve the exact parameters before an action runs." />
+      <Card title={l ? `${rows.length} pending` : "Reading the contract"} sub="Approved actions are removed from this list once they run.">
+        {err ? <p className="muted2">{err}</p> : rows.length === 0 ? <p className="muted2">{l ? "Nothing is waiting for votes." : "Loading."}</p> : (
+          <div className="tbl-wrap"><table className="tbl">
+            <thead><tr><th>Action</th><th>Voted</th><th>Approved</th><th className="num">Deadline</th></tr></thead>
+            <tbody>{rows.map(([id, a]) => (
+              <tr key={shortHex(id)} style={{ cursor: "default" }}><td>{shortHex(id)}</td><td>{seats(a.voted)}</td><td>{seats(a.approved)}</td><td className="num">{timeLeft(Number(a.deadline) * 1000)}</td></tr>
+            ))}</tbody>
+          </table></div>
+        )}
+      </Card>
     </>
   );
 }
 
-/* ---------------- Committee ---------------- */
 export function Committee() {
-  const members = ["Node 1", "Node 2", "Node 3", "Node 4", "Node 5"];
-  const [approved, setApproved] = useState(2);
+  const { l, err } = useLedger();
+  const s = useStore();
+  const waiting = s.markets.filter((m) => m.phase === "closed");
+  const stake = (m: number) => (l?.committeeStake.member(BigInt(m)) ? l.committeeStake.lookup(BigInt(m)).toString() : "0");
   return (
     <>
-      <PageHead title="Decryption committee" sub="Five nodes each hold one share of the key. Any three together can open a total. None can open one alone." />
+      <PageHead title="Decryption committee" sub="Five members hold one key share each. Any three can open a total; fewer learn nothing." />
+      {err && <Note title="The contract could not be read.">{err}</Note>}
       <div className="grid2">
-        <Card title="Members">
-          <div className="opts2">
-            {members.map((n, i) => (
-              <div key={n} className="orow">
-                <b>{n}</b>
-                <span className="muted2">Share {i + 1} of 5, public key registered on chain</span>
-                <span className="chip chip-ok">Online</span>
-              </div>
-            ))}
-          </div>
+        <Card title="Members" sub="Stake 500 dUSD each. Absence costs half; a leaked share costs all of it.">
+          <div className="stats">{[0, 1, 2, 3, 4].map((m) => <div key={m} className="stat"><span>Member {m + 1}</span><b>{l ? `${stake(m)} dUSD` : "Loading"}</b></div>)}</div>
         </Card>
-        <div className="stack">
-          <Card title="Market #11 strength preview" sub="The public histogram needs 3 approvals.">
-            <div className="stack">
-              <div className="row">
-                {[0, 1, 2].map((i) => (
-                  <span key={i} className={`chip ${i < approved ? "chip-you" : ""}`}>Approval {i + 1}</span>
-                ))}
-              </div>
-              <button type="button" className="abtn abtn-red" disabled={approved >= 3} onClick={() => setApproved((a) => a + 1)}>
-                {approved >= 3 ? "Preview published" : "Post approval as Node 3"}
-              </button>
-            </div>
-          </Card>
-          <Note title="Disclosed limit.">The committee reads totals for the public preview and the fallback rule, and bids to compute the auction price. It never sees which scout picked what.</Note>
-        </div>
+        <Card title="Markets waiting for a preview" sub="After picks close, three members post the strength histogram.">
+          {waiting.length ? waiting.map((m) => <div key={m.id} className="row between"><span>Market #{m.id}</span><Link className="abtn abtn-sm abtn-soft" to={`/app/markets/${m.id}`}>Open</Link></div>) : <p className="muted2">No market is waiting.</p>}
+        </Card>
       </div>
     </>
   );
 }
 
-/* ---------------- Verifiers ---------------- */
 export function Verify() {
-  const [phase, setPhase] = useState<"commit" | "committed" | "revealed">("commit");
-  const [vote, setVote] = useState<"hoax" | "honest" | null>(null);
+  const s = useStore();
+  const [cases, setCases] = useState<JuryCaseView[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => { deployment().then(async (d) => readProductView(await readLedger(d.contract) as never, { network: "preprod", contract: d.contract }).juryCases).then(setCases, (e) => setErr(e instanceof Error ? e.message : String(e))); }, [s.markets.length]);
   return (
     <>
-      <PageHead title="Disputes" sub="Verifiers stake to join and vote in secret. The majority is paid from the minority's stake." />
-      <div className="grid2">
-        <Card title="Dispute on market #9, position c963 8da7" sub="The dispute says a team meeting cited in the reason never happened.">
-          <div className="stack">
-            <p className="muted2">You can read the cleaned reason and the evidence both sides attached. Nobody, including you, learns who wrote the reason.</p>
-            <div className="row">
-              {(["hoax", "honest"] as const).map((v) => (
-                <button key={v} type="button" className={`abtn ${vote === v ? "abtn-night" : "abtn-soft"}`} disabled={phase !== "commit"} onClick={() => setVote(v)}>
-                  {v === "hoax" ? "It was a hoax" : "It was honest"}
-                </button>
-              ))}
-            </div>
-            <div className="row between">
-              {phase === "commit" ? <span className="muted2">Your vote is sealed until the reveal phase.</span> : phase === "committed" ? <Sealed why="Votes are commitments until everyone has voted, so nobody can follow the crowd.">Vote sealed</Sealed> : <Done>Vote revealed</Done>}
-              {phase === "commit" && (
-                <button type="button" className="abtn abtn-red" disabled={!vote} onClick={() => setPhase("committed")}>Seal my vote</button>
-              )}
-              {phase === "committed" && (
-                <button type="button" className="abtn abtn-red" onClick={() => setPhase("revealed")}>Reveal my vote</button>
-              )}
-            </div>
-          </div>
-        </Card>
-        <div className="stack">
-          <Card title="This dispute" className="dark">
-            <div className="stats">
-              <div className="stat"><span>Verifier seats</span><b>7</b></div>
-              <div className="stat"><span>Votes sealed</span><b>{phase === "commit" ? 4 : 5}</b></div>
-              <div className="stat"><span>Commit phase ends</span><b>in 5 h</b></div>
-            </div>
-          </Card>
-          <Note title="If the hoax is proven.">The stake goes to charity and the scout's locked membership card is opened and removed from the group.</Note>
-        </div>
-      </div>
+      <PageHead title="Disputes" sub="Hoax reports and contested outcomes go to anonymous verifiers who commit and reveal their votes." />
+      <Card title={cases ? `${cases.length} cases` : "Reading the contract"}>
+        {err ? <p className="muted2">{err}</p> : !cases?.length ? <p className="muted2">{cases ? "No disputes on chain." : "Loading."}</p> : (
+          <div className="tbl-wrap"><table className="tbl">
+            <thead><tr><th>Market</th><th>Kind</th><th className="num">Votes</th><th>Result</th></tr></thead>
+            <tbody>{cases.map((c) => (
+              <tr key={c.id} style={{ cursor: "default" }}><td>#{c.market.toString()}</td><td>{c.kind}</td><td className="num">{c.committed.toString()}</td><td>{c.result ?? "Open"}</td></tr>
+            ))}</tbody>
+          </table></div>
+        )}
+      </Card>
     </>
   );
 }
@@ -379,20 +305,20 @@ export function Faucet() {
   const mint = async (amount: number) => {
     if (state.status !== "connected" || !api) return show("Connect your wallet on Preprod first.");
     setBusy(true);
-    try { const tx = await mintDemoDusd(api, state.address, BigInt(amount)); show(`Minted ${amount} demo dUSD. Transaction ${tx.slice(0, 10)}…`); s.refresh(); }
+    try { const tx = await mintDemoDusd(api, state.address, BigInt(amount)); show(`Minted ${amount} test dUSD. Transaction ${tx.slice(0, 10)}…`); s.refresh(); }
     catch (e) { show(e instanceof Error ? e.message : String(e)); }
     finally { setBusy(false); }
   };
   return (
     <>
-      <PageHead title="Demo dUSD" sub={`dUSD is an unshielded test token with no value, standing in for a stablecoin on Midnight ${NETWORK_ID}. Anyone can mint up to 5000 per transaction.`} />
+      <PageHead title="Test dUSD" sub={`dUSD is an unshielded test token with no value, standing in for a stablecoin on Midnight ${NETWORK_ID}. Anyone can mint up to 5000 per transaction.`} />
       <div className="grid3">
         <Card title="Balance" className="dark">
           <div className="stats">
             <div className="stat"><span>dUSD in your wallet</span><b>{s.balance === null ? "Not connected" : s.balance.toLocaleString()}</b></div>
           </div>
         </Card>
-        <Card title="Mint demo dUSD" sub="Your wallet proves, pays the fee and signs. It takes about a minute.">
+        <Card title="Mint test dUSD" sub="Your wallet proves, pays the fee and signs. It takes about a minute.">
           <div className="row">
             {[100, 500, 1000].map((a) => (
               <button key={a} type="button" className="abtn abtn-red" disabled={busy} onClick={() => mint(a)}>+{a}</button>
@@ -441,7 +367,7 @@ export function Guide() {
         </ol>
       </Card>
       <div className="mt16">
-        <Empty title="Use the phase button on any market.">Each market page has a demo control that moves it to the next phase, so you can walk the whole flow in minutes.</Empty>
+        <Empty title="Phases follow the contract clock.">Markets move to the next phase when their on-chain deadlines pass. Anyone can trigger the move; the keeper does it automatically.</Empty>
       </div>
     </>
   );

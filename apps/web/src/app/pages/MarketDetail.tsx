@@ -204,7 +204,7 @@ export function HistoryCard({ marketLabel }: { marketLabel?: string }) {
 
 /* D18-3: describe a pick in your own words; matching runs only in this browser.
    The stake still goes to a numbered option so totals stay private and summable. */
-const PROPOSALS = "senyap-demo-option-proposals";
+const PROPOSALS = "senyap-option-proposals";
 function SmartPick({ m, onPick }: { m: Market; onPick: (id: number) => void }) {
   const [text, setText] = useState("");
   const [result, setResult] = useState<string | null>(null);

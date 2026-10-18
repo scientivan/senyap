@@ -18,7 +18,7 @@ type WalletState =
   | { status: "missing" }
   | { status: "error"; message: string };
 
-type Ctx = { state: WalletState; api: ConnectedAPI | null; connect: (id?: string) => Promise<void>; disconnect: () => void; demo: () => void };
+type Ctx = { state: WalletState; api: ConnectedAPI | null; connect: (id?: string) => Promise<void>; disconnect: () => void };
 const WalletCtx = createContext<Ctx | null>(null);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
@@ -74,7 +74,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         api,
         connect,
         disconnect: () => { attempt.current++; setApi(null); setState({ status: "idle" }); },
-        demo: () => { attempt.current++; setApi(null); setState({ status: "connected", address: "mn_addr_preprod1demo…7f3k", name: "Demo wallet" }); },
       }}
     >
       {children}

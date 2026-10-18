@@ -300,8 +300,8 @@ export function Notes() {
           <FlaskIcon />
         </div>
         <div>
-          <b>Every team, scout and number here is demo data.</b>
-          <p>Senyap is in development for the Midnight Buildathon, and the app runs on labelled demo data until the contracts are deployed. It grew out of Bisik, built earlier on Solana for the Colosseum hackathon.</p>
+          <b>The examples on this page are illustrations.</b>
+          <p>The app itself shows only live data from the Senyap contract on Midnight Preprod, a test network with a test token. Senyap is built for the Midnight Buildathon and grew out of Bisik, built earlier on Solana for the Colosseum hackathon.</p>
         </div>
       </div>
     </div>

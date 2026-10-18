@@ -72,7 +72,7 @@ export function Hero() {
               </span>
               <span className="pill pill-night">
                 <FlaskIcon />
-                Demo market
+                Example market
               </span>
             </div>
           </aside>

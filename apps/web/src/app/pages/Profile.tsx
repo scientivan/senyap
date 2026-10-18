@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // One profile page per role. Collects "about me" information that used to sit in
-// separate navbar tabs (Standing, Tier). Demo data is labelled as demo.
+// separate navbar tabs (Standing, Tier).
 import { Link } from "react-router-dom";
 import { useStore } from "../data/store";
 import { Card, PageHead, RoleIcon } from "../ui";
@@ -19,15 +19,15 @@ function Identity() {
       <Card title={`${role.label} account`} sub={role.does} className="dark">
         <div className="stats">
           <div className="stat"><span>Role</span><b className="row"><RoleIcon role={s.role} />{role.label}</b></div>
-          <div className="stat"><span>Wallet</span><b>{connected ? short(state.address) : "Demo wallet"}</b></div>
-          <div className="stat"><span>Network</span><b>{connected ? NETWORK_ID : "Demo data"}</b></div>
+          <div className="stat"><span>Wallet</span><b>{connected ? short(state.address) : "Not connected"}</b></div>
+          <div className="stat"><span>Network</span><b>{NETWORK_ID}</b></div>
         </div>
       </Card>
-      <Card title="Balance" sub="Demo dUSD on Preprod. No real asset.">
+      <Card title="Balance" sub="Test dUSD on Preprod. No real asset.">
         <div className="stats">
           <div className="stat"><span>dUSD</span><b>{s.balance === null ? "Connect wallet" : s.balance.toLocaleString()}</b></div>
         </div>
-        <Link to="/app/faucet" className="abtn abtn-soft mt16">Get demo dUSD</Link>
+        <Link to="/app/faucet" className="abtn abtn-soft mt16">Get test dUSD</Link>
       </Card>
       <Card title="Private workspace" sub="Your keys, picks and pseudonyms live in an encrypted vault on this device, separate from your wallet.">
         <Link to="/app/workspace" className="abtn abtn-soft">Open private workspace</Link>

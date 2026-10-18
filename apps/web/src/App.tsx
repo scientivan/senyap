@@ -66,7 +66,7 @@ const router = createBrowserRouter([
     path: "/operator",
     element: <OperatorLayout />,
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <Navigate to="/operator/registry" replace /> },
       { path: "registry", element: <Suspense fallback={null}><OperatorRegistry /></Suspense> },
       { path: "verifications", element: <Operator /> },
       { path: "committee", element: <Committee /> },

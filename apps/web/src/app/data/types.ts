@@ -1,5 +1,5 @@
 /**
- * Domain types. Shaped after SPEC.md §6 so the demo store can later be replaced by the
+ * Domain types. Shaped after SPEC.md §6; filled from the Preprod contract through the
  * Midnight SDK (packages/sdk) without touching pages.
  */
 export type Role = "ecosystem" | "builder" | "scout" | "operator";

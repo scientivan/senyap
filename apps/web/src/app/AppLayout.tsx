@@ -37,7 +37,7 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
 
 export function AppLayout() {
   const { role, setRole, balance } = useStore();
-  const { state, connect, disconnect, demo } = useWallet();
+  const { state, connect, disconnect } = useWallet();
   const [open, setOpen] = useState(false);
   const [walletOpen, setWalletOpen] = useState(false);
   const nav = useNavigate();
@@ -78,7 +78,7 @@ export function AppLayout() {
             <NavLink to="/app/preprod" className={({isActive})=>isActive?"on":""}>Private workspace</NavLink>
           </nav>
           <div className="ah-right">
-            {balance!==null&&<span className="ah-bal" title="Demo dUSD in your connected wallet on Preprod.">{balance.toLocaleString()} dUSD</span>}
+            {balance!==null&&<span className="ah-bal" title="Test dUSD in your connected wallet on Preprod.">{balance.toLocaleString()} dUSD</span>}
             <div className="ah-role" ref={roleRef}>
               <button type="button" className="ah-role-btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
                 <RoleIcon role={role} />
@@ -154,7 +154,7 @@ export function AppLayout() {
                   {state.status === "missing" && (
                     <>
                       <b>No Midnight wallet found.</b>
-                      <p>Install a Midnight wallet such as Lace or 1AM, switch it to {NETWORK_ID}, then reload. You can also explore with a demo wallet.</p>
+                      <p>Install a Midnight wallet such as Lace or 1AM, switch it to {NETWORK_ID}, then reload. Browsing markets needs no wallet.</p>
                       <div className="row">
                         <a className="abtn abtn-soft" href="https://www.lace.io/" target="_blank" rel="noreferrer">
                           Get Lace
@@ -162,9 +162,6 @@ export function AppLayout() {
                         <a className="abtn abtn-soft" href="https://1am.xyz/" target="_blank" rel="noreferrer">
                           Get 1AM
                         </a>
-                        <button type="button" className="abtn abtn-red" onClick={demo}>
-                          Use demo wallet
-                        </button>
                       </div>
                     </>
                   )}
@@ -175,9 +172,6 @@ export function AppLayout() {
                       <div className="row">
                         <button type="button" className="abtn abtn-red" onClick={() => connect()}>
                           Try again
-                        </button>
-                        <button type="button" className="abtn abtn-soft" onClick={demo}>
-                          Use demo wallet
                         </button>
                       </div>
                     </>
