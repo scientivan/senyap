@@ -149,25 +149,32 @@ on the server and must never be placed in `apps/web` or any `VITE_*` variable.
 | Decryption committee | 3-of-5 threshold, trusted-dealer key, no stake | Pedersen DKG, 500 dUSD stake, slash for absence or invalid shares, reward for exposing a leaked share |
 | Dispute jury | anonymous commit-reveal, 100 dUSD bond, minority slashed | unchanged |
 
-Today the operator is a single trusted party. It cannot see scout picks or move
-funds, but it can refuse or wrongly admit participants. Committee members are not
-staked yet. Collusion that only leaks a final total, without handing over a key
-share, cannot be proven on chain.
+Gated operator actions need three of five operator approvals bound to the exact
+parameters, and operators and committee members stake 500 dUSD. In the demo
+deployment one wallet holds every operator and committee key, so independence is
+not shown yet. A wrong decryption share is not slashable yet (it needs member-signed
+shares). Collusion that only leaks a final total, without handing over a key share,
+cannot be proven on chain.
 
 ## Preprod deployment (18 Oct 2026)
 
 | Item | Value |
 | --- | --- |
-| Senyap contract | `c8ab22d9a80f56bf533ab9bb9256b8fac93fcb2798c3b42d4511fee1a462231b` |
-| Demo dUSD token contract | `9991dd6b2628a3633566f7e875785c2095990a404a8f1d3d184c46fae0abcca2` |
-| Verifiers | 42 of 42 installed in staged maintenance updates |
+| Senyap contract (52 circuits) | `a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9` |
+| Demo dUSD token contract | `e5ac20e387eb75b7357f19a309e8826e2849f60e1d63208d4514a8f3d716681e` |
+| Verifiers | 52 of 52 installed in six staged maintenance updates |
 | Maintenance authority | handed to an operator key held outside the browser |
+| Stakes | operators 0 to 2 and committee members 0 to 4, 500 dUSD each |
 
-All nine transactions (token deploy, mint, Senyap deploy, five verifier batches,
-authority handoff) report `SUCCESS` on the Blockfrost Preprod indexer, blocks
-3028892 to 3029095 ([journal](docs/evidence/P8.1-preprod-deploy-journal.json)).
-They were signed and paid with the 1AM browser wallet. Five committee members run
-locally against this deployment and check the on-chain committee key at start.
+All eighteen transactions (token deploy, mint, Senyap deploy, six verifier batches,
+authority handoff, eight stakes) finalized on Preprod
+([journal](docs/evidence/P9.7-preprod-deploy-journal.json)). They were signed and
+paid with the 1AM browser wallet. One wallet paid every stake, so this shows the
+mechanism, not independent operators. Five committee members run locally against
+this deployment with their DKG shares and check the on-chain committee key at start.
+
+The earlier 42-circuit deployment (`c8ab22d9…231b`, before the 18 Oct design
+decisions) stays on chain ([journal](docs/evidence/P8.1-preprod-deploy-journal.json)).
 
 A live Reclaim GitHub proof, bound to this contract, a session nonce and a one-time
 session, passed attestor and TEE verification

@@ -1,0 +1,131 @@
+{
+  "network": "preprod",
+  "status": "completed",
+  "phase": "P9.7",
+  "completedAt": "2026-10-18T08:35:59.656Z",
+  "wallet": "1AM (dApp connector v4), every transaction approved by the owner",
+  "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
+  "tokenContract": "e5ac20e387eb75b7357f19a309e8826e2849f60e1d63208d4514a8f3d716681e",
+  "token": "e3d69781ed902df3d8d3df3698deafa0f18af34da19d7f2bb59d254c02dc40d8",
+  "plan": "docs/evidence/P9.7-preprod-public-plan.json",
+  "circuits": 52,
+  "allVerifiersInstalled": 52,
+  "authorityHandedOff": true,
+  "stakes": {
+    "operators": {
+      "members": [
+        0,
+        1,
+        2
+      ],
+      "amount": "500"
+    },
+    "committee": {
+      "members": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "amount": "500"
+    }
+  },
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "status": "finalized",
+      "txId": "0070854eabf52973ea4ddb28b0963471d93270d79856ff60beed7f73997724c786"
+    },
+    {
+      "action": "mint:5000",
+      "status": "finalized",
+      "txId": "00d03b16cfdf2acd10428dd035dca43e97fd3d51461b0053f968b050f98d7c2c10"
+    },
+    {
+      "action": "deploy:senyap",
+      "status": "finalized",
+      "txId": "00e6f30f1e4da2d1671d5d495ab1f6834cfefc8fb26570c930640dcd1f11f16c64"
+    },
+    {
+      "action": "install-verifiers:1",
+      "status": "finalized",
+      "txId": "00652601efe15d354e716e6bca9dce55b90d5a629c7df4cde36a7029a8f2701027"
+    },
+    {
+      "action": "install-verifiers:2",
+      "status": "finalized",
+      "txId": "009a457947d6ce239f7d6da5a10e4d0633a043406c5d6288a0618283a628fb6e87"
+    },
+    {
+      "action": "install-verifiers:3",
+      "status": "finalized",
+      "txId": "00ee4bfc152e240133a5111f2c0f1177d71a8c921cdf0165beddb7cb4f8c3d9533"
+    },
+    {
+      "action": "install-verifiers:4",
+      "status": "finalized",
+      "txId": "00aa5f958c2b850e135bca6f7a302589fd2cc11d9df7d9d40df08e318275848df0"
+    },
+    {
+      "action": "install-verifiers:5",
+      "status": "finalized",
+      "txId": "007fb2a3675ab776db7bb8df2c3bc843e7d75bed4dd97ff34a6815a73b526a5568"
+    },
+    {
+      "action": "install-verifiers:6",
+      "status": "finalized",
+      "txId": "00588851eabccc791941a3a86cb981449bad025805222a8dba41b1f0274eb9cef0"
+    },
+    {
+      "action": "replace-authority",
+      "status": "finalized",
+      "txId": "00a8ea6912291bf0f0adfa71b80801b16d1a724f94308398df0d9d0d16d05634cc"
+    },
+    {
+      "action": "stake-operator:0",
+      "status": "finalized",
+      "txId": "00d2f0157cdfd304e075bbcad1e2551242f7bb1489371a63fac317e9b7ea6f0d39"
+    },
+    {
+      "action": "stake-operator:1",
+      "status": "finalized",
+      "txId": "00b0b8f273c108fdc01fe6eef64634a628281692ea2ac7cbb1dd11edaf41930fdc"
+    },
+    {
+      "action": "stake-operator:2",
+      "status": "finalized",
+      "txId": "000861bbcad09632528da32aa0339d1d42dec5282161ee67efa12a31d3059b196f"
+    },
+    {
+      "action": "stake-committee:0",
+      "status": "finalized",
+      "txId": "006f67fe798145173bc61b58e1fb27f445baea971e2cce71e9e9d3c747437f4ac5"
+    },
+    {
+      "action": "stake-committee:1",
+      "status": "finalized",
+      "txId": "0007e6dfb8cb7c7ad8622ac1a6d8333c46122a1737ea2747b9c0cb071cc7d588bd"
+    },
+    {
+      "action": "stake-committee:2",
+      "status": "finalized",
+      "txId": "00f06dbfe4bec27134ad6a4a7a1a978d39501b6829b7d0f098c9d759aaa2cccbf0"
+    },
+    {
+      "action": "stake-committee:3",
+      "status": "finalized",
+      "txId": "0009403e7d722288c8282c10b4a13199288f258d8f3984e690e5adf27869c0c02f"
+    },
+    {
+      "action": "stake-committee:4",
+      "status": "finalized",
+      "txId": "005cf892c7b76554806773dedd1b14cd9ebd31d557904ae8a7c0ee6071d04f2f20"
+    }
+  ],
+  "notes": [
+    "Two stake attempts were rejected by the node (1010 custom error 182) because back-to-back stakes spent the same dUSD output; neither reached the chain. The helper now waits 45 s between stakes and retries.",
+    "Operator members 3 and 4 hold no stake yet; one wallet paid every stake, so this proves the mechanism, not operator independence.",
+    "Supersedes the 42-circuit P8.1 deployment, which stays on chain and in its own journal."
+  ]
+}

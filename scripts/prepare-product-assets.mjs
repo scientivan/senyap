@@ -10,7 +10,7 @@ if(evidence.sourceSha256!==sourceSha256)throw Error("Generate and verify proving
 const circuits=(await readdir(`${source}/keys`)).filter(name=>name.endsWith(".prover")).map(name=>name.slice(0,-7)).sort();
 if(circuits.length!==evidence.circuits)throw Error("Incomplete public proving keys");
 const files=[];
-for(const circuit of circuits)for(const name of [`keys/${circuit}.prover`,`keys/${circuit}.verifier`,`zkir/${circuit}.zkir`]){
+for(const circuit of circuits)for(const name of [`keys/${circuit}.prover`,`keys/${circuit}.verifier`,`zkir/${circuit}.zkir`,`zkir/${circuit}.bzkir`]){
   const contents=await readFile(`${source}/${name}`);if(!contents.length)throw Error("Empty public artifact");
   files.push({name,bytes:contents.length,sha256:digest(contents)});
 }

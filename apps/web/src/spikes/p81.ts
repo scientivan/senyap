@@ -162,8 +162,18 @@ export async function prepare(walletId?:string){
       const p=providers<string>("/contracts/senyap");
       const compiled=CompiledContract.make("SenyapPreprod",Contract<unknown>).pipe(CompiledContract.withWitnesses(noWitnesses),CompiledContract.withCompiledFileAssets("/contracts/senyap"));
       const found=await findDeployedContract(p as never,{compiledContract:compiled as never,contractAddress:contract,privateStateId:"p81-product",initialPrivateState:{}} as never) as {callTx:Record<string,(...a:unknown[])=>Promise<unknown>>};
-      for(let m=0;m<3;m++)if(!done(`stake-operator:${m}`))await step(`stake-operator:${m}`,()=>found.callTx.stakeOperator(BigInt(m),500n));
-      for(let m=0;m<5;m++)if(!done(`stake-committee:${m}`))await step(`stake-committee:${m}`,()=>found.callTx.stakeCommittee(BigInt(m),500n));
+      // Back-to-back stakes spend the same dUSD output before the wallet sees its change, and the
+      // node rejects the second one (1010 custom error 182). Wait between stakes and retry rejections.
+      const stake=async(action:string,call:()=>Promise<unknown>)=>{
+        for(let attempt=0;!done(action);attempt++){
+          await new Promise(r=>setTimeout(r,45000));
+          try{await step(action,call);}
+          catch(e){if(attempt>=2||!/Custom error: 182/.test(String((window as unknown as {__p81LastError?:unknown}).__p81LastError)))throw e;
+            progress.transactions=progress.transactions.filter(t=>t.action!==action);remember();}
+        }
+      };
+      for(let m=0;m<3;m++)await stake(`stake-operator:${m}`,()=>found.callTx.stakeOperator(BigInt(m),500n));
+      for(let m=0;m<5;m++)await stake(`stake-committee:${m}`,()=>found.callTx.stakeCommittee(BigInt(m),500n));
       progress.stage="staked";remember();return structuredClone(progress);
     },
   };

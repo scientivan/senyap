@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Starts the five committee members against the Preprod deployment recorded in
-// docs/evidence/P8.1-preprod-deploy-journal.json. Each child process receives
+// docs/evidence/P9.7-preprod-deploy-journal.json. Each child process receives
 // only its own share. Shares come from .states/preprod-secrets.json and are
 // never printed. Members listen on localhost ports 3101-3105; no relay.
 import assert from "node:assert/strict";
@@ -8,7 +8,7 @@ import {spawn} from "node:child_process";
 import {readFile} from "node:fs/promises";
 import {preprodEnvironment} from "./lib/preprod-environment";
 
-const journal=JSON.parse(await readFile("docs/evidence/P8.1-preprod-deploy-journal.json","utf8"));
+const journal=JSON.parse(await readFile("docs/evidence/P9.7-preprod-deploy-journal.json","utf8"));
 const plan=JSON.parse(await readFile("docs/evidence/P9.7-preprod-public-plan.json","utf8"));
 assert(journal.network==="preprod"&&journal.status==="completed"&&/^[a-f0-9]{64}$/.test(journal.contract),"Completed Preprod deployment required");
 const secrets=JSON.parse(await readFile(".states/preprod-secrets.json","utf8"));
