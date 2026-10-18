@@ -5,8 +5,10 @@ import {ContractState} from "@midnight-ntwrk/compact-runtime";
 import {Contract} from "../../contracts/managed/senyap/contract/index.js";
 import type {Circuit,LocalState} from "./local-product-scenario";
 import {Intent,Transaction,MaintenanceUpdate,VerifierKeyInsert,ContractOperationVersionedVerifierKey,signData} from "@midnight-ntwrk/midnight-js-protocol/ledger";
+/** 42 product circuits plus 10 from the 18 Oct decisions (SPEC §16). */
+export const PRODUCT_CIRCUITS=52;
 export function verifierBatches(circuits:readonly Circuit[],size=12){
-  assert(Number.isSafeInteger(size)&&size>0&&circuits.length===42&&new Set(circuits).size===42,"Expected the complete42circuit manifest");
+  assert(Number.isSafeInteger(size)&&size>0&&circuits.length===PRODUCT_CIRCUITS&&new Set(circuits).size===PRODUCT_CIRCUITS,`Expected the complete${PRODUCT_CIRCUITS}circuit manifest`);
   return Array.from({length:Math.ceil(circuits.length/size)},(_,i)=>circuits.slice(i*size,(i+1)*size));
 }
 /** `counter` is the CURRENT maintenance counter, matching compact-js

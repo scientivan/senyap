@@ -67,7 +67,7 @@ export const clientWitnesses:Witnesses<ClientPrivateState>={
   updatedScoutRoot:(c,id)=>[checked(c),scoutGroupTree(c.ledger,id).root()],
   scoutAuthorization:(c,id)=>[checked(c),{id,...c.ledger.groupConfig.lookup(id),size:c.ledger.groupSize.lookup(id),root:scoutGroupTree(c.ledger,id).root()}],
   scoutRegistryPath(c,id){const value={id,...c.ledger.groupConfig.lookup(id),size:c.ledger.groupSize.lookup(id),root:scoutGroupTree(c.ledger,id).root()};return [checked(c),path(c.ledger.scoutRegistry.findPathForLeaf(pureCircuits.scoutAuthorizationDigest(value)))];},
-  operatorSecret(){throw Error("Operator authorization is server-only");},committeeSecret(){throw Error("Committee authorization is server-only");},
+  operatorSecret(){throw Error("Operator authorization is server-only");},operatorMemberSecret(){throw Error("Operator member authorization is server-only");},committeeSecret(){throw Error("Committee authorization is server-only");},
   scoutSecret:c=>[checked(c),checked(c).secrets.scout],buyerSecret:c=>[checked(c),checked(c).secrets.buyer],builderSecret:c=>[checked(c),checked(c).secrets.builder],verifierSecret:c=>[checked(c),checked(c).secrets.verifier],
   memberPath(c){const group=required(action(c).group,"Group action required"),epoch=c.ledger.groupConfig.lookup(group).epoch;
     const leaf=persistentHash(new CompactTypeVector(2,Bytes32Descriptor),[checked(c).secrets.scout,convertFieldToBytes(32,epoch,"epoch")]);return [checked(c),path(scoutGroupTree(c.ledger,group).findPathForLeaf(leaf))];},

@@ -18,7 +18,7 @@ import {createSnapshotReader} from "../packages/sdk/src/snapshot";
 import {hash, operator} from "../tests/contracts/harness";
 import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,confirmedTokenDeployment,validateRejectedStagedDeploy,validatePartialInstallation} from "./lib/local-submission-journal";
 import {synchronizedLocalBalance,applyDustFeeWorkaround} from "./lib/local-wallet-balance";
-import {stagedProductContract,verifierBatches,verifierInstallation} from "./lib/staged-product-deployment";
+import {PRODUCT_CIRCUITS,stagedProductContract,verifierBatches,verifierInstallation} from "./lib/staged-product-deployment";
 import {createLocalResourceGate} from "./lib/local-resource-budget";
 import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
   type Driver, type Circuit, type LocalState, type Args, type Result} from "./lib/local-product-scenario";
@@ -70,7 +70,7 @@ async function preflight() {
   const manifest = JSON.parse(await readFile("apps/web/public/contracts/senyap/manifest.json", "utf8"));
   // Public keys must belong to the current source, not a previous fixture.
   assert.equal(manifest.sourceSha256, sourceSha256, "Product artifact source mismatch");
-  assert.equal(manifest.circuits, 42, "Unexpected product circuit count");
+  assert.equal(manifest.circuits, PRODUCT_CIRCUITS, "Unexpected product circuit count");
   for (const file of manifest.files) {
     assert(typeof file.name === "string" && /^(keys|zkir)\/[a-zA-Z]+\.(prover|verifier|zkir)$/.test(file.name), "Invalid artifact name");
     const content = await readFile(`contracts/managed/senyap/${file.name}`);

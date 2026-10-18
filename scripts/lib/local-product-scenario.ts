@@ -3,7 +3,8 @@
 import assert from "node:assert/strict";
 import * as RT from "@midnight-ntwrk/compact-runtime";
 import { Contract, ledger, type Market } from "../../contracts/managed/senyap/contract/index.js";
-import { setupGroups, bytes, hash, committee, commitment, operator } from "../../tests/contracts/harness";
+import { setupGroups, bytes, hash, committee, commitment, operator, operatorMembers, shareScalars, gatedCall } from "../../tests/contracts/harness";
+import { opActionId } from "../../packages/sdk/src/operator-actions";
 import { summarizeTotals } from "../../apps/committee/src/decisions";
 import { planTransitions } from "../../services/keeper/src/transitions";
 import {scoutGroupTree} from "../../packages/sdk/src/group-trees";
@@ -22,7 +23,7 @@ export const mask = (...options: number[]) => Array.from({length: 8}, (_, i) => 
 export const hex = (value: Uint8Array) => Buffer.from(value).toString("hex");
 export const initialPrivateState = (): LocalState => ({...fixture.context.currentPrivateState});
 export const constructorArgs = (color: Uint8Array, recipient: {bytes: Uint8Array}) =>
-  [hash(operator), committee.map(hash), RT.ecMulGenerator(37n), color, epochSeconds, 1800n, 900n, 300n, 300n, recipient] as const;
+  [hash(operator), operatorMembers.map(hash), committee.map(hash), shareScalars.map(k => RT.ecMulGenerator(k)), RT.ecMulGenerator(37n), color, epochSeconds, 1800n, 900n, 300n, 300n, recipient] as const;
 // Local network fixture: hit 1800 s and selection 900 s leave room for ~50 s per
 // proven transaction (15 proveHit calls; settle+select for two buyers).
 
@@ -53,7 +54,20 @@ export interface Driver {
 
 /** Same ordered scenario for simulator and network. Network waits for real block
  * time; only the simulator advances its own in-memory clock. */
-export async function runScenario(driver: Driver) {
+export async function runScenario(base: Driver) {
+  // D18-5: three staked operators approve every gated call before it executes.
+  const driver: Driver = {...base, async call(name, ...args) {
+    const gated = gatedCall(name, args as unknown[]);
+    if (gated) {
+      const id = opActionId(gated);
+      for (let m = 0; m < 3; m++) {
+        await base.patch({operatorMember: operatorMembers[m]} as Partial<LocalState>);
+        await base.call("voteOperatorAction" as never, ...([id, BigInt(m), true, (await base.read()).time] as never[]));
+      }
+    }
+    return base.call(name, ...args);
+  }};
+  for (let m = 0; m < 3; m++) await base.call("stakeOperator" as never, ...([BigInt(m), 500n] as never[]));
   const records: {secret: Uint8Array; salt: Uint8Array; id: Uint8Array; market: bigint}[] = [];
   const schedules: Market[] = [];
   for (const buyer of buyers) await driver.call("admitBuyer", hash(buyer));

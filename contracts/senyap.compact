@@ -13,8 +13,21 @@ export ledger nextScoutGroupSlot: Uint<64>;
 export struct GroupLeaf { group: Bytes<32>; index: Uint<64>; }
 export struct BuilderEntry { profileHash: Bytes<32>; ownerCommit: Bytes<32>; consent: Boolean; registeredAt: Uint<64>; }
 export ledger builderRegistry: Map<Bytes<32>, BuilderEntry>;
+// D18-2: teams listed from public evidence of seeking funding (no owner yet).
+export ledger publicIntentEvidence: Map<Bytes<32>, Bytes<32>>;
 export sealed ledger operator: Bytes<32>;
+// D18-5: five registered operators; operator actions need three approvals.
+export struct OpAction { tag: Bytes<32>; a: Bytes<32>; b: Bytes<32>; n: Vector<3, Uint<128>>; }
+export struct OpApproval { voted: Vector<5, Boolean>; approved: Vector<5, Boolean>; deadline: Uint<64>; consumed: Boolean; }
+export sealed ledger operatorKeys: Vector<5, Bytes<32>>;
+export ledger operatorStake: Map<Uint<8>, Uint<128>>;
+export ledger opApprovals: Map<Bytes<32>, OpApproval>;
+export ledger protocolTreasury: Uint<128>;
 export sealed ledger committeeAuth: Vector<5, Bytes<32>>;
+// D18-6/7/8: per-member public key shares (DKG), stakes, duty deadlines.
+export sealed ledger committeeShareKeys: Vector<5, JubjubPoint>;
+export ledger committeeStake: Map<Uint<8>, Uint<128>>;
+export ledger committeeDuty: Map<Bytes<32>, Uint<64>>;
 // Node 1.0.0 drops transactions that insert a default HistoricMerkleTree as a
 // Map value (spike S12). Groups use a fixed pool of 16 top-level trees by slot; the
 // cap applies for the deployment lifetime (renewals create new groups).
@@ -144,6 +157,7 @@ export sealed ledger disputeRevealWindow: Uint<64>;
 export sealed ledger charity: UserAddress;
 
 witness operatorSecret(): Bytes<32>;
+witness operatorMemberSecret(): Bytes<32>;
 witness committeeSecret(): Bytes<32>;
 witness scoutSecret(): Bytes<32>;
 witness updatedScoutRoot(group: Bytes<32>): MerkleTreeDigest;
@@ -174,9 +188,14 @@ witness verifierSecret(): Bytes<32>;
 witness verifierPath(): MerkleTreePath<16, Bytes<32>>;
 witness voteSalt(): Bytes<32>;
 
-constructor(operatorCommit: Bytes<32>, authCommits: Vector<5, Bytes<32>>, pk: JubjubPoint, color: Bytes<32>, epochSeconds: Uint<64>, hitSeconds: Uint<64>, selectionSeconds: Uint<64>, commitSeconds: Uint<64>, revealSeconds: Uint<64>, charityAddress: UserAddress) {
+constructor(operatorCommit: Bytes<32>, operatorCommits: Vector<5, Bytes<32>>, authCommits: Vector<5, Bytes<32>>, shareKeys: Vector<5, JubjubPoint>, pk: JubjubPoint, color: Bytes<32>, epochSeconds: Uint<64>, hitSeconds: Uint<64>, selectionSeconds: Uint<64>, commitSeconds: Uint<64>, revealSeconds: Uint<64>, charityAddress: UserAddress) {
   operator = disclose(operatorCommit);
-  committeeAuth = disclose(authCommits);
+  operatorKeys = disclose(operatorCommits);
+  for (const i of [0, 1, 2, 3, 4]) {
+    assert(operatorCommits[i] != default<Bytes<32>>, "Operator key must be nonzero");
+    for (const j of [0, 1, 2, 3, 4]) { assert(i == j || operatorCommits[i] != operatorCommits[j], "Operators must be distinct"); }
+  }
+  committeeAuth = disclose(authCommits);committeeShareKeys = disclose(shareKeys);
   assert(epochSeconds > 0, "Epoch length must be positive");
   committeePk = disclose(pk);dusdColor = disclose(color);epochLength = disclose(epochSeconds);
   assert(hitSeconds > 0, "Hit registration window must be positive");hitWindow = disclose(hitSeconds);
@@ -196,6 +215,70 @@ circuit assertOperator(): [] {
 }
 circuit assertOperatorKey(secret: Bytes<32>): [] {
   assert(persistentHash<Bytes<32>>(secret) == operator, "Operator authorization failed");
+}
+
+// ---- D18-5 operator approvals -------------------------------------------------
+pure circuit opStakeRequired(): Uint<128> { return 500; }
+pure circuit opApprovalWindow(): Uint<64> { return 86400; }
+pure circuit count5(v: Vector<5, Boolean>): Uint<8> {
+  return fold((acc: Uint<8>, x: Boolean): Uint<8> => (x ? acc + 1 : acc) as Uint<8>, 0 as Uint<8>, v);
+}
+pure circuit set5(v: Vector<5, Boolean>, i: Uint<8>): Vector<5, Boolean> {
+  return [i == 0 || v[0], i == 1 || v[1], i == 2 || v[2], i == 3 || v[3], i == 4 || v[4]];
+}
+pure circuit get5(v: Vector<5, Boolean>, i: Uint<8>): Boolean {
+  return i == 0 ? v[0] : i == 1 ? v[1] : i == 2 ? v[2] : i == 3 ? v[3] : v[4];
+}
+circuit operatorKeyAt(i: Uint<8>): Bytes<32> {
+  return i == 0 ? operatorKeys[0] : i == 1 ? operatorKeys[1] : i == 2 ? operatorKeys[2] : i == 3 ? operatorKeys[3] : operatorKeys[4];
+}
+export pure circuit actionId(action: OpAction): Bytes<32> {
+  return persistentHash<OpAction>(action);
+}
+export pure circuit scoutGroupHash(c: ScoutGroup): Bytes<32> { return persistentHash<ScoutGroup>(c); }
+export pure circuit optionRefsHash(v: Vector<8, Bytes<32>>): Bytes<32> { return persistentHash<Vector<8, Bytes<32>>>(v); }
+export pure circuit maskHash(v: Vector<8, Boolean>): Bytes<32> { return persistentHash<Vector<8, Boolean>>(v); }
+export pure circuit pairHash(a: Bytes<32>, b: Bytes<32>): Bytes<32> { return persistentHash<Vector<2, Bytes<32>>>([a, b]); }
+/** Consumes three distinct operator approvals for exactly this action. */
+circuit requireApproval(action: OpAction): [] {
+  const id = disclose(actionId(action));
+  assert(opApprovals.member(id), "Operator action not proposed");
+  const entry = opApprovals.lookup(id);
+  assert(!entry.consumed && count5(entry.approved) >= 3, "Three operator approvals required");
+  // Executed actions are removed so an identical later action needs fresh approvals.
+  opApprovals.remove(id);
+}
+/** Operator `member` approves or rejects an action. Voting either way counts as participation. */
+export circuit voteOperatorAction(action: Bytes<32>, member: Uint<8>, approve: Boolean, now: Uint<64>): [] {
+  const m = disclose(member);const id = disclose(action);const t = disclose(now);
+  assert(m < 5, "Invalid operator index");
+  assert(persistentHash<Bytes<32>>(operatorMemberSecret()) == operatorKeyAt(m), "Operator member authorization failed");
+  assert(operatorStake.member(m) && operatorStake.lookup(m) >= opStakeRequired(), "Operator stake required");
+  assert(blockTimeGte(t) && t <= 18446744073709465215 && blockTimeLt((t + 60) as Uint<64>), "Invalid vote timestamp");
+  const entry = opApprovals.member(id) ? opApprovals.lookup(id) : OpApproval { voted: [false, false, false, false, false], approved: [false, false, false, false, false], deadline: (t + opApprovalWindow()) as Uint<64>, consumed: false };
+  assert(!entry.consumed && !get5(entry.voted, m), "Already voted or action executed");
+  assert(blockTimeLt(entry.deadline), "Approval window closed");
+  opApprovals.insert(id, OpApproval { voted: set5(entry.voted, m), approved: disclose(approve) ? set5(entry.approved, m) : entry.approved, deadline: entry.deadline, consumed: false });
+}
+/** Anyone may top up an operator stake. Withdrawal is not part of this version. */
+export circuit stakeOperator(member: Uint<8>, amount: Uint<128>): [] {
+  const m = disclose(member);const a = disclose(amount);
+  assert(m < 5 && a > 0, "Invalid operator stake");
+  receiveUnshielded(dusdColor, a);
+  operatorStake.insert(m, ((operatorStake.member(m) ? operatorStake.lookup(m) : 0) + a) as Uint<128>);
+}
+/** After the window, a silent operator loses half its stake (once per action). */
+export circuit slashMissedOperator(action: Bytes<32>, member: Uint<8>): [] {
+  const m = disclose(member);const id = disclose(action);
+  assert(m < 5 && opApprovals.member(id), "Unknown operator action");
+  const entry = opApprovals.lookup(id);
+  assert(blockTimeGte(entry.deadline) && !get5(entry.voted, m), "Operator voted or window open");
+  const stake = operatorStake.member(m) ? operatorStake.lookup(m) : 0;
+  // Half of the required stake (no division in Compact): 250 of 500 dUSD.
+  const cut = stake >= 250 ? 250 as Uint<128> : stake;
+  operatorStake.insert(m, (stake - cut) as Uint<128>);
+  protocolTreasury = (protocolTreasury + cut) as Uint<128>;
+  opApprovals.insert(id, OpApproval { voted: set5(entry.voted, m), approved: entry.approved, deadline: entry.deadline, consumed: entry.consumed });
 }
 
 circuit groupSlot(group: Bytes<32>): Uint<64> { return scoutGroupSlots.lookup(group); }
@@ -270,7 +353,7 @@ circuit syncScoutGroup(group: Bytes<32>): [] {
 }
 
 export circuit configureScoutGroup(group: Bytes<32>, config: ScoutGroup): [] {
-  assertOperator();
+  assertOperator();requireApproval(OpAction { tag: pad(32, "op:configureScoutGroup"), a: group, b: persistentHash<ScoutGroup>(config), n: [0, 0, 0] });
   assert(!groupConfig.member(disclose(group)), "Group already configured");
   assert(config.side <= 1 && config.tier >= 1 && config.tier <= 3, "Invalid scout group");
   groupConfig.insert(disclose(group), disclose(config));
@@ -281,7 +364,7 @@ export circuit configureScoutGroup(group: Bytes<32>, config: ScoutGroup): [] {
 }
 
 export circuit admitScout(group: Bytes<32>, commitment: Bytes<32>): [] {
-  assertOperator();
+  assertOperator();requireApproval(OpAction { tag: pad(32, "op:admitScout"), a: group, b: commitment, n: [0, 0, 0] });
   assert(groupConfig.member(disclose(group)), "Unknown scout group");
   assert(commitment != default<Bytes<32>>, "Empty commitment forbidden");
   const unique = persistentHash<Vector<2, Bytes<32>>>([group, commitment]);
@@ -334,7 +417,7 @@ export circuit approveRevocation(group: Bytes<32>, index: Uint<64>, member: Uint
 }
 
 export circuit revokeMember(group: Bytes<32>, index: Uint<64>): [] {
-  assertOperator();
+  assertOperator();requireApproval(OpAction { tag: pad(32, "op:revokeMember"), a: group, b: default<Bytes<32>>, n: [index as Uint<128>, 0, 0] });
   const command = revocationKey(group, index);
   assert(!consumedRevocations.member(disclose(command)), "Revocation already consumed");
   assert(approvalCounts.member(disclose(command)), "Committee approvals required");
@@ -370,8 +453,39 @@ export circuit withdrawBuilder(id: Bytes<32>): [] {
   builderRegistry.insert(disclose(id), BuilderEntry { profileHash: entry.profileHash, ownerCommit: entry.ownerCommit, consent: false, registeredAt: entry.registeredAt });
 }
 
+/** D18-2: three operators list a team that publicly seeks funding. No owner secret
+ * exists yet; the team can opt out or claim the profile later. */
+export circuit registerPublicIntent(id: Bytes<32>, profileHash: Bytes<32>, evidenceHash: Bytes<32>, registeredAt: Uint<64>): [] {
+  const builder = disclose(id);const t = disclose(registeredAt);
+  assert(builder != default<Bytes<32>> && profileHash != default<Bytes<32>> && evidenceHash != default<Bytes<32>>, "Public intent metadata required");
+  assert(!builderRegistry.member(builder), "Builder already listed");
+  assert(blockTimeGte(t) && t <= 18446744073709551555 && blockTimeLt((t + 60) as Uint<64>), "Invalid listing timestamp");
+  requireApproval(OpAction { tag: pad(32, "op:registerPublicIntent"), a: id, b: persistentHash<Vector<2, Bytes<32>>>([profileHash, evidenceHash]), n: [0, 0, 0] });
+  builderRegistry.insert(builder, disclose(BuilderEntry { profileHash: profileHash, ownerCommit: default<Bytes<32>>, consent: true, registeredAt: registeredAt }));
+  publicIntentEvidence.insert(builder, disclose(evidenceHash));
+}
+/** D18-2: a listed team opts out (executed after three operator approvals). */
+export circuit optOutPublicIntent(id: Bytes<32>): [] {
+  const builder = disclose(id);
+  assert(publicIntentEvidence.member(builder), "Not a public intent listing");
+  const entry = builderRegistry.lookup(builder);
+  assert(entry.consent && entry.ownerCommit == default<Bytes<32>>, "Listing already claimed or withdrawn");
+  requireApproval(OpAction { tag: pad(32, "op:optOutPublicIntent"), a: id, b: default<Bytes<32>>, n: [0, 0, 0] });
+  builderRegistry.insert(builder, BuilderEntry { profileHash: entry.profileHash, ownerCommit: entry.ownerCommit, consent: false, registeredAt: entry.registeredAt });
+}
+/** D18-2: the team claims its listing; afterwards it is a normal registration. */
+export circuit claimPublicIntent(id: Bytes<32>): [] {
+  const builder = disclose(id);
+  assert(publicIntentEvidence.member(builder), "Not a public intent listing");
+  const entry = builderRegistry.lookup(builder);
+  assert(entry.ownerCommit == default<Bytes<32>>, "Listing already claimed");
+  const ownerCommit = disclose(persistentHash<Vector<2, Bytes<32>>>([pad(32, "senyap:builder"), builderSecret()]));
+  requireApproval(OpAction { tag: pad(32, "op:claimPublicIntent"), a: id, b: ownerCommit, n: [0, 0, 0] });
+  builderRegistry.insert(builder, BuilderEntry { profileHash: entry.profileHash, ownerCommit: ownerCommit, consent: entry.consent, registeredAt: entry.registeredAt });
+}
+
 export circuit admitBuyer(commitment: Bytes<32>): [] {
-  assertOperator();
+  assertOperator();requireApproval(OpAction { tag: pad(32, "op:admitBuyer"), a: commitment, b: default<Bytes<32>>, n: [0, 0, 0] });
   assert(commitment != default<Bytes<32>>, "Empty buyer commitment forbidden");
   assert(!admittedBuyers.member(disclose(commitment)), "Buyer already admitted");
   assert(buyerNextIndex < 65536, "Buyer membership tree full");
@@ -451,7 +565,7 @@ export circuit createSideBMarket(id: Uint<32>, config: Market): [] {
     } else { assert(cfg.optionRefs[i] == default<Bytes<32>>, "Unused option must be empty"); }
   }
   const creator = persistentHash<Vector<2, Bytes<32>>>([owner, marketId as Bytes<32>]);
-  assertOperatorKey(owner);assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction");
+  requireApproval(OpAction { tag: pad(32, "op:createSideBMarket"), a: config.questionHash, b: persistentHash<Vector<8, Bytes<32>>>(config.optionRefs), n: [id as Uint<128>, config.openUntil as Uint<128>, config.outcomeUntil as Uint<128>] });assertOperatorKey(owner);assert(cfg.auctionUntil == cfg.openUntil, "Side B has no auction");
   initMarket(marketId, cfg, disclose(creator));
 }
 
@@ -536,6 +650,54 @@ export circuit stake(id: Uint<32>, groupId: Bytes<32>, slotNumber: Uint<8>, amou
   marketWeight.insert(marketId, totalWeight as Uint<64>);
   marketStake.insert(marketId, (marketStake.lookup(marketId) + disclose(amount)) as Uint<128>);
   return disclose(nullifier);
+}
+
+
+// ---- D18-7/8 committee stake, absence slash and leaked-share reward ----------
+circuit committeeStakeOf(m: Uint<8>): Uint<128> {
+  return committeeStake.member(m) ? committeeStake.lookup(m) : 0;
+}
+export circuit stakeCommittee(member: Uint<8>, amount: Uint<128>): [] {
+  const m = disclose(member);const a = disclose(amount);
+  assert(m < 5 && a > 0, "Invalid committee stake");
+  receiveUnshielded(dusdColor, a);
+  committeeStake.insert(m, (committeeStakeOf(m) + a) as Uint<128>);
+}
+/** Anyone opens the response window for a pending committee command. */
+export circuit openCommitteeDuty(command: Bytes<32>, now: Uint<64>): [] {
+  const c = disclose(command);const t = disclose(now);
+  assert(!committeeDuty.member(c), "Duty already open");
+  assert(blockTimeGte(t) && t <= 18446744073709465215 && blockTimeLt((t + 60) as Uint<64>), "Invalid duty timestamp");
+  committeeDuty.insert(c, (t + opApprovalWindow()) as Uint<64>);
+}
+/** If a command still lacks three approvals after its window, each silent member loses half the required stake. */
+export circuit slashAbsentCommittee(command: Bytes<32>, member: Uint<8>): [] {
+  const c = disclose(command);const m = disclose(member);
+  assert(m < 5 && committeeDuty.member(c), "No open committee duty");
+  assert(blockTimeGte(committeeDuty.lookup(c)), "Duty window still open");
+  assert(!approvalCounts.member(c) || approvalCounts.lookup(c) < 3, "Command reached threshold");
+  const vote = persistentHash<Vector<2, Bytes<32>>>([command, member as Bytes<32>]);
+  assert(!approvalVotes.member(disclose(vote)), "Member responded");
+  approvalVotes.insert(disclose(vote));
+  const stake = committeeStakeOf(m);const cut = stake >= 250 ? 250 as Uint<128> : stake;
+  committeeStake.insert(m, (stake - cut) as Uint<128>);
+  protocolTreasury = (protocolTreasury + cut) as Uint<128>;
+}
+/** D18-8: whoever presents a member's secret key share (matching its public share)
+ * proves the share leaked. The member loses its whole stake; half goes to the reporter. */
+export circuit exposeLeakedShare(member: Uint<8>, share: Field, reporter: UserAddress): [] {
+  const m = disclose(member);
+  assert(m < 5, "Invalid committee member");
+  const key = m == 0 ? committeeShareKeys[0] : m == 1 ? committeeShareKeys[1] : m == 2 ? committeeShareKeys[2] : m == 3 ? committeeShareKeys[3] : committeeShareKeys[4];
+  const proof = ecMulGenerator(disclose(share));
+  assert(proof == key, "Share does not match the public key share");
+  const stake = committeeStakeOf(m);
+  assert(stake > 0, "Nothing to seize");
+  // Reporter receives half of the required stake (250 of 500 dUSD); the rest goes to the treasury.
+  const reward = stake >= 250 ? 250 as Uint<128> : stake;
+  committeeStake.insert(m, 0);
+  protocolTreasury = (protocolTreasury + (stake - reward)) as Uint<128>;
+  sendUnshielded(dusdColor, reward, right<ContractAddress, UserAddress>(disclose(reporter)));
 }
 
 circuit approve(command: Bytes<32>, member: Uint<8>): Uint<8> {
@@ -740,7 +902,7 @@ circuit recordOutcomeImpl(id: Uint<32>, poolNumber: Uint<8>, mask: Vector<8, Boo
     if (result.first != default<Bytes<32>>) { assert(bids.lookup(result.first).settled, "Winning bids not settled"); }
     if (result.second != default<Bytes<32>>) { assert(bids.lookup(result.second).settled, "Winning bids not settled"); }
   }
-  if (isOperator) { assertOperatorKey(secret); }
+  if (isOperator) { assertOperatorKey(secret);requireApproval(OpAction { tag: pad(32, "op:recordOutcome"), a: evidence, b: persistentHash<Vector<8, Boolean>>(mask), n: [id as Uint<128>, poolNumber as Uint<128>, 0] }); }
   else {
     assertBuyer(secret);const buyer = buyerId(secret, marketId);
     assert(buyerAccess.member(disclose(buyer)), "Buyer has not purchased this market");
@@ -895,7 +1057,7 @@ circuit payout(pool: Uint<128>, subsidy: Uint<128>, weight: Uint<64>, denominato
 }
 
 export circuit allocateSubsidy(sourceId: Uint<32>, targetId: Uint<32>, amount: Uint<128>): [] {
-  assertOperator();const source = disclose(sourceId);const target = disclose(targetId);const grant = disclose(amount);
+  assertOperator();requireApproval(OpAction { tag: pad(32, "op:allocateSubsidy"), a: default<Bytes<32>>, b: default<Bytes<32>>, n: [sourceId as Uint<128>, targetId as Uint<128>, amount] });const source = disclose(sourceId);const target = disclose(targetId);const grant = disclose(amount);
   assert(markets.lookup(source).side == 0 && markets.lookup(target).side == 1, "Subsidy must flow from side A to side B");
   const sourcePhase = marketPhase.lookup(source);const targetPhase = marketPhase.lookup(target);
   assert(sourcePhase >= 7 && sourcePhase <= 9, "Source revenue not frozen");
@@ -1007,7 +1169,7 @@ export circuit renewTier(fromGroup: Bytes<32>, toGroup: Bytes<32>): [] {
 // All deposits are demo unshielded dUSD. Membership is private; vote choice is
 // public only during reveal. The first seven commitments reserve the seats.
 export circuit admitVerifier(commitment: Bytes<32>): [] {
-  assertOperator();assert(commitment != default<Bytes<32>>, "Empty verifier commitment");
+  assertOperator();requireApproval(OpAction { tag: pad(32, "op:admitVerifier"), a: commitment, b: default<Bytes<32>>, n: [0, 0, 0] });assert(commitment != default<Bytes<32>>, "Empty verifier commitment");
   assert(!admittedVerifiers.member(disclose(commitment)), "Verifier already admitted");
   admittedVerifiers.insert(disclose(commitment));verifierTree.insert(disclose(commitment));
 }
@@ -1121,7 +1283,7 @@ export circuit approveHoaxMember(dispute: Bytes<32>, group: Bytes<32>, index: Ui
   if (approve(command, member) >= 3) { hoaxMembers.insert(id, GroupLeaf { group: disclose(group), index: disclose(index) }); }
 }
 export circuit revokeHoaxMember(dispute: Bytes<32>): [] {
-  assertOperator();const id = disclose(dispute);assert(disputes.lookup(id).kind == 0 && disputes.lookup(id).result == 1 && hoaxMembers.member(id), "Hoax member not revealed");
+  assertOperator();requireApproval(OpAction { tag: pad(32, "op:revokeHoaxMember"), a: dispute, b: default<Bytes<32>>, n: [0, 0, 0] });const id = disclose(dispute);assert(disputes.lookup(id).kind == 0 && disputes.lookup(id).result == 1 && hoaxMembers.member(id), "Hoax member not revealed");
   const member = hoaxMembers.lookup(id);const leafKey = persistentHash<GroupLeaf>(member);
   assert(groupLeaves.member(leafKey), "Hoax member already revoked");
   groupLeaves.remove(leafKey);groupRemoveIndex(member.group, member.index);
@@ -1176,7 +1338,7 @@ export circuit approveMissedBuyer(pseudonym: Bytes<32>, index: Uint<64>, member:
   if (approve(command, member) >= 3) { missedBuyerIndices.insert(buyer, disclose(index)); }
 }
 export circuit revokeMissedBuyer(pseudonym: Bytes<32>): [] {
-  assertOperator();const buyer = disclose(pseudonym);assert(missedReports.member(buyer) && missedBuyerIndices.member(buyer), "Missed buyer member not revealed");
+  assertOperator();requireApproval(OpAction { tag: pad(32, "op:revokeMissedBuyer"), a: pseudonym, b: default<Bytes<32>>, n: [0, 0, 0] });const buyer = disclose(pseudonym);assert(missedReports.member(buyer) && missedBuyerIndices.member(buyer), "Missed buyer member not revealed");
   const index = missedBuyerIndices.lookup(buyer);const leaf = buyerLeaves.lookup(index);
   assert(!removedStanding.member(leaf), "Buyer standing already removed");
   goodStanding.insertIndexDefault(index);goodStanding.resetHistory();removedStanding.insert(leaf);

@@ -54,7 +54,7 @@ describe("local product network rehearsal", () => {
   it("settles both sides with two auction pools, shared purchases, subsidy and exact conservation", async () => {
     const {driver, calls} = simulatorDriver();
     const result = await runScenario(driver);
-    expect(calls).toHaveLength(76);
+    expect(calls).toHaveLength(127); // 76 product calls + 3 operator stakes + 48 operator votes (D18-5)
     expect(result).toMatchObject({phases: ["settled", "settled"], claimed: "1115", bidRefunds: "100", remainder: "25", input: "1240", conserved: true});
     expect(result.claims).toHaveLength(10);
     const {state} = await driver.read();

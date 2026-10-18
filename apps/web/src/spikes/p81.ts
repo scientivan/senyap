@@ -24,7 +24,7 @@ import { Contract as TokenContract } from "../../../../contracts/managed/dusd/co
 
 if(!("Buffer" in globalThis))Object.defineProperty(globalThis,"Buffer",{value:Buffer,writable:true,configurable:true});
 
-type Plan={network:"preprod";operatorCommitment:string;committeeCommitments:string[];committeePublicKey:{x:string;y:string};committeeShareKeys:{x:string;y:string}[];maintenanceVerifyingKey:string};
+type Plan={network:"preprod";operatorCommitment:string;operatorMemberCommitments:string[];committeeCommitments:string[];committeePublicKey:{x:string;y:string};committeeShareKeys:{x:string;y:string}[];maintenanceVerifyingKey:string};
 type Entry={action:string;status:"prepared"|"submitted"|"finalized";txId?:string};
 type Progress={network:"preprod";stage:string;transactions:Entry[];tokenContract?:string;token?:string;contract?:string;allVerifiersInstalled?:number;authorityHandedOff?:boolean;error?:string;updatedAt?:string};
 const key="senyap-p81-public-progress";
@@ -40,7 +40,7 @@ export async function prepare(walletId?:string){
   const config=await api.getConfiguration();if(config.networkId!=="preprod")throw Error("Preprod only.");
   setNetworkId("preprod");
   const plan:Plan=await (await fetch("/contracts/p81-plan.json",{cache:"no-store"})).json();
-  if(plan.network!=="preprod"||!/^[a-f0-9]{64}$/.test(plan.operatorCommitment)||plan.committeeCommitments.length!==5)throw Error("Invalid public plan.");
+  if(plan.network!=="preprod"||!/^[a-f0-9]{64}$/.test(plan.operatorCommitment)||plan.committeeCommitments.length!==5||plan.operatorMemberCommitments?.length!==5||plan.committeeShareKeys.length!==5)throw Error("Invalid public plan.");
   const addresses=await api.getShieldedAddresses();
   const recipient={bytes:new Uint8Array(MidnightBech32m.parse(address).decode(UnshieldedAddress,"preprod").data)};
   const saved=sessionStorage.getItem(key);
@@ -79,7 +79,7 @@ export async function prepare(walletId?:string){
   const done=(a:string)=>progress.transactions.some(t=>t.action===a&&t.status==="finalized");
   const senyapCircuits=Object.keys(new Contract(noWitnesses).provableCircuits);
   const batches=Array.from({length:Math.ceil(senyapCircuits.length/8)},(_,i)=>senyapCircuits.slice(i*8,i*8+8));
-  if(senyapCircuits.length!==42)throw Error("Expected 42 circuits.");
+  if(senyapCircuits.length!==52)throw Error("Expected 52 circuits.");
   let throwaway:string|undefined;
 
   return {
@@ -124,7 +124,7 @@ export async function prepare(walletId?:string){
       throwaway=sampleSigningKey();
       const pk={x:BigInt(plan.committeePublicKey.x),y:BigInt(plan.committeePublicKey.y)};
       const deployed=await step("deploy:senyap",()=>deployContract(p as never,{compiledContract:compiled as never,privateStateId:"p81-product",initialPrivateState:{},signingKey:throwaway,
-        args:[bytes(plan.operatorCommitment),plan.committeeCommitments.map(bytes),pk,bytes(progress.token!),86400n,1800n,900n,300n,300n,recipient]} as never));
+        args:[bytes(plan.operatorCommitment),plan.operatorMemberCommitments.map(bytes),plan.committeeCommitments.map(bytes),plan.committeeShareKeys.map(k=>({x:BigInt(k.x),y:BigInt(k.y)})),pk,bytes(progress.token!),86400n,1800n,900n,300n,300n,recipient]} as never));
       progress.contract=(deployed as {deployTxData:{public:{contractAddress:string}}}).deployTxData.public.contractAddress;remember();
       return structuredClone(progress);
     },

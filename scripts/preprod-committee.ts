@@ -9,7 +9,7 @@ import {readFile} from "node:fs/promises";
 import {preprodEnvironment} from "./lib/preprod-environment";
 
 const journal=JSON.parse(await readFile("docs/evidence/P8.1-preprod-deploy-journal.json","utf8"));
-const plan=JSON.parse(await readFile("docs/evidence/P8.1-preprod-public-plan.json","utf8"));
+const plan=JSON.parse(await readFile("docs/evidence/P9.7-preprod-public-plan.json","utf8"));
 assert(journal.network==="preprod"&&journal.status==="completed"&&/^[a-f0-9]{64}$/.test(journal.contract),"Completed Preprod deployment required");
 const secrets=JSON.parse(await readFile(".states/preprod-secrets.json","utf8"));
 const environment=preprodEnvironment();
