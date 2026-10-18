@@ -17,9 +17,13 @@ import {NodeZkConfigProvider} from "@midnight-ntwrk/midnight-js-node-zk-config-p
 import {httpClientProofProvider} from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
 import {Contract, type Market} from "../contracts/managed/senyap/contract/index.js";
 import {opActionId} from "../packages/sdk/src/operator-actions";
+import {marketMetadataHash} from "../packages/sdk/src/market-metadata";
 import {preprodEnvironment, scrub} from "./lib/preprod-environment";
 
-const PORT=3110, PLAN="docs/evidence/P9.9-market-plan.json";
+const PORT=3110;
+// Market #1 (P9.9) committed sha256(question); later markets commit the SDK metadata hash
+// so the app can verify the question text served by the operator API.
+const PLAN=process.env.SENYAP_MARKET_PLAN??"docs/evidence/P9.9-market-plan.json";
 const journal=JSON.parse(await readFile("docs/evidence/P9.7-preprod-deploy-journal.json","utf8"));
 assert(journal.status==="completed"&&/^[a-f0-9]{64}$/.test(journal.contract),"Completed P9.7 deployment required");
 const secrets=JSON.parse(await readFile(".states/preprod-secrets.json","utf8")) as {operator:string;operatorMembers:string[]};
@@ -32,12 +36,17 @@ const sha=(s:string)=>createHash("sha256").update(s).digest();
 type Plan={id:string;question:string;options:string[];config:Record<string,unknown>};
 async function plan():Promise<{id:bigint;config:Market;public:Plan}>{
   if(!existsSync(PLAN)){
-    const now=BigInt(Math.floor(Date.now()/1000)), options=["Midnight Foundation grants","Cardano Catalyst","Independent privacy fund"];
-    const question="Which ecosystem programme is most likely to fund a privacy-preserving hiring app in the next quarter?";
-    const config={subjective:false,side:"1",category:hex(sha("senyap:category:ecosystem-fit")),questionHash:hex(sha(question)),questionUri:"senyap://preprod/market/1",
-      nOptions:String(options.length),optionRefs:[...options.map(o=>hex(sha(`senyap:option:${o}`))),...Array.from({length:8-options.length},()=>"00".repeat(32))],
+    const first=(process.env.SENYAP_MARKET_ID??"1")==="1",now=BigInt(Math.floor(Date.now()/1000));
+    const options=first?["Midnight Foundation grants","Cardano Catalyst","Independent privacy fund"]:["Midnight","Cardano","Independent privacy fund"];
+    const question=first?"Which ecosystem programme is most likely to fund a privacy-preserving hiring app in the next quarter?"
+      :"Which ecosystem will give a privacy-preserving payroll app the most hands-on builder support this quarter?";
+    const id=process.env.SENYAP_MARKET_ID??"1",category=hex(sha("senyap:category:ecosystem-fit")),refs=options.map(o=>hex(sha(`senyap:option:${o}`)));
+    const metadata={version:1 as const,side:"B" as const,category,question,options:options.map((label,i)=>({reference:refs[i],label}))};
+    const questionHash=id==="1"?hex(sha(question)):await marketMetadataHash(metadata);
+    const config={subjective:false,side:"1",category,questionHash,questionUri:`senyap://preprod/market/${id}`,
+      nOptions:String(options.length),optionRefs:[...refs,...Array.from({length:8-options.length},()=>"00".repeat(32))],
       openAt:String(now-120n),openUntil:String(now+2n*86400n),auctionUntil:String(now+2n*86400n),outcomeUntil:String(now+5n*86400n),flatPrice:"10",reservePrice:"0"};
-    await writeFile(PLAN,JSON.stringify({network:"preprod",contract:journal.contract,id:"1",question,options,config},null,2)+"\n");
+    await writeFile(PLAN,JSON.stringify({network:"preprod",contract:journal.contract,id,question,options,metadata,config},null,2)+"\n");
   }
   const p=JSON.parse(await readFile(PLAN,"utf8"));assert(p.contract===journal.contract,"Market plan belongs to another contract");
   const c=p.config;
