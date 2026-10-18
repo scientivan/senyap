@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import wasm from "vite-plugin-wasm";
+import { preprodProxy } from "./vite.preprod-proxy";
 
 export default defineConfig({
   plugins: [react(), wasm()],
@@ -18,5 +19,5 @@ export default defineConfig({
     ],
     esbuildOptions: { target: "esnext" },
   },
-  server: { port: 5174 },
+  server: { port: 5174, proxy: preprodProxy() },
 });

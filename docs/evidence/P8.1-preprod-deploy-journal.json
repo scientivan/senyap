@@ -1,0 +1,90 @@
+{
+  "network": "preprod",
+  "date": "2026-10-18",
+  "wallet": "1AM browser wallet (Dien approved each transaction)",
+  "status": "completed",
+  "contract": "c8ab22d9a80f56bf533ab9bb9256b8fac93fcb2798c3b42d4511fee1a462231b",
+  "tokenContract": "9991dd6b2628a3633566f7e875785c2095990a404a8f1d3d184c46fae0abcca2",
+  "token": "cd59562d4e8464fde97af3bba0b582405be80a9794d5e323a3bbf56f18eeccc9",
+  "allVerifiersInstalled": 42,
+  "maintenanceAuthority": {
+    "handedOffTo": "fc2f8537c2864ad76851bee8743510c200c86771afa3b1c6105703520dc0ba4e",
+    "note": "Verifiers installed with a throwaway in-tab key, then authority replaced by the operator key kept outside the browser."
+  },
+  "operatorCommitment": "765a7ebff6bc9152102bb10db3bb0060d194629447ccfef1da8d2911ec0bdb7f",
+  "committeePublicKey": {
+    "x": "41764625232798397827897374771802024389769017483312577712483766491472051255390",
+    "y": "45459042917278471496045273734064878882177515197655852726631294703483771456214"
+  },
+  "transactions": [
+    {
+      "action": "deploy:dusd",
+      "txId": "008419ad8d2b480d0692e2e0770d3126f5efa00294980889bb76dac6b9de6dd1b9",
+      "block": 3028892,
+      "hash": "a1d7be6403102078074f0a2d14519f83cc78cc3cb56f12773fcb9edf1b069f7b",
+      "status": "SUCCESS"
+    },
+    {
+      "action": "mint:5000",
+      "txId": "008ff217e00a41d2ed32cfff0bf626725f34719011d4f58ccd3acdadf2a8eda767",
+      "block": 3029023,
+      "hash": "31c36be5545fae8763b87ed6fd06af831a7032d508ae4a5612a07b6f862073c3",
+      "status": "SUCCESS"
+    },
+    {
+      "action": "deploy:senyap",
+      "txId": "00d4e27ce5a159c7f73557e1eaba8a09459e90fcfc5ec29175a5f2fb408989afd1",
+      "block": 3029045,
+      "hash": "d6c1ac74794d866b54c7a28bbfe45d7381b2f062f8fe32ea0e5bf6d35fa8b6f1",
+      "status": "SUCCESS"
+    },
+    {
+      "action": "install-verifiers:1",
+      "txId": "00fef08651a042224c0e85ab20d410a1642f0f85e5aa41419deac2185bda469c60",
+      "block": 3029055,
+      "hash": "232f8dbae0a412465fa4820147f31d5116ccd6f9f72a5496c16eb331c5a564a1",
+      "status": "SUCCESS"
+    },
+    {
+      "action": "install-verifiers:2",
+      "txId": "003409f95bd5870f73fd936010d5cfa4e7e9f278c96616a3da12aeaf5ea1ae7163",
+      "block": 3029063,
+      "hash": "5bcf5d7b309b4b7ab76558c4fcf38871c0284171cb17d45840116979f1a21512",
+      "status": "SUCCESS"
+    },
+    {
+      "action": "install-verifiers:3",
+      "txId": "00490bd33ec1c73ad5337f0f6c8626cfbf610696e45375fc8feda2942aeb15db24",
+      "block": 3029070,
+      "hash": "6d311211793e09ef1db9695f46a75807497df9da40d714306eaac339b75bdf86",
+      "status": "SUCCESS"
+    },
+    {
+      "action": "install-verifiers:4",
+      "txId": "00e258b232f226dc97c71389eea35dedae0a90b7f36012cd45775e6f82f150f745",
+      "block": 3029075,
+      "hash": "3dc8fbab72d9d58f0f1364004554ad29929701b1af37081fbf3dd7f6659dde8e",
+      "status": "SUCCESS"
+    },
+    {
+      "action": "install-verifiers:5",
+      "txId": "003030de64ca6e955bd5d67762c80e0b5aa5596c69dd7ad52642b72d5cf57b2b4d",
+      "block": 3029084,
+      "hash": "7ac36be2f23d942b2d68f95a83badfcac555ed1b10601d84c9f91faa6a371f8f",
+      "status": "SUCCESS"
+    },
+    {
+      "action": "replace-authority",
+      "txId": "007ef3ce83c9723c22dac938ecd7ff4c36c070420438f59a490313b7b710d30971",
+      "block": 3029095,
+      "hash": "092e9d9318e9e8ec2b1a4128684a1d8df0109be8c1c1c33013d09031c294b1bb",
+      "status": "SUCCESS"
+    }
+  ],
+  "verification": "Each transaction status read from the Blockfrost Preprod indexer (transactions by identifier).",
+  "notes": [
+    "One mint attempt failed before submission (wallet prover check timeout) and was not on chain.",
+    "Schedule: epoch 86400 s, hit 1800 s, selection 900 s, commit/reveal 300 s (demo values).",
+    "Synthetic demo token dUSD; no real asset."
+  ]
+}
