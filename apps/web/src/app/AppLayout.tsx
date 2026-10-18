@@ -18,13 +18,18 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
   // Markets live on Home. Builder consent and opt-out live in Profile.
   ecosystem: [
     { to: "/app", label: "Home" },
+    { to: "/app/purchases", label: "Purchases" },
+    { to: "/app/disputes", label: "Disputes" },
   ],
   builder: [
     { to: "/app", label: "Home" },
+    { to: "/app/purchases", label: "Purchases" },
+    { to: "/app/disputes", label: "Disputes" },
   ],
   scout: [
     { to: "/app", label: "Home" },
-    { to: "/app/activity", label: "My activity" },
+    { to: "/app/activity", label: "My Activity" },
+    { to: "/app/disputes", label: "Disputes" },
   ],
   operator: [
     { to: "/app", label: "Home" },
@@ -36,8 +41,11 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
 };
 
 const LiveWorkspace = lazy(() => import("./pages/LiveWorkspace").then((m) => ({ default: m.LiveWorkspace })));
-const sectionFor = (path: string): "act" | "activity" | "vault" | null =>
-  path.startsWith("/app/act") ? "act" : path.startsWith("/app/activity") ? "activity" : path.startsWith("/app/vault") ? "vault" : null;
+// Vault-backed views. The vault itself has no tab: unlock appears where needed,
+// backup and lock sit under Account.
+const sectionFor = (path: string): "act" | "activity" | "purchases" | "disputes" | "vault" | null =>
+  path.startsWith("/app/activity") ? "activity" : path.startsWith("/app/act") ? "act" : path.startsWith("/app/purchases") ? "purchases"
+    : path.startsWith("/app/disputes") ? "disputes" : path.startsWith("/app/profile") ? "vault" : null;
 
 export function AppLayout() {
   const { role, setRole, balance } = useStore();
@@ -80,7 +88,6 @@ export function AppLayout() {
                 {m.label}
               </NavLink>
             ))}
-            <NavLink to="/app/vault" className={({isActive})=>isActive?"on":""}>My vault</NavLink>
           </nav>
           <div className="ah-right">
             {balance!==null&&<span className="ah-bal" title="Test dUSD in your connected wallet on Preprod.">{balance.toLocaleString()} dUSD</span>}
