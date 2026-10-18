@@ -1,0 +1,41 @@
+{
+  "network": "preprod",
+  "status": "completed",
+  "phase": "P9.9",
+  "completedAt": "2026-10-18T09:34:39.927Z",
+  "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
+  "marketId": "1",
+  "plan": "docs/evidence/P9.9-market-plan.json",
+  "flow": "Operator relay (scripts/preprod-operator-relay.ts) built and proved each call with the local proof server; operator seat keys never left the relay. The 1AM wallet balanced, paid and submitted each proven transaction after owner approval.",
+  "transactions": [
+    {
+      "action": "market-vote:0",
+      "status": "finalized",
+      "txId": "00e3090153c844ba0538daafcf8dca8c5339d23b8d3d8d300d36cda5fb0d1966a6"
+    },
+    {
+      "action": "market-vote:1",
+      "status": "finalized",
+      "txId": "0091154c180b3429725f4d4fc4938e1851c6e39fb2eb33f879b3728da353fe5255"
+    },
+    {
+      "action": "market-vote:2",
+      "status": "finalized",
+      "txId": "004ad51918e1536698050ce0e4dc35fca3ffe8cbb7ba0f387656998c6a236b8646"
+    },
+    {
+      "action": "market-create",
+      "status": "finalized",
+      "txId": "0067fbfaf78429adf8168bab6c191366a669ed8d3066f56420d626cca996921d45"
+    }
+  ],
+  "checkedAfter": {
+    "markets": 1,
+    "pendingApprovals": 0,
+    "note": "read from the Preprod contract; the executed approval entry was removed as designed"
+  },
+  "limits": [
+    "One relay holds all operator seat keys, so the three approvals are not independent people.",
+    "Scouts have not staked on this market yet; scout admission is also operator-gated and is the next step."
+  ]
+}
