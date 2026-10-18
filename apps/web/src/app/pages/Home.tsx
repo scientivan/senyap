@@ -42,8 +42,13 @@ export function Home() {
         <Standing role={s.role} />
       </div>
 
-      <Card title={s.role === "builder" ? "Ecosystem signals" : "Markets"} sub="Click a row to open it." className="mt16" action={<Link to="/app/markets" className="abtn abtn-soft abtn-sm">All markets</Link>}>
-        <MarketTable markets={markets.slice(0, 6)} onOpen={(id) => nav(`/app/markets/${id}`)} />
+      <Card
+        title={s.role === "builder" ? "Ecosystem signals" : "Markets"}
+        sub={s.role === "builder" ? "Questions builders asked about how ecosystems treat their teams. Click a row to open it." : "Every market on the Preprod contract. Click a row to open it."}
+        className="mt16"
+        action={s.role === "builder" ? <Link to="/app/new?side=B" className="abtn abtn-red abtn-sm">Ask a question</Link> : undefined}
+      >
+        <MarketTable markets={markets} onOpen={(id) => nav(`/app/markets/${id}`)} />
       </Card>
     </>
   );

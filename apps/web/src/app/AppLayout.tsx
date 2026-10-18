@@ -15,20 +15,15 @@ export const roles: { id: Role; label: string; does: string }[] = [
 
 export const operatorRole = { id: "operator" as Role, label: "Operator", does: "Run Senyap" };
 export const menus: Record<Role, { to: string; label: string }[]> = {
+  // Markets live on Home. Builder consent and opt-out live in Profile.
   ecosystem: [
     { to: "/app", label: "Home" },
-    { to: "/app/markets", label: "Markets" },
-    { to: "/app/registry", label: "Teams" },
   ],
   builder: [
     { to: "/app", label: "Home" },
-    { to: "/app/markets?side=B", label: "Ecosystem signals" },
-    { to: "/app/registry", label: "Register team" },
-    { to: "/app/new?side=B", label: "Ask a question" },
   ],
   scout: [
     { to: "/app", label: "Home" },
-    { to: "/app/markets?phase=open", label: "Open markets" },
     { to: "/app/positions", label: "My picks" },
   ],
   operator: [

@@ -3,7 +3,7 @@
 // separate navbar tabs (Standing, Tier). Demo data is labelled as demo.
 import { Link } from "react-router-dom";
 import { useStore } from "../data/store";
-import { Card, Note, PageHead, RoleIcon } from "../ui";
+import { Card, PageHead, RoleIcon } from "../ui";
 import { NETWORK_ID, short, useWallet } from "../wallet";
 import { operatorRole, roles } from "../AppLayout";
 import { Tier } from "./Scout";
@@ -38,29 +38,21 @@ function Identity() {
 
 function BuilderProfile() {
   const s = useStore();
-  const team = s.teams[0];
   const asked = s.markets.filter((m) => m.side === "B");
   return (
     <>
       <h2 className="pf-h">Your team</h2>
       <div className="grid2">
-        <Card title={team ? team.name : "No team registered"} sub={team ? team.focus : "Register to appear as an option in ecosystem markets."}>
-          {team ? (
-            <div className="stats">
-              <div className="stat"><span>Stage</span><b>{team.stage}</b></div>
-              <div className="stat"><span>Open to offers</span><b>{team.consent ? "Yes" : "No"}</b></div>
-            </div>
-          ) : null}
-          <Link to="/app/registry" className="abtn abtn-soft mt16">{team ? "Manage registration" : "Register team"}</Link>
+        <Card title="Team listing and consent" sub="Teams appear as options when they register or publicly seek funding. You can opt out at any time. Your ownership key stays in your workspace.">
+          <Link to="/app/preprod" className="abtn abtn-soft">Manage listing in workspace</Link>
         </Card>
-        <Card title="Your questions about ecosystems" sub="Questions you asked scouts. Demo data.">
+        <Card title="Ecosystem questions" sub="Questions builders asked scouts about ecosystems.">
           <div className="stats">
-            <div className="stat"><span>Asked</span><b>{asked.length}</b></div>
+            <div className="stat"><span>On chain</span><b>{asked.length}</b></div>
           </div>
-          <Link to="/app/markets?side=B" className="abtn abtn-soft mt16">See answers</Link>
+          <Link to="/app" className="abtn abtn-soft mt16">See them on Home</Link>
         </Card>
       </div>
-      <div className="mt16"><Note title="Demo team shown.">The demo treats the first registered team as yours. A live profile reads the team owned by your private workspace.</Note></div>
     </>
   );
 }
