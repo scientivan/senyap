@@ -181,7 +181,8 @@ export async function runScenario(base: Driver) {
   // Bid refunds 100, claims and retained platform/rounding must conserve it.
   const remainder = state.marketRemainder.lookup(1n) + state.marketRemainder.lookup(2n);
   assert.equal(1240n - 100n - paid, remainder);
-  return {phases: ["settled", "settled"], claims, claimed: paid.toString(), bidRefunds: "100", remainder: remainder.toString(),
+  // Contract also holds the 1500 dUSD operator stakes (D18-5).
+  return {phases: ["settled", "settled"], claims, claimed: paid.toString(), bidRefunds: "100", remainder: remainder.toString(), retained: (remainder + 1500n).toString(),
     input: "1240", conserved: true, note: "Synthetic local fixture; one funding wallet controls all actors. No claim of independent participants or network anonymity."};
 }
 
@@ -206,4 +207,65 @@ export function simulatorDriver(onProof?: (name: Circuit, proofData: RT.ProofDat
     },
   };
   return {driver, calls};
+}
+
+/** D18-11 short network cycle for the 18 Oct contract: operator approvals,
+ * public intent (listed, one opted out), one Side A market with five stakes,
+ * cancellation without purchases and full refunds, plus committee stake and the
+ * leaked-share reward. The full 84-action cycle (r10) covers the earlier contract. */
+export async function runShortScenario(base: Driver) {
+  const driver: Driver = {...base, async call(name, ...args) {
+    const gated = gatedCall(name, args as unknown[]);
+    if (gated) {
+      const id = opActionId(gated);
+      for (let m = 0; m < 3; m++) {
+        await base.patch({operatorMember: operatorMembers[m]} as Partial<LocalState>);
+        await base.call("voteOperatorAction" as never, ...([id, BigInt(m), true, (await base.read()).time] as never[]));
+      }
+    }
+    return base.call(name, ...args);
+  }};
+  for (let m = 0; m < 3; m++) await base.call("stakeOperator" as never, ...([BigInt(m), 500n] as never[]));
+  await driver.call("admitBuyer", hash(buyers[0]));
+  await driver.call("registerBuilder", bytes(80), bytes(90), (await driver.read()).time);
+  await driver.call("registerPublicIntent" as never, ...([bytes(81), bytes(91), bytes(93), (await driver.read()).time] as never[]));
+  await driver.call("registerPublicIntent" as never, ...([bytes(82), bytes(92), bytes(94), (await driver.read()).time] as never[]));
+  await driver.call("optOutPublicIntent" as never, ...([bytes(82)] as never[]));
+  const {time} = await driver.read(), epoch = time / epochSeconds, group = bytes(4);
+  assert(time + 1800n < (epoch + 1n) * epochSeconds, "Local fixture epoch expires during run; wait for next epoch");
+  await driver.call("configureScoutGroup", group, {side: 0n, tier: 1n, epoch, ecosystem: bytes(0)});
+  for (const secret of cohort) await driver.call("admitScout", group, commitment(secret, epoch));
+  const start = (await driver.read()).time;
+  // Option 1 is the public intent team (D18-2).
+  const config: Market = {subjective: false, side: 0n, category: bytes(70), questionHash: bytes(71), questionUri: "demo://local-short-cycle",
+    nOptions: 2n, optionRefs: [bytes(80), bytes(81), ...Array.from({length: 6}, () => bytes(0))],
+    openAt: start, openUntil: start + 900n, auctionUntil: start + 1200n, outcomeUntil: start + 1500n, flatPrice: 10n, reservePrice: 40n};
+  await driver.patch({buyer: buyers[0]});
+  await driver.call("createMarket", 1n, config);
+  const records: Uint8Array[] = [];
+  for (const [index, secret] of cohort.entries()) {
+    const {state} = await driver.read(), salt = bytes(100 + index);
+    const path = scoutGroupTree(state, group).findPathForLeaf(commitment(secret, epoch));
+    assert(path, "Local scout path unavailable");
+    await driver.patch({scout: secret, option: BigInt(index % 2), salt, path});
+    const boundary = config.openAt + (config.openUntil - config.openAt) / 4n, now = (await driver.read()).time;
+    if (now < boundary && boundary - now < 240n) await driver.waitUntil(boundary + 6n);
+    records.push(await driver.call("stake", 1n, group, 1n, 100n, bytes(88)));
+  }
+  await driver.waitUntil(config.outcomeUntil);
+  const {state: before, time: now} = await driver.read();
+  assert(planTransitions(before, now).some(a => a.kind === "cancelMarket" && a.market === 1n), "Keeper did not plan cancellation");
+  await driver.call("cancelMarket", 1n);
+  let refunded = 0n;
+  for (const secret of cohort) { await driver.patch({scout: secret}); refunded += await driver.call("claim", 1n, 1n, driver.recipient); }
+  assert.equal(refunded, 500n, "Cancelled stakes must be refunded in full");
+  await base.call("stakeCommittee" as never, ...([4n, 500n] as never[]));
+  await base.call("exposeLeakedShare" as never, ...([4n, shareScalars[4], driver.recipient] as never[]));
+  const {state} = await driver.read();
+  assert.equal(state.marketPhase.lookup(1n), 10n);
+  assert.equal(state.builderRegistry.lookup(bytes(82)).consent, false);
+  assert.equal(state.committeeStake.lookup(4n), 0n);
+  // Retained: 1500 operator stakes + 250 treasury share of the seized committee stake.
+  return {phase: "cancelled", refunded: refunded.toString(), retained: "1750", publicIntentListed: true, optedOut: true, leakedShareSeized: true,
+    note: "Synthetic local fixture; one funding wallet controls all actors and all operator keys. Proves the mechanism, not independence."};
 }

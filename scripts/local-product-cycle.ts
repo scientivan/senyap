@@ -20,7 +20,7 @@ import {createLocalJournal, validateRejectedFirstDeploy,canonicalSubmittedId,con
 import {synchronizedLocalBalance,applyDustFeeWorkaround} from "./lib/local-wallet-balance";
 import {PRODUCT_CIRCUITS,stagedProductContract,verifierBatches,verifierInstallation} from "./lib/staged-product-deployment";
 import {createLocalResourceGate} from "./lib/local-resource-budget";
-import {runScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
+import {runScenario, runShortScenario, simulatorDriver, witnesses, initialPrivateState, constructorArgs, hex,
   type Driver, type Circuit, type LocalState, type Args, type Result} from "./lib/local-product-scenario";
 
 // testkit's wallet builder logs seeds at info level. Silence before any build.
@@ -29,7 +29,10 @@ applyDustFeeWorkaround();
 const digest = (value: string | Uint8Array) => createHash("sha256").update(value).digest("hex");
 const sourceSha256 = digest(await readFile("contracts/senyap.compact"));
 const simulated = simulatorDriver();
-const simulation = await runScenario(simulated.driver);
+// D18-11: --short runs the reduced cycle for the 18 Oct contract.
+const short = process.argv.includes("--short");
+const scenario = short ? runShortScenario : runScenario;
+const simulation = await scenario(simulated.driver);
 const stagedMode=process.argv.includes("--staged-after-confirmed-mint");
 // Fresh deployment of token, mint and Senyap with staged verifier packaging,
 // after the contract representation changed (S12). Uses its own journal.
@@ -353,11 +356,11 @@ async function executeLocal() {
         const result = await action(name, () => call(...args)); sequence++; return result.private.result;
       },
     };
-    const result = await runScenario(driver);
+    const result = await scenario(driver);
     assert.equal(sequence, simulated.calls.length); assert.equal(journal.sent, submissionLimit);
     const finalState = await providers.publicDataProvider.queryContractState(contract);
     const contractBalance = [...(finalState?.balance.entries() ?? [])].find(([type]) => type.tag === "unshielded" && type.raw === colorHex)?.[1] ?? 0n;
-    assert.equal(contractBalance.toString(), result.remainder, "Contract balance does not match retained funds");
+    assert.equal(contractBalance.toString(), result.retained, "Contract balance does not match retained funds");
     await journal.complete({...result, contractBalance: contractBalance.toString()});
     console.log(JSON.stringify({status: "completed", journalPath, contract, transactions: journal.sent, result: journal.data.publicResult}, null, 2));
   } catch (error) {
