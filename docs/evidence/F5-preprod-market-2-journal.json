@@ -4,12 +4,13 @@
   "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
   "marketId": "2",
   "plan": "docs/evidence/F5-market-2-plan.json",
-  "updatedAt": "2026-10-18T11:59:15.367Z",
+  "updatedAt": "2026-10-18T12:11:49.518Z",
   "finalizedSteps": [
     "3 operator votes + createSideBMarket",
     "3 votes + configureScoutGroup (daily epoch, ecosystem = option 0)",
     "5 scouts admitted, each 3 votes + admitScout",
-    "5 scout stakes of 50 dUSD on option 0"
+    "5 scout stakes of 50 dUSD on option 0",
+    "Synthetic buyer admitted: 3 operator votes + admitBuyer (fees paid from own DUST after the 1AM sponsor went offline)"
   ],
   "transactionIdsKept": [
     {
