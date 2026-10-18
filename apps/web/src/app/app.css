@@ -224,3 +224,18 @@
 .pf-knows b { font-size: 15px; font-weight: 700; }
 .pf-knows ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
 @media (max-width: 860px) { .pf-grid { grid-template-columns: 1fr; } .pf-id { flex-wrap: wrap; } .pf-wallet { justify-content: flex-start; } }
+
+/* Info tips: supporting text lives behind a small "i" next to what it explains. */
+.acard-title { display: flex; align-items: center; gap: 8px; }
+.itip { position: relative; display: inline-flex; vertical-align: middle; }
+.itip-btn { width: 18px; height: 18px; border-radius: 50%; border: 1px solid currentColor; background: transparent; color: var(--ink-2); font: 700 11px/1 var(--font); font-style: italic; display: grid; place-items: center; cursor: help; padding: 0; opacity: .75; }
+.itip-btn:hover, .itip-btn:focus-visible { opacity: 1; }
+.acard.dark .itip-btn { color: var(--on-night-2); }
+.itip-pop { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(4px); width: max-content; max-width: 280px; padding: 10px 12px; border-radius: 10px; background: var(--night); color: var(--on-night); font: var(--w-body) 13px/1.5 var(--font); letter-spacing: 0; text-align: left; box-shadow: 0 6px 18px rgba(42, 27, 27, .18); opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; z-index: 50; white-space: normal; }
+.itip:hover .itip-pop, .itip:focus-within .itip-pop { opacity: 1; transform: translateX(-50%) translateY(0); }
+.anote { display: flex; align-items: center; gap: 10px; padding: 10px 14px; }
+.anote b { font-size: 14px; font-weight: 600; }
+.md-head { display: grid; gap: 10px; margin-bottom: 20px; }
+.md-head h1 { font: var(--w-strong) 24px/1.25 var(--font); letter-spacing: -0.02em; max-width: 30ch; }
+.md-head .row { gap: 8px; flex-wrap: wrap; align-items: center; }
+.md-stats { grid-template-columns: 1fr 1fr; }

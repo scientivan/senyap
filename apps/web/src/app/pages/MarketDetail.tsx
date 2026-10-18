@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { LockIcon } from "../../components/Icons";
 import { timeLeft, useStore } from "../data/store";
 import type { Market, Phase } from "../data/types";
-import { Card, Empty, Histogram, Note, PageHead, PhaseChip, Sealed, SideChip, useToast } from "../ui";
+import { Card, Empty, Histogram, InfoTip, PhaseChip, Sealed, SideChip, useToast } from "../ui";
 import { history, type HistoryItem } from "../data/live";
 
 const flow: Phase[] = ["open", "closed", "preview", "auction", "allocated", "outcome", "settling", "settled"];
@@ -25,16 +25,15 @@ export function MarketDetail() {
 
   return (
     <>
-      <PageHead
-        title={`Market #${m.id}`}
-        sub={m.question}
-        action={
-          <div className="row">
-            <SideChip side={m.side} />
-            <PhaseChip phase={m.phase} />
-          </div>
-        }
-      />
+      <div className="md-head">
+        <h1>{m.question}</h1>
+        <div className="row">
+          <span className="muted2">Market #{m.id}</span>
+          <SideChip side={m.side} />
+          <PhaseChip phase={m.phase} />
+          <InfoTip text={m.side === "A" ? "Every option is a team that registered, or that publicly seeks funding and can opt out. Scouts recommend with money at stake; picks are never revealed." : "Questions about unannounced token, treasury or listing decisions are not allowed on this side."} />
+        </div>
+      </div>
       <div className="grid2">
         <div className="stack">
           <Card title="Where this market is" sub={m.phase === "open" ? `Picks close ${timeLeft(m.closesAt)}` : `Picks closed ${timeLeft(m.closesAt)}`}>
@@ -60,8 +59,8 @@ export function MarketDetail() {
           <Card title="Strength preview" sub="Public. Counts teams per bucket without naming them." className="dark">
             {h ? <Histogram h={h} /> : <p>{kBlocked ? `Needs at least 5 scouts. ${m.scouts} so far.` : "Posted by the committee after picks close."}</p>}
           </Card>
-          <Card title="Public on chain">
-            <div className="stats">
+          <Card title="Public on chain" sub="Anyone can read these numbers from the contract. Picks and identities stay sealed.">
+            <div className="stats md-stats">
               <div className="stat"><span>Sealed picks</span><b>{m.sealedPicks}</b></div>
               <div className="stat"><span>Scouts</span><b>{m.scouts}</b></div>
               <div className="stat"><span>Total staked</span><b>{m.stakeTotal.toLocaleString()} dUSD</b></div>
@@ -75,14 +74,10 @@ export function MarketDetail() {
               <p className="muted2">{m.outcome.evidence}</p>
             </Card>
           )}
-          <Note title={m.side === "A" ? "Recommendations, not ratings." : "No token price questions."}>
-            {m.side === "A"
-              ? "Every option is a team that registered, or that publicly seeks funding and can opt out at any time. Scouts recommend with money at stake: honest picks are paid, proven hoaxes are slashed, and individual picks are never revealed."
-              : "Questions about unannounced token, treasury or listing decisions are not allowed on this side."}
-          </Note>
-          <HistoryCard marketLabel={`#${m.id}`} />
+
         </div>
       </div>
+      <div className="mt16"><HistoryCard marketLabel={`#${m.id}`} /></div>
       {toast}
     </>
   );
@@ -185,7 +180,7 @@ export function HistoryCard({ marketLabel }: { marketLabel?: string }) {
   const s = useStore();
   const [items, setItems] = useState<HistoryItem[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  useEffect(() => { if (s.contract) history(s.contract, 15).then(setItems, (e) => setErr(e instanceof Error ? e.message : String(e))); }, [s.contract]);
+  useEffect(() => { if (s.contract) history(s.contract, 8).then(setItems, (e) => setErr(e instanceof Error ? e.message : String(e))); }, [s.contract]);
   return (
     <Card title="Contract activity" sub={marketLabel ? `Latest calls on the Senyap contract. Calls are public; picks and identities are not.` : "Latest calls on the Senyap contract."}>
       {err ? <p className="muted2">{err}</p> : !items ? <p className="muted2">Reading the indexer.</p> : (

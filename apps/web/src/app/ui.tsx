@@ -66,8 +66,8 @@ export function Card({ title, sub, action, children, className = "" }: { title?:
       {(title || action) && (
         <div className="acard-head">
           <div>
-            {title && <h2>{title}</h2>}
-            {sub && <p className="acard-sub">{sub}</p>}
+            {title && <h2 className="acard-title">{title}{sub && <InfoTip text={sub} />}</h2>}
+            {!title && sub && <p className="acard-sub">{sub}</p>}
           </div>
           {action}
         </div>
@@ -89,15 +89,24 @@ export function PageHead({ title, sub, action }: { title: string; sub: string; a
   );
 }
 
+/** Supporting notes stay out of the way: one line, details behind the info button. */
 export function Note({ title, children, icon }: { title: string; children: ReactNode; icon?: ReactNode }) {
   return (
     <div className="anote">
       <span className="anote-ic">{icon ?? <LockIcon />}</span>
-      <div>
-        <b>{title}</b>
-        <p>{children}</p>
-      </div>
+      <b>{title}</b>
+      <InfoTip text={children} />
     </div>
+  );
+}
+
+/** Small "i" button; its text shows on hover, focus or tap. */
+export function InfoTip({ text, label = "More information" }: { text: ReactNode; label?: string }) {
+  return (
+    <span className="itip">
+      <button type="button" className="itip-btn" aria-label={label}>i</button>
+      <span className="itip-pop" role="tooltip">{text}</span>
+    </span>
   );
 }
 
