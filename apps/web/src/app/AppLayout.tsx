@@ -133,6 +133,12 @@ export function AppLayout() {
                   {state.status === "connecting" ? "Waiting for Lace" : "Connect Lace"}
                 </button>
               )}
+              {state.status === "connecting" && state.message && (
+                <div className="ah-pop" role="status" aria-live="polite">
+                  <b>Unlock Lace to continue.</b>
+                  <p>{state.message}</p>
+                </div>
+              )}
               {(walletOpen || state.status === "missing" || state.status === "error" || state.status === "selecting") && (
                 <div className="ah-pop" role="dialog" aria-label="Wallet">
                   {state.status === "selecting" && (

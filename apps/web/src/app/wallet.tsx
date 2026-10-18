@@ -12,7 +12,7 @@ export { NETWORK_ID } from "./wallet-connector";
  */
 type WalletState =
   | { status: "idle" }
-  | { status: "connecting" }
+  | { status: "connecting"; message?: string }
   | { status: "selecting"; wallets: { id: string; name: string }[] }
   | { status: "connected"; address: string; name: string }
   | { status: "missing" }
@@ -41,7 +41,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     if (!chosen) { setState({status:"error",message:"This wallet is no longer available. Reload and reconnect."}); return; }
     setState({ status: "connecting" });
     try {
-      const connected=await connectWallet(chosen[1]);
+      // Lace rejects connect() while locked and a dApp cannot open its unlock
+      // screen. Keep retrying for two minutes so unlocking Lace resumes the flow.
+      let connected;
+      for (let tries = 0; ; tries++) {
+        try { connected = await connectWallet((availableWallets(window.midnight).find(([key])=>key===chosen[0]) ?? chosen)[1]); break; }
+        catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (!/locked/i.test(msg) || tries >= 60 || attempt.current !== currentAttempt) throw e;
+          setState({ status: "connecting", message: "Lace is locked. Open the Lace extension and unlock it. Senyap continues automatically." });
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
       if (attempt.current !== currentAttempt) return;
       setApi(connected.api);
       setState({ status: "connected", address:connected.address, name:connected.name });
@@ -49,7 +60,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (attempt.current !== currentAttempt) return;
       setApi(null);
       const msg = e instanceof Error ? e.message : String(e);
-      setState({ status: "error", message: /reject|denied|cancel/i.test(msg) ? "You closed the wallet request. Try again when ready." : `The wallet could not connect to ${NETWORK_ID}. ${msg}` });
+      setState({ status: "error", message: /reject|denied|cancel/i.test(msg) ? "You closed the wallet request. Try again when ready."
+        : /locked/i.test(msg) ? "Lace is still locked. Unlock it in the extension, then try again."
+        : /shutdown|no longer be used/i.test(msg) ? "Lace restarted after this page loaded. Reload the page, then connect again."
+        : `The wallet could not connect to ${NETWORK_ID}. ${msg}` });
     }
   };
 
