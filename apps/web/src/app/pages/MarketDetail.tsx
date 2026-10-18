@@ -71,9 +71,9 @@ export function MarketDetail() {
               <p className="muted2">{m.outcome.evidence}</p>
             </Card>
           )}
-          <Note title={m.side === "A" ? "Teams opted in to be scouted." : "No token price questions."}>
+          <Note title={m.side === "A" ? "Recommendations, not ratings." : "No token price questions."}>
             {m.side === "A"
-              ? "Every option is a team from the registry that agreed to be assessed. Scouts sell what they saw and think, never a team's private documents."
+              ? "Every option is a team that registered, or that publicly seeks funding and can opt out at any time. Scouts recommend with money at stake: honest picks are paid, proven hoaxes are slashed, and individual picks are never revealed."
               : "Questions about unannounced token, treasury or listing decisions are not allowed on this side."}
           </Note>
           <button type="button" className="abtn abtn-soft" onClick={() => { s.advance(m.id); show("Demo moved this market to its next phase."); }} disabled={m.phase === "settled"}>
@@ -96,7 +96,7 @@ function StakePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void })
   const [busy, setBusy] = useState(false);
 
   const submit = () => {
-    if (pick === null) return setErr("Choose the team you want to back.");
+    if (pick === null) return setErr("Choose the option you want to back.");
     if (reason.trim().length < 20) return setErr("Write a reason of at least 20 characters. Buyers pay for the reasoning.");
     setBusy(true);
     setErr(null);
@@ -111,12 +111,13 @@ function StakePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void })
   };
 
   return (
-    <Card title="Back a team" sub={`Pick ${Math.min(used + 1, 3)} of 3 in this market. Your membership proof is built on this device.`}>
+    <Card title={m.side === "A" ? "Recommend a team" : "Back an answer"} sub={`Pick ${Math.min(used + 1, 3)} of 3 in this market. Your membership proof is built on this device.`}>
       {used >= 3 ? (
         <Empty title="All 3 picks used.">Each scout can back at most three teams per market.</Empty>
       ) : (
         <div className="form">
-          <div className="opts2" role="radiogroup" aria-label="Team to back">
+          <SmartPick m={m} onPick={setPick} />
+          <div className="opts2" role="radiogroup" aria-label="Option to back">
             {m.options.map((o) => (
               <div key={o.id} role="radio" aria-checked={pick === o.id} tabIndex={0} className={`orow pick${pick === o.id ? " on" : ""}`} onClick={() => setPick(o.id)} onKeyDown={(e) => e.key === "Enter" && setPick(o.id)}>
                 <b>{o.label}</b>
@@ -283,5 +284,50 @@ function OutcomePanel({ m, onDone }: { m: Market; onDone: (msg: string) => void 
         </div>
       </div>
     </Card>
+  );
+}
+
+/* D18-3: describe a pick in your own words; matching runs only in this browser.
+   The stake still goes to a numbered option so totals stay private and summable. */
+const words = (t: string) => t.toLowerCase().normalize("NFKD").replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter((w) => w.length > 2 && !["team", "the", "and", "for", "will", "with"].includes(w));
+export function matchOption(text: string, labels: string[]): { index: number; score: number } | null {
+  const q = new Set(words(text));
+  if (!q.size) return null;
+  let best: { index: number; score: number } | null = null;
+  labels.forEach((label, index) => {
+    const l = words(label);
+    const hits = l.filter((w) => q.has(w) || [...q].some((x) => x.length > 3 && (w.startsWith(x) || x.startsWith(w)))).length;
+    const score = l.length ? hits / l.length : 0;
+    if (score > 0 && (!best || score > best.score)) best = { index, score };
+  });
+  return best;
+}
+const PROPOSALS = "senyap-demo-option-proposals";
+function SmartPick({ m, onPick }: { m: Market; onPick: (id: number) => void }) {
+  const [text, setText] = useState("");
+  const [result, setResult] = useState<string | null>(null);
+  const [none, setNone] = useState(false);
+  const suggest = () => {
+    const hit = matchOption(text, m.options.map((o) => o.label));
+    if (!hit) { setNone(true); setResult(null); return; }
+    const o = m.options[hit.index]; setNone(false); onPick(o.id);
+    setResult(`Closest option is ${o.label}. It is selected below; change it if this is not what you meant.`);
+  };
+  const propose = () => {
+    try { const list = JSON.parse(localStorage.getItem(PROPOSALS) ?? "[]"); list.push({ market: m.id, text: text.trim().slice(0, 140) }); localStorage.setItem(PROPOSALS, JSON.stringify(list)); } catch { /* demo only */ }
+    setResult("Saved as a proposal for the next market. It carries no identity. Pick the closest current option to stake now, or skip this market.");
+    setNone(false);
+  };
+  return (
+    <div className="field">
+      <label htmlFor="smart">Describe your pick in your own words (optional)</label>
+      <div className="row">
+        <input id="smart" className="inp" value={text} onChange={(e) => setText(e.target.value)} placeholder={m.side === "A" ? "For example, the payroll team from the Jakarta cohort" : "Your answer in a few words"} />
+        <button type="button" className="abtn abtn-soft" disabled={!text.trim()} onClick={suggest}>Match</button>
+      </div>
+      <span className="hint">Matching runs in your browser. Your words are never sent anywhere or stored on chain.</span>
+      {result && <p className="muted2" role="status">{result}</p>}
+      {none && <p className="muted2" role="status">No current option matches. <button type="button" className="abtn abtn-soft" onClick={propose}>Propose it for the next market</button></p>}
+    </div>
   );
 }

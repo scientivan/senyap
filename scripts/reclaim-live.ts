@@ -17,10 +17,14 @@ await mkdir(".states",{recursive:true});
 const sessions=new CredentialSessions(".states/reclaim-live.sqlite");
 let fields:string[]=[],policy:GithubPolicyResult|undefined;
 const minContributions=Number(process.env.SENYAP_MIN_GITHUB_CONTRIBUTIONS??"50");
+const mode=process.env.SENYAP_RECLAIM_POLICY==="strict"?"strict":"account";
 const builderPolicy=githubBuilderPolicy({minContributions});
 const credentials=reclaimCredentials({appId,appSecret,providerId,ttlSeconds:1800},sessions,async data=>{
   fields=[...new Set(data.flatMap(d=>Object.keys(d.extractedParameters??{})))].sort();
   // Proven username, then public yearly contributions >= threshold. Values are not stored.
+  // D18-10: provider 76afcf07 proves a logged-in GitHub account but no username.
+  // "account" mode accepts that (one account can pass more than once); "strict" needs a username.
+  if(mode==="account"){policy={qualified:fields.length>0,stage:fields.length>0?"ok":"no-username"};return policy.qualified;}
   policy=await builderPolicy(data);return policy.qualified;
 });
 const {sessionId,requestJson}=await credentials.start(binding);
@@ -33,6 +37,6 @@ const proofs=await new Promise<Proof|Proof[]>((resolve,reject)=>{
 const result:Record<string,unknown>={task:"P6.1",binding,date:new Date().toISOString(),provider:request.getProviderVersion()};
 try{await credentials.verify(sessionId,proofs);result.verified=true;result.receipt=sessions.receipt(sessionId);}
 catch{result.verified=false;result.rejectedAt=credentials.lastRejection();}
-result.extractedFieldNames=fields;result.policy={minContributions,stage:policy?.stage??"not-reached"};
+result.extractedFieldNames=fields;result.policy={mode,minContributions:mode==="strict"?minContributions:undefined,stage:policy?.stage??"not-reached"};
 await writeFile(`docs/evidence/P6.1-reclaim-live-${binding.network}.json`,JSON.stringify(result,null,2)+"\n");
 console.log(JSON.stringify({verified:result.verified,fields}));sessions.close();process.exit(0);
