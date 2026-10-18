@@ -32,7 +32,7 @@ const journeys: Record<Role, { steps: Step[]; next: { to: string; label: string 
       { title: "Ask about an ecosystem", text: "Insiders answer privately how an ecosystem really treats its teams.", seen: "public" },
       { title: "Read the answer", text: "Buy the sealed totals at a subsidised price, opened only on your device.", seen: "private" },
     ],
-    next: { to: "/app/purchases", label: "See my purchases" },
+    next: { to: "/app/team", label: "Manage my team" },
   },
   operator: {
     steps: [

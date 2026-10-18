@@ -90,7 +90,7 @@ function Standing({ role }: { role: Role }) {
         <div className="stat"><span>Open now</span><b>{open.length}</b></div>
         <div className="stat"><span>Scouts in open markets</span><b>{open.reduce((n, m) => n + m.scouts, 0)}</b></div>
       </div>
-      <Link to="/app/act" className="abtn abtn-soft mt16">{role === "scout" ? "Your picks are in your workspace" : "Open your workspace"}</Link>
+      <Link to={role === "scout" ? "/app/activity" : role === "builder" ? "/app/team" : "/app/purchases"} className="abtn abtn-soft mt16">{role === "scout" ? "See my activity" : role === "builder" ? "Manage my team" : "See my purchases"}</Link>
     </Card>
   );
 }

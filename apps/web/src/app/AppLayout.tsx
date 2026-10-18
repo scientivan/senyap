@@ -18,11 +18,13 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
   // Markets live on Home. Builder consent and opt-out live in Profile.
   ecosystem: [
     { to: "/app", label: "Home" },
+    { to: "/app/team", label: "New Market" },
     { to: "/app/purchases", label: "Purchases" },
     { to: "/app/disputes", label: "Disputes" },
   ],
   builder: [
     { to: "/app", label: "Home" },
+    { to: "/app/team", label: "My Team" },
     { to: "/app/purchases", label: "Purchases" },
     { to: "/app/disputes", label: "Disputes" },
   ],
@@ -43,8 +45,8 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
 const LiveWorkspace = lazy(() => import("./pages/LiveWorkspace").then((m) => ({ default: m.LiveWorkspace })));
 // Vault-backed views. The vault itself has no tab: unlock appears where needed,
 // backup and lock sit in the bar above each vault view.
-const sectionFor = (path: string): "act" | "activity" | "purchases" | "disputes" | "vault" | null =>
-  path.startsWith("/app/activity") ? "activity" : path.startsWith("/app/act") ? "act" : path.startsWith("/app/purchases") ? "purchases"
+const sectionFor = (path: string): "act" | "activity" | "purchases" | "disputes" | "team" | "vault" | null =>
+  path.startsWith("/app/activity") ? "activity" : path.startsWith("/app/team") ? "team" : path.startsWith("/app/act") ? "act" : path.startsWith("/app/purchases") ? "purchases"
     : path.startsWith("/app/disputes") ? "disputes" : null;
 
 export function AppLayout() {

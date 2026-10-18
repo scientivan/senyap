@@ -55,7 +55,8 @@ const router = createBrowserRouter([
       { path: "guide", element: <Guide /> },
       { path: "workspace", element: <Navigate to="/app/profile" replace /> },
       // The workspace is mounted once in AppLayout; these routes only pick its section.
-      { path: "act", element: null },
+      { path: "act", element: <ActRoute /> },
+      { path: "team", element: null },
       { path: "activity", element: null },
       { path: "purchases", element: null },
       { path: "disputes", element: null },
@@ -81,6 +82,9 @@ const router = createBrowserRouter([
   },
   { path: "*", element: <Navigate to="/" replace /> },
 ]);
+
+/** Take action always works on one market; without one, choose it on Home. */
+function ActRoute() { return new URLSearchParams(location.search).get("market") ? null : <Navigate to="/app" replace />; }
 
 export function App() {
   return (

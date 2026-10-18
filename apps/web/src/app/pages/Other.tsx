@@ -29,7 +29,7 @@ export function NewMarket() {
     if (side === "B" && /token|price|treasury|listing|unlock/i.test(question)) return setErr("Questions about token, treasury or listing decisions are not allowed on this side.");
     // Side A markets are created and signed in the workspace; Side B questions go to operators.
     try { sessionStorage.setItem("senyap-market-draft", JSON.stringify({ side, question: question.trim(), options, flatPrice: price, reservePrice: side === "A" ? reserve : 0, hours })); } catch { /* the workspace asks again */ }
-    nav("/app/act");
+    nav("/app/team");
   };
 
   return (
@@ -186,7 +186,7 @@ export function Registry() {
                   if (!f.consent) return setErr("Consent is required. Teams are only assessed when they opt in.");
                   setErr(null);
                   show("Registration is signed in your workspace. Opening it now.");
-                  window.setTimeout(() => nav("/app/act"), 600);
+                  window.setTimeout(() => nav("/app/team"), 600);
                 }}
               >
                 Register team
@@ -207,7 +207,7 @@ export function Standing({ embedded = false }: { embedded?: boolean } = {}) {
       {embedded ? <h2 className="pf-h">Buyer standing</h2> : <PageHead title="Good standing" sub="Rivals never see which ecosystem you are. Scouts see only that a buyer is in good standing." />}
       <div className="grid3">
         <Card title="Your standing" sub="Read from your private workspace. Standing is a private membership proof, so only you can see it." className="dark">
-          <Link className="abtn abtn-soft" to="/app/act">Open workspace</Link>
+          <Link className="abtn abtn-soft" to="/app/purchases">See purchases</Link>
         </Card>
         <Card title="Pseudonyms" sub="A new one for every market, derived in your workspace from your private key. Two markets cannot be linked to the same buyer.">{null}</Card>
         <Card title="What can remove standing">

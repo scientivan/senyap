@@ -109,3 +109,10 @@
 .act-more[open] summary { margin-bottom: 12px; }
 .act-more .live-builder { border: 0; padding: 0; margin: 0; }
 @media (max-width: 900px) { .live-market.is-act { grid-template-columns: 1fr; } .live-market.is-act > * { grid-column: 1 !important; } }
+.act-tabs .abtn { height: 36px; padding: 0 16px; background: transparent; color: var(--ink-2); font-weight: 600; }
+.act-tabs .abtn[aria-pressed="true"] { background: var(--night); color: var(--on-night); }
+.acard.team-card { max-width: 720px; padding: 24px; }
+.team-card .live-builder { border: 0; padding: 0; margin: 0; background: transparent; }
+.team-card label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.team-card input:not([type="checkbox"]), .team-card textarea, .team-card select { min-height: 38px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; }
+.team-card fieldset { border: 0; padding: 0; margin: 14px 0 0; }

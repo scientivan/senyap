@@ -172,7 +172,7 @@ function OptionsPanel({ m, kBlocked }: { m: Market; kBlocked: boolean }) {
 }
 
 function WorkspaceCard({ title, sub }: { title: string; sub: string }) {
-  return <Card title={title} sub={sub}><Link className="abtn abtn-red" to={WORKSPACE}>Open workspace</Link></Card>;
+  return <Card title={title} sub={sub}><Link className="abtn abtn-red" to={`${WORKSPACE}?market=${useParams().id}`}>Open</Link></Card>;
 }
 
 /** Contract call history from the indexer, newest first. */
