@@ -140,3 +140,10 @@
 .act-tipline { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 12px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
 .live-market .act-tabs .abtn { height: 34px; padding: 0 14px; background: transparent; color: var(--ink-2); font-weight: 600; }
 .live-market .act-tabs .abtn[aria-pressed="true"] { background: var(--night); color: var(--on-night); }
+.admission-ids { margin-bottom: 16px; }
+.admission-ids summary { cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.admission-ids dl { display: grid; gap: 8px; margin: 12px 0 0; }
+.admission-ids dl div { display: grid; grid-template-columns: 140px minmax(0,1fr); gap: 12px; padding: 10px 12px; border-radius: 10px; background: var(--panel); }
+.admission-ids dt { font-size: 13px; color: var(--ink-2); }
+.admission-ids dd { margin: 0; font-size: 13px; font-weight: 600; overflow-wrap: anywhere; user-select: all; }
+.act-message { grid-column: 1; margin: 0; padding: 12px 16px; border-radius: 12px; background: #FBEDEC; color: var(--ink); font-size: 14px; font-weight: 600; }

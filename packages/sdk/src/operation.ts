@@ -30,7 +30,8 @@ export async function executeClientOperation(args:{client:WorkspaceClient;kind:s
   call:(beforeSubmit:(txId:string)=>Promise<void>)=>Promise<{txId:string;finalized:true}>}):Promise<{txId:string}> {
   const id=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,"0")).join("");
   await args.client.journal.begin(id,args.kind);
-  try {await args.client.update(args.prepare);}catch{
+  try {await args.client.update(args.prepare);}catch(cause){
+    console.error("[senyap] private action preparation failed",cause);
     try{await args.client.journal.finish(id,"not-submitted");}catch{}throw Error("Private action preparation failed. No transaction was submitted.");
   }
   try {
@@ -38,7 +39,8 @@ export async function executeClientOperation(args:{client:WorkspaceClient;kind:s
     const recorded=await args.client.journal.get();
     if(result.finalized!==true||recorded?.id!==id||recorded.txId!==result.txId)throw Error();
     await args.client.journal.finish(id,"finalized",result.txId);return {txId:result.txId};
-  }catch{
+  }catch(cause){
+    console.error("[senyap] transaction step failed",cause);
     try{await args.client.journal.finish(id,"uncertain");}catch{}
     throw Error("Transaction result needs reconciliation. Inspect the recorded transaction before retrying.");
   }

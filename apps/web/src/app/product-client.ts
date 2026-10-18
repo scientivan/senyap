@@ -108,7 +108,9 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
         // Compare the selected local verifier to finalized chain state before
         // constructing a proof or asking Lace to balance the transaction.
         stage="chain-state";const anchor=await snapshot();
-        const state=await publicData.queryContractState(input.contract,{type:"blockHash",blockHash:anchor.blockHash});
+        // The indexer returns state at a block hash only if the contract acted in that
+        // block; otherwise use the latest state (verifier keys do not change per block).
+        const state=await publicData.queryContractState(input.contract,{type:"blockHash",blockHash:anchor.blockHash}).catch(()=>null)??await publicData.queryContractState(input.contract);
         if(!state)throw Error("Product deployment unavailable");
         stage="verifier";verifyContractState([[circuitId,await zk.getVerifierKey(circuitId)]],state);
         stage="journal";
@@ -123,7 +125,7 @@ async function prepareProductClientInternal(input:{api:ConnectedAPI;client:Works
           const receipt=await submitCallTx(providers,{compiledContract,contractAddress:input.contract,privateStateId:"client-v1",circuitId,args:parameters});
           return {txId:receipt.public.txId,finalized:true};
         }});
-      }catch{throw Error(`Product operation failed at ${stage}. Inspect the wallet and operation journal before retrying.`);}
+      }catch(cause){console.error(`[senyap] product operation failed at ${stage}`,cause);throw Error(`Product operation failed at ${stage}. Inspect the wallet and operation journal before retrying.`);}
       finally{beforeSubmit=undefined;busy=false;}
     },
     // Unknown/rejected lookups remain blocked. The official provider returns a

@@ -2,6 +2,7 @@
 import {useCallback,useEffect,useRef,useState} from "react";
 import type {WorkspaceSession,WorkspaceClient} from "@senyap/sdk/workspace";
 import type {ClientOperation} from "@senyap/sdk/operation";
+import {abandonUnsubmittedOperation} from "@senyap/sdk/operation";
 import type {MarketMetadata} from "@senyap/sdk/market-metadata";
 import {fetchMarketMetadata} from "@senyap/sdk/market-metadata";
 import {createProductActions} from "@senyap/sdk/actions";
@@ -18,7 +19,8 @@ import {productDeployment} from "../deployment";
 import {useWallet} from "../wallet";
 import {useStore} from "../data/store";
 import {GlobeIcon,LockIcon} from "../../components/Icons";
-import {Card,Empty,PhaseChip,SideChip} from "../ui";
+import {Card,Empty,InfoTip,PhaseChip,SideChip} from "../ui";
+import {Bytes32Descriptor,CompactTypeVector,convertFieldToBytes,persistentHash} from "@midnight-ntwrk/compact-runtime";
 import {syncNow} from "../vault-sync";
 import {Workspace} from "./Workspace";
 import "./live-workspace.css";
@@ -67,7 +69,7 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
   }
   const pending=operation&&["prepared","submitted","uncertain"].includes(operation.phase);
   async function execute(intent:MarketIntent){
-    if(sending.current||busy||pending||!connection.current||!deployment)throw Error("Operation unavailable");
+    if(sending.current||busy||pending||!connection.current||!deployment){const why=pending?"A saved transaction needs review first.":!connection.current?"Refresh the page data, then try again.":"Another action is still running.";setMessage(why);throw Error(why);}
     sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when your wallet requests approval.");
     const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
     try{
@@ -96,8 +98,10 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
         if(valid())setMessage("Cancelled stake refund confirmed.");
       }
       if(valid()){const [updated,journal]=await Promise.all([product.view(),client.journal.get()]);if(valid()){setView(updated);setOperation(journal);}}
-    }catch{
-      if(valid()){try{setOperation(await client.journal.get());}catch{}setMessage("The operation needs review. Check its saved transaction status before preparing anything again.");}
+    }catch(e){
+      console.error("[senyap] action failed",e);
+      const detail=e instanceof Error?e.message:String(e);
+      if(valid()){try{setOperation(await client.journal.get());}catch{}setMessage(`The action did not finish: ${detail.slice(0,160)}`);}
       throw Error("Operation needs review");
     }finally{sending.current=false;if(valid())setBusy(false);}
   }
@@ -215,7 +219,7 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
     await client.update(state=>markMetadataPublished(state,draft));
   }
   async function executeBuilder(intent:BuilderIntent){
-    if(sending.current||busy||pending||!connection.current||!deployment)throw Error("Operation unavailable");
+    if(sending.current||busy||pending||!connection.current||!deployment){const why=pending?"A saved transaction needs review first.":!connection.current?"Refresh the page data, then try again.":"Another action is still running.";setMessage(why);throw Error(why);}
     sending.current=true;setBusy(true);setMessage("Checking public terms before proof preparation.");
     const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
     try{
@@ -291,11 +295,12 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
         {!deployment&&<p className="live-status">This build has no Preprod deployment configured.</p>}
       </div>}
 
-      {pending&&<section className="acard live-note"><h2>{operation.phase==="prepared"?"Saved transaction needs review":"Check your transaction before continuing"}</h2><p>{operation.phase==="prepared"?"A prepared operation is saved in your workspace. Review it before preparing another transaction.":"The final transaction result is not confirmed here. Check its status before sending another transaction."}</p>{operation.txId&&<p className="live-tx">Transaction {operation.txId}</p>}<button className="abtn abtn-soft" disabled={busy||!operation.txId} onClick={()=>refresh(true)}>Check transaction status</button></section>}
+      {pending&&<section className="acard live-note"><h2>{operation.phase==="prepared"?"Saved transaction needs review":"Check your transaction before continuing"}</h2><p>{operation.phase==="prepared"?"A prepared operation is saved in your workspace. Review it before preparing another transaction.":"The final transaction result is not confirmed here. Check its status before sending another transaction."}</p>{operation.txId&&<p className="live-tx">Transaction {operation.txId}</p>}{operation.txId?<button className="abtn abtn-soft" disabled={busy} onClick={()=>refresh(true)}>Check transaction status</button>:<><p>This transaction was never sent: it has no transaction ID, so nothing reached the chain. You can safely discard it.</p><button className="abtn abtn-soft" disabled={busy} onClick={async()=>{const c=connection.current?.client;if(!c)return;await abandonUnsubmittedOperation(c);setOperation(null);setMessage("Discarded. Nothing was sent.");}}>Discard and try again</button></>}</section>}
       {team&&view&&<div className="acard team-card"><LiveBuilderMarkets modes={store.role==="builder"?["register","withdraw"]:["create"]} key={`builder/${generation.current}`} builders={builderLabels} canCreateSideA={view.canCreateSideA} markets={view.markets} drafts={view.metadataDrafts} scope={view.scope} disabled={busy||!!pending} onExecute={executeBuilder} onUpload={retryMetadata}/></div>}
             {((act&&market)||purchases||disputes)&&view&&<section className="live-markets" aria-label="Finalized markets">{!shown.length&&<Empty title={purchases?"No purchases yet.":disputes?"No disputes.":"No market matches."}>{purchases?"Signals you buy appear here once a market has closed and you pay for them.":disputes?"Disputes on markets you take part in appear here.":"Open a market from Home."}</Empty>}{shown.map(market=><article className={`acard live-market${act?" is-act":""}`} key={String(market.id)}><div className="acard-head"><div><h2>{metadata[String(market.id)]?.question??`Market #${market.id}`}</h2><p className="acard-sub">Market #{String(market.id)}{!metadata[String(market.id)]&&". Verified question and option labels are unavailable."}</p></div><div className="row"><SideChip side={market.side}/><PhaseChip phase={market.phase}/></div></div>
-<div className="stats live-stats"><div className="stat"><span>Scouts</span><b>{String(market.scouts)}</b></div><div className="stat"><span>Staked</span><b>{String(market.stakeTotal)} dUSD</b></div><div className="stat"><span>Strength preview</span><b>{market.histogram?`${market.histogram.strong} strong · ${market.histogram.medium} medium · ${market.histogram.weak} weak`:"Sealed until close"}</b></div>{market.buyer&&<div className="stat"><span>Bought with this vault</span><b>{market.buyer.bought.length} options</b></div>}</div>{act&&metadata[String(market.id)]&&<LiveMarketActions market={market} metadata={metadata[String(market.id)]} eligibility={view.eligibility[String(market.id)]} positions={view.positions} disabled={busy||!!pending} reasonConfigured={!!deployment?.reasonPublicKey} onExecute={execute}/>}{(act||purchases)&&metadata[String(market.id)]&&<LiveAuctionRewards key={`${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} eligibility={view.followUp[String(market.id)]} disabled={busy||!!pending} onExecute={executeFollowUp}/>}{(act||disputes)&&metadata[String(market.id)]&&<LiveJury key={`jury/${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} cases={view.juryCases.filter(c=>c.market===market.id)} eligibility={view.jury} reporting={view.reporting[String(market.id)]} reportOptions={view.eligibility[String(market.id)].report} reportPool={view.eligibility[String(market.id)].pool} disabled={busy||!!pending} onExecute={executeJury}/>}{(act||purchases)&&metadata[String(market.id)]&&market.buyer?.bought.map(option=><LivePurchasedSignal key={`${generation.current}/${market.id}/${option}`} label={metadata[String(market.id)].options[option].label} configured={!!deployment?.committee} disabled={busy||!!pending} onOpen={offset=>openSignal(market.id,option,offset)}/>)}</article>)}</section>}
+<div className="stats live-stats"><div className="stat"><span>Scouts</span><b>{String(market.scouts)}</b></div><div className="stat"><span>Staked</span><b>{String(market.stakeTotal)} dUSD</b></div><div className="stat"><span>Strength preview</span><b>{market.histogram?`${market.histogram.strong} strong · ${market.histogram.medium} medium · ${market.histogram.weak} weak`:"Sealed until close"}</b></div>{market.buyer&&<div className="stat"><span>Bought with this vault</span><b>{market.buyer.bought.length} options</b></div>}</div>{act&&message&&!/^Finalized/.test(message)&&<p className="act-message" role="status">{message}</p>}{act&&metadata[String(market.id)]&&<LiveMarketActions market={market} metadata={metadata[String(market.id)]} eligibility={view.eligibility[String(market.id)]} positions={view.positions} disabled={busy||!!pending} reasonConfigured={!!deployment?.reasonPublicKey} onExecute={execute}/>}{(purchases||(act&&market.phase!=="open"))&&metadata[String(market.id)]&&<LiveAuctionRewards key={`${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} eligibility={view.followUp[String(market.id)]} disabled={busy||!!pending} onExecute={executeFollowUp}/>}{(disputes||(act&&market.phase!=="open"))&&metadata[String(market.id)]&&<LiveJury key={`jury/${generation.current}/${market.id}`} market={market} metadata={metadata[String(market.id)]} cases={view.juryCases.filter(c=>c.market===market.id)} eligibility={view.jury} reporting={view.reporting[String(market.id)]} reportOptions={view.eligibility[String(market.id)].report} reportPool={view.eligibility[String(market.id)].pool} disabled={busy||!!pending} onExecute={executeJury}/>}{(act||purchases)&&metadata[String(market.id)]&&market.buyer?.bought.map(option=><LivePurchasedSignal key={`${generation.current}/${market.id}/${option}`} label={metadata[String(market.id)].options[option].label} configured={!!deployment?.committee} disabled={busy||!!pending} onOpen={offset=>openSignal(market.id,option,offset)}/>)}</article>)}</section>}
       {activity&&view?.pendingReasons.map(key=><section className="acard live-note" key={key}><h2>Complete your reason delivery</h2><p>Position {key} has a saved reason awaiting confirmation. Delivery checks the finalized stake and never sends another stake.</p><button className="abtn abtn-soft" disabled={busy||!!pending||!deployment?.reasonPublicKey} onClick={()=>retryReason(key)}>Retry reason delivery</button></section>)}
+      {activity&&view&&<AdmissionIds client={connection.current?.client}/>}
       {activity&&view&&<Card title="My picks" sub="Option numbers are known only to this vault. The chain sees a stake and a sealed commitment.">{view.positions.length?<div className="tbl-wrap"><table className="tbl"><thead><tr><th>Market</th><th>Pick</th><th>Option</th><th className="num">Stake</th><th>Status</th></tr></thead><tbody>{view.positions.map(position=><tr key={position.id} style={{cursor:"default"}}><td>#{String(position.market)}</td><td>{position.slot} of 3</td><td>{metadata[String(position.market)]?.options[position.option]?.label??`Option ${position.option+1}`}</td><td className="num">{String(position.stake)} dUSD</td><td><span className="chip">{position.status}</span></td></tr>)}</tbody></table></div>:<Empty title="No picks yet.">Back an answer from a market on Home. It shows up here once the stake is final.</Empty>}</Card>}
       {message&&!/^Finalized market state loaded/.test(message)&&<p className="live-status" role="status" aria-live="polite">{message}</p>}
     </div>
@@ -303,3 +308,20 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
   </div>;
 }
 function decode(value:string){return Uint8Array.from(value.match(/../g)!,pair=>parseInt(pair,16));}
+
+/** Public admission IDs derived from this vault: operators add the scout ID to a
+ * daily group and the buyer ID to the buyer list. Only hashes leave the vault. */
+function AdmissionIds({client}:{client?:WorkspaceClient}){
+  const [ids,setIds]=useState<{scout:string;buyer:string}|null>(null);
+  async function reveal(){
+    if(!client)return;
+    const st=await client.update(s=>s);
+    const epoch=BigInt(Math.floor(Date.now()/1000))/86400n;
+    const hex=(b:Uint8Array)=>Array.from(b,x=>x.toString(16).padStart(2,"0")).join("");
+    setIds({scout:hex(persistentHash(new CompactTypeVector(2,Bytes32Descriptor),[st.secrets.scout,convertFieldToBytes(32,epoch,"epoch")])),buyer:hex(persistentHash(Bytes32Descriptor,st.secrets.buyer))});
+  }
+  return <details className="acard admission-ids" onToggle={e=>{if((e.target as HTMLDetailsElement).open&&!ids)reveal();}}>
+    <summary>Admission IDs <InfoTip text="Share these with the operators to join today's scout group or the buyer list. They are hashes; your secrets stay in the vault."/></summary>
+    {ids?<dl><div><dt>Scout ID (today)</dt><dd>{ids.scout}</dd></div><div><dt>Buyer ID</dt><dd>{ids.buyer}</dd></div></dl>:<p className="muted2">Reading your vault.</p>}
+  </details>;
+}

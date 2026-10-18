@@ -21,3 +21,4 @@ apps/web/public/contracts/
 docs/evidence/*.raw.log
 .states/
 logs/
+video/
