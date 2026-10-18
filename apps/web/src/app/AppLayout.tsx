@@ -18,7 +18,6 @@ export const menus: Record<Role, { to: string; label: string }[]> = {
   ecosystem: [
     { to: "/app", label: "Home" },
     { to: "/app/markets", label: "Markets" },
-    { to: "/app/new", label: "Create market" },
     { to: "/app/registry", label: "Teams" },
     { to: "/app/profile", label: "Standing" },
   ],
@@ -130,12 +129,12 @@ export function AppLayout() {
                 </button>
               ) : (
                 <button type="button" className="abtn abtn-red" onClick={() => (state.status === "connecting" ? null : connect())} disabled={state.status === "connecting"}>
-                  {state.status === "connecting" ? "Waiting for Lace" : "Connect Lace"}
+                  {state.status === "connecting" ? "Waiting for wallet" : "Connect wallet"}
                 </button>
               )}
               {state.status === "connecting" && state.message && (
                 <div className="ah-pop" role="status" aria-live="polite">
-                  <b>Unlock Lace to continue.</b>
+                  <b>Unlock your wallet to continue.</b>
                   <p>{state.message}</p>
                 </div>
               )}
@@ -163,10 +162,13 @@ export function AppLayout() {
                   {state.status === "missing" && (
                     <>
                       <b>No Midnight wallet found.</b>
-                      <p>Install Lace with Midnight enabled, switch it to {NETWORK_ID}, then reload. You can also explore with a demo wallet.</p>
+                      <p>Install a Midnight wallet such as Lace or 1AM, switch it to {NETWORK_ID}, then reload. You can also explore with a demo wallet.</p>
                       <div className="row">
                         <a className="abtn abtn-soft" href="https://www.lace.io/" target="_blank" rel="noreferrer">
                           Get Lace
+                        </a>
+                        <a className="abtn abtn-soft" href="https://1am.xyz/" target="_blank" rel="noreferrer">
+                          Get 1AM
                         </a>
                         <button type="button" className="abtn abtn-red" onClick={demo}>
                           Use demo wallet

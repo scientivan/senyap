@@ -55,7 +55,7 @@ export function LiveWorkspace(){
   const pending=operation&&["prepared","submitted","uncertain"].includes(operation.phase);
   async function execute(intent:MarketIntent){
     if(sending.current||busy||pending||!connection.current||!deployment)throw Error("Operation unavailable");
-    sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when Lace requests approval.");
+    sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when your wallet requests approval.");
     const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
     try{
       const next=await product.view(),market=next.markets.find(m=>m.id===intent.market),eligible=next.eligibility[String(intent.market)],blockTime=BigInt(next.anchor.blockTime),actions=createProductActions(product);
@@ -107,7 +107,7 @@ export function LiveWorkspace(){
   }
   async function executeFollowUp(intent:FollowUpIntent){
     if(sending.current||busy||pending||!connection.current)throw Error("Operation unavailable");
-    sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when Lace requests approval.");
+    sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when your wallet requests approval.");
     const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
     try{
       const next=await product.view(),market=next.markets.find(m=>m.id===intent.market),eligible=next.followUp[String(intent.market)],blockTime=BigInt(next.anchor.blockTime),actions=createProductActions(product);
@@ -140,7 +140,7 @@ export function LiveWorkspace(){
   }
   async function executeJury(intent:JuryIntent){
     if(sending.current||busy||pending||!connection.current)throw Error("Operation unavailable");
-    sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when Lace requests approval.");
+    sending.current=true;setBusy(true);setMessage("Preparing proof. Review the transaction when your wallet requests approval.");
     const current=generation.current,{product,client}=connection.current,valid=()=>alive.current&&generation.current===current;
     try{
       const next=await product.view(),market=next.markets.find(m=>m.id===intent.market),eligible=next.eligibility[String(intent.market)],reporting=next.reporting[String(intent.market)],blockTime=BigInt(next.anchor.blockTime),actions=createProductActions(product);
@@ -256,10 +256,10 @@ export function LiveWorkspace(){
     <div className="live-mode" role="group" aria-label="App data source"><Link to="/app">Demo</Link><span aria-current="page">Preprod</span></div>
     <div hidden={showWorkspace}>
       <h1>{view?"Your Preprod workspace":"Use Senyap on Preprod"}</h1>
-      <p className="live-intro">{view?"Market details come from the finalized test network. Your saved choices stay on this device.":unlocked?wallet.api?"Your wallet is connected and your private workspace is unlocked. Open live markets when a deployment is available.":"Your private workspace is unlocked. Connect Lace to continue on the test network.":"Connect Lace and unlock your private workspace to use the test network. Your saved choices stay on this device."}</p>
+      <p className="live-intro">{view?"Market details come from the finalized test network. Your saved choices stay on this device.":unlocked?wallet.api?"Your wallet is connected and your private workspace is unlocked. Open live markets when a deployment is available.":"Your private workspace is unlocked. Connect your wallet to continue on the test network.":"Connect your wallet and unlock your private workspace to use the test network. Your saved choices stay on this device."}</p>
       <section className="live-connections" aria-label="Connection requirements">
-        <Connection title="Lace wallet" status={wallet.api&&wallet.state.status==="connected"?short(wallet.state.address):"Not connected"}>
-          <p>Select Preprod in Lace, then connect your account.</p><button className="abtn abtn-soft" disabled={busy||wallet.state.status==="connecting"} onClick={()=>wallet.connect()}>{wallet.state.status==="connecting"?"Waiting for Lace":"Connect Lace"}</button>
+        <Connection title="Midnight wallet" status={wallet.api&&wallet.state.status==="connected"?short(wallet.state.address):"Not connected"}>
+          <p>Select Preprod in your wallet, then connect your account.</p><button className="abtn abtn-soft" disabled={busy||wallet.state.status==="connecting"} onClick={()=>wallet.connect()}>{wallet.state.status==="connecting"?"Waiting for your wallet":"Connect wallet"}</button>
         </Connection>
         <Connection title="Private workspace" status={unlocked?"Unlocked":"Locked"}>
           <p>{unlocked?"Your local keys are ready. Manage your workspace to save an encrypted backup or lock it.":"Unlock the choices and keys saved on this device, or create a workspace."}</p><button className="abtn abtn-soft" disabled={busy} onClick={()=>setShowWorkspace(true)}>{unlocked?"Manage workspace":"Unlock workspace"}</button>

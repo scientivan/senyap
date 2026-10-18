@@ -79,10 +79,10 @@ export function Positions() {
             <div className="field">
               <label htmlFor="claimto">Pay claims to</label>
               <input id="claimto" className="inp" value={addr} onChange={(e) => setAddr(e.target.value)} placeholder="A fresh Midnight unshielded address" />
-              <span className="hint">Leave empty to generate a fresh address in Lace at claim time.</span>
+              <span className="hint">Leave empty to generate a fresh address in your wallet at claim time.</span>
             </div>
           </Card>
-          <Note title="Back up your picks.">Picks and hit credentials are private state on this device. Lose the device and you lose the ability to prove them. Export a recovery file from Lace before clearing your browser.</Note>
+          <Note title="Back up your picks.">Picks and hit credentials are private state on this device. Lose the device and you lose the ability to prove them. Export a recovery file from your wallet before clearing your browser.</Note>
         </div>
       </div>
       {toast}

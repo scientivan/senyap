@@ -49,7 +49,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           if (!/locked/i.test(msg) || tries >= 60 || attempt.current !== currentAttempt) throw e;
-          setState({ status: "connecting", message: "Lace is locked. Open the Lace extension and unlock it. Senyap continues automatically." });
+          setState({ status: "connecting", message: "Your wallet is locked. Open the wallet extension and unlock it. Senyap continues automatically." });
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
@@ -61,8 +61,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setApi(null);
       const msg = e instanceof Error ? e.message : String(e);
       setState({ status: "error", message: /reject|denied|cancel/i.test(msg) ? "You closed the wallet request. Try again when ready."
-        : /locked/i.test(msg) ? "Lace is still locked. Unlock it in the extension, then try again."
-        : /shutdown|no longer be used/i.test(msg) ? "Lace restarted after this page loaded. Reload the page, then connect again."
+        : /locked/i.test(msg) ? "Your wallet is still locked. Unlock it in the extension, then try again."
+        : /shutdown|no longer be used/i.test(msg) ? "Your wallet restarted after this page loaded. Reload the page, then connect again."
         : `The wallet could not connect to ${NETWORK_ID}. ${msg}` });
     }
   };

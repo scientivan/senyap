@@ -77,7 +77,7 @@ export function Workspace({onSession,embedded=false}:{onSession?:(session:Worksp
             <button type="button" disabled={busy} onClick={() => setShow(!show)} aria-controls="vault-password" aria-pressed={show}>{show ? "Hide" : "Show"}</button></div>
         </div>
         <p className="vault-hint" id="vault-hint">{mode === "create" ? "Use at least 16 characters with three of uppercase letters, lowercase letters, numbers and symbols. Avoid repeated characters and sequences."
-          : "Use the password you created for this workspace. This is separate from your Lace password."}</p>
+          : "Use the password you created for this workspace. This is separate from your wallet password."}</p>
         {mode === "create" && <div className="field"><label htmlFor="vault-confirmation">Confirm password</label><input className="inp" id="vault-confirmation" name="confirmation" type="password" autoComplete="new-password" required disabled={busy}/></div>}
         <button className="abtn abtn-red vault-action" type="submit" disabled={busy}>{busy ? "Opening workspace" : mode === "create" ? "Create workspace" : mode === "restore" ? "Restore workspace" : "Unlock workspace"}<Arrow/></button>
       </form>
@@ -87,7 +87,7 @@ export function Workspace({onSession,embedded=false}:{onSession?:(session:Worksp
       <button type="button" className="vault-link" disabled={busy} onClick={lock}>Lock workspace</button>
     </section>}
     <div id="vault-status" className="vault-status" role="status" aria-live="polite">{message}</div>
-    <section className="vault-note"><h2>Your wallet and private workspace are separate</h2><p>Lace handles transactions. This password protects your local keys. Clearing browser data removes the local copy, so keep an encrypted backup. Leaving this page locks the workspace.</p>
+    <section className="vault-note"><h2>Your wallet and private workspace are separate</h2><p>Your Midnight wallet handles transactions. This password protects your local keys. Clearing browser data removes the local copy, so keep an encrypted backup. Leaving this page locks the workspace.</p>
       {!unlocked && <button type="button" className="abtn abtn-soft" disabled={busy} onClick={() => choose(mode === "restore" ? "unlock" : "restore")}>{mode === "restore" ? "Back to unlock" : "Restore encrypted backup"}</button>}
     </section>
     {!embedded&&<><Link className="vault-link" to="/app">Continue with labelled demo data</Link>
