@@ -105,7 +105,7 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
     }catch(e){
       console.error("[senyap] action failed",e);
       const detail=e instanceof Error?e.message:String(e);
-      if(valid()){try{setOperation(await client.journal.get());}catch{}setMessage(`The action did not finish: ${detail.slice(0,160)}`);}
+      if(valid()){try{setOperation(await client.journal.get());}catch{}setMessage(`The action did not finish: ${detail.slice(0,600)}`);}
       throw Error("Operation needs review");
     }finally{sending.current=false;if(valid())setBusy(false);}
   }

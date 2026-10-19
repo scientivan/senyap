@@ -13,7 +13,7 @@ vi.mock("../../apps/web/node_modules/@midnight-ntwrk/midnight-js-fetch-zk-config
 vi.mock("@midnight-ntwrk/midnight-js-indexer-public-data-provider",()=>({indexerPublicDataProvider:()=>({queryContractState:sdk.query,watchForTxData:sdk.watch})}));
 vi.mock("../../packages/sdk/src/snapshot",()=>({createSnapshotReader:()=>sdk.snapshot}));
 import {prepareProductClient} from "../../apps/web/src/app/product-client";
-const address="11".repeat(32),txId="ab".repeat(32);
+const address="11".repeat(32),txId="00"+"ab".repeat(32); // Midnight transaction identifiers are 66 hex characters.
 async function fixture(){
   let state=await createClientState({scout:new Uint8Array(32).fill(1),buyer:new Uint8Array(32).fill(2),builder:new Uint8Array(32).fill(3),verifier:new Uint8Array(32).fill(4)},{network:"preprod",contract:address});
   let operation:ClientOperation|null=null,account="mn_addr_preprod1synthetic",storageFails=false;

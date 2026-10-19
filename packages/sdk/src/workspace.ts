@@ -11,6 +11,9 @@ const marker = "senyap-workspace-v1";
 const stateId = "profile";
 const hex = (bytes: Uint8Array) => Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
 const validId = (id: string | null): id is string => !!id && /^[a-f0-9]{32}$/.test(id);
+// Midnight transaction identifiers are 66 hex characters (a 1-byte tag plus a
+// 32-byte hash); accept the bare 64-character hash too.
+export const validTxId = (txId: string) => /^(?:[a-f0-9]{2})?[a-f0-9]{64}$/.test(txId);
 export const workspaceExists = () => validId(localStorage.getItem(marker));
 export function workspacePasswordValid(value: string): boolean {
   return value.length >= 16 && [/[A-Z]/, /[a-z]/, /[0-9]/, /[^A-Za-z0-9]/].filter(r => r.test(value)).length >= 3;
@@ -99,7 +102,7 @@ export async function openWorkspace(mode: "create" | "unlock" | "restore", passw
             return {id,kind,phase:"prepared"};
           }),
           submitted:(id,txId)=>journalChange(current=>{
-            if(!current||current.id!==id||current.phase!=="prepared"||!/^[a-f0-9]{64}$/.test(txId))throw Error("Operation submission mismatch");
+            if(!current||current.id!==id||current.phase!=="prepared"||!validTxId(txId))throw Error("Operation submission mismatch");
             return {...current,phase:"submitted",txId};
           }),
           finish:(id,phase,txId)=>journalChange(current=>{
