@@ -107,7 +107,8 @@ async function gated(target:string,commitment?:string):Promise<GatedCall>{
   if(target==="market")return {circuit:"createSideBMarket",id,config};
   const {group,config:groupConfig}=await scoutGroup();
   if(target==="group")return {circuit:"configureScoutGroup",group,config:groupConfig};
-  if(target==="admit-buyer")return {circuit:"admitBuyer",commitment:persistentHash(Bytes32Descriptor,(await buyer()).secrets.buyer)};
+  // A real buyer shares the buyer ID from their vault; otherwise admit the synthetic buyer.
+  if(target==="admit-buyer")return {circuit:"admitBuyer",commitment:commitment?bytes(commitment):persistentHash(Bytes32Descriptor,(await buyer()).secrets.buyer)};
   if(target==="admit"){assert(commitment&&/^[a-f0-9]{64}$/.test(commitment),"Scout commitment required");return {circuit:"admitScout",group,commitment:bytes(commitment)};}
   throw Error("Target not allowed");
 }
@@ -149,7 +150,7 @@ async function prove(body:Body){
   }else if(body.step==="create"){circuitId="createSideBMarket";args=[id,config];}
   else if(body.step==="group"){const g=await scoutGroup();circuitId="configureScoutGroup";args=[g.group,g.config];}
   else if(body.step==="admit"){const g=await scoutGroup();circuitId="admitScout";args=[g.group,bytes(commitmentFor(body)!)];}
-  else if(body.step==="admit-buyer"){circuitId="admitBuyer";args=[persistentHash(Bytes32Descriptor,(await buyer()).secrets.buyer)];}
+  else if(body.step==="admit-buyer"){const c=commitmentFor(body);circuitId="admitBuyer";args=[c?bytes(c):persistentHash(Bytes32Descriptor,(await buyer()).secrets.buyer)];}
   else if(body.step==="buy"){
     state=await preparePrivateBuyer(await buyer(),{market:id,blockTime:nowSeconds()});await saveBuyer(state);
     circuitId="buyFlat";args=[id,0n];

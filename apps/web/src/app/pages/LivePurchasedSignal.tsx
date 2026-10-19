@@ -42,3 +42,30 @@ export function LivePurchasedSignal({label,configured,disabled,onOpen}:{label:st
     <p>Opening or retrying requests the signal only. It does not send a payment.</p>
   </section>;
 }
+
+/** One table row per paid option on the Purchases page. Opening reads the
+ * signal only; it never sends a payment. Results stay in memory. */
+export function PurchasedSignalRow({market,question,label,price,configured,disabled,onOpen}:{market:string;question:string;label:string;price:string;configured:boolean;disabled:boolean;onOpen:(offset:number)=>Promise<Signal>}){
+  const [signal,setSignal]=useState<DisplaySignal|null>(null),[busy,setBusy]=useState(false),[failed,setFailed]=useState(false),[open,setOpen]=useState(false);
+  const alive=useRef(true),reading=useRef(false);
+  useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+  async function read(){
+    if(reading.current||disabled||!configured)return;
+    reading.current=true;setBusy(true);setFailed(false);
+    try{const next=await onOpen(0);if(alive.current){setSignal(next);setOpen(true);}}
+    catch{if(alive.current)setFailed(true);}
+    finally{reading.current=false;if(alive.current)setBusy(false);}
+  }
+  const reasons=signal?.reasonsAvailable?signal.reasons:[];
+  return <>
+    <tr style={{cursor:"default"}}>
+      <td>#{market}</td><td>{question}</td><td>{label}</td><td className="num">{price} dUSD</td>
+      <td className="num">{signal?<button type="button" className="abtn abtn-soft abtn-sm" onClick={()=>setOpen(o=>!o)}>Weight {String(signal.total)}{reasons.length?`, ${reasons.length} reason${reasons.length>1?"s":""}`:""}</button>
+        :<button type="button" className="abtn abtn-red abtn-sm" disabled={disabled||busy||!configured} onClick={read}>{busy?"Opening":failed?"Try again":"Open signal"}</button>}</td>
+    </tr>
+    {signal&&open&&<tr style={{cursor:"default"}}><td colSpan={5}>
+      {reasons.length?<ol className="signal-reasons">{reasons.map((r,i)=><li key={i}>{r.rewritten}</li>)}</ol>
+        :<p className="muted2">{signal.reasonsAvailable?"No screened reasons for this option.":"Reasons are unavailable right now. Open again later; you will not pay twice."}</p>}
+    </td></tr>}
+  </>;
+}

@@ -1,0 +1,55 @@
+{
+  "network": "preprod",
+  "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
+  "id": "7",
+  "question": "Which ecosystem gives a privacy app team the most useful audit support this quarter?",
+  "options": [
+    "Midnight",
+    "Cardano",
+    "Independent privacy fund"
+  ],
+  "metadata": {
+    "version": 1,
+    "side": "B",
+    "category": "0d324b27cbde19f83d70908b7ad974c9a57ab5acc85afb46b569792f1c6381c0",
+    "question": "Which ecosystem gives a privacy app team the most useful audit support this quarter?",
+    "options": [
+      {
+        "reference": "a7347e10ea348d75a2c835edea88e569375d849610ae4a48ab8c2b34931dc4df",
+        "label": "Midnight"
+      },
+      {
+        "reference": "9db7a46a8ee90feb700dcea3e93bff8e7fa9ff5e6e36a603d8757d8cf6a100e4",
+        "label": "Cardano"
+      },
+      {
+        "reference": "d5a3b6a726f3b0fd07de0780120229b8cb2c321393dc0ca08a85b5b0bb04508e",
+        "label": "Independent privacy fund"
+      }
+    ]
+  },
+  "config": {
+    "subjective": false,
+    "side": "1",
+    "category": "0d324b27cbde19f83d70908b7ad974c9a57ab5acc85afb46b569792f1c6381c0",
+    "questionHash": "6af8407af469075f857a9b784bfd5150e3cd10c33487868bf15263357f8c01da",
+    "questionUri": "senyap://preprod/market/7",
+    "nOptions": "3",
+    "optionRefs": [
+      "a7347e10ea348d75a2c835edea88e569375d849610ae4a48ab8c2b34931dc4df",
+      "9db7a46a8ee90feb700dcea3e93bff8e7fa9ff5e6e36a603d8757d8cf6a100e4",
+      "d5a3b6a726f3b0fd07de0780120229b8cb2c321393dc0ca08a85b5b0bb04508e",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "openAt": "1792378867",
+    "openUntil": "1792380487",
+    "auctionUntil": "1792380487",
+    "outcomeUntil": "1792384087",
+    "flatPrice": "10",
+    "reservePrice": "0"
+  }
+}
