@@ -3,6 +3,7 @@ import {useCallback,useEffect,useRef,useState} from "react";
 import type {WorkspaceSession,WorkspaceClient} from "@senyap/sdk/workspace";
 import type {ClientOperation} from "@senyap/sdk/operation";
 import {abandonUnsubmittedOperation} from "@senyap/sdk/operation";
+import {dropUnsentPosition} from "@senyap/sdk/reason-delivery";
 import type {MarketMetadata} from "@senyap/sdk/market-metadata";
 import {fetchMarketMetadata} from "@senyap/sdk/market-metadata";
 import {createProductActions} from "@senyap/sdk/actions";
@@ -82,6 +83,8 @@ export function LiveWorkspace({section,market}:{section:LiveSection;market?:stri
       if(intent.kind==="stake"){
         const membership=eligible.stake.find(item=>item.option===intent.option);
         if(!membership||!deployment.reasonPublicKey)throw Error("Membership or reason service unavailable");
+        const pendingOperation=await client.journal.get();
+        if(!pendingOperation||["finalized","failed","not-submitted"].includes(pendingOperation.phase)){const ledger=await product.read();await client.update(s=>dropUnsentPosition(s,ledger,intent.market,BigInt(membership.slot)));}
         await actions.stake({market:intent.market,slot:BigInt(membership.slot),group:decode(membership.group),option:BigInt(intent.option),amount:intent.amount,reason:intent.reason,blockTime});
         if(valid())setMessage("Stake confirmed. Delivering the encrypted reason.");
         try{await product.deliverReason(intent.market,BigInt(membership.slot),deployment.operatorApi,decode(deployment.reasonPublicKey));if(valid())setMessage("Stake confirmed and reason screened.");}

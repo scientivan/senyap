@@ -14,6 +14,16 @@ export function saveStakeReason(state:ClientPrivateState,market:bigint,slot:bigi
   if(previous&&previous.text!==text)throw Error("Saved reason cannot be replaced during retry");
   return {...state,reasons:{...state.reasons,[id]:previous??{text,delivered:false}}};
 }
+/** A stake that was never sent leaves its prepared position and reason in the
+ * vault, and retries must not change either. Call only when no operation is in
+ * flight: it drops the saved position for this slot unless finalized state shows
+ * it on chain, so the next attempt can choose a new option or reason. */
+export function dropUnsentPosition(state:ClientPrivateState,ledger:Ledger,market:bigint,slot:bigint):ClientPrivateState{
+  const id=`${market}/${slot}`;if(!state.positions[id])return state;
+  if(ledger.positions.member(scoutPositionId(state.secrets.scout,state.contract,market,slot)))return state;
+  const {[id]:_position,...positions}=state.positions,{[id]:_reason,...reasons}=state.reasons??{};
+  return {...state,positions,reasons};
+}
 /** Delivery never calls a wallet or a circuit. Fresh finalized state must show
  * the saved position before its encrypted reason can cross the service boundary. */
 export async function deliverStakeReason(input:{client:Pick<WorkspaceClient,"update">&{provider:Pick<WorkspaceClient["provider"],"get">};market:bigint;slot:bigint;endpoint:string;operatorKey:Uint8Array;read:()=>Promise<{state:Ledger;blockTime:bigint}>;fetcher?:typeof fetch}){

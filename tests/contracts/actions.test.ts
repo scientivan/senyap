@@ -8,7 +8,7 @@ import {setupAuction} from "../helpers/auction";
 import {setupSideB,preview} from "../helpers/side-b";
 import {bytes,group,hash,commitment,committee,setupGroups} from "./harness";
 import {marketMetadataHash} from "../../packages/sdk/src/market-metadata";
-import {deliverStakeReason,saveStakeReason} from "../../packages/sdk/src/reason-delivery";
+import {deliverStakeReason,dropUnsentPosition,saveStakeReason} from "../../packages/sdk/src/reason-delivery";
 import {generateBuyerKey} from "../../packages/crypto/src/buyer-channel";
 import {openReason} from "../../packages/crypto/src/reason";
 import {envelopeFromWire} from "../../packages/crypto/src/envelope-codec";
@@ -76,6 +76,11 @@ describe("product action preparation against actual circuits",()=>{
     await actions.stake({market:1n,group,slot:1n,option:2n,amount:100n,blockTime:1000n,reason:text});
     const client:Parameters<typeof deliverStakeReason>[0]["client"]={provider:{get:async()=>host.context.currentPrivateState},update:async change=>{const next=await change(host.context.currentPrivateState);host.context={...host.context,currentPrivateState:next};return next;}};
     expect(()=>saveStakeReason(host.context.currentPrivateState,1n,1n,"Changed reason")).toThrow(/cannot be replaced/);
+    // A finalized position is kept; a prepared one that never reached the chain is dropped with its reason.
+    expect(dropUnsentPosition(host.context.currentPrivateState,host.state,1n,1n)).toBe(host.context.currentPrivateState);
+    const unsent=saveStakeReason(await preparePrivateStake(host.context.currentPrivateState,{market:1n,slot:2n,group,option:1n,blockTime:1000n}),1n,2n,"Never sent");
+    const dropped=dropUnsentPosition(unsent,host.state,1n,2n);
+    expect(dropped.positions["1/2"]).toBeUndefined();expect(dropped.reasons?.["1/2"]).toBeUndefined();expect(dropped.positions["1/1"]).toBeDefined();
     const operator=await generateBuyerKey();let requests=0;
     const deliver=()=>deliverStakeReason({client,market:1n,slot:1n,endpoint:"http://127.0.0.1:3001",operatorKey:operator.publicKey,read:async()=>({state:host.state,blockTime:1000n}),fetcher:async(_url,options)=>{
       requests++;const wire=String(options!.body);expect(wire).not.toContain(text);const value=JSON.parse(wire);
