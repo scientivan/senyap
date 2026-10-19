@@ -77,10 +77,10 @@ export function MarketDetail() {
             </Card>
           )}
 
-          {stakeOpen && <HistoryCard marketLabel={`#${m.id}`} />}
+          {stakeOpen && <HistoryCard market={String(m.id)} />}
         </div>
       </div>
-      {!stakeOpen && <div className="mt16"><HistoryCard marketLabel={`#${m.id}`} /></div>}
+      {!stakeOpen && <div className="mt16"><HistoryCard market={String(m.id)} /></div>}
       {toast}
     </>
   );
@@ -179,13 +179,27 @@ function WorkspaceCard({ title, sub }: { title: string; sub: string }) {
 }
 
 /** Contract call history from the indexer, newest first. */
-export function HistoryCard({ marketLabel }: { marketLabel?: string }) {
+type RecordedCall = { call: string; tx: string; height: number; time: number };
+export function HistoryCard({ market }: { market?: string }) {
   const s = useStore();
   const [items, setItems] = useState<HistoryItem[] | null>(null);
+  const [own, setOwn] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  useEffect(() => { if (s.contract) history(s.contract, 8).then(setItems, (e) => setErr(e instanceof Error ? e.message : String(e))); }, [s.contract]);
+  useEffect(() => {
+    if (!s.contract) return;
+    // The chain does not say which market a call belongs to. A market page lists
+    // its own calls when a finalized market journal names them; otherwise it shows
+    // the latest calls across every market and says so.
+    (async () => {
+      const recorded: Record<string, RecordedCall[]> = market ? await fetch("/contracts/preprod-market-activity.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})) : {};
+      const mine = market ? recorded[market] : undefined;
+      if (mine?.length) { setOwn(true); setItems([...mine].reverse().map((i) => ({ circuit: i.call, tx: i.tx, height: i.height, time: i.time }))); return; }
+      setItems(await history(s.contract!, 8));
+    })().catch((e) => setErr(e instanceof Error ? e.message : String(e)));
+  }, [s.contract, market]);
+  const scoped = market !== undefined;
   return (
-    <Card title="Contract activity" sub={marketLabel ? `Latest calls on the Senyap contract. Calls are public; picks and identities are not.` : "Latest calls on the Senyap contract."}>
+    <Card title={scoped && !own ? "Contract activity, all markets" : "Contract activity"} sub={scoped ? (own ? "Every call in this market, newest first. Calls are public; picks and identities are not." : "Latest calls across every market. The chain does not say which market a call belongs to.") : "Latest calls on the Senyap contract."}>
       {err ? <p className="muted2">{err}</p> : !items ? <p className="muted2">Reading the indexer.</p> : (
         <div className="tbl-wrap">
           <table className="tbl">

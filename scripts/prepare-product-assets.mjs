@@ -27,3 +27,7 @@ if(deploy?.status==="completed")await writeFile("apps/web/public/contracts/prepr
 const marketPlans=["docs/evidence/P9.9-market-plan.json","docs/evidence/F5-market-2-plan.json","docs/evidence/F5-market-3-plan.json","docs/evidence/F5-market-4-plan.json","docs/evidence/F5-market-5-plan.json","docs/evidence/F5-market-6-plan.json"];
 const published=[];for(const f of marketPlans){const p=JSON.parse(await readFile(f,"utf8").catch(()=>"null"));if(p)published.push({id:p.id,question:p.question,options:p.options,...(p.metadata?{metadata:p.metadata}:{})});}
 await writeFile("apps/web/public/contracts/preprod-markets.json",JSON.stringify(published,null,2)+"\n");
+// Per-market transaction lists from finalized market journals. The indexer does not
+// say which market a call belongs to, so a market page shows only these hashes.
+const activity={};for(const f of (await readdir("docs/evidence")).filter(n=>/^F5-preprod-market-\d+-journal\.json$/.test(n))){const j=JSON.parse(await readFile(`docs/evidence/${f}`,"utf8"));if(Array.isArray(j.transactions)&&j.marketId)activity[j.marketId]=j.transactions.map(t=>({call:t.call,tx:t.transactionHash,height:t.block,time:Date.parse(t.time)}));}
+await writeFile("apps/web/public/contracts/preprod-market-activity.json",JSON.stringify(activity,null,2)+"\n");
