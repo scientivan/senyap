@@ -76,7 +76,7 @@ pnpm build
 ### Preprod transaction evidence
 
 <!-- preprod-evidence:start -->
-**82 finalized calls on the Preprod contract** (deploy 1, maintenance update 7, stakeOperator 3, stakeCommittee 5, voteOperatorAction 30, createSideBMarket 3, configureScoutGroup 1, admitScout 5, stake 10, admitBuyer 1, close 1, postPreview 3, buyFlat 1, recordOutcome 1, proveHit 5, claim 5). Full list with hashes: [docs/evidence/PREPROD-EVIDENCE.md](docs/evidence/PREPROD-EVIDENCE.md).
+**135 finalized calls on the Preprod contract** (deploy 1, maintenance update 7, stakeOperator 3, stakeCommittee 5, voteOperatorAction 63, createSideBMarket 6, configureScoutGroup 2, admitScout 11, stake 20, admitBuyer 1, close 1, postPreview 3, buyFlat 1, recordOutcome 1, proveHit 5, claim 5). Full list with hashes: [docs/evidence/PREPROD-EVIDENCE.md](docs/evidence/PREPROD-EVIDENCE.md).
 
 | Step | First transaction hash | Block |
 | --- | --- | --- |

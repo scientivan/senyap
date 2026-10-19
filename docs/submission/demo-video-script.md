@@ -34,7 +34,7 @@ hash in the Contract activity card and match it to
 | 1:20–1:35 | 8. Buyer pays | Buy a signal, approve; Purchases shows the opened total | The buyer pays per option and decrypts it on their own device. | Decrypted only for the payer |
 | 1:35–1:52 | 9. Outcome, win, claim | Market #3: outcome, hits and claims; `proveHit`, `claim` hashes | Winning scouts prove it without opening any miss, then claim. | `proveHit` · a win is proven, a miss is never opened |
 | 1:52–2:30 | 10. How it is built | Four short panels, one per criterion (below) | See panel captions | See panel callouts |
-| 2:30–2:46 | 11. Proof it runs | PREPROD-EVIDENCE.md scrolling, contract address | Every step above is a finalized Midnight Preprod transaction. | 80+ transactions · indexer-verified |
+| 2:30–2:46 | 11. Proof it runs | PREPROD-EVIDENCE.md scrolling, contract address | Every step above is a finalized Midnight Preprod transaction. | 135 transactions · indexer-verified |
 | 2:46–3:00 | 12. Close | End card | Private picks. Sealed totals. Anonymous payouts. | Senyap, built on Midnight |
 
 Total **3:00**.
