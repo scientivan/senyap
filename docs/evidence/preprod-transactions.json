@@ -2,22 +2,22 @@
   "network": "preprod",
   "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9",
   "source": "Blockfrost Midnight indexer, contract(address).actions",
-  "exportedAt": "2026-10-19T01:48:06.658Z",
-  "total": 135,
+  "exportedAt": "2026-10-19T03:41:47.869Z",
+  "total": 157,
   "byCall": {
     "deploy": 1,
     "maintenance update": 7,
     "stakeOperator": 3,
     "stakeCommittee": 5,
-    "voteOperatorAction": 63,
-    "createSideBMarket": 6,
+    "voteOperatorAction": 69,
+    "createSideBMarket": 7,
     "configureScoutGroup": 2,
     "admitScout": 11,
-    "stake": 20,
-    "admitBuyer": 1,
-    "close": 1,
-    "postPreview": 3,
-    "buyFlat": 1,
+    "stake": 25,
+    "admitBuyer": 2,
+    "close": 3,
+    "postPreview": 9,
+    "buyFlat": 2,
     "recordOutcome": 1,
     "proveHit": 5,
     "claim": 5
@@ -832,6 +832,138 @@
       "transactionHash": "4a0d486d9424da4fde1ea3795070379aaeb958eef77fd664721563b2adbf1966",
       "block": 3042412,
       "time": "2026-10-19T01:37:18.000Z"
+    },
+    {
+      "call": "close",
+      "transactionHash": "7735eb6ad5b0e9b62e4b13a74d2acfe5a8a09034a623805d83a1145a26619df9",
+      "block": 3042967,
+      "time": "2026-10-19T02:37:48.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "d1324772080d22b09fa541b36ad7c33051e5e8b7349a6ec98fc2a4bd3fdcf14c",
+      "block": 3042976,
+      "time": "2026-10-19T02:38:42.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "e9ed047768e25e5bc37aaa26d21a299d2060caafdfdc4d1d7a29fc9ddb84a1ae",
+      "block": 3042983,
+      "time": "2026-10-19T02:39:30.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "1785bc150936bd1430ca07212835c070d3fecd53796438735adf3c11463fb67d",
+      "block": 3043032,
+      "time": "2026-10-19T02:44:48.000Z"
+    },
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "358daabee61a1b377fcb03744b2d4b470755b0cd7c7cfe53bc717a1e9831c6ad",
+      "block": 3043039,
+      "time": "2026-10-19T02:45:30.000Z"
+    },
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "49f49e7ac61b4c54a33e9171f31a9e592840e2345f1712a978d595e838dc9235",
+      "block": 3043047,
+      "time": "2026-10-19T02:46:18.000Z"
+    },
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "b411a156d085c5805d1d640f562f80bdf839ee766acb69771e9e66ee2bfc2348",
+      "block": 3043054,
+      "time": "2026-10-19T02:47:06.000Z"
+    },
+    {
+      "call": "admitBuyer",
+      "transactionHash": "773d65c4afc579dff2792f1f3dddd2e4904631c8cd3277844f9fc0d485bc84e4",
+      "block": 3043062,
+      "time": "2026-10-19T02:48:06.000Z"
+    },
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "1b872163d4e9d523fd588a6bffff44603a9d4653fbad7ecd7337388141a08d8d",
+      "block": 3043208,
+      "time": "2026-10-19T03:03:42.000Z"
+    },
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "182ca3f0d38afcbbee4cc942cfd9c12f7834820c0cf4a3b54dc69279bef89a56",
+      "block": 3043215,
+      "time": "2026-10-19T03:04:24.000Z"
+    },
+    {
+      "call": "voteOperatorAction",
+      "transactionHash": "3ac6355d33522d43ec04ea9e1940784e8a182a95124afd4aa92a3cb635c87fa1",
+      "block": 3043221,
+      "time": "2026-10-19T03:05:06.001Z"
+    },
+    {
+      "call": "createSideBMarket",
+      "transactionHash": "d763403b2dcc377791fcce41f00bdfb02a73d2c42fce793f3326edaf5d7f9210",
+      "block": 3043230,
+      "time": "2026-10-19T03:06:06.000Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "7183da0ecdfbe1837a87bc481acadaf8c88f7aabaf56a9054ec838c22d151bbf",
+      "block": 3043269,
+      "time": "2026-10-19T03:10:12.001Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "e1b4e51977bf14e2f7ae898d92902f655bb00b52954597dae9491006eefc51e3",
+      "block": 3043282,
+      "time": "2026-10-19T03:11:36.000Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "cece0c15b870b19a596a2873a17ea355f9cda65f7b61c09116034f8dacfe6e1d",
+      "block": 3043294,
+      "time": "2026-10-19T03:13:06.000Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "eb6d0bc10d359aead12807a808675a9bdf9ec2e237cecb65c37c263f7b5f1cee",
+      "block": 3043308,
+      "time": "2026-10-19T03:14:30.000Z"
+    },
+    {
+      "call": "stake",
+      "transactionHash": "6cfc1ce6b87dd3aab5f2a1c7237bc216e54e3972ec32a694a249796a37b4286c",
+      "block": 3043367,
+      "time": "2026-10-19T03:20:54.000Z"
+    },
+    {
+      "call": "close",
+      "transactionHash": "6b007d3686c83e675d812afd3982b896956d267d19d9b493c0f811e4cdb7b2c9",
+      "block": 3043447,
+      "time": "2026-10-19T03:29:36.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "418af6950e31be7f55a24370d791c934c7b948d3d9d71dd3721a2447fad548c5",
+      "block": 3043457,
+      "time": "2026-10-19T03:30:36.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "20482739e22100516cb3efb86386bc571c180ddfdb97244e0c22452b9bead97b",
+      "block": 3043466,
+      "time": "2026-10-19T03:31:42.000Z"
+    },
+    {
+      "call": "postPreview",
+      "transactionHash": "32a8c6ff6aa3f6d45f5e670fd38357c13f436c18db4306cdb3e536e273cfb17d",
+      "block": 3043473,
+      "time": "2026-10-19T03:32:30.000Z"
+    },
+    {
+      "call": "buyFlat",
+      "transactionHash": "3005af60f19e2db3d0c33ad9f166f50072e9bdd611e2bc01c59e93108721cd64",
+      "block": 3043506,
+      "time": "2026-10-19T03:36:00.000Z"
     }
   ]
 }

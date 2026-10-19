@@ -1,6 +1,6 @@
 # Senyap on Midnight Preprod: transaction evidence
 
-Contract `a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9` on Midnight Preprod. Every row is a finalized call read from the Blockfrost Midnight indexer (`contract(address).actions`), exported 2026-10-19T01:48:06.658Z. Total 135 contract calls.
+Contract `a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9` on Midnight Preprod. Every row is a finalized call read from the Blockfrost Midnight indexer (`contract(address).actions`), exported 2026-10-19T03:41:47.869Z. Total 157 contract calls.
 
 The demo dUSD token contract is `e5ac20e387eb75b7357f19a309e8826e2849f60e1d63208d4514a8f3d716681e` (deploy and mint transactions are in [the deploy journal](P9.7-preprod-deploy-journal.json)).
 
@@ -36,7 +36,7 @@ Operators and committee members lock 500 dUSD each.
 | stakeCommittee | `15e6d184a9f67d1544d33293cbd331850b1fb037d28873056efef398f227ecab` | 3032434 | 2026-10-18 08:34:00 |
 | stakeCommittee | `96e3f28c93d857db339d5f197968f2de85abae0aeaf7441b8c3b8ebeada35344` | 3032450 | 2026-10-18 08:35:36 |
 
-## Operator approvals (63)
+## Operator approvals (69)
 
 Three of five operators approve each gated action.
 
@@ -105,8 +105,14 @@ Three of five operators approve each gated action.
 | voteOperatorAction | `0a65f53192fd2c69a8eac6f584012bdb9f0ef958119793b0e4fa78bf98e9addf` | 3042363 | 2026-10-19 01:32:12 |
 | voteOperatorAction | `5ae53b3e538b853e953d336e39f4fbd9a4b1ef042136233228cc6981823356b7` | 3042371 | 2026-10-19 01:33:00 |
 | voteOperatorAction | `187f5ea04158f0d4cc17c09bffe37603e74b3d70b4da3eee77d742765e663b50` | 3042379 | 2026-10-19 01:33:54 |
+| voteOperatorAction | `358daabee61a1b377fcb03744b2d4b470755b0cd7c7cfe53bc717a1e9831c6ad` | 3043039 | 2026-10-19 02:45:30 |
+| voteOperatorAction | `49f49e7ac61b4c54a33e9171f31a9e592840e2345f1712a978d595e838dc9235` | 3043047 | 2026-10-19 02:46:18 |
+| voteOperatorAction | `b411a156d085c5805d1d640f562f80bdf839ee766acb69771e9e66ee2bfc2348` | 3043054 | 2026-10-19 02:47:06 |
+| voteOperatorAction | `1b872163d4e9d523fd588a6bffff44603a9d4653fbad7ecd7337388141a08d8d` | 3043208 | 2026-10-19 03:03:42 |
+| voteOperatorAction | `182ca3f0d38afcbbee4cc942cfd9c12f7834820c0cf4a3b54dc69279bef89a56` | 3043215 | 2026-10-19 03:04:24 |
+| voteOperatorAction | `3ac6355d33522d43ec04ea9e1940784e8a182a95124afd4aa92a3cb635c87fa1` | 3043221 | 2026-10-19 03:05:06 |
 
-## Markets and groups (20)
+## Markets and groups (22)
 
 Side B markets, daily scout group, scout and buyer admission.
 
@@ -132,8 +138,10 @@ Side B markets, daily scout group, scout and buyer admission.
 | admitScout | `3587b6586457b683f260c567d9549d3a71f426c88d431d09d0c3e55ca34b3601` | 3042025 | 2026-10-19 00:55:18 |
 | createSideBMarket | `1bee769a983cae19014175ba4a12d814a9bf72681c572a7b60e17270d6dd41ca` | 3042056 | 2026-10-19 00:58:42 |
 | createSideBMarket | `e5c80cbdb85c58648edbe41fefd9b9a104c20df9ac52545f93b141923f0c5e4e` | 3042388 | 2026-10-19 01:34:48 |
+| admitBuyer | `773d65c4afc579dff2792f1f3dddd2e4904631c8cd3277844f9fc0d485bc84e4` | 3043062 | 2026-10-19 02:48:06 |
+| createSideBMarket | `d763403b2dcc377791fcce41f00bdfb02a73d2c42fce793f3326edaf5d7f9210` | 3043230 | 2026-10-19 03:06:06 |
 
-## Sealed picks (20)
+## Sealed picks (25)
 
 Scouts stake on a private option.
 
@@ -159,8 +167,13 @@ Scouts stake on a private option.
 | stake | `a5806bd43c98cb0c904894626b7bde19c462cba9408e270287d2927dc429044c` | 3042118 | 2026-10-19 01:05:30 |
 | stake | `dd628d0153fe346fa211e1c03f9a451111bb87a22dd42d2bd1f297686fee4ad6` | 3042289 | 2026-10-19 01:23:54 |
 | stake | `4a0d486d9424da4fde1ea3795070379aaeb958eef77fd664721563b2adbf1966` | 3042412 | 2026-10-19 01:37:18 |
+| stake | `7183da0ecdfbe1837a87bc481acadaf8c88f7aabaf56a9054ec838c22d151bbf` | 3043269 | 2026-10-19 03:10:12 |
+| stake | `e1b4e51977bf14e2f7ae898d92902f655bb00b52954597dae9491006eefc51e3` | 3043282 | 2026-10-19 03:11:36 |
+| stake | `cece0c15b870b19a596a2873a17ea355f9cda65f7b61c09116034f8dacfe6e1d` | 3043294 | 2026-10-19 03:13:06 |
+| stake | `eb6d0bc10d359aead12807a808675a9bdf9ec2e237cecb65c37c263f7b5f1cee` | 3043308 | 2026-10-19 03:14:30 |
+| stake | `6cfc1ce6b87dd3aab5f2a1c7237bc216e54e3972ec32a694a249796a37b4286c` | 3043367 | 2026-10-19 03:20:54 |
 
-## Close and committee preview (4)
+## Close and committee preview (12)
 
 Keeper closes, three committee members post the histogram.
 
@@ -170,8 +183,16 @@ Keeper closes, three committee members post the histogram.
 | postPreview | `d246ad2a3ccd541ba59e3f88be2b149e290a81d315ce905ab73e012fc0ce218f` | 3037466 | 2026-10-18 16:57:12 |
 | postPreview | `d101d420831a7ec367ecb4abc401be4a267075912147310e9a1cd70e7f16f4e6` | 3037475 | 2026-10-18 16:58:06 |
 | postPreview | `9307ec4e8bfee18536e1828965ca51e873d2bbc6c6eb23c464006be6a86ee4f1` | 3037483 | 2026-10-18 16:58:54 |
+| close | `7735eb6ad5b0e9b62e4b13a74d2acfe5a8a09034a623805d83a1145a26619df9` | 3042967 | 2026-10-19 02:37:48 |
+| postPreview | `d1324772080d22b09fa541b36ad7c33051e5e8b7349a6ec98fc2a4bd3fdcf14c` | 3042976 | 2026-10-19 02:38:42 |
+| postPreview | `e9ed047768e25e5bc37aaa26d21a299d2060caafdfdc4d1d7a29fc9ddb84a1ae` | 3042983 | 2026-10-19 02:39:30 |
+| postPreview | `1785bc150936bd1430ca07212835c070d3fecd53796438735adf3c11463fb67d` | 3043032 | 2026-10-19 02:44:48 |
+| close | `6b007d3686c83e675d812afd3982b896956d267d19d9b493c0f811e4cdb7b2c9` | 3043447 | 2026-10-19 03:29:36 |
+| postPreview | `418af6950e31be7f55a24370d791c934c7b948d3d9d71dd3721a2447fad548c5` | 3043457 | 2026-10-19 03:30:36 |
+| postPreview | `20482739e22100516cb3efb86386bc571c180ddfdb97244e0c22452b9bead97b` | 3043466 | 2026-10-19 03:31:42 |
+| postPreview | `32a8c6ff6aa3f6d45f5e670fd38357c13f436c18db4306cdb3e536e273cfb17d` | 3043473 | 2026-10-19 03:32:30 |
 
-## Purchase and outcome (2)
+## Purchase and outcome (3)
 
 Buyer buys a signal and reports the outcome.
 
@@ -179,6 +200,7 @@ Buyer buys a signal and reports the outcome.
 | --- | --- | --- | --- |
 | buyFlat | `af89b18c43a93a17f21e61662d2bc14aa012a675b21134478595e6554c2cc95e` | 3037495 | 2026-10-18 17:00:06 |
 | recordOutcome | `e38d5b1a0719d883d51b79df6a199b936df5ed264a4ffda9aef42a55c339bcb4` | 3037504 | 2026-10-18 17:01:00 |
+| buyFlat | `3005af60f19e2db3d0c33ad9f166f50072e9bdd611e2bc01c59e93108721cd64` | 3043506 | 2026-10-19 03:36:00 |
 
 ## Hits and claims (10)
 
