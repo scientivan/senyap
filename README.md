@@ -43,6 +43,9 @@ pilots, demand validation, security audit or production readiness are claimed.
 - [Presentation source](docs/submission/senyap-deck.html).
 - [Wave 2 progress](docs/submission/wave-2-progress-draft.md).
 - [Inspectable transaction receipts](docs/evidence/PREPROD-EVIDENCE.md).
+- [Discord community post](https://discord.com/channels/1165826384975908924/1536921313598242847/1561660624428072971)
+  and [screenshot evidence](docs/evidence/community-post-discord-2026-10-19.png),
+  shared by the owner in Midnight Network's `#akindo-buildathon`.
 
 The video uses separate examples from markets #6, #7 and #3. It does not present
 these recordings as one continuous market. Additional auction, jury, subsidy and

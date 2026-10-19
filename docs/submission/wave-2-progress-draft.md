@@ -4,8 +4,9 @@ Prepared 19 October 2026. Technical wording is finalized against the repository
 and receipts. **Not submitted.** The owner has supplied the final YouTube video
 and Google Drive deck links. The deck downloads without login and matches the
 reviewed 18-slide PDF. YouTube metadata is available, but full playback was not
-verified. Remaining steps include reviewed repository changes while private,
-repository publication, the community post and AKINDO submission. This file
+verified. Remaining owner steps include repository publication and AKINDO
+submission. The owner has posted in Discord and supplied screenshot evidence
+and the direct message URL. This file
 keeps its existing name so README links remain valid.
 
 ## Copy for the AKINDO progress field
@@ -94,6 +95,7 @@ planned validation, not an announced partnership.
 
 - [Product demo](https://youtu.be/UV4MjUZe6lI).
 - [Slide deck](https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=sharing).
+- [Discord community post](https://discord.com/channels/1165826384975908924/1536921313598242847/1561660624428072971).
 
 ## Short alternative
 
@@ -123,6 +125,7 @@ Solana/Arcium/Semaphore code.
 
 - [Product demo](https://youtu.be/UV4MjUZe6lI).
 - [Slide deck](https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=sharing).
+- [Discord community post](https://discord.com/channels/1165826384975908924/1536921313598242847/1561660624428072971).
 
 ## Evidence for reviewer questions
 
@@ -136,12 +139,13 @@ Solana/Arcium/Semaphore code.
 - [CI](https://github.com/scientivan/senyap/actions/runs/39196182087).
 - [Live Reclaim boundary](../evidence/P6.1-reclaim-live-preprod.json).
 - [Offline secret-scan scope](../evidence/submission-secret-scan-2026-10-19.json).
+- [Discord community-post screenshot](../evidence/community-post-discord-2026-10-19.png).
+- [Direct Discord community post](https://discord.com/channels/1165826384975908924/1536921313598242847/1561660624428072971).
 
 ## Remaining owner checklist
 
 - Confirm full YouTube playback in an anonymous browser session.
 - Public repository after all approved changes have been pushed.
-- Community post URL after Dien publishes the draft.
 
 Do not paste this owner checklist into the progress field. The copy above is the
 submission text. Posting, visibility changes and submission remain owner actions.

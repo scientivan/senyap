@@ -1,46 +1,36 @@
 # Senyap community post
 
-Ready for owner review. Prepared 19 October 2026. **Not posted.**
+**Discord posted by Dien on 19 October 2026** in Midnight Network's
+`#akindo-buildathon`. The short X thread below remains an unsent alternative.
 
-Publish only after the owner makes the repository public and checks that the
-linked materials are accessible. The repository is currently private. Dien has
-provided the final YouTube video and Google Drive deck links, included below.
+[Screenshot evidence](../evidence/community-post-discord-2026-10-19.png) and
+[evidence record](../evidence/community-post-discord-2026-10-19.json) are saved.
+[Direct Discord message](https://discord.com/channels/1165826384975908924/1536921313598242847/1561660624428072971)
+was supplied by Dien. Opening it may require Discord login and server membership.
+
+The Discord copy below links to the uploaded demo and deck. Add the optional
+code link only after making the repository public.
 The PDF downloads without login and matches the reviewed deck. Full YouTube
-playback still needs an owner check. No customer, partner or independent-operator
-commitment is implied by this draft.
+playback still needs an owner check.
 
-## Recommended Discord or forum post
+## Discord message for #akindo-buildathon
 
-I built **Senyap** for Midnight Buildathon Wave 2 on AKINDO.
+Hi everyone! Sharing **Senyap**, my AKINDO Wave 2 project on Midnight.
 
-It is a private market for insider recommendations, starting with two-sided
-builder sourcing. Ecosystem teams want better builder recommendations. Builders
-want useful evidence about ecosystem support. Scouts back a private option with
-refundable demo stakes, buyers pay for aggregate support, and rewards follow
-outcomes.
+It helps ecosystems discover builders and builders evaluate ecosystem support.
+Scouts back private recommendations with refundable stakes, and buyers pay for
+aggregate signals.
 
-The Midnight implementation uses Compact membership proofs, encrypted ElGamal
-tallies, 3-of-5 share delivery with DLEQ checks, encrypted private state and
-outcome-based settlement.
+The contract is live on Preprod with a completed purchase-to-claim cycle. This is
+an owner-operated prototype with synthetic demo participants and test tokens.
 
-The current 52-circuit contract runs on **Midnight Preprod**. A snapshot contains
-157 indexed contract actions, and market #3 completed purchase, outcome, five hit
-proofs and five claims. The browser demo also includes my own stake and purchase.
+I'd love feedback on the mechanism and privacy trade-offs.
 
-The limits matter. I currently control all operator and committee seats. Demo
-actors and dUSD are synthetic, funding wallets are visible, and reason screening
-and the local prover remain trusted services. There are no paying customers yet.
+[Demo video](https://youtu.be/UV4MjUZe6lI) · [Slide deck](https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=sharing)
 
-Code, setup, test scope and public transaction receipts are in the repository.
+### Optional code link after repository publication
 
 https://github.com/scientivan/senyap
-
-[Watch the product demo](https://youtu.be/UV4MjUZe6lI)
-
-[View the slide deck](https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=sharing)
-
-I would especially value feedback on the trust boundaries. Which would you
-require us to remove before trying a small builder/ecosystem pilot?
 
 ## Short X thread
 
@@ -73,7 +63,8 @@ https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=shari
 - [ ] Confirm full YouTube playback without login.
 - Finish all repository changes and verify the secret-scan report scope.
 - Make the repository public yourself and check its `midnightntwrk` topic.
-- Publish the selected draft yourself, then save the post URL for the submission.
+- [x] Publish the Discord message and save the screenshot.
+- [x] Record the direct Discord message URL for the submission.
 
 The 157-action count comes from the 19 October 2026 03.41 UTC snapshot in
 `docs/evidence/preprod-transactions.json`. It is not a count of customers,
