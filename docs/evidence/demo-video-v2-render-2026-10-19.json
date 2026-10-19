@@ -1,0 +1,162 @@
+{
+  "createdAt": "2026-10-19T05:17:47.201629+00:00",
+  "purpose": "Approved five-minute Senyap visual demo revision",
+  "status": "visual masters complete",
+  "composition": "SenyapDemoV2",
+  "checks": {
+    "typecheck": "passed",
+    "allRemotionPackages": "4.0.290",
+    "scriptScenes": 17,
+    "scriptAndCaptionConsistency": "passed",
+    "narrationGuideCues": 90,
+    "allScheduledFootageRanges": "13 verified against source durations",
+    "sourceQaEvidenceHashes": "all matched original review",
+    "fullDecode": "9000 frames in each final master",
+    "sampleFrames": 41,
+    "joinSampleFrames": 12,
+    "designDetectorWeb": "[]",
+    "gitDiffCheck": "passed"
+  },
+  "mediaValidation": {
+    "checkedAt": "2026-10-19T05:16:45.438Z",
+    "main": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "pix_fmt": "yuvj420p",
+          "r_frame_rate": "30/1",
+          "nb_frames": "9000",
+          "nb_read_frames": "9000",
+          "side_data_list": [
+            {}
+          ]
+        }
+      ],
+      "format": {
+        "duration": "300.000000",
+        "size": "14975769"
+      }
+    },
+    "clean": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "pix_fmt": "yuvj420p",
+          "r_frame_rate": "30/1",
+          "nb_frames": "9000",
+          "nb_read_frames": "9000",
+          "side_data_list": [
+            {}
+          ]
+        }
+      ],
+      "format": {
+        "duration": "300.000000",
+        "size": "13495503"
+      }
+    },
+    "sampleSeconds": [
+      3,
+      9,
+      16,
+      26,
+      33,
+      40,
+      51,
+      61,
+      70,
+      82,
+      89,
+      97,
+      104,
+      114,
+      122,
+      129,
+      139,
+      146,
+      154,
+      162,
+      168,
+      175,
+      182,
+      189,
+      197,
+      205,
+      210,
+      216,
+      222,
+      228,
+      234,
+      240,
+      245,
+      251,
+      258,
+      266,
+      275,
+      281,
+      287,
+      294,
+      299
+    ],
+    "joinSeconds": [
+      45,
+      90,
+      135,
+      180,
+      225,
+      270
+    ],
+    "audio": "No voice recording or synthesized narration. Silent visual masters.",
+    "captions": "90 script-timed guide cues, not aligned to a recorded voice."
+  },
+  "outputs": {
+    "out/senyap-demo-v2-5min.mp4": {
+      "bytes": 14975769,
+      "sha256": "0cfe925feed5d6beeff5432aa0dd0282640a3b6effb7133b3af8734463a990bd"
+    },
+    "out/senyap-demo-v2-5min-clean.mp4": {
+      "bytes": 13495503,
+      "sha256": "dc77ca9c77a33f6821682bd1da177c958dbba2e6ef405b77e0dab27904c993f2"
+    },
+    "out/senyap-demo-v2-narration-guide.srt": {
+      "bytes": 7464,
+      "sha256": "ba34b5b2f15fa80fbcfae21676afb2df5d0c611602474db48a09157c790c8c9c"
+    }
+  },
+  "sourceSha256": {
+    "src/Root.tsx": "68c5d803ccc49da91e201269eff3626905d071f29b8b40fc2987beca02455a19",
+    "src/v2/DemoV2.tsx": "43a19c60e957323a88a2ba7a48ea9928ffb9cfcee96748027b6736375e58f3a9",
+    "src/v2/Visuals.tsx": "b7347da01594f3b6d1a397eafcbd32efc73ab70a0668565906c36288c16fcea6",
+    "src/v2/script.json": "887c67a19c405900e07dbe4e73a5e1f787e312b2cbb69e096be5e4a7be355fa7",
+    "src/v2/captions.json": "cf0e8efbb4cca9bae62da58cc99c5e4260d8aa4f36d5eb46d69afc73ff031d50",
+    "src/v2/evidence.json": "9af28057c002f3b71f24b7d4eb32638d813b4806b4165892ac02e0230731bd02",
+    "render-v2.mjs": "3e871e32021e6ba3ffe8c5db331bc593c8ee11e0e86cd89d66d14e81663bd443",
+    "finish-v2.mjs": "fc61f221140d6bb48917126d9e6ffa618b95d0e578a7c69ed626670a905e1db9",
+    "sync-v2.mjs": "2314381120c26b2b0e9835a74c2de209b0224abdae0475979e1f7c7df843d110",
+    "package.json": "405627a8ce8997854a475558e10b724b590de6f8d124d17e0493fe637ad20f11",
+    "package-lock.json": "a16c9ca87d2ae8692ea118cdeac5640f3d15cf07ec0c6cb4e95c3fd1243c54d8",
+    "tsconfig.json": "85a31402894fb929ddf7a74586ac5811bdcd1bc7abadfd34f8a388c341f08886"
+  },
+  "visualReview": "Contact sheets across 17 scenes, targeted final frames including corrected gold-panel text and clean-master subtitle removal, and before/after frames at six render joins. Not continuous audiovisual playback.",
+  "limits": [
+    "Both masters are silent. Dien records voice and face cam.",
+    "SRT uses script-based guide timing, not audio transcription.",
+    "Synthetic actors, unshielded demo tokens and local test evidence remain labelled.",
+    "No new product transactions, upload, repository visibility change or push."
+  ],
+  "preserved": [
+    "SenyapDemo composition",
+    "out/senyap-demo-draft4.mp4",
+    "out/senyap-demo.srt"
+  ]
+}

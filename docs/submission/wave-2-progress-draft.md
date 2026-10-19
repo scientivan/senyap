@@ -1,130 +1,147 @@
-# Wave 2 progress draft
+# Wave 2 progress submission copy
 
-Draft for owner review. Not submitted or published. Updated 18 October 2026.
+Prepared 19 October 2026. Technical wording is finalized against the repository
+and receipts. **Not submitted.** The owner has supplied the final YouTube video
+and Google Drive deck links. The deck downloads without login and matches the
+reviewed 18-slide PDF. YouTube metadata is available, but full playback was not
+verified. Remaining steps include reviewed repository changes while private,
+repository publication, the community post and AKINDO submission. This file
+keeps its existing name so README links remain valid.
 
-## Senyap
+## Copy for the AKINDO progress field
 
-Senyap is a private insider-signal market for two-sided builder sourcing.
-Ecosystems learn which opt-in teams insiders support; builders learn how
-an ecosystem treats its teams. Scouts back a private option with refundable demo
-stakes. Buyers pay for aggregated support and screened reasons; outcome-based
-rewards go to qualifying scouts.
+Senyap is a private market for insider recommendations on Midnight, starting with
+two-sided builder sourcing. Ecosystem grant and business-development teams look
+for promising builders. Builders assess the support offered by ecosystems.
+Scouts back a private option with refundable demo stakes and reasons. Buyers pay
+for aggregate support, and rewards follow outcomes. This is an implemented
+prototype, with paid demand and recommendation quality still to validate.
 
-## Prior work and what is new
+During Wave 2 we built the Midnight implementation from scratch. It includes a
+52-circuit Compact contract and a separate unshielded dUSD demo-token contract,
+a React/TypeScript frontend, a Midnight.js SDK, encrypted private state and
+backups, a durable transaction journal, operator and committee services, a keeper,
+Reclaim verification and Veritas reason screening.
 
-Bisik was first built for the Colosseum Crypto World's Fair hackathon on Solana
-(submitted 13 October 2026). That version used Arcium MPC, Semaphore with a
-Groth16 verifier, and Reclaim zkTLS. Its code is not part of this repository.
-The product idea and market mechanism carry over. The Senyap Midnight contracts,
-cryptography, services, tests and interface were written during Wave 2. The
-upstream bboard toolchain fixture retains its Apache-2.0 attribution.
+The privacy mechanism combines shared Merkle membership proofs, per-market
+nullifiers and pseudonyms, additive ElGamal tallies on JubJub, joint Shamir key
+generation and 3-of-5 decryption with DLEQ-verified shares. Paid delivery is bound
+to the buyer's receiving key. Additional paths cover sealed auctions, fixed-price
+purchases, bounded subsidies, disputes with committed jury votes, cancellation
+and refunds, private hit credentials, reputation renewal and consent-based
+contact sharing.
 
-## New local implementation on Midnight
+The current Senyap contract is deployed on Midnight Preprod at
+`a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9`.
+All 52 circuit verifiers were installed in staged batches. The indexer snapshot
+exported on 19 October at 03.41 UTC contains 157 actions on that contract,
+including seven Side B market creations, 25 stakes, two purchases, one outcome,
+five hit proofs and five claims. These are network actions, not adoption metrics.
 
-- HistoricMerkleTree membership, per-market pseudonyms/nullifiers and good standing.
-- Additive ElGamal on JubJub, with private option commitments, weighted encrypted
-  tallies and 3-of-5 DLEQ-verified buyer share delivery.
-- A sealed two-slot auction, fixed-recipient bid refunds, per-option flat purchases
-  and bounded winner selection. Side B has a shared pool without an auction.
-- Private hits/claims and portable reputation renewal, without opening misses.
-- Anonymous hoax commit/reveal juries with per-case collateral, approved penalties,
-  fixed charity slashing and threshold-attested membership revocation.
-- Both sides' missed-report handling (shared B duty with independent buyer marks);
-  cancellation with full principal/bid refunds;
-  return of cancelled Side B subsidy to its source allocation.
-- Encrypted local workspace/backup, scoped user witnesses, per-position signing
-  keys, per-market receiving keys and a durable uncertain-operation journal.
-- Local committee HTTP and paid-total SDK integration; authenticated encrypted
-  reasons with SQLite ciphertext storage and a model boundary that fails closed.
-- Session-bound Reclaim verification with durable single-use receipts, tested
-  against an injected SDK boundary. No real GitHub qualification proof yet.
-- Subjective/contested outcome juries per option, with immutable outcome mode,
-  separate escrow, fallback and a settlement gate.
-- A live Preprod workspace in the web app (`/app/preprod`): wallet connection
-  (Lace or 1AM), finalized ledger reads, verified public metadata, and controls for
-  staking, bidding, purchases, paid signal opening, claims, juries, builder consent
-  and Side A market creation.
-- Operator 3-of-5 approvals bound to exact parameters, 500 dUSD operator and
-  committee stakes, missed-vote and absent-member slashing, a leaked-share
-  whistleblower reward, Pedersen DKG for the committee key, and public-intent team
-  listings with opt-out (design decisions of 18 October, SPEC §16).
-- A separate operator console (`/operator`) with a live on-chain registry of seats,
-  stakes, pending approvals and markets.
+Market #3 completed a full Side B cycle on Preprod with synthetic scouts and a
+synthetic buyer. The browser demo also records my own scout stake on market #6
+and my own buyer purchase and local signal opening on market #7. Their receipts
+and separate market identities are preserved. The app reads actual public state
+from the Preprod RPC and validates published question metadata against onchain
+commitments. Synthetic participants are explicitly labelled.
 
-These are implemented local circuits/services and tests, not a completed deployed
-market. The latest full regression passed 176 tests in 56 files. Earlier integrated
-checks are in [shared-report tests](../evidence/shared-report-tests.json). Earlier suite output is
-retained in [P2-tests.json](../evidence/P2-tests.json).
+The latest implementation CI, commit `1e798da`, passed Compact compilation,
+root/web typechecks, 66 test files and the web build. A focused verification ran
+44 tests across 11 files, including unpaid-access rejection, forged-share
+rejection, invalid membership, wrong payout witnesses, low-participation refunds,
+reputation rules, subsidy conservation, unavailable screening and uncertain
+wallet-response recovery. These tests do not establish an independent audit.
 
-## What ran on a network
+Local network evidence is version-specific. The earlier 42-circuit r10 run
+completed 84 actions across Side A and B, conserving 1240 input as 1120 claimed,
+100 bid refunds and 20 remainder. The 52-circuit short-s2 run completed 67
+transactions, including public-intent listing/opt-out, leaked-share seizure,
+cancellation and refunds. It ends in a cancelled market, not another settled
+A/B cycle. Historical S11 and jury proof files retain their own source hashes.
 
-**Preprod (18 October 2026).** The full 52-circuit Senyap contract is deployed on
-Midnight Preprod (`a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9`),
-signed and paid with the 1AM browser wallet. The deployment is too heavy for one
-transaction, so all 52 verifiers were installed in six staged maintenance updates
-and the maintenance authority was handed to an operator key. Three operators and
-five committee members staked 500 dUSD each
-([deploy journal](../evidence/P9.7-preprod-deploy-journal.json)).
+Integration work on 19 October fixed the wallet's 66-hex transaction-ID handling,
+local proof-server support for heavy browser circuits, safe removal of unsent
+picks, separate reason-delivery retry, the configured screening model, and
+market-scoped activity labels. A failed or uncertain submission is never
+silently resubmitted. A failed reason service preserves paid access and does not
+require another purchase.
 
-On that deployment, an operator relay proves operator calls server-side while the
-wallet only pays. Market #1 was created through three operator approvals. Market #2
-received a daily scout group, five admitted scouts (each admission approved by
-three operators), five 50 dUSD stakes and an admitted buyer. **Market #3 then ran a
-complete Side B cycle on Preprod:** creation, five sealed stakes, keeper close,
-three committee preview approvals (threshold decryption with DLEQ proofs), a buyer
-purchase, an outcome report, five private hit proofs and claims. Every call has a
-finalized transaction hash in [PREPROD-EVIDENCE.md](../evidence/PREPROD-EVIDENCE.md),
-exported from the Blockfrost Midnight indexer (the full machine-readable list is
-[preprod-transactions.json](../evidence/preprod-transactions.json)).
+A live session-bound Reclaim GitHub proof passed verification. The configured
+provider establishes a logged-in account, not a verified username or contribution
+count. Veritas uses Gemini for screening. Its model indicators and redaction are
+not proofs of truth or anonymity and cannot authorize a financial penalty.
 
-The app reads live contract state from the public Preprod RPC with no demo data,
-and the vault (picks and keys) syncs end-to-end encrypted by wallet address.
+The current trust limits are explicit. I control every operator key and committee
+share, all five committee services run locally, and most demo participants are
+synthetic. Unshielded dUSD exposes funding wallets and amounts. The local prover
+processes private witnesses, and the operator/model see readable reasons.
+Invalid decryption shares are rejected offchain but the proposed wrong-share
+slash is not enforced onchain. The approximately 60-second operator vote window
+can fail with slow wallet balancing and needs a redeployment to change. Market
+#5 also exposed an insufficient 15-minute outcome window. No paying customers,
+independent pilot, independent operators or security audit are claimed.
 
-**Local network.** The full contract completed a Side A and Side B cycle on a local
-Midnight node, including claims and refunds that conserve the input
-([r10 journal](../evidence/local-product-cycle-fresh-k16-r10-journal.json)), and a
-short cycle with the 52-circuit contract
-([s2 journal](../evidence/local-product-cycle-short-s2-journal.json)).
+Bisik was previously submitted on Solana to Colosseum Crypto World's Fair on
+13 October 2026. The idea and market mechanism carry over. Its Solana, Arcium
+and Semaphore code is not part of this repository. Senyap's Midnight contracts,
+cryptography, SDK, services, tests and interface were written during Wave 2.
+The upstream bboard fixture retains its Apache-2.0 attribution.
 
-**Reclaim.** A live Reclaim GitHub proof bound to the Preprod contract passed
-attestor and TEE verification
-([evidence](../evidence/P6.1-reclaim-live-preprod.json)). The verified provider only
-extracts a profile language field, so it proves a logged-in GitHub account, not a
-username or contribution count.
+Next, we plan independent key/share holders and a measured, opt-in pilot with
+builder and ecosystem buyers. The pilot tests paid conversion, whether the
+signal changes a real decision, outcome quality and repeat purchases. It is
+planned validation, not an announced partnership.
 
-## Local proof evidence
+- [Product demo](https://youtu.be/UV4MjUZe6lI).
+- [Slide deck](https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=sharing).
 
-The current main contract has 42 generated prover/verifier pairs. The approved
-S11 integration removes public group references from stakes and encrypts group
-IDs inside the membership cards. Integrated Side B stake and three-hit renewal
-passed local /check and /prove with no selected group/leaf/root in the public-only
-transcript ([latest S11 evidence](../evidence/S11-main-proving.json)). This corrects
-the deterministic group-reference leak locally; funding-wallet/timing/cohort
-correlations remain possible. Cancellation, cancelled bid refund and principal-only
-claim also have local proofs. Earlier verifier-commit proofs retain their own
-historical source hash. Evidence:
-[product proofs](../evidence/product-proving.json),
-[cancellation proofs](../evidence/cancellation-proving.json),
-[shared report proofs](../evidence/shared-report-proving.json).
-These checks do not establish a security audit or network settlement.
+## Short alternative
 
-## Honest limits
+During Wave 2 I built Senyap, a private recommendation market on Midnight for
+two-sided builder sourcing. Scouts back private options with refundable demo
+stakes, buyers purchase aggregate support, and rewards follow outcomes.
 
-- **Centralized today.** One person holds every operator seat key and committee
-  share, ran the committee key generation in one process, pays every stake and
-  runs the relay and all committee members. The 3-of-5 rules are enforced on chain
-  but do not yet protect anyone from that person.
-- Scouts and the buyer in the Preprod markets are synthetic identities held by
-  the relay.
-- The 60-second operator vote window is too tight when a wallet is slow to
-  balance (seen when the 1AM fee sponsor was offline). A longer window needs a
-  redeploy.
-- A wrong decryption share is rejected (DLEQ proof) but not slashed on chain.
-- Contract activity history needs the Blockfrost indexer, so it appears only where
-  an indexer proxy runs; market and registry data come from the public RPC.
-- Reasons screening passed synthetic Gemini smoke checks only, not a quality or
-  privacy evaluation. No security audit.
+The 52-circuit Senyap contract is deployed on Preprod with all verifiers installed.
+The 19 October indexer snapshot contains 157 contract actions across seven Side B
+markets. Market #3 completed purchase, outcome, five hit proofs and five claims.
+The browser demo also includes my own stake on #6 and purchase/opening on #7.
 
-The owner must review final wording against actual receipts, make the repository
-public when ready, and submit on AKINDO. This draft does not authorize publication
-or any transaction.
+The implementation includes encrypted ElGamal tallies, shared membership proofs,
+3-of-5 DLEQ-verified share delivery, encrypted private state, a durable transaction
+journal, operator/committee services, a keeper and reason screening. CI passed
+compilation, typechecks, 66 test files and build. A focused 44-test run checked
+rejection, refunds and failure recovery.
+
+Today I control all operator and committee seats. Demo actors and dUSD are
+synthetic, funding wallets are public, and local proving and screening remain
+trusted services. There are no paying customers or security audit. Independent
+seat holders and a measured pilot are next.
+
+The idea carries over from Bisik, submitted on Solana to Colosseum on 13 October.
+The Midnight implementation was written during Wave 2, without the old
+Solana/Arcium/Semaphore code.
+
+- [Product demo](https://youtu.be/UV4MjUZe6lI).
+- [Slide deck](https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=sharing).
+
+## Evidence for reviewer questions
+
+- [Preprod snapshot](../evidence/preprod-transactions.json).
+- [Receipt list](../evidence/PREPROD-EVIDENCE.md).
+- [Market #3 full cycle](../evidence/F5-preprod-market-3-journal.json).
+- [Deployment](../evidence/P9.7-preprod-deploy-journal.json).
+- [Earlier local A/B cycle](../evidence/local-product-cycle-fresh-k16-r10-journal.json).
+- [Latest local short cycle](../evidence/local-product-cycle-short-s2-journal.json).
+- [Focused QA](../evidence/demo-video-qa-review-2026-10-19.json).
+- [CI](https://github.com/scientivan/senyap/actions/runs/39196182087).
+- [Live Reclaim boundary](../evidence/P6.1-reclaim-live-preprod.json).
+- [Offline secret-scan scope](../evidence/submission-secret-scan-2026-10-19.json).
+
+## Remaining owner checklist
+
+- Confirm full YouTube playback in an anonymous browser session.
+- Public repository after all approved changes have been pushed.
+- Community post URL after Dien publishes the draft.
+
+Do not paste this owner checklist into the progress field. The copy above is the
+submission text. Posting, visibility changes and submission remain owner actions.

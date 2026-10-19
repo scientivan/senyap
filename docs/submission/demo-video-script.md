@@ -1,5 +1,11 @@
 # Senyap demo video: plan and script
 
+> **Revisi terbaru** Lihat [naskah 5 menit](demo-video-script-v2-5min.md) dan
+> [catatan produksi serta bukti](demo-video-revision-notes.md), disusun 19 Oktober
+> setelah Dien mengizinkan durasi 4–5 menit. Isi di bawah adalah naskah awal untuk
+> draft 4 berdurasi 3 menit, bukan naskah revisi. Salinan arsip ada di
+> [versi awal](demo-video-script-v1-3min.md).
+
 Target length **3:00** (no official limit is published; see notes). Format follows
 the Bisik reference video (`Product Demo Video.mp4`, 2:59): a screen recording of
 the real app, with three on-screen layers.

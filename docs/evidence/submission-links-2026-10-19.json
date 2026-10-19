@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-19T08:21:09.350915+00:00",
+  "providedBy": "Dien in chat",
+  "video": {
+    "url": "https://youtu.be/UV4MjUZe6lI",
+    "metadataHttpStatus": 200,
+    "title": "Senyap \u2014 Private Signal Markets on Midnight | Product Demo",
+    "anonymousMetadataAccessible": true,
+    "fullPlaybackVerified": false,
+    "uploadedContentComparedToLocalMaster": false
+  },
+  "deck": {
+    "url": "https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=sharing",
+    "anonymousDownload": true,
+    "contentIsPdf": true,
+    "pages": 18,
+    "bytes": 1329737,
+    "sha256": "bf3bf8567daa22bf6618c1e96759a1c11a7820a6eac5df3917e58cea96028e4a",
+    "matchesReviewedV4": true,
+    "matchesLocalFinal": true,
+    "localFinal": "docs/submission/Slide Deck.pdf"
+  },
+  "repository": {
+    "visibility": "PRIVATE",
+    "topic": "midnightntwrk",
+    "pushedThisTurn": false
+  },
+  "updatedMaterials": [
+    "README.md",
+    "docs/submission/wave-2-progress-draft.md",
+    "docs/submission/community-post-draft.md",
+    "docs/submission/deck-handoff.md",
+    "docs/submission/demo-video-v2-production.md"
+  ],
+  "externalPosting": false,
+  "akindoSubmitted": false
+}

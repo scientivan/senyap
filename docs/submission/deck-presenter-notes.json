@@ -1,0 +1,18 @@
+[
+  "Working prototype, not a promise of complete anonymity. Public funding and operator trust boundaries are explained on the trust-boundary slide. Static conceptual illustration. Not a complete anonymity claim.",
+  "This privacy and willingness-to-pay hypothesis has not yet been validated through customer interviews.",
+  "Sources https://forum.arbitrum.foundation/t/plurality-labs-milestone-1-review/20198 and https://forum.arbitrum.foundation/t/recommendations-for-improving-the-dao-s-grant-programs/28645. See source appendix for links.",
+  "",
+  "",
+  "Original product recording, scene8-purchases.mp4 at 25 seconds. Market 7 is separate from the complete settled market 3 lifecycle. Landing-page example numbers are illustrative, not network metrics.",
+  "Compact 0.31.1, runtime 0.16.0, proof server 8.1.3, Midnight.js 4.1.1. Local service model, not all proving in the browser. Metadata hashes are verified. Asset preparation checks source and proving-key alignment.",
+  "Funding wallets and amounts remain public. DLEQ rejection is off-chain. Wrong-share slashing is not enforced. All demo shares are controlled by the owner.",
+  "Deployment a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9. Source docs/evidence/preprod-transactions.json and F5-preprod-market-3-journal.json. Other owner browser evidence uses markets 6 and 7.",
+  "See docs/evidence/demo-video-qa-review-2026-10-19.json and GitHub Actions run 39196182087. Counts describe specific runs. This is engineering QA, not an independent security audit.",
+  "Sources docs/evidence/local-product-cycle-fresh-k16-r10-journal.json and local-product-cycle-short-s2-journal.json. Verify exact file paths in the accompanying progress document.",
+  "These constraints are intentionally disclosed before a pilot. Heavy-circuit local proving is also a witness-handling trust boundary.",
+  "",
+  "",
+  "Repository remains private until the owner publishes it. Demo video upload and publicly accessible deck link must be checked before submission.",
+  "Evidence snapshot 19 Oct 2026. Repository links require access until owner publication. Public access must be verified before submission."
+]

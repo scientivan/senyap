@@ -1,0 +1,33 @@
+Senyap is a private market for insider recommendations on Midnight. It helps ecosystems find promising builders, and builders choose ecosystems that support them.
+
+The problem runs both ways. A published Arbitrum program review identified sourcing quality grant applications as a major risk. Another evaluation documented fragmented communication and disbursement problems. Our hypothesis is that insiders can improve these decisions when sharing candid experience does not require a public endorsement.
+
+Scouts back an option with refundable stakes and reasons. Buyers pay for aggregate support. Rewards follow outcomes. This connects private recommendations to accountability, while keeping ordinary misses sealed.
+
+I connect a wallet and unlock my encrypted vault. It stores my private state. This demo uses a local proof server, while the wallet balances, signs and pays.
+
+Here I stake fifty demo dollars on market six. The proof checks group membership and a valid sealed choice. A one-use code prevents duplicate positions. My reason goes to Veritas for screening, so that service remains a trust boundary. I can track delivery separately from the stake.
+
+Public viewers see stakes, commitments and encrypted totals. Individual picks stay sealed on the public ledger. Admissions and market approvals require three staked approvals from five registered operator keys.
+
+Now we switch to market seven, where I bought a signal as a builder. After five scouts participate, the committee publishes a strength histogram. A paid buyer requests three valid decryption shares and opens the purchased total locally. The committee can also reconstruct totals, which is an explicit trust assumption.
+
+Market three shows the completed cycle. Its buyer reported an outcome, scouts proved hits without opening misses, and claims finalized. Outcome reporting has a challenge process. These are synthetic participants on Preprod, using the same contract rules.
+
+The React app uses our TypeScript SDK and Midnight.js. The indexer supplies public state. An operator API handles credentials, metadata and screened reasons. Five committee services deliver shares, and a keeper advances phases. On Midnight, the Senyap contract has fifty-two circuits, alongside a separate demo-token contract.
+
+Encrypted choices add into an ElGamal tally on JubJub. Joint key generation produces three-of-five shares. DLEQ proofs check their correctness, and encrypted buyer channels bind delivery to paid access. Shared membership proofs hide the selected scout group from the public transcript.
+
+The lifecycle also covers sealed ecosystem auctions, fixed-price builder purchases, subsidies, cancellation and refunds. Anonymous jurors use committed votes to resolve disputes. Proven hoaxes can trigger penalties and membership revocation. Private hit credentials support reputation renewal. These additional paths have local tests. The recorded Preprod cycle demonstrates fixed-price purchases.
+
+QA checks rejection paths too. Tests reject unpaid access, forged decryption shares, invalid membership and inflated payouts. Below five scouts, cancellation returns stakes. Transcript checks inspect whether private group information leaks into public operations.
+
+Recovery is part of the design. An uncertain transaction stays blocked until its receipt is checked. It is never automatically resubmitted. If reason screening fails, raw text is withheld. Paid signal recovery preserves access, so the buyer does not pay again.
+
+CI passes compilation, type checks, tests and build. The indexer export records one hundred fifty-seven finalized contract actions. Market three includes five hit proofs and five claims, with receipts in the repository.
+
+Ecosystem teams are the target paying customers. Buyer payments allocate eighty-five percent to scouts and fifteen percent to the platform, with part supporting builder-side subsidies. The proposed pilot tests paid demand, useful recommendations and repeat purchases. We have no paying customers yet.
+
+Today I control every operator and committee seat. Funding wallets remain visible, and the local prover processes private witnesses. The next step is independent operators and a measured pilot. These are prototype limits, not claims of production readiness.
+
+Senyap turns private experience into accountable recommendations. Built on Midnight, demonstrated on Preprod. Explore the code and receipts behind the demo.

@@ -1,0 +1,59 @@
+{
+  "date": "2026-10-19",
+  "purpose": "Verify claims selected for the revised demo script",
+  "gitHead": "1e798daba9e999acbfca3e4e9a57a9ebab52ac9b",
+  "scope": "Existing simulator, frontend transport and local cryptographic/HTTP tests only. No new network transaction, full-suite rerun, proving-key generation or independent audit.",
+  "command": "pnpm exec vitest run tests/contracts/group-privacy.test.ts tests/contracts/paid-share.test.ts tests/contracts/settlement.test.ts tests/contracts/cancellation.test.ts tests/contracts/disputes.test.ts tests/contracts/reputation.test.ts tests/contracts/subsidy.test.ts tests/contracts/reasons.test.ts tests/contracts/committee-http.test.ts tests/frontend/product-client.test.ts tests/frontend/tx-id.test.ts",
+  "result": {
+    "exitCode": 0,
+    "filesPassed": 11,
+    "testsPassed": 44,
+    "durationSeconds": 65.35
+  },
+  "warnings": [
+    "Generated-contract sourcemap references missing source files",
+    "Node SQLite experimental warning",
+    "Expected stderr from intentional wallet, verifier, journal and uncertain-response rejection cases"
+  ],
+  "sourceSha256": {
+    "tests/contracts/group-privacy.test.ts": "b14c4d1b09bd066921471a2637701a149881cac33d6ca5501be635d1978512c7",
+    "tests/contracts/paid-share.test.ts": "3fa57d992e94b7c89c3258e70411958c3bd35c16b6ae267748846b99297e54cc",
+    "tests/contracts/settlement.test.ts": "c16284c149a4b4ed260e4f7adfffa0e6a6362f67acedf17bdaef198ac0a415b1",
+    "tests/contracts/cancellation.test.ts": "a3eda531c24c1331bcac629d5321157767b96d2c2231407590230cc63af00571",
+    "tests/contracts/disputes.test.ts": "b340135a8982b41ffe73a19fd3db768418db19e3e08a5aa7fdfcc0674d6a3ef5",
+    "tests/contracts/reputation.test.ts": "33f950ea0356cd7e9abd780e5873a0e65ee5ef99d058718adf7808ec5dd40aee",
+    "tests/contracts/subsidy.test.ts": "e73a6daf9f852324f6896acbe43a2629f43338c6b1a11a99f07ff654114688f2",
+    "tests/contracts/reasons.test.ts": "c20986e6fc60cc0a89638189cf4ad598dc1f7e7ec220196dc9d3ab53093ba262",
+    "tests/contracts/committee-http.test.ts": "c3eade7356a1344d0629bcd9bccc0a2e4805708f3a55a005492da0f87cfe0a45",
+    "tests/frontend/product-client.test.ts": "1fd2e4226ef2f50752d54cbfbae789753caa20defce9d1ec2a9ec22b5809dcae",
+    "tests/frontend/tx-id.test.ts": "8cc149f7de5a6ce44f2ff832d8458e1d4be7ee367ec9045bc71ce81a6bede636",
+    "contracts/senyap.compact": "edb4251f5687f9d721d167ef36bf69f9b123302c88f1501708a96d7916ec2844",
+    "apps/web/src/app/product-client.ts": "acf55c3fc7a55d511e6043a4b0d7e62c03dacd19d4e5e2b7446fbdb5abd91572",
+    "apps/operator/src/veritas.ts": "9bbc5720d0890ecde098c24046f48145eeddf952247cebc4a8acd813834afdf9",
+    "packages/crypto/src/dkg.ts": "87c0c9de0aead950304d4533b3c0d3ed89ef155c3fee1b14e82907f6d002346f"
+  },
+  "ciObserved": {
+    "runId": 39196182087,
+    "url": "https://github.com/scientivan/senyap/actions/runs/39196182087",
+    "headSha": "1e798daba9e999acbfca3e4e9a57a9ebab52ac9b",
+    "status": "completed",
+    "conclusion": "success",
+    "testFilesPassed": 66,
+    "compilationScope": "Workflow contracts:compile uses --skip-zk, not a regeneration of proving keys or all-circuit proof run"
+  },
+  "preprodSnapshot": {
+    "file": "docs/evidence/preprod-transactions.json",
+    "exportedAt": "2026-10-19T03:41:47.869Z",
+    "actions": 157,
+    "contract": "a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9"
+  },
+  "videoReview": {
+    "method": "Contact sheets at 12-second intervals and source timeline inspection. Not full continuous audiovisual playback.",
+    "reviewed": [
+      "Pitch Video.mp4",
+      "Product Demo Video.mp4",
+      "video/remotion/out/senyap-demo-draft4.mp4"
+    ],
+    "newVideoRendered": false
+  }
+}

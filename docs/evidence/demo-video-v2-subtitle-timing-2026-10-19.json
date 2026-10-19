@@ -1,0 +1,12 @@
+{
+  "recordedAt": "2026-10-19T06:20:47.690137+00:00",
+  "decision": "Dien records voice and face cam following the existing burned-in subtitles. Keep the 300-second timeline.",
+  "video": "video/remotion/out/senyap-demo-v2-5min.mp4",
+  "videoSha256": "0cfe925feed5d6beeff5432aa0dd0282640a3b6effb7133b3af8734463a990bd",
+  "srt": "video/remotion/out/senyap-demo-v2-5min.srt",
+  "srtSha256": "ba34b5b2f15fa80fbcfae21676afb2df5d0c611602474db48a09157c790c8c9c",
+  "cues": 90,
+  "durationSeconds": 300,
+  "newVideoRenderRequired": false,
+  "reason": "The complete narration already exists as burned-in subtitles on the delivered master."
+}

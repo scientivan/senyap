@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-19T07:43:36.428677+00:00",
+  "purpose": "Full-sentence subtitles requested by Dien",
+  "previousPhraseCues": 90,
+  "sentenceCues": 67,
+  "narrationUnchanged": true,
+  "maxVisualLines": 2,
+  "subtitleOverflow": 0,
+  "verifiedBoundaryFrames": 216,
+  "wrongSentenceFrames": 0,
+  "maxTemplateMeanPixelError": 0.2725225225225225,
+  "method": "Browser text bounds for all cues, then grayscale template matching of encoded subtitle crops before and after sentence and former phrase boundaries",
+  "media": {
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "decodedFrames": 9000,
+    "durationSeconds": 300,
+    "audioStreams": 0,
+    "bytes": 14094728,
+    "sha256": "cbb31d1c134191186fb31610cbc1e93685b3a720bce76addcccff0684bcc23f2"
+  },
+  "checks": {
+    "sourceSync": "passed",
+    "typecheck": "passed",
+    "fullDecode": "passed"
+  },
+  "limitations": [
+    "Guide timings come from the approved script, not a recorded voice.",
+    "Visual review includes longest sentences and full-video samples, not continuous audiovisual playback."
+  ]
+}

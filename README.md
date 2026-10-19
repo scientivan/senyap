@@ -1,79 +1,133 @@
 # Senyap
 
-Senyap is a private insider-signal market being built for the Midnight Buildathon
-on AKINDO. Scouts back options with refundable stakes. Buyers pay for aggregate
-support per option, and rewards follow outcomes. The first use case is two-sided
-builder sourcing: ecosystems assess opt-in builder teams, while builders assess
-their experience with ecosystems.
+Senyap is a private market for insider recommendations on Midnight. Ecosystem
+grant and business-development teams discover promising builders. Builders assess
+which ecosystems support their teams. Scouts back an option with refundable
+stakes and reasons. Buyers pay for aggregate support, and rewards follow outcomes.
 
-## Current status
+The first use case is two-sided builder sourcing. The mechanism uses buyer-funded
+rewards rather than transferring losing scouts' stakes to winners. Proven hoaxes
+have a separate dispute and penalty process. All dUSD in this prototype is a
+synthetic test token.
 
-This repository currently contains a React frontend with **labelled synthetic demo
-data**. Its actions update local demo state; they do not submit Midnight
-transactions. A separate developer-only fixture has completed a real Lace Preprod
-deployment and circuit call. The repository now includes isolated Compact technical spikes,
-runtime-compatible cryptography and a local test harness. Core group, builder registry, market creation, private stake/tally and demo-token
-contracts compile and have simulator tests. Auction escrow, per-option flat purchases,
-objective outcomes and refundable settlement on both sides also pass simulator tests.
-Selection deadlines and permissionless skipping pass simulator tests.
-Threshold defaults, cross-market subsidies, reputation renewal and anonymous
-hoax disputes also pass simulator tests. Missed reports revoke buyer good standing after committee disclosure: Side A
-uses separate buyer pools; Side B has one shared duty and independent buyer marking
-([local proofs](docs/evidence/shared-report-proving.json)). Permissionless cancellation, full principal/bid refunds and returned subsidies
-also pass simulator tests. Remaining lifecycle cases, live services and frontend
-transaction integration remain unfinished. A permissionless demo-token fixture has been deployed and tested on the local
-network only. The Senyap product contract has completed a local network cycle and is deployed on Preprod (see below); no market has run on Preprod yet.
+## What runs today
 
-Option-level subjective/contested outcome juries now pass simulator and local
-proof-server checks, including separate collateral, quorum/refunds and settlement
-gates ([proof evidence](docs/evidence/outcome-jury-proving.json)). The separate
-`/app/preprod` workspace connects wallet/private storage to finalized ledger and
-verified public metadata reads when its deployment configuration is complete.
-Reviewed controls now connect private stake/reason delivery, per-option purchase,
-objective report and cancelled-market refund to the explicit SDK adapter. Builder consent and Side A market
-creation are also connected. Complete public deployment configuration and product
-network verification remain pending.
+**The 52-circuit Senyap contract is deployed on Midnight Preprod.** A complete
+fixed-price Side B market reached settlement, with five hit proofs and five
+claims. The recorded browser demo also includes a personal scout stake on market
+#6 and a purchase and signal opening by the project owner on market #7.
 
-The [local cycle runner](docs/local-product-cycle.md) completed a full Side A and
-Side B market cycle on a local Midnight network (node 1.0.0) on 18 Oct 2026. It
-deployed a synthetic token and the Senyap contract, installed all 42 circuit
-verifiers in staged batches (one deployment exceeds the node's per-transaction
-weight limit), and finalized all 84 actions through stake, hits, renewal, auction,
-outcome, settlement and claims. Both markets reached Settled; 1120 claimed, 100
-bid refunds and 20 remainder conserve the 1240 input
-([r10 journal](docs/evidence/local-product-cycle-fresh-k16-r10-journal.json)).
-All actors are controlled by one synthetic funding wallet, so this is not evidence
-of independent participants or network anonymity. Earlier failed attempts are kept
-as journals in `docs/evidence/`.
+| Evidence | Scope |
+| --- | --- |
+| [157 indexed contract actions](docs/evidence/PREPROD-EVIDENCE.md) | Snapshot exported on 19 October 2026 at 03.41 UTC, not adoption metrics |
+| [Market #3 journal](docs/evidence/F5-preprod-market-3-journal.json) | Complete Preprod Side B cycle, synthetic scouts and buyer |
+| [Deployment journal](docs/evidence/P9.7-preprod-deploy-journal.json) | All 52 verifiers installed, maintenance handoff, operator and committee stakes |
+| [Latest implementation CI](https://github.com/scientivan/senyap/actions/runs/39196182087) | Commit `1e798da`, compile, typechecks, 66 test files and build passed |
+| [Focused QA verification](docs/evidence/demo-video-qa-review-2026-10-19.json) | 44 tests across 11 files, including rejection and recovery paths |
+| [Local A/B cycle](docs/evidence/local-product-cycle-fresh-k16-r10-journal.json) | Earlier 42-circuit version, 84 finalized actions and exact fund conservation |
+| [Local 52-circuit short cycle](docs/evidence/local-product-cycle-short-s2-journal.json) | 67 transactions, public-intent listing/opt-out, leaked-share seizure, cancelled market and refunds |
 
-The full product mechanism described below is still under implementation; simulator
-coverage and the isolated Preprod counter do not establish an end-to-end market. See [SPEC.md](SPEC.md)
-for the approved specification and [PRODUCT.md](PRODUCT.md) for product context.
+Live public state and synthetic participants are separate facts. The application
+reads actual Preprod contract state. Most demo actors are synthetic, and **one
+person controls all operator and committee seats**. No independent customers,
+pilots, demand validation, security audit or production readiness are claimed.
 
-## Run the frontend demo
+## Submission materials
 
-Prerequisites: Node.js 24.x and pnpm 10.18.3.
+- [Product demo on YouTube](https://youtu.be/UV4MjUZe6lI).
+- [Slide deck PDF on Google Drive](https://drive.google.com/file/d/1A2Qk5a0Xnbt_T2x5hawpUGyL_EhVNDDd/view?usp=sharing).
+  The 18-slide deck uses
+  the product design system, static explanatory diagrams and original purchase UI.
+  The illustrated revision removes presentation buttons and explanatory card grids.
+- [Demo script and scene guide](docs/submission/demo-video-script-v2-5min.md).
+- [Presentation source](docs/submission/senyap-deck.html).
+- [Wave 2 progress](docs/submission/wave-2-progress-draft.md).
+- [Inspectable transaction receipts](docs/evidence/PREPROD-EVIDENCE.md).
 
-```sh
-pnpm install --frozen-lockfile
-pnpm dev
+The video uses separate examples from markets #6, #7 and #3. It does not present
+these recordings as one continuous market. Additional auction, jury, subsidy and
+reputation paths are identified as local test evidence.
+
+## Product flow
+
+1. Operators admit eligible scouts and buyers using three staked approvals from
+   five registered operator keys.
+2. A scout proves membership, backs a numbered option with demo dUSD and submits
+   a reason. The public ledger stores commitments, nullifiers and encrypted tally
+   updates rather than the individual option opening.
+3. At least five scouts are required for a market to proceed. A committee
+   publishes a strength histogram after closing, without public per-option totals.
+4. A buyer purchases an option and requests three valid committee shares. DLEQ
+   proofs check the shares. The purchased aggregate opens in the buyer's client.
+5. The buyer or operator reports an outcome. Challenge and jury rules gate
+   settlement. Qualifying scouts prove hits without opening misses and claim
+   refundable principal plus their share of buyer-funded rewards.
+
+Side A adds sealed ecosystem auctions and builder registration/public-intent
+listings with opt-out. Side B uses fixed-price access and can receive a bounded
+subsidy from Side A revenue. These paths have different evidence scopes, shown
+above and in the linked tests.
+
+## Architecture and Midnight integration
+
+```mermaid
+flowchart LR
+  Vault[Encrypted private-state vault] --> Web[React app and TypeScript SDK]
+  Web --> Prover[Local proof server]
+  Prover --> Web
+  Web --> Wallet[Midnight wallet]
+  Wallet --> Contract[Senyap Compact contract]
+  Contract --- Token[Demo dUSD contract]
+  Contract --> Indexer[Public RPC and indexer]
+  Indexer --> Web
+  Web --> Operator[Operator API and relay]
+  Operator --> Screening[Veritas and Gemini]
+  Operator --> Credentials[Reclaim credential verification]
+  Operator --> Store[Encrypted reason storage and public metadata]
+  Web --> Committee[Five committee services]
+  Committee --> Web
+  Committee --> Contract
+  Keeper[Keeper phase driver] --> Contract
 ```
 
-Open <http://127.0.0.1:5174/> for the landing page or
-<http://127.0.0.1:5174/app> for the application. The app shows live data from the
-Senyap contract on Midnight Preprod, read from the public Preprod RPC
-(`midnight_contractState`, no token). Question text is checked in the browser
-against each market's on-chain commitment. Browsing needs no wallet; staking,
-buying and claiming are signed in the private workspace (`/app/preprod`) with a
-Preprod wallet. Contract activity comes from the indexer, which needs the dev
-proxy described below.
+| Component | Responsibility |
+| --- | --- |
+| `apps/web` | Vite, React and TypeScript, role-specific task queues, wallet connection, encrypted vault and live contract views |
+| `contracts/senyap.compact` | Groups, markets, commitments/nullifiers, encrypted tally, access, auctions, disputes, settlement and reputation |
+| `contracts/dusd.compact` | Separate unshielded synthetic token |
+| `packages/sdk` | Witnesses, deployment-bound read models, action preparation, paid signal opening and durable transaction reconciliation |
+| `packages/crypto` | Additive ElGamal on JubJub, joint Shamir key generation, DLEQ-verified threshold decryption and encrypted buyer channels |
+| `apps/operator` | Credential verification, hash-bound metadata, Veritas screening, encrypted reason storage and vault sync |
+| `apps/committee` | Ledger-authorized buyer shares and threshold approvals, five local processes in this demo |
+| `services/keeper` | Phase planning and deadline transitions, with a daemon entry point in `scripts/keeper-daemon.ts` |
 
-```sh
-pnpm --filter @senyap/web typecheck
-pnpm build
-```
+Individual choices, salts, signing keys and receiving keys are stored in encrypted
+private state. The public ledger holds commitments, one-use nullifiers, encrypted
+aggregate values, visible stake accounting and approved results. A shared group
+registry avoids publishing the selected scout group in Side B stake operations.
+Buyer channels use X25519, HKDF and AES-GCM. Joint key generation uses
+Feldman-verified Shamir shares. All shares were generated on one machine for the
+demo, so this is not independent distributed operation.
 
-### Preprod transaction evidence
+Heavy browser transactions use a **local proof server**. The wallet balances,
+signs and submits. A private witness reaches the prover. The operator and model
+also process readable reasons for screening. These are explicit trust boundaries,
+not claims that every private input stays exclusively inside a browser.
+
+## Preprod deployment
+
+| Item | Value |
+| --- | --- |
+| Network | Midnight Preprod |
+| Senyap, 52 circuits | `a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9` |
+| Demo dUSD contract | `e5ac20e387eb75b7357f19a309e8826e2849f60e1d63208d4514a8f3d716681e` |
+| Installed verifiers | 52 of 52, staged deployment |
+| Stakes in deployment journal | Operator seats 0–2 and committee seats 0–4, 500 dUSD each |
+
+The earlier 42-circuit Preprod deployment remains a historical checkpoint. It is
+not the contract used by the current recorded markets.
+
+### Indexed transaction evidence
 
 <!-- preprod-evidence:start -->
 **157 finalized calls on the Preprod contract** (deploy 1, maintenance update 7, stakeOperator 3, stakeCommittee 5, voteOperatorAction 69, createSideBMarket 7, configureScoutGroup 2, admitScout 11, stake 25, admitBuyer 2, close 3, postPreview 9, buyFlat 2, recordOutcome 1, proveHit 5, claim 5). Full list with hashes: [docs/evidence/PREPROD-EVIDENCE.md](docs/evidence/PREPROD-EVIDENCE.md).
@@ -90,237 +144,173 @@ pnpm build
 | claim | `7a4bfbee6c27585dac8c162934a285aa5c618ea00225732cd3a972db801e09ce` | 3037876 |
 <!-- preprod-evidence:end -->
 
-### The vault and encrypted sync
+## Run locally
 
-Picks, keys and pseudonyms live in a vault encrypted in the browser with a key
-derived from the user's password. The encrypted copy syncs to the operator API
-(`/vault/<address>`), keyed by the wallet's unshielded address, so the same vault
-opens on another device after connecting the same wallet and entering the
-password. One wallet signature (`signData`, verified with `verifySignature` and
-`addressFromKey`) opens a 12-hour sync session. The server stores only
-ciphertext: it cannot read the vault and cannot recover a lost password. The
-server does learn which wallet addresses use a vault and when they change.
-
-### Use the live Preprod deployment
-
-The live workspace and operator registry read the Preprod contract through a
-development proxy that adds a Blockfrost token server-side, so the token never
-reaches the browser.
+Prerequisites are Node.js 24.x, pnpm 10.18.3 and an installed Compact CLI. Pin the
+compiler to **0.31.1**. The repository uses compact-runtime 0.16.0, Midnight.js
+4.1.1 and proof server 8.1.3. Generated contract code, proving keys and public
+frontend assets are excluded from Git and must be recreated after cloning.
 
 ```sh
-node scripts/prepare-product-assets.mjs      # public keys, zkir and deployment ids
-cp apps/web/.env.preprod.example apps/web/.env.local
-BLOCKFROST_PROJECT_ID_PREPROD=<your project id> SENYAP_PREPROD_PROXY=1 pnpm dev
+pnpm install --frozen-lockfile
+compact update 0.31.1
+pnpm contracts:compile:proofs --filter senyap.compact
+pnpm contracts:compile --filter dusd.compact
+node scripts/prepare-product-assets.mjs
+pnpm dev
 ```
 
-Then open <http://127.0.0.1:5174/app/preprod> with a Midnight wallet (Lace or 1AM)
-set to Preprod, and <http://127.0.0.1:5174/operator/registry> for operator seats,
-stakes, approvals and markets read live from the contract. Writing operator
-actions needs the operator relay and seat keys, which stay with the operator.
+Key generation can take several minutes. Do not run the full test suite at the
+same time. A simulator-only compile can clear generated keys for its matched
+contracts, so regenerate Senyap keys before preparing its public proving assets.
+The preparation script verifies their source hash against the evidence manifest
+and copies only public artifacts and deployment metadata.
 
-Compact 0.31.1 compilation and Vitest are available. See
-[local development](docs/local-development.md) for setup, and
-[technical spikes](docs/spikes.md) for test scope and results. The stake-shape spike
-was proved by the local proof server; this does not establish end-to-end network
-execution of the Senyap market. The main contract has 52 generated proving
-keys ([key evidence](docs/evidence/product-proving-keys.json)). Integrated Side B stake and three-hit renewal checks are recorded with their
-source hash in
-[S11 main proofs](docs/evidence/S11-main-proving.json). Earlier stake/verifier-commit
-checks remain labelled with their historical source hash in
-[product proving evidence](docs/evidence/product-proving.json).
+Open <http://127.0.0.1:5174/> for the landing page or
+<http://127.0.0.1:5174/app> for markets. Public market reads use the Midnight
+Preprod RPC without a wallet or a Blockfrost token. Published questions and option
+labels are checked against their onchain commitments. Missing or invalid metadata
+is not replaced with fabricated market data.
 
-The [S5 browser fixture](docs/S5-browser-spike.md) passed on Preprod: one
-counter deployment and one `ping()` through Lace, both `SucceedEntirely`, with
-final counter `1`. [Public receipts](docs/evidence/S5-preprod-counter.json) record
-the contract address and transaction IDs. This establishes browser circuit
-execution, not product-market integration.
+### Transaction and service configuration
 
-## Planned architecture and Midnight integration
+Copy the checked-in public deployment configuration when enabling the wallet
+workspace.
 
-- `apps/web` (present): Vite, React and TypeScript frontend with labelled demo
-  state and a separate, configuration-gated Preprod read/connect workspace.
-- `contracts` (spikes and partial core contracts present): Compact market and
-  unshielded demo-token contracts.
-- `packages/crypto` (local tests present; integration planned): additive ElGamal
-  on JubJub and 3-of-5 threshold decryption (three committee members must cooperate
-  to open a total).
-- `packages/sdk` (partial product helpers present): paid-total retrieval, consent-based
-  contact delivery and encrypted persistent state pass local tests. Browser IndexedDB
-  survives reload and restores signing/decryption keys in an isolated synthetic probe.
-  The `/app/workspace` page creates and unlocks a real encrypted local key profile,
-  downloads encrypted backups and restores them without overwriting an existing workspace.
-  Leaving the page locks it. Scoped user witnesses and a durable operation journal
-  pass local tests. An explicit Lace/Midnight.js transaction adapter has transport-stub
-  tests; product pages have not invoked it against a deployed market.
-- `apps/operator` (screening core present): Veritas duplication/style indicators,
-  privacy rewrites and a configurable Gemini adapter have stubbed-provider tests.
-  A Reclaim verification core pins provider/version, binds the started session and
-  keeps durable replay protection/receipts; its tests stub the SDK boundary. Live
-  Gemini/GitHub and provider-specific qualification remain pending. An encrypted,
-  position-authenticated reason relay, SQLite ciphertext storage and paid-reason
-  SDK retrieval pass local HTTP tests with a stub model; no live service is deployed.
-- `apps/committee` (local node core present): ledger-authorized, encrypted buyer
-  shares pass local tests across five synthetic node keys. Five HTTP nodes and the paid-total SDK pass a local integration test. Trusted
-  finalized snapshot readers and process entry points are present. Product
-  deployment, actual service startup and onchain relays remain pending.
-- `services/keeper` (local planner/driver present): close, bid refunds and overdue
-  selections, overdue disputes, missed side A reports, finalization, cancellation
-  and subsidy returns pass simulator tests. No live transaction adapter or daemon is running.
+```sh
+cp apps/web/.env.preprod.example apps/web/.env.local
+```
 
-The design keeps identities, options and secrets in private state, while the
-public ledger holds commitments, nullifiers (single-use codes), encrypted totals
-and approved results. Some assumptions are verified by local technical spikes;
-network and product integration remain pending. Target network: **Midnight Preprod**.
-Pinned versions: Compact 0.31.1,
-compact-runtime 0.16.0, Midnight.js 4.1.1 and proof server 8.1.3.
+The example binds the recorded Preprod contract to local operator and committee
+endpoints. It does not start those services or provide any private keys. The
+operator API, five committee services, proof server and operator relay used by
+the recording run on the author's machine. A fresh clone cannot impersonate its
+admitted scouts or decrypt signals purchased by another vault.
 
-## Configuration
+The development proxy is enabled only when both `SENYAP_PREPROD_PROXY=1` and a
+server-side `BLOCKFROST_PROJECT_ID_PREPROD` are present in the process environment.
+After configuring those privately, run the frontend with the proxy enabled.
 
-[.env.example](.env.example) lists public defaults and empty credential
-placeholders from SPEC §8.5. The Preprod workspace requires the explicit public
-contract/node/genesis/operator/metadata binding listed there; missing configuration
-keeps live reads disabled. The demo needs none of these credentials. Actual `.env` files
-must remain local. Blockfrost tokens, wallet seeds and committee keys belong only
-on the server and must never be placed in `apps/web` or any `VITE_*` variable.
+```sh
+SENYAP_PREPROD_PROXY=1 pnpm dev
+```
 
-## Judge walkthrough (demo only)
+The proxy adds the Blockfrost credential server-side for indexer history and the
+configured wallet RPC. It also forwards `/__proof` to the local proof server and
+`/__relay` to the operator relay. Do not put a Blockfrost token, seed or committee
+share in a `VITE_*` variable or browser bundle.
 
-1. Open the landing page and inspect the interactive privacy explanation.
-2. Open `/app`, select a role and explore the demo markets and action queues.
-3. Try the available demo stake, purchase, outcome and claim flows. These change
-   demo state only; they are not evidence of contract execution.
+[.env.example](.env.example) lists service variable names without credentials.
+[apps/web/.env.preprod.example](apps/web/.env.preprod.example) contains public
+configuration only. Running the author-controlled services requires separately
+provisioned keys and credentials. This README does not grant access to those
+private keys or make historical market windows available for new transactions.
 
-## Trust model (current and decided)
+## Judge walkthrough
 
-| Role | Today | Decided next (SPEC §16) |
-| --- | --- | --- |
-| Operator | one key: admissions, Side B markets, final revocation step | five registered operators, 3-of-5 approval, 500 dUSD stake, slash for missed deadlines |
-| Decryption committee | 3-of-5 threshold, trusted-dealer key, no stake | Pedersen DKG, 500 dUSD stake, slash for absence or invalid shares, reward for exposing a leaked share |
-| Dispute jury | anonymous commit-reveal, 100 dUSD bond, minority slashed | unchanged |
+1. Start the frontend and inspect the landing explanation of who sees each value.
+2. Browse `/app` without a wallet. Open market #3 and inspect its settled phase,
+   public accounting and recorded activity. Use the committed metadata labels.
+3. Match the recorded `buyFlat`, `recordOutcome`, five `proveHit` and five `claim`
+   actions to the [market #3 journal](docs/evidence/F5-preprod-market-3-journal.json).
+4. Inspect `/operator/registry` for seats, funded stakes and approval rules. Do not
+   interpret five registered seats as five independent operators.
+5. With an operational service configuration and a Preprod wallet, connect and
+   unlock a vault. Scout tasks use `/app/act?market=ID`, owned positions use
+   `/app/activity`, and purchased signals use `/app/purchases`. The old
+   `/app/preprod` route redirects into the current action flow.
+6. Only an admitted account with its own saved private state can take eligible
+   actions. If a recorded market's clock has expired, inspect its receipts and
+   the video instead of treating it as an always-open faucet demonstration.
 
-Gated operator actions need three of five operator approvals bound to the exact
-parameters, and operators and committee members stake 500 dUSD.
+Vault exports and sync are encrypted. Losing the password cannot be repaired by
+the operator. Pending or uncertain transactions stay blocked until their recorded
+receipt is reconciled, with no automatic resubmission.
 
-**Today Senyap is centralized in one person.** There are no other operators or
-committee members yet. The project author generated every operator seat key, ran
-the committee key generation in one process (so one machine saw all five shares),
-pays every stake from one wallet and runs the operator relay and all five
-committee members. The 3-of-5 rules are enforced on chain, but every seat is held
-by the same person, so they do not yet protect anyone from that person. Moving to
-independent seat holders needs each member to create their own seat key and DKG
-dealing on their own machine, then a redeploy (the seat commitments are sealed). A wrong decryption share is rejected (each share carries a DLEQ proof checked
-off chain) but not slashed: the contract does not yet take member-signed shares,
-so the 100% wrong-share penalty in SPEC §16 is not enforced on chain. Collusion that only leaks a final total, without handing over a key share,
-cannot be proven on chain.
+## QA and reproducibility
 
-## Preprod deployment (18 Oct 2026)
+```sh
+pnpm contracts:compile
+pnpm typecheck
+pnpm test
+pnpm --filter @senyap/web typecheck
+pnpm build
+```
 
-| Item | Value |
-| --- | --- |
-| Senyap contract (52 circuits) | `a79019329f23d638ea7c690bf4fc8c9da6e60b6f7b3951cbf35ead11b8267ff9` |
-| Demo dUSD token contract | `e5ac20e387eb75b7357f19a309e8826e2849f60e1d63208d4514a8f3d716681e` |
-| Verifiers | 52 of 52 installed in six staged maintenance updates |
-| Maintenance authority | handed to an operator key held outside the browser |
-| Stakes | operators 0 to 2 and committee members 0 to 4, 500 dUSD each |
+Run this simulator/CI sequence before regenerating the public proving assets when
+both are needed. CI compilation uses `--skip-zk`. A green run is not proof that
+all 52 circuits were independently proved or cryptographically audited.
 
-All eighteen transactions (token deploy, mint, Senyap deploy, six verifier batches,
-authority handoff, eight stakes) finalized on Preprod
-([journal](docs/evidence/P9.7-preprod-deploy-journal.json)). They were signed and
-paid with the 1AM browser wallet. One wallet paid every stake, so this shows the
-mechanism, not independent operators. Five committee members run locally against
-this deployment with their DKG shares and check the on-chain committee key at start.
+Tests cover valid flows and rejection/recovery behavior, including unpaid access,
+forged shares, invalid membership, wrong payout witnesses, low-participation
+refunds, disputed outcomes, credential reuse, subsidy conservation, unavailable
+reason screening and uncertain wallet responses. Five-node HTTP tests tolerate
+two unavailable committee nodes and preserve purchased access after recovery.
+See [focused verification](docs/evidence/demo-video-qa-review-2026-10-19.json).
 
-The earlier 42-circuit deployment (`c8ab22d9…231b`, before the 18 Oct design
-decisions) stays on chain ([journal](docs/evidence/P8.1-preprod-deploy-journal.json)).
+Historical proof files retain their own source hashes. In particular, the local
+S11 stake/renewal proof uses source `4f039fa6…`, the full r10 A/B cycle uses
+`4f1b3390…`, and the 52-circuit short local cycle uses `edb4251f…`. Their evidence
+must not be silently attributed to a different contract version. The short cycle
+ends in cancellation and refund, not a second complete settled A/B cycle.
 
-The first Side B market (#1) was created on this deployment through the operator
-relay: three operator votes, then `createSideBMarket`, four finalized transactions
-([journal](docs/evidence/P9.9-preprod-market-journal.json)). The relay
-(`scripts/preprod-operator-relay.ts`) proves operator calls with the seat keys
-server-side; the browser wallet only pays and submits. `/operator/registry` reads
-seats, stakes, approvals and markets live from Preprod.
+## Trust model and current limits
 
-Market #2 followed with a daily scout group, five admitted scouts (three operator
-approvals each), five 50 dUSD scout stakes and an admitted buyer
-([journal](docs/evidence/F5-preprod-market-2-journal.json)). Its question commits to
-the SDK metadata hash, so `/app/preprod` can verify the question text served by
-the operator API. Market #1 committed a plain SHA-256 of the question, so its
-text cannot be verified in the app.
+- **Centralized today.** Dien holds every operator key and committee share and
+  runs all five committee processes and the relay. The onchain threshold rules
+  do not protect users from that single controller. Independent seat holders
+  must create their own keys and shares before a corresponding redeployment.
+- **Visible funding.** dUSD stakes are unshielded. Amounts and funding wallets
+  remain public. Timing and small-cohort correlations are not eliminated.
+- **Committee access.** Three colluding committee members can reconstruct totals
+  and inspect auction bids. The public preview is a histogram, but its computation
+  still trusts the committee. DLEQ checks share consistency, not truth of outcomes.
+- **Reason screening.** The operator and Gemini see readable reasons. Redaction
+  and AI/duplication indicators are uncertain. A failed screen withholds raw text,
+  and model scores cannot authorize a financial penalty.
+- **Penalty gap.** Invalid shares are rejected offchain, but the proposed 100%
+  wrong-share slash is not enforced onchain. A leaked key share can be proven,
+  while collusion leaking only a final total cannot be proven that way.
+- **Credentials.** The live Reclaim proof establishes a logged-in GitHub account
+  with the configured provider. It does not establish username, contribution
+  count or complete resistance to duplicate accounts.
+- **Demo actors.** Market #3 uses synthetic scouts and buyer identities. The
+  owner also made a personal browser stake and purchase. These actions do not
+  establish independent customers or willingness to pay. All tokens are synthetic.
+- **Operational findings.** The operator vote timestamp window is about 60 seconds
+  and can fail with slow wallet balancing. Market #5's 15-minute outcome window
+  expired before purchase. Later plans use longer windows. The sealed operator
+  window needs a contract redeployment to change.
+- **Hosting.** The recording's offchain services are local. A public RPC read
+  does not make the operator, committee, proof server or admission service public.
+- **Validation.** No independent security audit, customer pilot or measured
+  recommendation quality is claimed. Outcome evidence initially comes from a
+  buyer/operator report and can be challenged under the contract rules.
 
-**Finding from the Preprod run: the 60-second vote window is too tight.**
-`voteOperatorAction` only accepts a vote whose timestamp is at most about 60 s older
-than the including block, and the prover rejects future timestamps. When the 1AM
-wallet took about a minute to balance a transaction (its DUST fee sponsor appeared
-to be offline), every vote failed (node error 1010 / custom error 104, or
-`FailFallible`) however quickly it was approved. A real operator on a slow wallet
-would miss votes and risk the missed-vote slash. Next version: a much longer vote
-window (minutes, not seconds) or a timestamp taken from the block itself. The
-window is sealed in the current deployment, so this needs a redeploy.
+## Economics and next validation
 
-A live Reclaim GitHub proof, bound to this contract, a session nonce and a one-time
-session, passed attestor and TEE verification
-([evidence](docs/evidence/P6.1-reclaim-live-preprod.json)).
+Buyer payments allocate 85% to qualifying scout rewards and 15% to the platform.
+Up to five percentage points of Side A buyer revenue can support Side B rewards,
+without taking a second platform cut from the subsidy. Refundable principal is
+accounted separately from these rewards.
 
-**Known limits.** The Preprod markets use synthetic scouts and a synthetic buyer
-held by the operator relay, and one person runs every operator and committee seat
-(see the trust model above). Market #2's close, preview, purchase, outcome, hits
-and claims follow the contract clock and are recorded in its journal as they
-happen; the complete settle-and-claim cycle is otherwise proven on a local network.
-The app has no demo data; it shows only what is on the Preprod contract. The verified GitHub provider only extracts
-a profile language field, so the proof shows a logged-in GitHub account, not a
-username or contribution count. A stricter policy (proven username plus a public
-yearly contribution threshold) is implemented and tested but awaits a provider
-that extracts the username. All tokens are synthetic. Draft
-[deck content](docs/submission/deck-outline.md),
-[demo storyboard](docs/submission/demo-storyboard.md) and
-[Wave 2 progress text](docs/submission/wave-2-progress-draft.md) are available for
-review.
+The proposed pilot recruits opt-in builders, ecosystem grant/BD buyers and
+independent scouts. It tests willingness to pay, whether the signals change a
+real decision, outcome quality and repeat purchases. This is a plan, not a
+completed pilot or commitment from a partner.
 
-## Privacy limits in the planned design
+## Prior work and license
 
-**Side B group-reference leak corrected locally:** the earlier contract disclosed
-the scout ecosystem group and therefore revealed its selected option. Approved
-[S11](docs/group-privacy-spike-proposal.md) replaces that reference with a shared
-root registry/private group proof and encrypts the group inside a 72-byte
-membership card. Integrated tests inspect public stake operations for both
-ecosystems, reject forged metadata and revoked roots, and recover cards with three
-shares. Main-contract stake and three-hit renewal passed local /check and /prove;
-all group/leaf/root transcript checks passed ([evidence](docs/evidence/S11-main-proving.json)).
-Renewal target enrollment and credential count remain public. This does not prove
-network privacy or eliminate funding-wallet, timing or small-cohort correlations.
-
-
-Unshielded demo stakes expose amounts and funding wallets. Committee members are
-trusted not to collude; all five demo nodes are planned to run on one team machine,
-which would hold every key share. Demo key generation uses a trusted dealer. The
-committee can see totals for preview histograms and default outcomes, and bids
-when resolving auctions. The operator reads plaintext reasons for screening.
-Objective outcomes are initially recorded by a buyer or operator. There are no
-customers, pilots or demonstrated demand yet.
-
-## Prior work and what is new
-
-Bisik was first built on Solana for the Colosseum Crypto World's Fair hackathon
-and submitted on 13 October 2026. That version used Arcium MPC, Semaphore with a
-Groth16 verifier, and Reclaim zkTLS. Its code is not part of this repository.
-The product idea and market mechanism carry over: anonymous insiders back options
-with refundable stakes, buyers pay for aggregate signals, and payouts follow
-outcomes.
-
-The Senyap frontend and technical spikes were written for the Midnight adaptation
-during Wave 2. The official bboard verification fixture retains its Apache-2.0
-attribution. Senyap product contracts and services were written from scratch for Midnight.
-Encrypted tallies, anonymous tier groups/buyers, settlement, reputation, hoax
-disputes and auctions have local circuit/simulator coverage; consent-based contact
-delivery has local cryptographic tests. This is implemented local work, with
-selected proof-server checks, rather than a completed deployed product. Live
-service integration and the full Preprod market walkthrough remain unfinished.
-
-## Development and license
-
-Agent rules are in [docs/agents.md](docs/agents.md); the design system is in
-[DESIGN.md](DESIGN.md). Internal owner notes stay outside Git history.
+Bisik was built on Solana for the Colosseum Crypto World's Fair and submitted on
+13 October 2026. Its market idea carries over. Its Solana, Arcium and Semaphore
+code is not part of this repository. Senyap's Midnight contracts, cryptography,
+services, SDK and interface were written for Wave 2. The official bboard fixture
+retains its upstream Apache-2.0 attribution.
 
 Senyap source is licensed under [Apache-2.0](LICENSE). Dependencies retain their
-own licenses. The canonical license text is published by the
-[Apache Software Foundation](https://www.apache.org/licenses/LICENSE-2.0.txt).
+own licenses. [DESIGN.md](DESIGN.md) defines the product's visual system.
+[docs/agents.md](docs/agents.md) contains public contributor rules.
+
+Some design/specification notes are historical checkpoints. This README's status
+summary and source-qualified receipts distinguish what was demonstrated on
+Preprod from local tests, historical proofs and future production work.

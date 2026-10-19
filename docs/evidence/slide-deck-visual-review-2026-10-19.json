@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-19",
+  "edition": "Illustrated v4 with two-sided problem urgency",
+  "pages": 18,
+  "presentationButtons": 0,
+  "explanatoryCards": 0,
+  "collisions": [],
+  "clipped": [],
+  "slides": [
+    {
+      "slide": 1,
+      "visibleWords": 30,
+      "icons": 5
+    },
+    {
+      "slide": 2,
+      "visibleWords": 82,
+      "icons": 4
+    },
+    {
+      "slide": 3,
+      "visibleWords": 87,
+      "icons": 4
+    },
+    {
+      "slide": 4,
+      "visibleWords": 48,
+      "icons": 6
+    },
+    {
+      "slide": 5,
+      "visibleWords": 61,
+      "icons": 5
+    },
+    {
+      "slide": 6,
+      "visibleWords": 67,
+      "icons": 5
+    },
+    {
+      "slide": 7,
+      "visibleWords": 29,
+      "icons": 2
+    },
+    {
+      "slide": 8,
+      "visibleWords": 68,
+      "icons": 7
+    },
+    {
+      "slide": 9,
+      "visibleWords": 70,
+      "icons": 4
+    },
+    {
+      "slide": 10,
+      "visibleWords": 57,
+      "icons": 7
+    },
+    {
+      "slide": 11,
+      "visibleWords": 45,
+      "icons": 11
+    },
+    {
+      "slide": 12,
+      "visibleWords": 66,
+      "icons": 9
+    },
+    {
+      "slide": 13,
+      "visibleWords": 64,
+      "icons": 8
+    },
+    {
+      "slide": 14,
+      "visibleWords": 53,
+      "icons": 4
+    },
+    {
+      "slide": 15,
+      "visibleWords": 53,
+      "icons": 4
+    },
+    {
+      "slide": 16,
+      "visibleWords": 73,
+      "icons": 3
+    },
+    {
+      "slide": 17,
+      "visibleWords": 28,
+      "icons": 3
+    },
+    {
+      "slide": 18,
+      "visibleWords": 58,
+      "icons": 3
+    }
+  ],
+  "method": "Browser font-ready SVG text bounds and pairwise label collision checks. Contact sheet and detailed slide previews also reviewed.",
+  "limitations": [
+    "Checks cover the local source and PDF, not a Canva conversion.",
+    "Icons are custom semantic symbols, not official partner logos."
+  ],
+  "pdfPages": 18,
+  "pdfSha256": "bf3bf8567daa22bf6618c1e96759a1c11a7820a6eac5df3917e58cea96028e4a",
+  "htmlSha256": "57af44cd239996111860c3992cec4973deb240190b384fc8746ccfb56ea01c38"
+}
